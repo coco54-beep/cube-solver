@@ -9,12 +9,29 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
+from kivy.uix.scrollview import ScrollView
 
 from cube.cube3 import Cube3
 from cube.cube4 import Cube4
 from demo.cases import CASE_3X3, CASE_4X4, build_before
 from renderer.cube_view import CubeView
 from renderer.turn import decompose_move
+
+
+def _autofit(lbl, pad=1):
+    """让 Label 随文本自动换行并自动增高，杜绝文字溢出/重叠。
+
+    宽度 -> text_size 换行；texture 高度 -> Label 高度。保证文字永远不超出
+    自身盒子（Kivy 不裁剪，固定高度 + 长文本 wrap 会绘制到相邻控件上）。
+    """
+    lbl.size_hint_y = None
+    lbl.bind(width=lambda w, s: setattr(w, "text_size", (s, None)) if s else None)
+
+    def _h(w, tex):
+        if tex[0]:
+            w.height = tex[1] + pad
+
+    lbl.bind(texture_size=_h)
 
 
 class DemoScreen(Screen):
@@ -46,27 +63,30 @@ class DemoScreen(Screen):
         root.add_widget(top)
 
         # 3D 视图
-        self.view = CubeView(size_hint_y=0.52)
+        self.view = CubeView(size_hint_y=0.5)
         root.add_widget(self.view)
 
-        # 信息区
-        info = BoxLayout(orientation="vertical", size_hint_y=None, height=196, spacing=2)
+        # 信息区：文字随内容自动增高，放入 ScrollView，长文本可滚动而不重叠。
+        sv = ScrollView(size_hint_y=0.5)
+        info = BoxLayout(orientation="vertical", size_hint_y=None, spacing=3,
+                         padding=[2, 0, 2, 0])
+        info.bind(minimum_height=info.setter("height"))
         self.lbl_title = Label(text="", font_size="17sp", bold=True, halign="left",
-                               valign="middle", size_hint_y=None, height=30)
+                               valign="middle", color=(0.95, 0.97, 1, 1))
         self.lbl_desc = Label(text="", font_size="13sp", halign="left", valign="top",
-                              color=(0.78, 0.82, 0.9, 1), size_hint_y=None, height=64)
+                              color=(0.78, 0.82, 0.9, 1))
         self.lbl_case = Label(text="", font_size="15sp", halign="left", valign="middle",
-                              color=(0.9, 0.93, 0.98, 1), size_hint_y=None, height=24)
-        self.lbl_text = Label(text="", font_size="18sp", halign="center", valign="middle",
-                              bold=True, size_hint_y=None, height=40)
-        self.lbl_tip = Label(text="", font_size="14sp", halign="center", valign="middle",
-                             color=(0.8, 0.84, 0.9, 1), size_hint_y=None, height=28)
-        # text_size 跟随 label 宽度，保证多行文本正常换行（避免竖排/裁剪）。
-        for w in (self.lbl_desc, self.lbl_text, self.lbl_tip):
-            w.bind(size=lambda ins, s: setattr(ins, "text_size", (s[0], None)))
-        for w in (self.lbl_title, self.lbl_desc, self.lbl_case, self.lbl_text, self.lbl_tip):
+                              color=(0.9, 0.93, 0.98, 1))
+        self.lbl_text = Label(text="", font_size="18sp", halign="center",
+                              valign="middle", bold=True)
+        self.lbl_tip = Label(text="", font_size="14sp", halign="center",
+                             valign="middle", color=(0.8, 0.84, 0.9, 1))
+        for w in (self.lbl_title, self.lbl_desc, self.lbl_case,
+                  self.lbl_text, self.lbl_tip):
+            _autofit(w)
             info.add_widget(w)
-        root.add_widget(info)
+        sv.add_widget(info)
+        root.add_widget(sv)
 
         # 控制区
         ctl = BoxLayout(size_hint_y=None, height=52, spacing=6)

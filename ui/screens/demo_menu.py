@@ -24,6 +24,18 @@ def _num(n):
     return ["一", "二", "三", "四", "五", "六", "七", "八", "九"][n]
 
 
+def _autofit(lbl, pad=1):
+    """文字自动换行并自动增高，防止长文本超出盒子与相邻控件重叠。"""
+    lbl.size_hint_y = None
+    lbl.bind(width=lambda w, s: setattr(w, "text_size", (s, None)) if s else None)
+
+    def _h(w, tex):
+        if tex[0]:
+            w.height = tex[1] + pad
+
+    lbl.bind(texture_size=_h)
+
+
 def _thumbs_dir():
     d = os.path.join(_app().user_data_dir, "thumbs")
     os.makedirs(d, exist_ok=True)
@@ -92,7 +104,8 @@ class DemoMenuScreen(Screen):
         for si, step in enumerate(steps):
             head = Label(text=f"第{_num(si)}步 · {step['title']}", font_size="16sp",
                          bold=True, halign="left", valign="middle",
-                         size_hint_y=None, height=30, color=(0.95, 0.97, 1, 1))
+                         color=(0.95, 0.97, 1, 1))
+            _autofit(head)
             self.list.add_widget(head)
             for ci, case in enumerate(step["cases"]):
                 self.list.add_widget(self._row(si, ci, case))
@@ -107,17 +120,25 @@ class DemoMenuScreen(Screen):
         else:
             img = Label(text="无图", size_hint=(None, None), size=(120, 120))
         row.add_widget(img)
-        # 文字按钮
-        info = BoxLayout(orientation="vertical", size_hint_x=1, spacing=2)
-        name = Label(text=case["name"], font_size="16sp", bold=True, halign="left",
-                     valign="middle", size_hint_y=None, height=34)
-        formula = Label(text=case["text"], font_size="13sp", halign="left", valign="middle",
-                        color=(0.8, 0.84, 0.9, 1), size_hint_y=None, height=30)
-        tip = Label(text=case["tip"], font_size="13sp", halign="left", valign="middle",
-                    color=(0.7, 0.74, 0.82, 1), size_hint_y=None, height=30)
-        info.add_widget(name)
-        info.add_widget(formula)
-        info.add_widget(tip)
+        # 文字列：自动换行 + 自动增高，行高随内容联动，杜绝重叠
+        info = BoxLayout(orientation="vertical", spacing=2)
+        name = Label(text=case["name"], font_size="16sp", bold=True,
+                     halign="left", valign="middle")
+        formula = Label(text=case["text"], font_size="13sp", halign="left",
+                        valign="middle", color=(0.8, 0.84, 0.9, 1))
+        tip = Label(text=case["tip"], font_size="13sp", halign="left",
+                    valign="middle", color=(0.7, 0.74, 0.82, 1))
+        for w in (name, formula, tip):
+            _autofit(w)
+            info.add_widget(w)
+
+        def _sync(*_a):
+            info.height = name.height + formula.height + tip.height + 2 * 2
+            row.height = max(120, info.height + 8)
+
+        for w in (name, formula, tip):
+            w.bind(texture_size=_sync)
+        _sync()
         # 整行可点击
         row.bind(on_touch_down=lambda inst, touch, s=si, c=ci: self._row_touch(
             inst, touch, s, c))

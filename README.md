@@ -11,7 +11,6 @@
 <div align="center">
   <img src="assets/screenshots/home.png" width="190" alt="首页" />
   &nbsp;&nbsp;<img src="assets/screenshots/input_4x4.png" width="190" alt="4x4 录入" />
-  &nbsp;&nbsp;<img src="assets/screenshots/input_3x3.png" width="190" alt="3x3 录入" />
   &nbsp;&nbsp;<img src="assets/screenshots/playback.png" width="190" alt="3D 回放" />
 </div>
 

@@ -8,6 +8,13 @@
 ![License](https://img.shields.io/badge/License-GPL--3.0-brightgreen?style=flat-square)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Android-blueviolet?style=flat-square)
 
+<div align="center">
+  <img src="assets/screenshots/home.png" width="190" alt="首页" />
+  &nbsp;&nbsp;<img src="assets/screenshots/input_4x4.png" width="190" alt="4x4 录入" />
+  &nbsp;&nbsp;<img src="assets/screenshots/input_3x3.png" width="190" alt="3x3 录入" />
+  &nbsp;&nbsp;<img src="assets/screenshots/playback.png" width="190" alt="3D 回放" />
+</div>
+
 ---
 
 ## ✨ 亮点
@@ -107,7 +114,7 @@ python -m pytest
 
 欢迎提 issue / PR。接下来值得做的方向：
 
-- [ ] 恢复 3D 界面的截图并更新演示图
+- [x] 补充新版界面截图（首页 / 4×4 录入 / 3×3 录入 / 3D 回放）
 - [ ] 用 `git-lfs` 收纳超大预计算表，让仓库开箱可跑 4 阶
 - [ ] 新增 N 阶（≥5）支持
 - [ ] 加一个有声音的引导演示视频

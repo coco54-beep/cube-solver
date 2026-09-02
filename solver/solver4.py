@@ -74,9 +74,6 @@ _PAIR_TAIL_WIDTH = 8
 _PAIR_TAIL_NODES = 500
 _PAIR_TAIL_MATCHED = 7
 
-# 是否在尾段 beam 内启用“保中心双配宏”（一次净配 >=2 根）。默认关闭。
-_PAIR_DOUBLE_ENABLED = False
-
 # 只有候选解显著优于默认解（压缩步数差 >= 该值）才切换。
 _SELECT_MARGIN = 2
 
@@ -99,7 +96,6 @@ def _select_reduction(cube, cancel_event=None):
             tail_width=(_PAIR_TAIL_WIDTH if tail else 0),
             tail_max_nodes=_PAIR_TAIL_NODES,
             tail_matched=_PAIR_TAIL_MATCHED,
-            tail_double=(_PAIR_DOUBLE_ENABLED and tail),
         )
         c3 = c2.clone()
         c3.apply_moves(edge_moves)

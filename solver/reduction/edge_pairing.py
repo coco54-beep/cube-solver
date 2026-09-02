@@ -264,132 +264,13 @@ def _candidate_swaps(cube, log):
     return out
 
 
-# ---------------------------------------------------------------------------
-# 双配宏（保中心、一次净配 >=2 根棱）。默认关闭；仅在 _pair_beam_finish 内启用。
-# ---------------------------------------------------------------------------
-_DOUBLE_ENABLED = False       # 模块级默认关闭
-_DOUBLE_UNMATCHED_MIN = 3     # 只在剩余未配对槽 [3,6] 时生成双配候选
-_DOUBLE_UNMATCHED_MAX = 6
-_DOUBLE_FIRST_N = 3           # 第一交换取前 N（按单配净长升序）
-_DOUBLE_SECOND_N = 3          # 中间态再取前 M
-_DOUBLE_ACTION_LIMIT = 6      # 每节点最多保留的双配动作数
-_SINGLE_CAP = 12              # 启用双配时每节点单配动作上限（控预算）
-_DOUBLE_GEN_BUDGET = 24       # 每次 beam 内双配生成（中间态枚举）总预算
-
-# 调试统计（默认只累加、不输出；pairing_stats() 可取用）。
-_PAIR_DBG = {
-    "double_generate": 0,     # 生成的双配候选数（含非法）
-    "double_valid": 0,        # 通过校验数
-    "double_used": 0,         # 双配动作实际入选（被某节点展开）次数
-    "double_saved": 0,        # 双配相对其两条单配净长之和的节省
-    "gen_budget_hit": 0,      # 双配生成预算耗尽次数
-    "beam_nodes": 0,          # beam 累计展开节点数
-    "beam_budget_hit": 0,     # beam 节点预算耗尽次数
-}
-
-
-def pairing_stats() -> dict:
-    """返回配棱调试统计副本（默认不输出，仅按需读取）。"""
-    return dict(_PAIR_DBG)
-
-
-def _center_sig(cube):
-    """中心块状态签名（1-sticker 位置 -> 颜色）。用于“执行后中心完全一致”校验。"""
-    return frozenset(
-        (pos, next(iter(c.stickers.values())))
-        for pos, c in cube.cubies.items() if len(c.stickers) == 1
-    )
-
-
-def _matched_color_sets(cube):
-    """当前已配对组的颜色集集合。
-
-    组以“两翼共有的颜色集”为标识：整组可被移动到其它槽（仍是一组），
-    拆散则表现为该颜色集两翼不再同槽。
-    """
-    by = defaultdict(list)
-    for p, ids in _wing_id(cube).items():
-        by[_slot_of(p)].append(ids)
-    return frozenset(
-        ids[0] for ids in by.values() if len(ids) == 2 and ids[0] == ids[1]
-    )
-
-
-def _protected_intact(before_sets, cube):
-    """before 的已配对组在 cube 中是否仍各成一配对组（允许整组移动）。"""
-    wa = _wing_id(cube)
-    for colset in before_sets:
-        loc = None
-        for p, i in wa.items():
-            if i == colset:
-                sl = _slot_of(p)
-                if loc is None:
-                    loc = sl
-                elif loc != sl:
-                    return False
-    return True
-
-
-def _single_seq(setup) -> List[str]:
-    """单个交换宏的完整动作序列：setup + P + 逆 setup。"""
-    return list(setup) + list(P) + [_inv_of(m) for m in reversed(setup)]
-
-
-def _double_pair_actions(cube, log, singles, limit=_DOUBLE_ACTION_LIMIT):
-    """由前 N 个单交换宏组合出双配候选（一次动作净配 >=2 根、保中心、不拆保护组）。
-
-    singles: _candidate_swaps(cube, log) 的结果（按净长升序）。
-    对每个候选在“原状态副本”上真实模拟校验：
-      - 中心签名完全一致；
-      - matched 净增 >= 2；
-      - 动作前的已配对组（受保护）不被拆散（允许整组移动）；
-      - 按最终翼排列去重；按真实压缩净长升序截断 limit。
-    返回 [(net_len, moves_compressed), ...]。只读输入。
-    """
-    before_sets = _matched_color_sets(cube)
-    csig = _center_sig(cube)
-    m_before = matched_slots(cube)
-    results = []
-    seen_effect = set()
-    first_n = min(_DOUBLE_FIRST_N, len(singles))
-    for cand in singles[:first_n]:
-        seq1 = _single_seq(cand[2])
-        s1 = cube.clone()
-        _apply(s1, seq1)
-        try_second = _candidate_swaps(s1, log)
-        for c2 in try_second[:_DOUBLE_SECOND_N]:
-            seq2 = _single_seq(c2[2])
-            full = _compress_log(seq1 + seq2)
-            v = cube.clone()
-            _apply(v, full)
-            if _center_sig(v) != csig:
-                continue
-            if matched_slots(v) < m_before + 2:
-                continue
-            if not _protected_intact(before_sets, v):
-                continue
-            effect = tuple(sorted(_wing_id(v).items()))
-            if effect in seen_effect:
-                continue
-            seen_effect.add(effect)
-            results.append((len(_compress_log(log + full)), full))
-    results.sort(key=lambda t: (t[0], t[1]))
-    return results[:limit]
-
-
-def _pair_beam_finish(cube, log, width=8, max_nodes=600, cancel_event=None,
-                      double_enabled=_DOUBLE_ENABLED):
+def _pair_beam_finish(cube, log, width=8, max_nodes=600, cancel_event=None):
     """受限 beam：从当前状态把剩余配棱搜到全部配对。
 
-    每层展开单配交换（double_enabled 时每节点还生成可选的双配动作），
-    按拼入当前日志后的真实压缩净长度排序保留 width 条（去重键含翼排列与日志尾；
-    同一键只保留长度最短者）。一旦某层出现完成节点即返回该层最短日志；
-    超出 max_nodes 预算仍未完成则返回 None（调用方回退贪心）。只读输入。
+    每层展开全部候选交换并按压缩长度保留 width 条（用翼排列 + 日志尾去重）。
+    一旦某层出现完成节点即返回该层最短日志；超出 max_nodes 预算仍未完成则
+    返回 None（调用方回退贪心）。只读输入，不修改 cube/log。
     """
-    unmatched = 12 - matched_slots(cube)
-    gen_double = double_enabled and (_DOUBLE_UNMATCHED_MIN <= unmatched <= _DOUBLE_UNMATCHED_MAX)
-    single_cap = _SINGLE_CAP if gen_double else None
-    gen_budget = _DOUBLE_GEN_BUDGET if gen_double else 0
     beam = [(cube.clone(), list(log))]
     expanded = 0
     while beam:
@@ -403,43 +284,20 @@ def _pair_beam_finish(cube, log, width=8, max_nodes=600, cancel_event=None,
         for _c, lg in beam:
             if edges_paired(_c):
                 continue
-            singles = _candidate_swaps(_c, lg)
-            actions = []  # (net_len, moves, is_double)
-            for cand in singles:
-                if single_cap is not None and len(actions) >= single_cap:
-                    break
-                actions.append((cand[0], _single_seq(cand[2]), False))
-            if gen_double:
-                if gen_budget > 0 and singles:
-                    gen_budget -= 1
-                    _PAIR_DBG["double_generate"] += len(singles[:_DOUBLE_FIRST_N])
-                    doubles = _double_pair_actions(
-                        _c, lg, singles, limit=_DOUBLE_ACTION_LIMIT
-                    )
-                    _PAIR_DBG["double_valid"] += len(doubles)
-                    for d_net, d_moves in doubles:
-                        actions.append((d_net, d_moves, True))
-                    if gen_budget == 0:
-                        _PAIR_DBG["gen_budget_hit"] += 1
-            actions.sort(key=lambda t: (t[0], len(t[1])))
-            for net_len, moves, is_double in actions:
+            for cand in _candidate_swaps(_c, lg):
                 expanded += 1
                 if expanded > max_nodes:
-                    _PAIR_DBG["beam_budget_hit"] += 1
                     return None
-                if is_double:
-                    _PAIR_DBG["double_used"] += 1
                 nc = _c.clone()
-                _apply(nc, moves)
-                nl = _compress_log(list(lg) + moves)
-                _PAIR_DBG["beam_nodes"] += 1
+                nl = list(lg)
+                _swap_positions(nc, cand[3], cand[4], nl, setup=cand[2])
+                nl[:] = _compress_log(nl)
                 nxt.append((nc, nl))
         nxt.sort(key=lambda t: len(t[1]))
         beam = []
         seen = set()
         for nc, nl in nxt:
-            key = (tuple(sorted(_wing_id(nc).items())), matched_slots(nc),
-                   tuple(nl[-2:]))
+            key = (tuple(sorted(_wing_id(nc).items())), tuple(nl[-2:]))
             if key in seen:
                 continue
             seen.add(key)
@@ -457,7 +315,6 @@ def pair_edges(
     tail_width: int = 0,
     tail_max_nodes: int = 600,
     tail_matched: int = 7,
-    tail_double: bool = False,
 ) -> List[str]:
     """配对 12 个棱组，返回所用的动作列表（不修改输入 cube）。
 
@@ -466,9 +323,7 @@ def pair_edges(
     progress_callback（每完成一步配对回调 dict，含当前已配对槽数）。
 
     当 tail_width>0 且已配对槽数 >= tail_matched 时，改用受限 beam 完成尾段
-    （贪心易在最后几根局部最优），预算不足自动回退贪心。tail_double=True 时
-    beam 内额外生成“双配宏”候选（保中心、不拆保护组、一次净配 >=2 根）。
-    两者默认关闭，行为与历史版本一致。
+    （贪心易在最后几根局部最优），预算不足自动回退贪心。默认关闭，行为不变。
     """
     work = cube.clone()
     log: List[str] = []
@@ -484,7 +339,7 @@ def pair_edges(
             beam_tried = True
             bl = _pair_beam_finish(
                 work, log, width=tail_width, max_nodes=tail_max_nodes,
-                cancel_event=cancel_event, double_enabled=tail_double,
+                cancel_event=cancel_event,
             )
             if bl is not None:
                 log = bl

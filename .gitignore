@@ -1,0 +1,36 @@
+# --- Android / buildozer build output ---
+.buildozer/
+bin/
+build/
+*.apk
+*.aab
+gradle-*.zip
+.gradle/
+
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# --- Logs & misc build artifacts ---
+*.log
+*.done
+desktop_stdout.log
+desktop_stderr.log
+desktop_err.log
+
+# --- IDE / editor ---
+.idea/
+.vscode/
+*.swp
+
+# --- Generated large runtime tables (over GitHub 100MB limit) ---
+/p4_table.bin
+
+# --- Misc local scratch ---
+/_shots/
+/0002.input_geom3

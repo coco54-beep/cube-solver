@@ -13,6 +13,7 @@
   &nbsp;&nbsp;<img src="assets/screenshots/input_4x4.png" width="190" alt="4x4 录入" />
   &nbsp;&nbsp;<img src="assets/screenshots/input_3x3.png" width="190" alt="3x3 录入" />
   &nbsp;&nbsp;<img src="assets/screenshots/playback.png" width="190" alt="3D 回放" />
+  &nbsp;&nbsp;<img src="assets/screenshots/playback_stepping.png" width="190" alt="回放进行中" />
 </div>
 
 ---

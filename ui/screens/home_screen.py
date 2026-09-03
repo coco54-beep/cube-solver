@@ -42,13 +42,16 @@ class HomeScreen(Screen):
 
         # ---- 操作区 ----
         actions = BoxLayout(orientation="vertical", spacing=10,
-                            size_hint=(1.0, None), height=178)
+                            size_hint=(1.0, None), height=238)
+        zong = Button(text="粽子魔方 · 四角锥", font_size="17sp")
+        zong.bind(on_release=lambda *a: self.pick(3, "mastermorphix"))
         demo3 = Button(text="3阶演示 · 七步法", font_size="17sp")
         demo3.bind(on_release=lambda *a: self.start_demo(3))
         demo4 = Button(text="4阶演示 · 降阶法", font_size="17sp")
         demo4.bind(on_release=lambda *a: self.start_demo(4))
         help_btn = Button(text="使用说明", font_size="17sp")
         help_btn.bind(on_release=lambda *a: self.show_help())
+        actions.add_widget(zong)
         actions.add_widget(demo3)
         actions.add_widget(demo4)
         actions.add_widget(help_btn)
@@ -102,9 +105,9 @@ class HomeScreen(Screen):
             return True
         return False
 
-    def pick(self, n: int):
+    def pick(self, n: int, puzzle: str = "cube"):
         app = _app()
-        app.new_cube(n)
+        app.new_cube(n, puzzle)
         self.manager.current = "InputScreen"
 
     def start_demo(self, n):

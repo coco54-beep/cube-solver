@@ -54,6 +54,23 @@ _DARK = (0.08, 0.08, 0.08, 1.0)
 # 教学演示中非聚焦块的灰色（已改为淡化，保留可读色相）
 _GRAY = (0.42, 0.42, 0.44, 1.0)
 
+# 粽子/四角锥外形：把立方体外表面顶点按高度收敛到顶部尖点。
+# S = 立方体外观半长（maxc + HALF）。apex 位于 +Y 顶端。
+_PYRAMID_ROOT = "mastermorphix"
+
+
+def _pyramid_vertex(x, y, z, s):
+    """把一个立方体表面顶点映射到四角锥外形。
+
+    底部(y=-s)保持最大截面，越往上(x,z)越向中心收拢，到顶部(y=+s)收敛为尖点。
+    s = 立方体外观半长。返回 (x, y, z)。
+    """
+    if s <= 0:
+        return (x, y, z)
+    f = (s - y) / (2.0 * s)
+    f = max(f, 0.03)  # 避免完全收敛为点导致退化三角形
+    return (x * f, y, z * f)
+
 
 def _dim(color, factor=0.35):
     """把颜色降饱和、压低亮度（但保持色相可读），用于淡化非目标块。"""
@@ -76,7 +93,8 @@ def _quad_vertices(pos, face_verts, color):
     return out
 
 
-def build_scene(cube, moving_positions=None, rotation=None, highlight=None):
+def build_scene(cube, moving_positions=None, rotation=None, highlight=None,
+                kind="cube"):
     """构建场景顶点列表。
 
     cube: BaseCube 实例（当前逻辑状态，cubies 以 pos 为键）。
@@ -84,12 +102,15 @@ def build_scene(cube, moving_positions=None, rotation=None, highlight=None):
     rotation: Kivy Matrix，用于转动层动画。
     highlight: 若给定（可迭代的 pos 集合），只对这些位置的块显示真实颜色，
                其余块显示灰色（教学演示的"聚焦"效果）。
+    kind: "cube"（标准立方体）或 "mastermorphix"（粽子/四角锥形变）。
     返回 (vertices, indices)。
     """
     vertices = []
     indices = []
     vi = 0
     d, maxc = get_d_maxc(cube.n)
+    # 立方体外观半长（用于四角锥形变：底部截面最大，顶端收为尖点）。
+    s = maxc + HALF * d
 
     # 每个 cubie：6 个面，仅画外表面（pos[axis]==±maxc 才画该面）
     for pos, cub in cube.cubies.items():
@@ -132,6 +153,8 @@ def build_scene(cube, moving_positions=None, rotation=None, highlight=None):
             # 使相邻 cubie 面正好贴合（3阶不受影响）。
             for lx, ly, lz in local_verts:
                 p = base.transform(lx * d, ly * d, lz * d)
+                if kind == _PYRAMID_ROOT:
+                    p = _pyramid_vertex(p[0], p[1], p[2], s)
                 vertices.extend([p[0], p[1], p[2], *color])
             indices.extend([vi, vi + 1, vi + 2, vi, vi + 2, vi + 3])
             vi += 4

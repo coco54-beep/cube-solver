@@ -31,6 +31,8 @@ class CubeView(Widget):
 	cube = ObjectProperty(None, allownone=True)
 
 	def __init__(self, **kwargs):
+		# 渲染外形："cube"（标准立方体）或 "mastermorphix"（粽子/四角锥）。
+		self.kind = kwargs.pop("kind", "cube")
 		super().__init__(**kwargs)
 
 		self.camera = OrbitCamera()
@@ -117,6 +119,7 @@ class CubeView(Widget):
 			moving_positions=moving_positions,
 			rotation=rotation,
 			highlight=getattr(self, "_highlight", None),
+			kind=self.kind,
 		)
 
 		if not vertices:
@@ -137,6 +140,7 @@ class CubeView(Widget):
 				moving_positions=None,
 				rotation=None,
 				highlight=getattr(self, "_highlight", None),
+				kind=self.kind,
 			)
 		else:
 			reference_vertices = vertices

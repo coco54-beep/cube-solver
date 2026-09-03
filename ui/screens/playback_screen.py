@@ -24,7 +24,7 @@ class PlaybackScreen(Screen):
 
     def build_ui(self):
         root = BoxLayout(orientation="vertical", spacing=4, padding=6)
-        self.view = CubeView(size_hint_y=0.55)
+        self.view = CubeView(kind=_app().puzzle, size_hint_y=0.55)
         root.add_widget(self.view)
 
         info = BoxLayout(size_hint_y=0.08, spacing=6)
@@ -76,6 +76,7 @@ class PlaybackScreen(Screen):
         result = app.solve_result
         self._stop_all()
         self._work = app.cube.clone()
+        self.view.kind = app.puzzle
         self.view.set_cube(self._work)
         self._moves = list(result.moves) if result else []
         self._idx = -1

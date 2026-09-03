@@ -31,8 +31,8 @@ class CubeView(Widget):
 	cube = ObjectProperty(None, allownone=True)
 
 	def __init__(self, **kwargs):
-		# 渲染外形："cube"（标准立方体）或 "mastermorphix"（粽子/四角锥）。
-		self.kind = kwargs.pop("kind", "cube")
+		# 渲染外形："cube"（标准立方体）或 "mastermorphix"（粽子/四面体）。
+		self._scene_kind = kwargs.pop("kind", "cube")
 		super().__init__(**kwargs)
 
 		self.camera = OrbitCamera()
@@ -73,6 +73,14 @@ class CubeView(Widget):
 		self._cancel_animation()
 		self.cube = cube
 		self._highlight = highlight
+		self._redraw()
+
+	def set_scene_kind(self, kind):
+		"""切换渲染外形："cube"（标准立方体）或 "mastermorphix"（四面体）。"""
+		if kind not in ("cube", "mastermorphix"):
+			raise ValueError("kind 必须是 'cube' 或 'mastermorphix'")
+		self._cancel_animation()
+		self._scene_kind = kind
 		self._redraw()
 
 	def reset_camera(self):
@@ -119,7 +127,7 @@ class CubeView(Widget):
 			moving_positions=moving_positions,
 			rotation=rotation,
 			highlight=getattr(self, "_highlight", None),
-			kind=self.kind,
+			kind=self._scene_kind,
 		)
 
 		if not vertices:
@@ -140,7 +148,7 @@ class CubeView(Widget):
 				moving_positions=None,
 				rotation=None,
 				highlight=getattr(self, "_highlight", None),
-				kind=self.kind,
+				kind=self._scene_kind,
 			)
 		else:
 			reference_vertices = vertices

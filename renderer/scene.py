@@ -11,7 +11,6 @@ import math
 from kivy.graphics import Mesh
 
 from cube.coordinates import FACE_NORMALS, get_d_maxc
-from renderer.mat4 import Mat4
 
 # 立方体半边长（1 单位网格）
 # HALF = 0.5 时相邻 cubie 面正好贴合，无间隙。
@@ -54,22 +53,46 @@ _DARK = (0.08, 0.08, 0.08, 1.0)
 # 教学演示中非聚焦块的灰色（已改为淡化，保留可读色相）
 _GRAY = (0.42, 0.42, 0.44, 1.0)
 
-# 粽子/四角锥外形：把立方体外表面顶点按高度收敛到顶部尖点。
-# S = 立方体外观半长（maxc + HALF）。apex 位于 +Y 顶端。
-_PYRAMID_ROOT = "mastermorphix"
+# Mastermorphix 外形：把立方体外表面径向映射到正四面体外表面。
+# s = 立方体外观半长（maxc + HALF）。
+_MASTERMORPHIX_KIND = "mastermorphix"
+
+# 正四面体四个顶点方向（对应于四个交错角）。
+_TETRA_DIRECTIONS = (
+    (1.0, 1.0, 1.0),
+    (1.0, -1.0, -1.0),
+    (-1.0, 1.0, -1.0),
+    (-1.0, -1.0, 1.0),
+)
 
 
-def _pyramid_vertex(x, y, z, s):
-    """把一个立方体表面顶点映射到四角锥外形。
+def _mastermorphix_vertex(x, y, z, s):
+    """把立方体外表面顶点径向投影到正四面体外表面。
 
-    底部(y=-s)保持最大截面，越往上(x,z)越向中心收拢，到顶部(y=+s)收敛为尖点。
-    s = 立方体外观半长。返回 (x, y, z)。
+    四面体为四个半空间 nx*x + ny*y + nz*z >= -s 的交集（法线取
+    _TETRA_DIRECTIONS）。从原点沿输入点所在射线与四面体表面求交。
+
+    对应关系：
+    - 立方体的四个交错角 → 四面体尖角；
+    - 另外四个立方体角 → 四面体面中心；
+    - 立方体六面中心 → 四面体六条棱的中点。
     """
-    if s <= 0:
-        return (x, y, z)
-    f = (s - y) / (2.0 * s)
-    f = max(f, 0.03)  # 避免完全收敛为点导致退化三角形
-    return (x * f, y, z * f)
+    if s <= 1e-8:
+        return x, y, z
+
+    point = (float(x), float(y), float(z))
+
+    # 沿射线 p' = scale * p 求与四面体边界最近交点。
+    denominator = max(
+        -(n[0] * point[0] + n[1] * point[1] + n[2] * point[2])
+        for n in _TETRA_DIRECTIONS
+    )
+
+    if denominator <= 1e-8:
+        return x, y, z
+
+    scale = s / denominator
+    return (point[0] * scale, point[1] * scale, point[2] * scale)
 
 
 def _dim(color, factor=0.35):
@@ -102,24 +125,25 @@ def build_scene(cube, moving_positions=None, rotation=None, highlight=None,
     rotation: Kivy Matrix，用于转动层动画。
     highlight: 若给定（可迭代的 pos 集合），只对这些位置的块显示真实颜色，
                其余块显示灰色（教学演示的"聚焦"效果）。
-    kind: "cube"（标准立方体）或 "mastermorphix"（粽子/四角锥形变）。
+    kind: "cube"（标准立方体）或 "mastermorphix"（粽子/四面体形变）。
     返回 (vertices, indices)。
     """
     vertices = []
     indices = []
     vi = 0
     d, maxc = get_d_maxc(cube.n)
-    # 立方体外观半长（用于四角锥形变：底部截面最大，顶端收为尖点）。
+    # 原立方体模型的外接半长。
     s = maxc + HALF * d
 
-    # 每个 cubie：6 个面，仅画外表面（pos[axis]==±maxc 才画该面）
     for pos, cub in cube.cubies.items():
         x, y, z = pos
-        # 基础变换：平移到 cubie 位置（先旋转层，再平移）
-        if moving_positions is not None and pos in moving_positions and rotation is not None:
-            base = rotation * Mat4.translation(x, y, z)
-        else:
-            base = Mat4.translation(x, y, z)
+
+        # 是否处于层转动动画中：仅对运动块施加刚体旋转。
+        is_moving = (
+            moving_positions is not None
+            and pos in moving_positions
+            and rotation is not None
+        )
 
         # 聚焦判断：按 cubie 稳定身份 home 跟踪（而非空间位置，转动中才能持续高亮同一批块）。
         # 中心块始终保留真实颜色，作为方向参照。
@@ -130,7 +154,7 @@ def build_scene(cube, moving_positions=None, rotation=None, highlight=None,
             or (cub is not None and cub.home in highlight)
         )
 
-        for face_name, normal, local_verts in _FACES:
+        for _face_name, normal, local_verts in _FACES:
             # 判定是否为外表面
             axis = 0 if abs(normal[0]) == 1 else (1 if abs(normal[1]) == 1 else 2)
             sign = 1 if normal[axis] > 0 else -1
@@ -147,14 +171,16 @@ def build_scene(cube, moving_positions=None, rotation=None, highlight=None,
                         color = (c[0], c[1], c[2], 1.0)
             if not focused:
                 color = _dim(color)
-            # 变换 4 个顶点。
-            # 各阶网格间距为 d（3阶=1，4阶=2），
-            # 将半边长 HALF 的局部坐标整体缩放 d 倍，
-            # 使相邻 cubie 面正好贴合（3阶不受影响）。
+            # 各阶网格间距为 d（3阶=1，4阶=2），局部坐标整体缩放 d 倍。
             for lx, ly, lz in local_verts:
-                p = base.transform(lx * d, ly * d, lz * d)
-                if kind == _PYRAMID_ROOT:
-                    p = _pyramid_vertex(p[0], p[1], p[2], s)
+                # 先生成未执行动画旋转的世界坐标。
+                p = (x + lx * d, y + ly * d, z + lz * d)
+                # 先把立方体外表面映射成 Mastermorphix 几何。
+                if kind == _MASTERMORPHIX_KIND:
+                    p = _mastermorphix_vertex(p[0], p[1], p[2], s)
+                # 对已成形的异形块执行刚体旋转（必须形变后再转，否则块会变形）。
+                if is_moving:
+                    p = rotation.transform(p[0], p[1], p[2])
                 vertices.extend([p[0], p[1], p[2], *color])
             indices.extend([vi, vi + 1, vi + 2, vi, vi + 2, vi + 3])
             vi += 4

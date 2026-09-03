@@ -33,7 +33,6 @@ class CubeApp(App):
         self.cube = Cube4.solved()
         self.solve_result = None
         self.facelets_input = None  # 用户录入的 facelets
-        self.puzzle = "cube"        # "cube"（标准立方体） | "mastermorphix"（粽子/四角锥）
         self._kv_loaded = False
 
     def build(self):
@@ -50,10 +49,9 @@ class CubeApp(App):
         return sm
 
     # ---- 共享操作 ----
-    def new_cube(self, n: int, puzzle: str = "cube"):
+    def new_cube(self, n: int):
         """新建一个已还原的 n 阶魔方，重置求解结果。"""
         self.n = n
-        self.puzzle = puzzle
         self.cube = Cube4.solved() if n == 4 else Cube3.solved()
         self.solve_result = None
         self.facelets_input = None

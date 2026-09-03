@@ -285,9 +285,7 @@ class InputScreen(Screen):
         self.msg.text = "已清空"
 
     def on_enter(self):
-        app = _app()
-        name = "粽子魔方" if app.puzzle == "mastermorphix" else f"{self._n()}x{self._n()}"
-        self.title.text = f"录入 {name}"
+        self.title.text = f"录入 {'4' if self._n()==4 else '3'}x{self._n()}"
         self.reset_all()
         # 从回放/求解返回时，自动恢复上次布局，减少重复录入
         app = _app()

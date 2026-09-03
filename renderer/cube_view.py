@@ -133,7 +133,7 @@ class CubeView(Widget):
 		if not vertices:
 			return
 
-		if len(vertices) < 28:
+		if len(vertices) < 21:
 			return
 
 		# --------------------------------------------------------------
@@ -334,143 +334,65 @@ class CubeView(Widget):
 		widget_center_y = self.center_y
 
 		# --------------------------------------------------------------
-		# 每4个连续顶点组成一个四边形。
+		# 每3个连续顶点组成一个三角形（任意三角形网格）。
 		# --------------------------------------------------------------
-		quads = []
-
-		for index in range(0, len(projected_vertices) - 3, 4):
-			group = projected_vertices[index:index + 4]
-
-			if len(group) < 4:
+		faces = []
+		for index in range(0, len(projected_vertices) - 2, 3):
+			group = projected_vertices[index:index + 3]
+			if len(group) < 3:
 				break
-
-			# 任一顶点位于相机后方或相机平面上时，不绘制该面。
 			if any(vertex is None for vertex in group):
 				continue
-
-			# camera_z 越大，表示沿相机前方向距离越远。
-			# 使用四个顶点的平均相机深度执行画家算法排序。
-			average_depth = sum(
-				vertex["depth"]
-				for vertex in group
-			) / 4.0
-
+			average_depth = sum(vertex["depth"] for vertex in group) / 3.0
 			screen_group = []
-
 			for vertex in group:
 				screen_x = widget_center_x + (
-						vertex["qx"] - projected_center_x
+					vertex["qx"] - projected_center_x
 				) * pixel_scale
-
 				screen_y = widget_center_y + (
-						vertex["qy"] - projected_center_y
+					vertex["qy"] - projected_center_y
 				) * pixel_scale
-
 				screen_group.append({
 					"x": screen_x,
 					"y": screen_y,
 					"color": vertex["color"],
 				})
+			faces.append((average_depth, screen_group))
 
-			quads.append((
-				average_depth,
-				screen_group,
-			))
+		# 远处三角形先绘制，近处后绘制（画家算法）。
+		faces.sort(key=lambda item: item[0], reverse=True)
 
-		# 远处的面先绘制，近处的面后绘制。
-		quads.sort(
-			key=lambda item: item[0],
-			reverse=True,
-		)
-
-		line_width = max(
-			1.0,
-			1.5 * self._display_zoom,
-		)
-
-		# --------------------------------------------------------------
-		# 绔制四边形。
-		#
-		# Kivy 没有直接使用四个点填充任意四边形，因此将每个面拆成：
-		#
-		# 三角形1：0、1、2
-		# 三角形2：0、2、3
-		# --------------------------------------------------------------
-		for _depth, group in quads:
+		for _depth, group in faces:
 			color = group[0]["color"]
+			self._mesh_group.add(Color(color[0], color[1], color[2], color[3]))
+			self._mesh_group.add(Triangle(points=[
+				group[0]["x"], group[0]["y"],
+				group[1]["x"], group[1]["y"],
+				group[2]["x"], group[2]["y"],
+			]))
 
-			self._mesh_group.add(
-				Color(
-					color[0],
-					color[1],
-					color[2],
-					color[3],
-				)
-			)
-
-			# 第一个三角形：0、1、2
-			self._mesh_group.add(
-				Triangle(
-					points=[
-						group[0]["x"],
-						group[0]["y"],
-
-						group[1]["x"],
-						group[1]["y"],
-
-						group[2]["x"],
-						group[2]["y"],
-					]
-				)
-			)
-
-			# 第二个三角形：0、2、3
-			self._mesh_group.add(
-				Triangle(
-					points=[
-						group[0]["x"],
-						group[0]["y"],
-
-						group[2]["x"],
-						group[2]["y"],
-
-						group[3]["x"],
-						group[3]["y"],
-					]
-				)
-			)
-
-			# 紧跟当前面绘制边线。
-			#
-			# 这样近处面的填充会覆盖远处面的边线，避免背面线框透出。
-			self._mesh_group.add(
-				Color(
-					0.0,
-					0.0,
-					0.0,
-					1.0,
-				)
-			)
-
-			self._mesh_group.add(
-				Line(
-					points=[
-						group[0]["x"],
-						group[0]["y"],
-
-						group[1]["x"],
-						group[1]["y"],
-
-						group[2]["x"],
-						group[2]["y"],
-
-						group[3]["x"],
-						group[3]["y"],
-					],
-					close=True,
-					width=line_width,
-				)
-			)
+		# 块边界线：单独绘制（黑色闭合曲线），不夹在填充三角形之间，
+		# 否则曲面细分的网格线会全部显露出来。
+		line_width = max(1.0, 1.5 * self._display_zoom)
+		for path in _indices:
+			screen_pts = []
+			valid = True
+			for (px, py, pz) in path:
+				rel = (px - eye[0], py - eye[1], pz - eye[2])
+				cz = _dot(rel, forward)
+				if cz <= _EPSILON:
+					valid = False
+					break
+				qx = _dot(rel, right) / cz
+				qy = _dot(rel, camera_up) / cz
+				screen_pts.extend([
+					widget_center_x + (qx - projected_center_x) * pixel_scale,
+					widget_center_y + (qy - projected_center_y) * pixel_scale,
+				])
+			if not valid or len(screen_pts) < 6:
+				continue
+			self._mesh_group.add(Color(0.0, 0.0, 0.0, 1.0))
+			self._mesh_group.add(Line(points=screen_pts, close=True, width=line_width))
 
 	def _get_camera_basis(self):
 		"""根据 OrbitCamera 的 eye 和 target 构造相机坐标系。

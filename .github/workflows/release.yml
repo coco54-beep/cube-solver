@@ -70,11 +70,29 @@ jobs:
           )
           EOF
 
-      - name: Build release APK
-        uses: ArtemSBulgakov/buildozer-action@v1
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          command: buildozer android release
-          buildozer_version: stable
+          python-version: "3.11"
+
+      - name: Cache buildozer toolchain
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.buildozer
+            ~/.gradle
+          key: buildozer-${{ runner.os }}
+          restore-keys: buildozer-${{ runner.os }}
+
+      - name: Install system deps + buildozer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-17-jdk zipalign unzip autoconf libtool pkg-config \
+            python3-venv python3-distutils libffi-dev
+          pip install --upgrade buildozer Cython
+
+      - name: Build release APK
+        run: buildozer -v android release
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v3

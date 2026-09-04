@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      # p4_table.bin (300 MB) lives in Git LFS. Cache the materialized file so
+      # the suite doesn't re-download it (and burn LFS bandwidth) on every run.
+      - name: Restore p4_table.bin cache
+        id: cache-table
+        uses: actions/cache@v4
+        with:
+          path: p4_table.bin
+          key: p4table-v1
+
+      - name: Fetch p4_table.bin via LFS on cache miss
+        run: |
+          if [ "$(wc -c < p4_table.bin)" -lt 1000 ]; then
+            git lfs pull
+            test "$(wc -c < p4_table.bin)" -gt 100000000 || {
+              echo "::error::git lfs pull did not materialize p4_table.bin (expected >100MB, got $(wc -c < p4_table.bin) bytes)"; exit 1; }
+          fi
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install test deps
+        run: pip install pytest
+
+      - name: Byte-compile all packages
+        run: python -m compileall -q app cube renderer services solver ui main.py
+
+      - name: Run test suite
+        run: python -m pytest -q

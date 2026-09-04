@@ -1,0 +1,83 @@
+name: build-apk
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      # p4_table.bin (300 MB) lives in Git LFS; it must be present so the
+      # APK ships with the 4x4 solver tables. Cache to avoid re-downloads.
+      - name: Restore p4_table.bin cache
+        uses: actions/cache@v4
+        with:
+          path: p4_table.bin
+          key: p4table-v1
+
+      - name: Fetch p4_table.bin via LFS on cache miss
+        run: |
+          if [ "$(wc -c < p4_table.bin)" -lt 1000 ]; then
+            git lfs pull
+            test "$(wc -c < p4_table.bin)" -gt 100000000 || {
+              echo "::error::git lfs pull did not materialize p4_table.bin (expected >100MB, got $(wc -c < p4_table.bin) bytes)"; exit 1; }
+          fi
+
+      # Signing: use a permanent keystore from repo secrets when available, so
+      # signature stays stable across releases; otherwise fall back to a fresh
+      # ephemeral keystore (still a valid signed APK, but reinstalls require
+      # uninstalling the old app because the key changes per build).
+      - name: Configure release signing
+        env:
+          ANDROID_KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          ANDROID_KEYSTORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASS }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          set -e
+          if [ -n "$ANDROID_KEYSTORE_B64" ]; then
+            test -n "$ANDROID_KEYSTORE_PASS" || { echo "::error::ANDROID_KEYSTORE_B64 set but ANDROID_KEYSTORE_PASS missing"; exit 1; }
+            echo "$ANDROID_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/cube.keystore"
+            PASS="$ANDROID_KEYSTORE_PASS"
+            ALIAS="${ANDROID_KEY_ALIAS:-cube}"
+          else
+            PASS="$(openssl rand -hex 12)"
+            keytool -genkeypair -v -keystore "$RUNNER_TEMP/cube.keystore" \
+              -alias cube -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass "$PASS" -keypass "$PASS" \
+              -dname "CN=CubeSolver, O=cube-solver, C=CN" >/dev/null 2>&1
+            ALIAS="cube"
+            echo "::warning::No ANDROID_KEYSTORE_B64 secret set; built with an ephemeral key (signature changes per build)."
+          fi
+          python - <<EOF
+          block = "\n".join([
+              "android.signkey = $RUNNER_TEMP/cube.keystore",
+              "android.signstore = $ALIAS",
+              "android.signalias = $ALIAS",
+              "android.signstore_pass = $PASS",
+              "android.signkey_pass = $PASS",
+          ]) + "\n"
+          s = open("buildozer.spec", encoding="utf-8").read()
+          assert "\n[buildozer]\n" in s
+          open("buildozer.spec", "w", encoding="utf-8").write(
+              s.replace("\n[buildozer]\n", "\n" + block + "\n[buildozer]\n", 1)
+          )
+          EOF
+
+      - name: Build release APK
+        uses: ArtemSBulgakov/buildozer-action@v1
+        with:
+          command: buildozer android release
+          buildozer_version: stable
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: bin/*.apk
+          generate_release_notes: true

@@ -7,6 +7,8 @@
 ![Kivy](https://img.shields.io/badge/Kivy-2.3.1-7D66BC?logo=kivy&logoColor=white&style=flat-square)
 ![License](https://img.shields.io/badge/License-GPL--3.0-brightgreen?style=flat-square)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Android-blueviolet?style=flat-square)
+[![CI](https://github.com/coco54-beep/cube-solver/actions/workflows/ci.yml/badge.svg)](https://github.com/coco54-beep/cube-solver/actions/workflows/ci.yml)
+[![Download APK](https://img.shields.io/github/v/release/coco54-beep/cube-solver?label=Download%20APK&logo=android&color=3DDC84)](https://github.com/coco54-beep/cube-solver/releases/latest)
 
 <div align="center">
   <img src="assets/screenshots/home.png" width="190" alt="首页" />
@@ -95,6 +97,25 @@ python -m pytest
 
 覆盖：3x3 / 4x4 转动、记号解析、输入合法性、3 阶 Kociemba 桥接、4 阶降阶各阶段。
 
+> 4 阶求解需要 `p4_table.bin`（约 300 MB，见仓库根目录 `.gitattributes`，通过 **Git LFS** 管理）。
+> 克隆仓库后执行 `git lfs pull` 即可获取；CI 与 APK 构建都已自动处理。
+
+---
+
+## 📦 发布新版
+
+打一个形如 `v1.x.x` 的 git 标签并推送，[GitHub Actions](.github/workflows/release.yml)
+会自动构建 **已签名的 release APK** 并发布到 [Releases](https://github.com/coco54-beep/cube-solver/releases)：
+
+```bash
+git tag v1.1.0
+git push origin v1.1.0
+```
+
+- 默认使用**临时密钥**签名（每次构建签名都会变化，旧版需先卸载）。
+- 想要**固定签名**（可直接覆盖安装），在仓库 Settings → Secrets 里配置
+  `ANDROID_KEYSTORE_B64`（keystore 的 base64）、`ANDROID_KEYSTORE_PASS`、`ANDROID_KEY_ALIAS`。
+
 ---
 
 ## 📄 许可
@@ -116,6 +137,6 @@ python -m pytest
 欢迎提 issue / PR。接下来值得做的方向：
 
 - [x] 补充新版界面截图（首页 / 4×4 录入 / 3×3 录入 / 3D 回放）
-- [ ] 用 `git-lfs` 收纳超大预计算表，让仓库开箱可跑 4 阶
+- [x] 用 `git-lfs` 收纳超大预计算表，让仓库开箱可跑 4 阶
 - [ ] 新增 N 阶（≥5）支持
 - [ ] 加一个有声音的引导演示视频

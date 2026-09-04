@@ -28,9 +28,6 @@ desktop_err.log
 .vscode/
 *.swp
 
-# --- Generated large runtime tables (over GitHub 100MB limit) ---
-/p4_table.bin
-
 # --- Misc local scratch ---
 /_shots/
 /0002.input_geom3

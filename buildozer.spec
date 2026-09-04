@@ -28,8 +28,8 @@ requirements = python3,kivy==2.3.1
 orientation = portrait
 fullscreen = 0
 
-# 架构（arm64 为主，兼容 armeabi-v7a）
-android.archs = arm64-v8a,armeabi-v7a
+# 架构（arm64 为主；v7a 已放弃，绝大多数新机型都是 64 位）
+android.archs = arm64-v8a
 android.minapi = 26
 android.api = 33
 android.ndk_api = 26
@@ -50,6 +50,8 @@ android.allow_backup = True
 # ----------------------------------------------------------------------------
 # buildozer 输出
 # ----------------------------------------------------------------------------
+android.release_artifact = cubesolver-release.apk
+
 [buildozer]
 log_level = 2
 warn_on_root = 0

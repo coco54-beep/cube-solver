@@ -30,10 +30,13 @@ jobs:
               echo "::error::git lfs pull did not materialize p4_table.bin (expected >100MB, got $(wc -c < p4_table.bin) bytes)"; exit 1; }
           fi
 
-      # Signing: use a permanent keystore from repo secrets when available, so
-      # signature stays stable across releases; otherwise fall back to a fresh
-      # ephemeral keystore (still a valid signed APK, but reinstalls require
-      # uninstalling the old app because the key changes per build).
+      # Signing: buildozer 1.5.0 signs only when the P4A_RELEASE_* env vars are
+      # set (it then passes --sign to python-for-android, which signs the APK
+      # with apksigner). Use a permanent keystore from repo secrets when
+      # available so the signature stays stable across releases; otherwise fall
+      # back to a fresh ephemeral keystore (still a valid signed APK, but
+      # reinstalls require uninstalling the old app because the key changes per
+      # build).
       - name: Configure release signing
         env:
           ANDROID_KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
@@ -55,20 +58,10 @@ jobs:
             ALIAS="cube"
             echo "::warning::No ANDROID_KEYSTORE_B64 secret set; built with an ephemeral key (signature changes per build)."
           fi
-          python - <<EOF
-          block = "\n".join([
-              "android.signkey = $RUNNER_TEMP/cube.keystore",
-              "android.signstore = $ALIAS",
-              "android.signalias = $ALIAS",
-              "android.signstore_pass = $PASS",
-              "android.signkey_pass = $PASS",
-          ]) + "\n"
-          s = open("buildozer.spec", encoding="utf-8").read()
-          assert "\n[buildozer]\n" in s
-          open("buildozer.spec", "w", encoding="utf-8").write(
-              s.replace("\n[buildozer]\n", "\n" + block + "\n[buildozer]\n", 1)
-          )
-          EOF
+          echo "P4A_RELEASE_KEYSTORE=$RUNNER_TEMP/cube.keystore" >> "$GITHUB_ENV"
+          echo "P4A_RELEASE_KEYSTORE_PASSWD=$PASS" >> "$GITHUB_ENV"
+          echo "P4A_RELEASE_KEYALIAS=$ALIAS" >> "$GITHUB_ENV"
+          echo "P4A_RELEASE_KEYALIAS_PASSWD=$PASS" >> "$GITHUB_ENV"
 
       - name: Setup Python
         uses: actions/setup-python@v5

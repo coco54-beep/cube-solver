@@ -50,7 +50,7 @@ android.allow_backup = True
 # ----------------------------------------------------------------------------
 # buildozer 输出
 # ----------------------------------------------------------------------------
-android.release_artifact = cubesolver-release.apk
+android.release_artifact = apk
 
 [buildozer]
 log_level = 2

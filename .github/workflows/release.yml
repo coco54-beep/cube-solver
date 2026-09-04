@@ -87,8 +87,8 @@ jobs:
       - name: Install system deps + buildozer
         run: |
           sudo apt-get update
-          sudo apt-get install -y openjdk-17-jdk zipalign unzip autoconf libtool pkg-config \
-            python3-venv python3-distutils libffi-dev
+          sudo apt-get install -y build-essential openjdk-17-jdk unzip \
+            autoconf libtool pkg-config python3-venv libffi-dev
           pip install --upgrade buildozer Cython
 
       - name: Build release APK

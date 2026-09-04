@@ -93,8 +93,8 @@ jobs:
           # python-for-android libffi recipe's configure.ac still references.
           # Stub it so autoreconf no longer fails.
           sudo tee /usr/share/aclocal/ltsymbol-fix.m4 >/dev/null <<'EOF'
-AC_DEFUN([LT_SYS_SYMBOL_USCORE], [])
-EOF
+          AC_DEFUN([LT_SYS_SYMBOL_USCORE], [])
+          EOF
           pip install --upgrade buildozer Cython
 
       - name: Build release APK

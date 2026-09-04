@@ -55,6 +55,16 @@ _FR_BOTTOM = (3, -1, 3)
 _BR_TOP = (3, 1, -3)
 
 
+def _p_wing_perm() -> dict:
+    """P 对 24 个翼位坐标的置换（pos -> newpos）。"""
+    cube = Cube4.solved()
+    cube.apply_moves(P)
+    return {p: c.home for p, c in cube.cubies.items() if len(c.stickers) == 2}
+
+
+_P_WING_PERM = _p_wing_perm()
+
+
 def _wings_of_solved() -> List[Coord]:
     return sorted(p for p, c in Cube4.solved().cubies.items() if len(c.stickers) == 2)
 
@@ -109,35 +119,66 @@ def _find_setup_pair(
 ) -> Optional[List[str]]:
     """寻找仅由外层转动组成的 setup，把翼位 a 送到 goal[0]、b 送到 goal[1]。
 
-    goal 默认为 (FR-bottom, BR-top)。返回动作列表；若超出深度则返回 None。
+    goal 默认为 (FR-bottom, BR-top)。双向 BFS（各自向外扩展，总深度上限
+    cap），比单向 BFS 更快，并在同样预算内找到更短路径。返回动作列表；
+    若超出深度则返回 None。
     """
     if goal is None:
         goal = (_FR_BOTTOM, _BR_TOP)
     start = (a, b)
     if start == goal:
         return []
-    parent = {start: (None, None)}
-    levels = [start]
-    for depth in range(cap):
-        nxt = []
-        for st in levels:
+
+    fp = {start: None}  # state -> prev state (start 的前驱为 None)
+    fm = {start: None}  # state -> 到达该状态所用的动作
+    bp = {goal: None}
+    bm = {goal: None}
+    f_f = [start]
+    b_f = [goal]
+
+    def _meet(st, fp_, fm_, bm_, bp_):
+        fwd = []
+        cur = st
+        while fm_[cur] is not None:
+            fwd.append(fm_[cur])
+            cur = fp_[cur]
+        fwd.reverse()
+        bwd = []
+        cur = st
+        while bm_[cur] is not None:
+            bwd.append(_inv_of(bm_[cur]))
+            cur = bp_[cur]
+        return fwd + bwd
+
+    for d in range(cap):
+        for st in f_f:
+            if st in bp:
+                return _meet(st, fp, fm, bm, bp)
+        nf = []
+        for st in f_f:
             pa, pb = st
             for mv in OUTER:
                 ns = (_move_pos(mv, pa), _move_pos(mv, pb))
-                if ns in parent:
+                if ns in fp:
                     continue
-                parent[ns] = (st, mv)
-                nxt.append(ns)
-                if ns == goal:
-                    seq = []
-                    cur = ns
-                    while parent[cur][0] is not None:
-                        prev, m = parent[cur]
-                        seq.append(m)
-                        cur = prev
-                    seq.reverse()
-                    return seq
-        levels = nxt
+                fp[ns] = st
+                fm[ns] = mv
+                nf.append(ns)
+        f_f = nf
+        for st in f_f:
+            if st in bp:
+                return _meet(st, fp, fm, bm, bp)
+        nb = []
+        for st in b_f:
+            pa, pb = st
+            for mv in OUTER:
+                ns = (_move_pos(mv, pa), _move_pos(mv, pb))
+                if ns in bp:
+                    continue
+                bp[ns] = st
+                bm[ns] = mv
+                nb.append(ns)
+        b_f = nb
     return None
 
 
@@ -232,16 +273,43 @@ def _swap_positions(
     return True
 
 
+def _simulate_swap_gain(wa: dict, setup) -> int:
+    """精确计算「setup + P + 逆 setup」后配对槽数的增加量。
+
+    不止交换 FR-bottom/BR-top 两个翼块：P 还使 U 层 4 组棱块整体轮换，
+    可能顺带把 U 层的未配对棱组配对。这里用 24 个翼位坐标的置换精确模拟，
+    得到真实增益（1~3），让贪心/beam 能挑到「一次换棱配对多个槽」的解。
+    """
+    m = dict(wa)
+    for mv in setup:
+        tbl = _POS_TBL[mv]
+        m = {tbl.get(p, p): g for p, g in m.items()}
+    m = {_P_WING_PERM.get(p, p): g for p, g in m.items()}
+    for mv in reversed(setup):
+        tbl = _POS_TBL[_inv_of(mv)]
+        m = {tbl.get(p, p): g for p, g in m.items()}
+    by = defaultdict(list)
+    for p, g in m.items():
+        by[_slot_of(p)].append(g)
+    after = sum(1 for ids in by.values() if len(ids) == 2 and ids[0] == ids[1])
+    return after - len(matched_set(wa))
+
+
+def matched_set(wa: dict) -> set:
+    """当前已配对槽集合。"""
+    by = defaultdict(list)
+    for p, g in wa.items():
+        by[_slot_of(p)].append(g)
+    return {s for s, ids in by.items() if len(ids) == 2 and ids[0] == ids[1]}
+
+
 def _candidate_swaps(cube, log):
     """枚举全部候选交换，按 (-净配对增益, 压缩后净长度, setup 长度) 排序。
 
-    统一考虑任意两个不同槽位间的翼块交换（P 的共轭）：
-    - 1-for-1：目标槽 A 保留一个翼位，用别处同色组翼块换入另一个翼位。
-    - 2-for-1：交换分属两个未配对槽的翼位 (p, q)，使两个槽同时配对。
-
-    返回列表元素 (gain, new_len, setup_len, setup, p, q)；gain>=1 保证每次
-    交换都严格增加配对槽数（同一色组恰好 2 个翼块 ⇒ 1-for-1 的换入源必在
-    未配对槽中，不会偷已配对槽，也不会死锁）。
+    统一考虑任意两个不同槽位间的翼块交换（P 的共轭）。增益用
+    _simulate_swap_gain 精确计算，因此会自动计入 P 的 U 层棱组轮换带来的
+    多重配对（一次交换可配对 2~3 个槽）。返回列表元素
+    (gain, new_len, setup_len, setup, p, q)；gain>=1 保证严格改善。
     """
     wa = _wing_id(cube)
     by_slot = defaultdict(list)
@@ -249,7 +317,7 @@ def _candidate_swaps(cube, log):
         by_slot[_slot_of(p)].append(p)
     paired = {s: (len(ps) == 2 and wa[ps[0]] == wa[ps[1]]) for s, ps in by_slot.items()}
 
-    # 未配对槽内各色组对应的翼位（2-for-1 的目标池）
+    # 未配对槽内各色组对应的翼位（换入源）
     by_group_unpaired = defaultdict(list)
     for s, ps in by_slot.items():
         if paired[s]:
@@ -263,31 +331,18 @@ def _candidate_swaps(cube, log):
             continue
         ps = by_slot[A]
         for keep, swap_out in ((ps[0], ps[1]), (ps[1], ps[0])):
-            # 1-for-1：换入与保留位同色组的翼块
             for other in by_group_unpaired.get(wa[keep], []):
                 if _slot_of(other) == A:
                     continue
                 setup = _find_best_setup(swap_out, other, cap=8)
                 if setup is None:
                     continue
+                gain = _simulate_swap_gain(wa, setup)
+                if gain < 1:
+                    continue
                 seq = setup + list(P) + [_inv_of(m) for m in reversed(setup)]
-                out.append((1, len(_compress_log(log + seq)), len(setup),
+                out.append((gain, len(_compress_log(log + seq)), len(setup),
                             setup, swap_out, other))
-            # 2-for-1：q 与保留位同色组，且 q 所在槽 B 的另一翼位与 swap_out 同色组
-            for q in by_group_unpaired.get(wa[keep], []):
-                B = _slot_of(q)
-                if B == A:
-                    continue
-                possB = by_slot[B]
-                otherB = possB[0] if possB[1] == q else possB[1]
-                if wa[otherB] != wa[swap_out]:
-                    continue
-                setup = _find_best_setup(swap_out, q, cap=8)
-                if setup is None:
-                    continue
-                seq = setup + list(P) + [_inv_of(m) for m in reversed(setup)]
-                out.append((2, len(_compress_log(log + seq)), len(setup),
-                            setup, swap_out, q))
     out.sort(key=lambda t: (-t[0], t[1], t[2]))
     return out
 

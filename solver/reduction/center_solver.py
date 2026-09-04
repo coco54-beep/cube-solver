@@ -276,6 +276,15 @@ def _apply_side_inv(code: int, inv_sp) -> int:
     return out
 
 
+def _apply_side(code: int, sp) -> int:
+    """Phase B 正向应用一个 UD 保持转动到 16 侧面中心 code。"""
+    out = 0
+    for j in range(16):
+        val = (code >> (2 * j)) & 3
+        out |= val << (2 * sp[j])
+    return out
+
+
 # ---------- 从 Cube 抽取状态 ----------
 
 def extract_joint(cube) -> int:
@@ -512,6 +521,59 @@ class CenterSolver4:
             moves.append(SIDE_INV_LABELS[par])
         return moves
 
+    def _descend_side_seeded(
+        self,
+        code: int,
+        seed: int,
+        cancel_event=None,
+    ) -> List[str]:
+        """Phase B 下降的确定性变体：每步在「使距离 -1」的全部转动中按种子
+        伪随机择步。与默认 _descend_side 同深度（最短），但路径不同，从而给出
+        不同的内层切片奇偶 / 翼块落点，供「OLL parity 规避」择优使用。
+
+        距离经 parent 链回溯计算并缓存；只依赖 p4_table.bin（mmap）。
+        """
+        self._ensure_table()
+        import random as _random
+        rng = _random.Random(0x9E3779B9 ^ seed)
+        dist_cache = {IDENT_CODE: 0}
+
+        def _dist(c: int) -> Optional[int]:
+            if c in dist_cache:
+                return dist_cache[c]
+            par = self._table_lookup(c)
+            if par is None:
+                dist_cache[c] = None
+                return None
+            dd = _dist(_apply_side_inv(c, SIDE_INV_PERMS[par]))
+            dist_cache[c] = None if dd is None else dd + 1
+            return dist_cache[c]
+
+        moves: List[str] = []
+        cur = code
+        d = _dist(cur)
+        if d is None:
+            raise CenterSolveError(f"side state {code:#x} not in Phase-4 table")
+        steps = 0
+        while cur != IDENT_CODE:
+            steps += 1
+            if steps > 64:
+                raise CenterSolveError("side descent exceeded max depth")
+            if cancel_event is not None and cancel_event.is_set():
+                raise CenterSolveError("Center solve cancelled")
+            opts = []
+            for mi in range(len(SIDE_MOVES)):
+                ns = _apply_side(cur, SIDE_MOVES[mi])
+                if _dist(ns) == d - 1:
+                    opts.append(mi)
+            if not opts:
+                raise CenterSolveError(f"side descent stuck at dist={d}")
+            mi = rng.choice(opts)
+            moves.append(SIDE_MOVE_LABELS[mi])
+            cur = _apply_side(cur, SIDE_MOVES[mi])
+            d -= 1
+        return moves
+
     def _descend_joint_seeded(
         self,
         combined: int,
@@ -615,7 +677,7 @@ def solve_centers_variant(
     """求解中心，返回一条「确定性但不同于默认贪心」的等价最优解。
 
     与 solve_centers 同架构：Phase A 下降改用 seed 做确定性伪随机择步
-    （每步仍严格使距离 -1，总中心步数不增加），Phase B 走同一标准表。
+    （每步仍严格使距离 -1，总中心步数不增加），Phase B 也走 seeded 变体。
     用于在若干条同长度的中心解中挑选对后续棱配对 / parity 最有利的一条。
     """
     solver = CenterSolver4()
@@ -635,7 +697,7 @@ def solve_centers_variant(
         if code != IDENT_CODE:
             if cancel_event is not None and cancel_event.is_set():
                 raise CenterSolveError("Center solve cancelled")
-            b_moves = solver._descend_side(code, cancel_event)
+            b_moves = solver._descend_side_seeded(code, seed ^ 0x5F3759DF, cancel_event)
             work.apply_moves(b_moves)
             moves.extend(b_moves)
 

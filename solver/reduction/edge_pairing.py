@@ -233,43 +233,76 @@ def _swap_positions(
 
 
 def _candidate_swaps(cube, log):
-    """枚举全部候选交换，按 (压缩后净长度, setup 长度) 升序。
+    """枚举全部候选交换，按 (-净配对增益, 压缩后净长度, setup 长度) 排序。
 
-    返回列表元素 (new_len, setup_len, setup, ypos, other)：对未配对槽换入正确
-    颜色翼块，遍历每槽两个保留方向 × 所有同色换入源；对 setup 做保中心 BFS。
+    统一考虑任意两个不同槽位间的翼块交换（P 的共轭）：
+    - 1-for-1：目标槽 A 保留一个翼位，用别处同色组翼块换入另一个翼位。
+    - 2-for-1：交换分属两个未配对槽的翼位 (p, q)，使两个槽同时配对。
+
+    返回列表元素 (gain, new_len, setup_len, setup, p, q)；gain>=1 保证每次
+    交换都严格增加配对槽数（同一色组恰好 2 个翼块 ⇒ 1-for-1 的换入源必在
+    未配对槽中，不会偷已配对槽，也不会死锁）。
     """
     wa = _wing_id(cube)
     by_slot = defaultdict(list)
-    for p, i in wa.items():
-        by_slot[_slot_of(p)].append(i)
-    out = []
-    for target, ids in by_slot.items():
-        if ids[0] == ids[1]:
+    for p, _i in wa.items():
+        by_slot[_slot_of(p)].append(p)
+    paired = {s: (len(ps) == 2 and wa[ps[0]] == wa[ps[1]]) for s, ps in by_slot.items()}
+
+    # 未配对槽内各色组对应的翼位（2-for-1 的目标池）
+    by_group_unpaired = defaultdict(list)
+    for s, ps in by_slot.items():
+        if paired[s]:
             continue
-        t_pos = [p for p in WINGS if _slot_of(p) == target]
-        for swap_keep, swap_out in ((t_pos[0], t_pos[1]), (t_pos[1], t_pos[0])):
-            want = wa[swap_keep]
-            others = [
-                p for p in WINGS
-                if p != swap_keep and _slot_of(p) != target and wa[p] == want
-            ]
-            for other in others:
+        for p in ps:
+            by_group_unpaired[wa[p]].append(p)
+
+    out = []
+    for A in by_slot:
+        if paired[A]:
+            continue
+        ps = by_slot[A]
+        for keep, swap_out in ((ps[0], ps[1]), (ps[1], ps[0])):
+            # 1-for-1：换入与保留位同色组的翼块
+            for other in by_group_unpaired.get(wa[keep], []):
+                if _slot_of(other) == A:
+                    continue
                 setup = _find_best_setup(swap_out, other, cap=8)
                 if setup is None:
                     continue
-                swap_seq = setup + list(P) + [_inv_of(m) for m in reversed(setup)]
-                new_len = len(_compress_log(log + swap_seq))
-                out.append((new_len, len(setup), setup, swap_out, other))
-    out.sort(key=lambda t: (t[0], t[1]))
+                seq = setup + list(P) + [_inv_of(m) for m in reversed(setup)]
+                out.append((1, len(_compress_log(log + seq)), len(setup),
+                            setup, swap_out, other))
+            # 2-for-1：q 与保留位同色组，且 q 所在槽 B 的另一翼位与 swap_out 同色组
+            for q in by_group_unpaired.get(wa[keep], []):
+                B = _slot_of(q)
+                if B == A:
+                    continue
+                possB = by_slot[B]
+                otherB = possB[0] if possB[1] == q else possB[1]
+                if wa[otherB] != wa[swap_out]:
+                    continue
+                setup = _find_best_setup(swap_out, q, cap=8)
+                if setup is None:
+                    continue
+                seq = setup + list(P) + [_inv_of(m) for m in reversed(setup)]
+                out.append((2, len(_compress_log(log + seq)), len(setup),
+                            setup, swap_out, q))
+    out.sort(key=lambda t: (-t[0], t[1], t[2]))
     return out
 
 
-def _pair_beam_finish(cube, log, width=8, max_nodes=600, cancel_event=None):
+def _pair_beam_finish(cube, log, width=8, max_nodes=600, cancel_event=None,
+                      require_solvable=True):
     """受限 beam：从当前状态把剩余配棱搜到全部配对。
 
     每层展开全部候选交换并按压缩长度保留 width 条（用翼排列 + 日志尾去重）。
     一旦某层出现完成节点即返回该层最短日志；超出 max_nodes 预算仍未完成则
     返回 None（调用方回退贪心）。只读输入，不修改 cube/log。
+
+    require_solvable：OLL parity 在配棱中不变，但 PLL parity（棱组置换奇偶）
+    随最后一次交换可变。为 True 时优先返回「约减后 3x3 直接可解」的完成态，
+    从而省掉 PLL_FIX（6 步）；若预算内没有可解完成态，回退最短完成态。
     """
     beam = [(cube.clone(), list(log))]
     expanded = 0
@@ -278,6 +311,15 @@ def _pair_beam_finish(cube, log, width=8, max_nodes=600, cancel_event=None):
             raise ValueError("edge pairing cancelled")
         done = [lg for _c, lg in beam if edges_paired(_c)]
         if done:
+            if require_solvable:
+                from solver.reduction.parity import detect_parity
+                solvable = [
+                    lg for _c, lg in beam
+                    if edges_paired(_c) and detect_parity(_c)[0] == "none"
+                ]
+                if solvable:
+                    solvable.sort(key=len)
+                    return solvable[0]
             done.sort(key=len)
             return done[0]
         nxt = []
@@ -290,7 +332,7 @@ def _pair_beam_finish(cube, log, width=8, max_nodes=600, cancel_event=None):
                     return None
                 nc = _c.clone()
                 nl = list(lg)
-                _swap_positions(nc, cand[3], cand[4], nl, setup=cand[2])
+                _swap_positions(nc, cand[4], cand[5], nl, setup=cand[3])
                 nl[:] = _compress_log(nl)
                 nxt.append((nc, nl))
         nxt.sort(key=lambda t: len(t[1]))
@@ -344,11 +386,11 @@ def pair_edges(
             if bl is not None:
                 log = bl
                 break
-        # 贪心单步：选压缩后净长度最短的候选交换
+        # 贪心单步：选「净增益最大、压缩后净长度最短」的候选交换
         cands = _candidate_swaps(work, log)
         if not cands:
             break
-        _, _, setup, ypos, other = cands[0]
+        _, _, _, setup, ypos, other = cands[0]
         if not _swap_positions(work, ypos, other, log, setup=setup):
             break
         # 日志保持为「已压缩」状态，供下一轮按压缩长度择优。

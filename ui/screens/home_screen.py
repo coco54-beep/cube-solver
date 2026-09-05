@@ -113,6 +113,8 @@ class HomeScreen(Screen):
         self.manager.current = "InputScreen"
 
     def start_demo(self, n):
+        app = _app()
+        app.demo_return = "HomeScreen"
         menu = self.manager.get_screen("DemoMenuScreen")
         menu.set_mode(n)
         self.manager.current = "DemoMenuScreen"

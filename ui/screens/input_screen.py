@@ -93,10 +93,13 @@ class InputScreen(Screen):
         top = BoxLayout(size_hint_y=None, height=46, spacing=8)
         back = Button(text="←返回", size_hint_x=0.22)
         back.bind(on_release=lambda *a: self.go_home())
-        self.title = Label(text="录入 4x4", size_hint_x=0.78, halign="center",
+        self.title = Label(text="录入 4x4", size_hint_x=0.56, halign="center",
                            font_size="20sp", bold=True)
+        demo = Button(text="演示", size_hint_x=0.22)
+        demo.bind(on_release=lambda *a: self.open_demo())
         top.add_widget(back)
         top.add_widget(self.title)
+        top.add_widget(demo)
         root.add_widget(top)
 
         # ---- 主显示区：展开图（十字布局）居中占满 ----
@@ -363,6 +366,15 @@ class InputScreen(Screen):
 
     def go_home(self):
         self.manager.current = "HomeScreen"
+
+    def open_demo(self):
+        """进入当前阶数的演示页，同时保存已录入颜色以便返回时恢复。"""
+        app = _app()
+        app.facelets_input = self.collect_facelets()
+        app.demo_return = "InputScreen"
+        menu = self.manager.get_screen("DemoMenuScreen")
+        menu.set_mode(self._n())
+        self.manager.current = "DemoMenuScreen"
 
 
 def _app():

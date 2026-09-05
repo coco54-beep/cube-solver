@@ -163,7 +163,7 @@ class DemoMenuScreen(Screen):
         self.manager.current = "DemoScreen"
 
     def go_home(self):
-        self.manager.current = "HomeScreen"
+        self.manager.current = _app().demo_return
 
 
 def _app():

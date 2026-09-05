@@ -8,7 +8,7 @@ from typing import Dict, List
 
 from cube.conversion import facelets_to_cubies
 from cube.cubie_model import BaseCube
-from cube.validation import validate_2x2, validate_3x3, validate_4x4
+from cube.validation import validate_2x2, validate_3x3, validate_4x4, validate_5x5
 
 
 class FaceletCube:
@@ -39,6 +39,8 @@ class FaceletCube:
             return validate_2x2(self.facelets)
         if self.n == 3:
             return validate_3x3(self.facelets)
+        if self.n == 5:
+            return validate_5x5(self.facelets)
         return validate_4x4(self.facelets)
 
     # -- 复制 --

@@ -20,6 +20,7 @@ from app.fonts import setup_cjk_font
 from cube.cube2 import Cube2
 from cube.cube3 import Cube3
 from cube.cube4 import Cube4
+from cube.cube5 import Cube5
 
 _KV_PATH = os.path.join(os.path.dirname(__file__), "..", "ui", "kv", "app.kv")
 
@@ -57,6 +58,8 @@ class CubeApp(App):
             self.cube = Cube2.solved()
         elif n == 4:
             self.cube = Cube4.solved()
+        elif n == 5:
+            self.cube = Cube5.solved()
         else:
             self.cube = Cube3.solved()
         self.solve_result = None
@@ -69,6 +72,8 @@ class CubeApp(App):
             self.cube = Cube2(cubies)
         elif n == 4:
             self.cube = Cube4(cubies)
+        elif n == 5:
+            self.cube = Cube5(cubies)
         else:
             self.cube = Cube3(cubies)
         self.solve_result = None

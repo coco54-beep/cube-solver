@@ -472,3 +472,94 @@ def validate_4x4(facelets: Dict[str, List[List[str]]]) -> List[str]:
             errors.append(f"中心色 {c} 出现 {center_colors[c]} 次（应为4）")
 
     return errors
+
+
+def validate_5x5(facelets: Dict[str, List[List[str]]]) -> List[str]:
+    """校验 5x5 facelet 结构性合法性。返回错误列表（空=合法）。
+
+    5x5 为奇数阶，中心块固定（每面 9 个单色中心，其中 1 个真中心固定），
+    降阶为 3x3 后可解、无 parity。可达性检查做结构性约束：
+        1. 结构: 6面 x 25格，均为合法颜色。
+        2. 每种颜色恰好出现 25 次。
+        3. 8 个角块（三色），其颜色组合与角槽(由真中心决定)匹配。
+        4. 36 个棱块（双色），12 个棱槽各 3 块，同槽三块颜色组合一致，
+           且各棱槽颜色组合与槽位匹配。
+        5. 54 个单色中心块，每种颜色恰好 9 个。
+    """
+    errors: List[str] = []
+    n = 5
+
+    # 1. 结构
+    for face in ("U", "D", "F", "B", "R", "L"):
+        if face not in facelets:
+            errors.append(f"缺少面 {face}")
+            continue
+        grid = facelets[face]
+        if len(grid) != 5:
+            errors.append(f"面 {face} 行数错误")
+            continue
+        for row in grid:
+            if len(row) != 5:
+                errors.append(f"面 {face} 存在非5列行")
+                break
+        for row in grid:
+            for cell in row:
+                if not is_valid_color(cell):
+                    errors.append(f"面 {face} 存在非法颜色 {cell}")
+                    break
+
+    if errors:
+        return errors
+
+    # 2. 每种颜色恰好 25 次
+    total = Counter()
+    for face in facelets:
+        for row in facelets[face]:
+            for cell in row:
+                total[cell] += 1
+    for c in VALID_COLORS:
+        if total[c] != 25:
+            errors.append(f"颜色 {c} 出现 {total[c]} 次（应为25）")
+
+    if errors:
+        return errors
+
+    center_of, corners, edges, centers_blocks = _extract_pieces(facelets, n)
+
+    # 3. 角块: 8 个，颜色组合与角槽匹配
+    if len(corners) != 8:
+        errors.append(f"角块数 {len(corners)} 应为8")
+    else:
+        corner_slots = []
+        for pos, _ in corners:
+            faces = _faces_at(pos, n)
+            corner_slots.append(tuple(sorted(center_of[f] for f in faces)))
+        piece_corner_triples = [tuple(sorted(colors)) for _, colors in corners]
+        if sorted(corner_slots) != sorted(piece_corner_triples):
+            errors.append("角块颜色组合与槽位不匹配")
+
+    # 4. 棱块: 36 个，全局颜色组合多重集 == 12 槽 x 3 块的组合
+    if len(edges) != 36:
+        errors.append(f"棱块数 {len(edges)} 应为36")
+    else:
+        piece_edge_pairs = Counter()
+        for pos, colors in edges:
+            piece_edge_pairs[tuple(sorted(colors))] += 1
+        # 每个棱槽（相邻面组合）对应 3 块
+        slot_edge_pairs = Counter()
+        for slot in _EDGE_FACES.values():
+            f1, f2 = slot
+            slot_edge_pairs[tuple(sorted((center_of[f1], center_of[f2])))] += 3
+        if dict(piece_edge_pairs) != dict(slot_edge_pairs):
+            errors.append("棱块颜色组合与槽位不匹配")
+
+    # 5. 中心块: 54 个单色，每种颜色 9 个
+    if len(centers_blocks) != 54:
+        errors.append(f"中心块数 {len(centers_blocks)} 应为54")
+    else:
+        center_colors = Counter(cs[0] for _, cs in centers_blocks)
+        for c in VALID_COLORS:
+            if center_colors[c] != 9:
+                errors.append(f"中心色 {c} 出现 {center_colors[c]} 次（应为9）")
+
+    return errors

@@ -21,7 +21,7 @@ TURNS: 各面顺时针90度转动的坐标旋转公式。
 WHOLE_CUBE: x/y/z 整体转动复用哪一面的旋转公式。
 """
 
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 Coord = Tuple[int, int, int]
 
@@ -99,27 +99,27 @@ def rc_from_pos(n: int, face: str, pos: Coord) -> Tuple[int, int]:
     return (r, c)
 
 
-def layer_values(n: int, face: str, is_wide: bool = False) -> List[int]:
+def layer_values(n: int, face: str, is_wide: bool = False,
+                 layers: Optional[int] = None) -> List[int]:
     """返回该面转动所作用层的法线轴坐标值集合。
 
-    基础面转动: {n_sign*maxc}
-    宽层转动 (仅 n>3): {n_sign*maxc, n_sign*(maxc-d)}
-    3x3 宽层 == 基础（3阶只有单层）。
+    layers 为从该面向内转动多少层（1=外层，2=宽层，…）。默认由 is_wide
+    推导（True=2，False=1）。n<=3 时宽层归并为单层（3阶宽层==基础）。
     """
+    if layers is None:
+        layers = 2 if is_wide else 1
+    if n <= 3:
+        layers = 1
     n_axis, n_sign = FACE_AXIS_SIGN[face]
-    d, maxc = get_d_maxc(n)
-    if is_wide and n > 3:
-        return [n_sign * maxc, n_sign * (maxc - d)]
-    return [n_sign * maxc]
+    vals = sorted(coord_values(n), reverse=True)
+    sel = vals[:layers]
+    return [n_sign * v for v in sel]
 
 
-def is_in_layer(n: int, face: str, is_wide: bool, pos: Coord) -> bool:
-    """判断 pos 是否属于该面（基础/宽层）转动层。"""
-    n_axis, n_sign = FACE_AXIS_SIGN[face]
-    d, maxc = get_d_maxc(n)
-    if is_wide and n > 3:
-        return pos[n_axis] in (n_sign * maxc, n_sign * (maxc - d))
-    return pos[n_axis] == n_sign * maxc
+def is_in_layer(n: int, face: str, is_wide: bool, pos: Coord,
+                layers: Optional[int] = None) -> bool:
+    """判断 pos 是否属于该面转动层（基础/宽层/任意层数）。"""
+    return pos[FACE_AXIS_SIGN[face][0]] in layer_values(n, face, is_wide, layers)
 
 
 # ---------------------------------------------------------------------------

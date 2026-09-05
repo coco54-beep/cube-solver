@@ -20,10 +20,11 @@ from app.constants import FACE_LABEL, FACES
 from cube.conversion import facelets_to_cubies, cubies_to_facelets
 from cube.cubie_model import Cubie
 from cube.coordinates import FACE_NORMALS, pos_from_rc, get_d_maxc, coord_values, rc_from_pos
-from cube.validation import validate_2x2, validate_3x3, validate_4x4
+from cube.validation import validate_2x2, validate_3x3, validate_4x4, validate_5x5
 from cube.cube2 import Cube2
 from cube.cube4 import Cube4
 from cube.cube3 import Cube3
+from cube.cube5 import Cube5
 from ui.widgets.face_grid import FaceGrid
 from ui.widgets.color_picker import ColorSelector
 from solver.solver4 import _rebuild_center_homes
@@ -77,7 +78,11 @@ def _build_partial_cube(facelets, n):
         return None
     if n == 2:
         return Cube2(cubies)
-    return Cube4(cubies) if n == 4 else Cube3(cubies)
+    if n == 4:
+        return Cube4(cubies)
+    if n == 5:
+        return Cube5(cubies)
+    return Cube3(cubies)
 
 
 class InputScreen(Screen):
@@ -253,16 +258,24 @@ class InputScreen(Screen):
         from cube.cube2 import Cube2
         from cube.cube4 import Cube4
         from cube.cube3 import Cube3
+        from cube.cube5 import Cube5
         from cube.conversion import cubies_to_facelets
         n = self._n()
         if n == 2:
             cube = Cube2.solved()
         elif n == 4:
             cube = Cube4.solved()
+        elif n == 5:
+            cube = Cube5.solved()
         else:
             cube = Cube3.solved()
-        faces = ["U", "D", "F", "B", "R", "L", "u", "d", "f", "b", "r", "l"] if n == 4 \
-            else ["U", "D", "F", "B", "R", "L"]
+        if n == 4:
+            faces = ["U", "D", "F", "B", "R", "L", "u", "d", "f", "b", "r", "l"]
+        elif n == 5:
+            faces = ["U", "D", "F", "B", "R", "L", "u", "d", "f", "b", "r", "l",
+                     "2U", "2D", "2F", "2B", "2R", "2L"]
+        else:
+            faces = ["U", "D", "F", "B", "R", "L"]
         suff = ["", "'", "2"]
         moves = [random.choice(faces) + random.choice(suff)
                  for _ in range(random.randint(12, 25))]
@@ -325,6 +338,8 @@ class InputScreen(Screen):
             errs = validate_2x2(facelets)
         elif n == 3:
             errs = validate_3x3(facelets)
+        elif n == 5:
+            errs = validate_5x5(facelets)
         else:
             errs = validate_4x4(facelets)
         if errs:

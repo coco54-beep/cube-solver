@@ -62,6 +62,55 @@ def normalize_label_base(base: str) -> str:
     raise ValueError(f"非法公式标签: {base!r}")
 
 
+def parse_move_full(s: str) -> Tuple[str, int, int]:
+    """解析单个动作字符串为 (label, layers, count)。
+
+    layers 为从该面向内转动的层数：1=外层，2=宽层，…，也接受前导数字
+    指定层数（如 "3R" 表示转 3 层）。小写面标签 == 宽层(2层)。
+    例: "R"->("R",1,1)  "r"->("R",2,1)  "3R'"->("R",3,3)
+    """
+    s = s.strip()
+    if not s:
+        raise ValueError("空动作")
+    i = 0
+    layers_in = 0
+    while i < len(s) and s[i].isdigit():
+        layers_in = layers_in * 10 + int(s[i])
+        i += 1
+    body = s[i:]
+    if not body:
+        raise ValueError(f"非法公式: {s!r}")
+    first = body[0]
+    if first in ("R", "L", "U", "D", "F", "B"):
+        base = first
+        default_layers = 1
+        rest = body[1:]
+    elif first in ("r", "l", "u", "d", "f", "b"):
+        base = first.upper()
+        default_layers = 2
+        rest = body[1:]
+    elif first in ("x", "y", "z"):
+        base = first
+        default_layers = 1
+        rest = body[1:]
+    else:
+        raise ValueError(f"非法公式起始字符: {first!r}")
+    layers = layers_in if layers_in else default_layers
+    if rest == "''":
+        suffix = "''"
+    elif rest == "'":
+        suffix = "'"
+    elif rest == "2":
+        suffix = "2"
+    elif rest == "3":
+        suffix = "3"
+    elif rest == "":
+        suffix = ""
+    else:
+        raise ValueError(f"非法后缀: {rest!r}")
+    return (base, layers, parse_suffix(suffix))
+
+
 def parse_move_str(s: str, allow_wide: bool = True) -> Move:
     """解析单个动作字符串为 (label, is_wide, count)。
 

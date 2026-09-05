@@ -56,9 +56,11 @@ class SolveService:
     def _run(self, cube, on_done, on_progress, cancel):
         from cube.cube2 import Cube2
         from cube.cube3 import Cube3
+        from cube.cube5 import Cube5
         from solver.solver2 import solve_2x2
         from solver.solver3 import solve_3x3
         from solver.solver4 import solve_4x4
+        from solver.solver5 import solve_5x5
 
         def cb(payload):
             if on_progress is not None:
@@ -75,6 +77,8 @@ class SolveService:
                 from cube.conversion import cubies_to_facelets
                 facelets = cubies_to_facelets(cube.cubies, 3)
                 result = solve_3x3(facelets)
+            elif isinstance(cube, Cube5):
+                result = solve_5x5(cube, cancel_event=cancel)
             else:
                 result = solve_4x4(
                     cube,

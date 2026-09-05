@@ -24,7 +24,7 @@ from cube.coordinates import (
     WHOLE_CUBE,
     is_in_layer,
 )
-from cube.notation import parse_move_str
+from cube.notation import parse_move_full
 
 Coord = Tuple[int, int, int]
 
@@ -132,16 +132,16 @@ class BaseCube:
     # -- 转动引擎 --
     def apply_move(self, move_str: str) -> None:
         """应用单个动作（字符串），就地更新状态。"""
-        label, is_wide, count = parse_move_str(move_str)
+        label, layers, count = parse_move_full(move_str)
         for _ in range(count):
-            self._apply_single_quarter(label, is_wide)
+            self._apply_single_quarter(label, layers)
 
     def apply_moves(self, moves: List[str]) -> None:
         for m in moves:
             self.apply_move(m)
 
-    def _apply_single_quarter(self, label: str, is_wide: bool) -> None:
-        """应用一个顺时针90度转动。"""
+    def _apply_single_quarter(self, label: str, layers: int) -> None:
+        """应用一个顺时针90度转动（layers 为从面向内转动层数）。"""
         if label in ("x", "y", "z"):
             rot = WHOLE_CUBE[label]
             self._rotate_all(rot)
@@ -150,7 +150,7 @@ class BaseCube:
         n_axis, n_sign = FACE_AXIS_SIGN[label]
         rot = TURNS[label]
         selected = [c for c in self.cubies.values()
-                    if is_in_layer(self.n, label, is_wide, c.pos)]
+                    if is_in_layer(self.n, label, False, c.pos, layers)]
         new_cubies: Dict[Coord, Cubie] = {}
         for c in self.cubies.values():
             if c in selected:

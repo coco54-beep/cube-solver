@@ -21,7 +21,7 @@ class HomeScreen(Screen):
         head = BoxLayout(orientation="vertical", size_hint_y=None, height=150, spacing=8)
         self.title = Label(text=Config.app_name, font_size="34sp", bold=True,
                            halign="center", valign="middle", size_hint_y=None, height=90)
-        self.subtitle = Label(text="2 阶 / 3 阶 / 4 阶魔方 · 智能还原", font_size="15sp",
+        self.subtitle = Label(text="2 阶 / 3 阶 / 4 阶 / 5 阶魔方 · 智能还原", font_size="15sp",
                               color=(0.72, 0.76, 0.85, 1), halign="center",
                               valign="middle", size_hint_y=None, height=42)
         head.add_widget(self.title)
@@ -37,9 +37,11 @@ class HomeScreen(Screen):
         b2 = self._card("2", "2 阶魔方", "还原 Pocket Cube", onClick=lambda *a: self.pick(2))
         b3 = self._card("3", "3 阶魔方", "还原 Rubik's Cube", onClick=lambda *a: self.pick(3))
         b4 = self._card("4", "4 阶魔方", "还原 Rubik's Revenge", onClick=lambda *a: self.pick(4))
+        b5 = self._card("5", "5 阶魔方", "还原 Professor's Cube", onClick=lambda *a: self.pick(5))
         cols.add_widget(b2)
         cols.add_widget(b3)
         cols.add_widget(b4)
+        cols.add_widget(b5)
         root.add_widget(cols)
 
         # ---- 操作区 ----

@@ -1,4 +1,4 @@
-"""演示页：用 3D 动画展示 3 阶七步法 / 4 阶降阶法的标准案例。
+"""演示页：用 3D 动画展示 2 阶分层法 / 3 阶七步法 / 4 阶降阶法的标准案例。
 
 每个案例先摆出「初始状态」（= 还原魔方施加公式的逆），再逐式播放公式，
 动画结束后回到还原态；同时显示步骤、案例名、公式与记忆口诀。
@@ -11,11 +11,24 @@ from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 from kivy.uix.scrollview import ScrollView
 
+from cube.cube2 import Cube2
 from cube.cube3 import Cube3
 from cube.cube4 import Cube4
-from demo.cases import CASE_3X3, CASE_4X4, build_before
+from demo.cases import CASE_2X2, CASE_3X3, CASE_4X4, build_before
 from renderer.cube_view import CubeView
 from renderer.turn import decompose_move
+
+
+def _mode_title(n):
+    return {2: "二阶 · 分层法", 3: "三阶 · 七步法", 4: "四阶 · 降阶法"}[n]
+
+
+def _steps_for(n):
+    return {2: CASE_2X2, 3: CASE_3X3, 4: CASE_4X4}[n]
+
+
+def _cls_for(n):
+    return {2: Cube2, 3: Cube3, 4: Cube4}[n]
 
 
 def _autofit(lbl, pad=1):
@@ -53,9 +66,9 @@ class DemoScreen(Screen):
         top = BoxLayout(size_hint_y=None, height=46, spacing=6)
         back = Button(text="←目录", size_hint_x=0.2)
         back.bind(on_release=lambda *a: self.go_menu())
-        self.lbl_mode = Label(text="3阶 · 七步法", size_hint_x=0.45, halign="center",
+        self.lbl_mode = Label(text=_mode_title(3), size_hint_x=0.45, halign="center",
                               bold=True, font_size="18sp")
-        btn = Button(text="切换 3/4 阶", size_hint_x=0.35)
+        btn = Button(text="切换阶数", size_hint_x=0.35)
         btn.bind(on_release=lambda *a: self.toggle_mode())
         top.add_widget(back)
         top.add_widget(self.lbl_mode)
@@ -110,16 +123,16 @@ class DemoScreen(Screen):
     def enter_case(self, mode, si, ci):
         """从目录跳到指定案例。"""
         self.mode = mode
-        self._steps = CASE_3X3 if mode == 3 else CASE_4X4
-        self.lbl_mode.text = "3阶 · 七步法" if mode == 3 else "4阶 · 降阶法"
+        self._steps = _steps_for(mode)
+        self.lbl_mode.text = _mode_title(mode)
         self._si = si
         self._ci = ci
         self._show_case()
 
     def toggle_mode(self):
-        self.mode = 3 if self.mode == 4 else 4
-        self._steps = CASE_3X3 if self.mode == 3 else CASE_4X4
-        self.lbl_mode.text = "3阶 · 七步法" if self.mode == 3 else "4阶 · 降阶法"
+        self.mode = 2 if self.mode == 4 else self.mode + 1
+        self._steps = _steps_for(self.mode)
+        self.lbl_mode.text = _mode_title(self.mode)
         self._si = 0
         self._ci = 0
         self._show_case()
@@ -154,7 +167,7 @@ class DemoScreen(Screen):
         self._stop()
         step = self._step()
         case = self._case()
-        cls = Cube3 if self.mode == 3 else Cube4
+        cls = _cls_for(self.mode)
         cube = build_before(cls.solved, case["moves"])
         self._work = cube
         # 聚焦：只给被移动/参与公式的块上色，其余灰色
@@ -172,7 +185,7 @@ class DemoScreen(Screen):
             return
         case = self._case()
         # 先还原到该案例的初始场景，再开始播放公式。
-        cls = Cube3 if self.mode == 3 else Cube4
+        cls = _cls_for(self.mode)
         cube = build_before(cls.solved, case["moves"])
         self._work = cube
         self._highlight = _changed_homes(cube)

@@ -13,6 +13,7 @@
 
 from cube.colors import DEFAULT_COLORS, VALID_COLORS, COLOR_NAMES
 from cube.cubie_model import Cubie, BaseCube, build_solved_cube
+from cube.cube2 import Cube2
 from cube.notation import (
     parse_algorithm,
     parse_move_str,
@@ -28,6 +29,7 @@ __all__ = [
     "Cubie",
     "BaseCube",
     "build_solved_cube",
+    "Cube2",
     "parse_algorithm",
     "parse_move_str",
     "normalize_move",

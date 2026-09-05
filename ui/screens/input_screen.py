@@ -20,7 +20,8 @@ from app.constants import FACE_LABEL, FACES
 from cube.conversion import facelets_to_cubies, cubies_to_facelets
 from cube.cubie_model import Cubie
 from cube.coordinates import FACE_NORMALS, pos_from_rc, get_d_maxc, coord_values, rc_from_pos
-from cube.validation import validate_3x3, validate_4x4
+from cube.validation import validate_2x2, validate_3x3, validate_4x4
+from cube.cube2 import Cube2
 from cube.cube4 import Cube4
 from cube.cube3 import Cube3
 from ui.widgets.face_grid import FaceGrid
@@ -74,6 +75,8 @@ def _build_partial_cube(facelets, n):
                     cubies[pos] = Cubie(home=pos, pos=pos, stickers=stickers)
     if not cubies:
         return None
+    if n == 2:
+        return Cube2(cubies)
     return Cube4(cubies) if n == 4 else Cube3(cubies)
 
 
@@ -244,11 +247,17 @@ class InputScreen(Screen):
         转成 facelets 填充各面网格并同步 3D 视图。
         """
         import random
+        from cube.cube2 import Cube2
         from cube.cube4 import Cube4
         from cube.cube3 import Cube3
         from cube.conversion import cubies_to_facelets
         n = self._n()
-        cube = Cube4.solved() if n == 4 else Cube3.solved()
+        if n == 2:
+            cube = Cube2.solved()
+        elif n == 4:
+            cube = Cube4.solved()
+        else:
+            cube = Cube3.solved()
         faces = ["U", "D", "F", "B", "R", "L", "u", "d", "f", "b", "r", "l"] if n == 4 \
             else ["U", "D", "F", "B", "R", "L"]
         suff = ["", "'", "2"]
@@ -285,7 +294,8 @@ class InputScreen(Screen):
         self.msg.text = "已清空"
 
     def on_enter(self):
-        self.title.text = f"录入 {'4' if self._n()==4 else '3'}x{self._n()}"
+        n = self._n()
+        self.title.text = f"录入 {n}x{n}"
         self.reset_all()
         # 从回放/求解返回时，自动恢复上次布局，减少重复录入
         app = _app()
@@ -307,7 +317,13 @@ class InputScreen(Screen):
         if empty:
             self.msg.text = f"未填写: {','.join(empty[:8])}"
             return
-        errs = validate_3x3(facelets) if n == 3 else validate_4x4(facelets)
+        n = self._n()
+        if n == 2:
+            errs = validate_2x2(facelets)
+        elif n == 3:
+            errs = validate_3x3(facelets)
+        else:
+            errs = validate_4x4(facelets)
         if errs:
             self.msg.text = errs[0]
         else:

@@ -12,6 +12,48 @@
 from cube.notation import parse_move_str, suffix_for_count
 
 
+CASE_2X2 = [
+    {
+        "title": "还原第一层（底层角块）",
+        "desc": "2 阶只有 8 个角块。先选定一面为白底，把白角块归位并使侧面颜色与"
+                "相邻四个侧面颜色一致，即完成第一层。先把白角转到其正确位置上方，"
+                "再按下述公式插入。",
+        "cases": [
+            {"name": "2-1 白面朝右", "moves": ["R", "U", "R'"],
+             "text": "公式 2-1：(R U R')", "tip": "白色朝右，先转右层"},
+            {"name": "2-2 白面朝前", "moves": ["F'", "U'", "F"],
+             "text": "公式 2-2：(F'U'F)", "tip": "白色朝前，先转前层"},
+            {"name": "2-3 白面在顶层", "moves": ["R", "U", "R'", "U'", "R", "U", "R'"],
+             "text": "公式 2-3：(R U R') U' (R U R')", "tip": "白角在顶层侧面先替换下来"},
+        ],
+    },
+    {
+        "title": "顶面翻色（OLL）",
+        "desc": "第一层完成后，把顶面 4 个角块翻成黄色（或所选顶色）。2 阶无棱块，"
+                "只需处理角块朝向；学会小鱼公式即可应对所有情况。",
+        "cases": [
+            {"name": "3-1 小鱼（顺）", "moves": ["R", "U", "R'", "U", "R", "U2", "R'"],
+             "text": "公式 3-1：R U R' U R U2 R'", "tip": "顺时针小鱼，翻角成全黄"},
+            {"name": "3-2 小鱼（逆）", "moves": ["R", "U2", "R'", "U'", "R", "U'", "R'"],
+             "text": "公式 3-2：R U2 R' U' R U' R'", "tip": "逆时针小鱼"},
+            {"name": "3-3 顶面一点黄", "moves": ["R", "U", "R'", "U", "R", "U2", "R'",
+                                              "U", "R", "U", "R'", "U", "R", "U2", "R'"],
+             "text": "小鱼 ×2", "tip": "顶面只有一个黄角时连做两次小鱼"},
+        ],
+    },
+    {
+        "title": "顶角归位（PLL）",
+        "desc": "顶面全黄后，只需调整四个角块的侧面颜色使其与侧面一致，即完成还原。"
+                "多余一个交换相邻两个角块的公式即可。",
+        "cases": [
+            {"name": "4-1 交换角块",
+             "moves": ["R'", "F", "R'", "B2", "R", "F'", "R'", "B2", "R2"],
+             "text": "公式 4-1：R' F R' B2 R F' R' B2 R2", "tip": "只调整顶角位置"},
+        ],
+    },
+]
+
+
 def inverse_move_str(move: str) -> str:
     label, is_wide, count = parse_move_str(move)
     base = label.lower() if is_wide else label

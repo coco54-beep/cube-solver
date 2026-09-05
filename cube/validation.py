@@ -21,7 +21,7 @@
 from collections import Counter
 from typing import Dict, List, Tuple
 
-from cube.colors import is_valid_color, VALID_COLORS
+from cube.colors import DEFAULT_COLORS, is_valid_color, VALID_COLORS
 from cube.coordinates import (
     FACE_NORMALS,
     coord_values,
@@ -312,6 +312,91 @@ def validate_3x3(facelets: Dict[str, List[List[str]]]) -> List[str]:
     edge_par = perm_parity(edges)
     if (corner_par + edge_par) % 2 != 0:
         errors.append("置换奇偶性错误（角+棱置换必须为偶）")
+
+    return errors
+
+
+def validate_2x2(facelets: Dict[str, List[List[str]]]) -> List[str]:
+    """校验 2x2 facelet 是否可达。返回错误列表（空=合法）。
+
+    2 阶无棱块、无中心块，只有 8 个角块。可达性条件（2x2 的置换奇偶不受限，
+    单次面转即产生奇置换，故无角块置换奇偶约束）：
+        1. 结构: 6面 x 4格，均为合法颜色。
+        2. 每种颜色恰好出现 4 次（8角 x 3色 / 6色）。
+        3. 8 个角块的三色多重集 == 8 个角槽多重集（由命名面默认色确定）。
+        4. 角块扭转总和 ≡ 0 (mod 3)。
+    """
+    errors: List[str] = []
+    n = 2
+
+    # 1. 结构
+    for face in ("U", "D", "F", "B", "R", "L"):
+        if face not in facelets:
+            errors.append(f"缺少面 {face}")
+            continue
+        grid = facelets[face]
+        if len(grid) != 2:
+            errors.append(f"面 {face} 行数错误")
+            continue
+        for row in grid:
+            if len(row) != 2:
+                errors.append(f"面 {face} 存在非2列行")
+                break
+        for row in grid:
+            for cell in row:
+                if not is_valid_color(cell):
+                    errors.append(f"面 {face} 存在非法颜色 {cell}")
+                    break
+
+    if errors:
+        return errors
+
+    # 2. 每种颜色恰好 4 次
+    total = Counter()
+    for face in facelets:
+        for row in facelets[face]:
+            for cell in row:
+                total[cell] += 1
+    for c in VALID_COLORS:
+        if total[c] != 4:
+            errors.append(f"颜色 {c} 出现 {total[c]} 次（应为4）")
+
+    if errors:
+        return errors
+
+    # 3/4/5. 角块检查
+    center_of, corners, edges, centers_blocks = _extract_pieces(facelets, n)
+    if edges:
+        errors.append("2x2 不应存在棱块")
+    if centers_blocks:
+        errors.append("2x2 不应存在中心块")
+    if len(corners) != 8:
+        errors.append(f"角块数 {len(corners)} 应为8")
+
+    if errors:
+        return errors
+
+    # 3. 角槽三重集匹配：用命名面 -> 默认颜色确定每个槽位的三色
+    corner_slots = []
+    for pos, _ in corners:
+        faces = _faces_at(pos, n)
+        slot = tuple(sorted(DEFAULT_COLORS[f] for f in faces))
+        corner_slots.append(slot)
+    piece_corner_triples = []
+    for pos, colors in corners:
+        piece_corner_triples.append(tuple(sorted(colors)))
+    if sorted(corner_slots) != sorted(piece_corner_triples):
+        errors.append("角块颜色组合与槽位不匹配")
+        return errors
+
+    # 4. 角块扭转（用命名面 U/D 作为 ud 轴）
+    twist_sum = 0
+    for pos, colors in corners:
+        # colors 按轴序 [x,y,z]，y 轴面为 U 或 D
+        ud = colors[1]  # y 轴面颜色，必须是 U 或 D 之一
+        twist_sum += _corner_twist(pos, ud, colors)
+    if twist_sum % 3 != 0:
+        errors.append(f"角块扭转和 {twist_sum} 不≡0 (mod 3)")
 
     return errors
 

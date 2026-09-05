@@ -21,7 +21,7 @@ class HomeScreen(Screen):
         head = BoxLayout(orientation="vertical", size_hint_y=None, height=150, spacing=8)
         self.title = Label(text=Config.app_name, font_size="34sp", bold=True,
                            halign="center", valign="middle", size_hint_y=None, height=90)
-        self.subtitle = Label(text="3 阶与 4 阶魔方 · 智能还原", font_size="15sp",
+        self.subtitle = Label(text="2 阶 / 3 阶 / 4 阶魔方 · 智能还原", font_size="15sp",
                               color=(0.72, 0.76, 0.85, 1), halign="center",
                               valign="middle", size_hint_y=None, height=42)
         head.add_widget(self.title)
@@ -31,24 +31,29 @@ class HomeScreen(Screen):
         # 弹性空白：让主选择区在竖直方向居中
         root.add_widget(BoxLayout(size_hint_y=1))
 
-        # ---- 主选择区：3 阶 / 4 阶（大卡片按钮）----
+        # ---- 主选择区：2 阶 / 3 阶 / 4 阶（大卡片按钮）----
         cols = BoxLayout(orientation="horizontal", spacing=20,
                          size_hint=(1.0, None), height=self._card_height(), padding=0)
+        b2 = self._card("2", "2 阶魔方", "还原 Pocket Cube", onClick=lambda *a: self.pick(2))
         b3 = self._card("3", "3 阶魔方", "还原 Rubik's Cube", onClick=lambda *a: self.pick(3))
         b4 = self._card("4", "4 阶魔方", "还原 Rubik's Revenge", onClick=lambda *a: self.pick(4))
+        cols.add_widget(b2)
         cols.add_widget(b3)
         cols.add_widget(b4)
         root.add_widget(cols)
 
         # ---- 操作区 ----
         actions = BoxLayout(orientation="vertical", spacing=10,
-                            size_hint=(1.0, None), height=178)
+                            size_hint=(1.0, None), height=232)
+        demo2 = Button(text="2阶演示 · 分层法", font_size="17sp")
+        demo2.bind(on_release=lambda *a: self.start_demo(2))
         demo3 = Button(text="3阶演示 · 七步法", font_size="17sp")
         demo3.bind(on_release=lambda *a: self.start_demo(3))
         demo4 = Button(text="4阶演示 · 降阶法", font_size="17sp")
         demo4.bind(on_release=lambda *a: self.start_demo(4))
         help_btn = Button(text="使用说明", font_size="17sp")
         help_btn.bind(on_release=lambda *a: self.show_help())
+        actions.add_widget(demo2)
         actions.add_widget(demo3)
         actions.add_widget(demo4)
         actions.add_widget(help_btn)

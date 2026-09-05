@@ -13,15 +13,21 @@ from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 from kivy.uix.scrollview import ScrollView
 
+from cube.cube2 import Cube2
 from cube.cube3 import Cube3
 from cube.cube4 import Cube4
-from demo.cases import CASE_3X3, CASE_4X4, build_before
+from demo.cases import CASE_2X2, CASE_3X3, CASE_4X4, build_before
 from renderer.cube_view import CubeView
 from ui.screens.demo_screen import _changed_homes
 
 
 def _num(n):
     return ["一", "二", "三", "四", "五", "六", "七", "八", "九"][n]
+
+
+_MODE_TITLE = {2: "二阶 · 教学目录", 3: "三阶 · 教学目录", 4: "四阶 · 教学目录"}
+_MODE_STEP_TITLE = {2: "二阶 · 分层法", 3: "三阶 · 七步法", 4: "四阶 · 降阶法"}
+_MODE_STEPS = {2: CASE_2X2, 3: CASE_3X3, 4: CASE_4X4}
 
 
 def _autofit(lbl, pad=1):
@@ -54,7 +60,7 @@ def render_thumb(case, n, size=140):
     path = os.path.join(_thumbs_dir(), f"{n}_{_slug(case['name'])}.png")
     if os.path.exists(path):
         return path
-    cls = Cube3 if n == 3 else Cube4
+    cls = Cube2 if n == 2 else (Cube3 if n == 3 else Cube4)
     cube = build_before(cls.solved, case["moves"])
     hl = _changed_homes(cube)
     try:
@@ -95,12 +101,12 @@ class DemoMenuScreen(Screen):
 
     def set_mode(self, n):
         self.mode = n
-        self.lbl_title.text = "三阶 · 教学目录" if n == 3 else "四阶 · 教学目录"
+        self.lbl_title.text = _MODE_TITLE[n]
         self._rebuild()
 
     def _rebuild(self):
         self.list.clear_widgets()
-        steps = CASE_3X3 if self.mode == 3 else CASE_4X4
+        steps = _MODE_STEPS[self.mode]
         for si, step in enumerate(steps):
             head = Label(text=f"第{_num(si)}步 · {step['title']}", font_size="16sp",
                          bold=True, halign="left", valign="middle",

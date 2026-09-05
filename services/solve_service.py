@@ -54,7 +54,9 @@ class SolveService:
         self._thread.start()
 
     def _run(self, cube, on_done, on_progress, cancel):
+        from cube.cube2 import Cube2
         from cube.cube3 import Cube3
+        from solver.solver2 import solve_2x2
         from solver.solver3 import solve_3x3
         from solver.solver4 import solve_4x4
 
@@ -66,7 +68,9 @@ class SolveService:
                     pass
 
         try:
-            if isinstance(cube, Cube3):
+            if isinstance(cube, Cube2):
+                result = solve_2x2(cube, cancel_event=cancel)
+            elif isinstance(cube, Cube3):
                 # 3x3: 用 facelets 路径，复用 solver3
                 from cube.conversion import cubies_to_facelets
                 facelets = cubies_to_facelets(cube.cubies, 3)

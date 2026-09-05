@@ -59,7 +59,13 @@ FACE_AXIS_SIGN = {
 
 
 def get_d_maxc(n: int) -> Tuple[int, int]:
-    """返回 (d, maxc)。3x3 -> (1,1); 4x4 -> (2,3)。"""
+    """返回 (d, maxc)。2x2 -> (2,1); 3x3 -> (1,1); 4x4 -> (2,3)。
+
+    d 为相邻浮动层间距，maxc 为面法线层坐标。n=2 时坐标取值 {-1, 1}
+    （8 个角块），n=3 取 {-1,0,1}，n=4 取 {-3,-1,1,2}…（见 coord_values）。
+    """
+    if n == 2:
+        return 2, 1
     d = n - 2
     maxc = (n - 1) * d // 2
     return d, maxc

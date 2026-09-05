@@ -17,6 +17,7 @@ from kivy.uix.screenmanager import ScreenManager
 
 from app.constants import APP_NAME
 from app.fonts import setup_cjk_font
+from cube.cube2 import Cube2
 from cube.cube3 import Cube3
 from cube.cube4 import Cube4
 
@@ -52,14 +53,21 @@ class CubeApp(App):
     def new_cube(self, n: int):
         """新建一个已还原的 n 阶魔方，重置求解结果。"""
         self.n = n
-        self.cube = Cube4.solved() if n == 4 else Cube3.solved()
+        if n == 2:
+            self.cube = Cube2.solved()
+        elif n == 4:
+            self.cube = Cube4.solved()
+        else:
+            self.cube = Cube3.solved()
         self.solve_result = None
         self.facelets_input = None
 
     def set_cube(self, cubies, n: int):
         """设置逻辑状态（用于从录入恢复）。"""
         self.n = n
-        if n == 4:
+        if n == 2:
+            self.cube = Cube2(cubies)
+        elif n == 4:
             self.cube = Cube4(cubies)
         else:
             self.cube = Cube3(cubies)

@@ -34,7 +34,6 @@ class CubeApp(App):
         self.cube = Cube4.solved()
         self.solve_result = None
         self.facelets_input = None  # 用户录入的 facelets
-        self.demo_return = "HomeScreen"  # 演示页返回目标
         self._kv_loaded = False
 
     def build(self):

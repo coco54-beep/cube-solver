@@ -371,7 +371,6 @@ class InputScreen(Screen):
         """进入当前阶数的演示页，同时保存已录入颜色以便返回时恢复。"""
         app = _app()
         app.facelets_input = self.collect_facelets()
-        app.demo_return = "InputScreen"
         menu = self.manager.get_screen("DemoMenuScreen")
         menu.set_mode(self._n())
         self.manager.current = "DemoMenuScreen"

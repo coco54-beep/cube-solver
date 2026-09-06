@@ -11,6 +11,52 @@ from app.config import Config
 from app.theme import AUTO, LIGHT, DARK
 
 
+def _autofit(lbl, pad=1):
+    """让 Label 随文本宽度换行并自动增高，杜绝长文本溢出/重叠。"""
+    lbl.size_hint_y = None
+    lbl.bind(width=lambda w, s: setattr(w, "text_size", (s, None)) if s else None)
+
+    def _h(w, tex):
+        if tex[0]:
+            w.height = tex[1] + pad
+
+    lbl.bind(texture_size=_h)
+
+
+# 「使用说明」章节内容（标题 + 正文），与 README 产品描述一致
+_HELP_SECTIONS = [
+    ("选择魔方",
+     "首页用卡片选择 2 / 3 / 4 / 5 阶魔方（横屏 1×4、竖屏 2×2）。\n"
+     "点卡片进入对应的录入页；下方「使用说明」随时回到本页。"),
+    ("录入布局",
+     "展开图逐格点色即可录入每个面的颜色：先用六色选择器选中颜色，\n"
+     "再逐个点格子。也可以点「随机」一键载入一套随机的打乱布局来测试破解；\n"
+     "录入完成后可点「校验」检查布局是否合法。"),
+    ("一键求解",
+     "录入完成后点「开始求解」，程序在后台计算还原步骤，\n"
+     "实时显示当前阶段与进度，可随时取消。"),
+    ("3D 回放",
+     "求解结果用 3D 视图逐步演示：拖动旋转视角，滚轮 / 双指缩放；\n"
+     "支持上一步 / 下一步 / 自动播放 / 跳到结尾，也可调节播放速度。"),
+    ("教学演示",
+     "演示目录按阶数收录了标准案例：2 阶分层法、3 阶七步法、\n"
+     "4 阶与 5 阶降阶法。其中 5 阶只聚焦它与 4 阶不同的地方——\n"
+     "中心是 3×3（有固定中心点）、每条棱由中棱 + 2 翼三块组成。"),
+    ("主题切换",
+     "首页「主题」按钮可在 自动 / 浅色 / 深色 之间循环切换；\n"
+     "自动模式会跟随系统（Windows / Android）的浅深色设置。"),
+    ("颜色与记号",
+     "魔方六色固定：上黄、下白、前蓝、后绿、左橙、右红。\n"
+     "常用记号：R L U D F B 转最外层，加 ' 表示逆时针，加 2 表示转 180°；\n"
+     "小写（如 r u）表示宽层（一次多转一层），4/5 阶降阶法常用。"),
+    ("求解原理（进阶）",
+     "2 阶与 3 阶按两阶段算法（Kociemba）求解，保证步数很少；\n"
+     "4 阶与 5 阶用降阶法：先还原中心块，再配对棱块，最后当作 3 阶还原。\n"
+     "注：5 阶对很深的随机打乱，配棱阶段可能无法保证完整还原，\n"
+     "此时会提示失败而非给出错误解法。"),
+]
+
+
 class HomeScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -182,28 +228,23 @@ class HomeScreen(Screen):
 
     def show_help(self):
         from kivy.uix.popup import Popup
-        from kivy.uix.boxlayout import BoxLayout
-        from kivy.uix.label import Label
-        body = BoxLayout(orientation="vertical", spacing=8, padding=12)
-        sections = [
-            ("录入", "点击对应阶进入录入页，逐格输入每个面的颜色。\n"
-                     "可用「随机」快速加载一个打乱布局测试破解。"),
-            ("求解", "录入完成后点「开始求解」，程序计算还原步骤。"),
-            ("回放", "用 3D 视图演示还原：拖动旋转视角，滚轮/双指缩放；\n"
-                     "支持上一步 / 下一步 / 自动播放 / 跳结尾。"),
-        ]
-        for title, text in sections:
-            t = Label(text=title, font_size="17sp", bold=True,
-                      halign="left", valign="middle", size_hint_y=None, height=30)
-            l = Label(text=text, font_size="15sp", color=(0.85, 0.88, 0.93, 1),
-                      halign="left", valign="top", size_hint_y=None, height=62)
-            body.add_widget(t)
-            body.add_widget(l)
-        popup = Popup(title="使用说明", content=body, size_hint=(0.9, 0.7))
-        # 文字换行：绑定 text_size 到各自尺寸
-        for w in body.children:
-            if isinstance(w, Label):
-                w.bind(size=lambda ins, s: setattr(ins, "text_size", s))
+        from kivy.uix.scrollview import ScrollView
+        theme = _app().theme
+        inner = BoxLayout(orientation="vertical", spacing=4,
+                          size_hint_y=None, padding=[8, 4, 8, 4])
+        inner.bind(minimum_height=inner.setter("height"))
+        for title, body in _HELP_SECTIONS:
+            t = Label(text=title, font_size="17sp", bold=True, halign="left",
+                      valign="middle", color=theme.text)
+            b = Label(text=body, font_size="15sp", halign="left", valign="top",
+                      color=theme.text_muted)
+            _autofit(t, pad=8)
+            _autofit(b, pad=8)
+            inner.add_widget(t)
+            inner.add_widget(b)
+        sv = ScrollView()
+        sv.add_widget(inner)
+        popup = Popup(title="使用说明", content=sv, size_hint=(0.92, 0.9))
         popup.open()
 
 

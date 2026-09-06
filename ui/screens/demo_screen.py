@@ -1,7 +1,8 @@
-"""演示页：用 3D 动画展示 2 阶分层法 / 3 阶七步法 / 4 阶降阶法的标准案例。
+"""演示页：用 3D 动画展示 2 阶分层法 / 3 阶七步法 / 4 阶与 5 阶降阶法的标准案例。
 
 每个案例先摆出「初始状态」（= 还原魔方施加公式的逆），再逐式播放公式，
 动画结束后回到还原态；同时显示步骤、案例名、公式与记忆口诀。
+5 阶只收录与四阶不同的部分（中心 3×3 / 三块棱配对）。
 """
 
 from kivy.clock import Clock
@@ -14,7 +15,8 @@ from kivy.uix.scrollview import ScrollView
 from cube.cube2 import Cube2
 from cube.cube3 import Cube3
 from cube.cube4 import Cube4
-from demo.cases import CASE_2X2, CASE_3X3, CASE_4X4, build_before
+from cube.cube5 import Cube5
+from demo.cases import CASE_2X2, CASE_3X3, CASE_4X4, CASE_5X5, build_before
 from renderer.cube_view import CubeView
 from renderer.turn import decompose_move
 
@@ -25,15 +27,16 @@ def _theme():
 
 
 def _mode_title(n):
-    return {2: "二阶 · 分层法", 3: "三阶 · 七步法", 4: "四阶 · 降阶法"}[n]
+    return {2: "二阶 · 分层法", 3: "三阶 · 七步法", 4: "四阶 · 降阶法",
+            5: "五阶 · 降阶法"}[n]
 
 
 def _steps_for(n):
-    return {2: CASE_2X2, 3: CASE_3X3, 4: CASE_4X4}[n]
+    return {2: CASE_2X2, 3: CASE_3X3, 4: CASE_4X4, 5: CASE_5X5}[n]
 
 
 def _cls_for(n):
-    return {2: Cube2, 3: Cube3, 4: Cube4}[n]
+    return {2: Cube2, 3: Cube3, 4: Cube4, 5: Cube5}[n]
 
 
 def _autofit(lbl, pad=1):
@@ -144,7 +147,7 @@ class DemoScreen(Screen):
         self._show_case()
 
     def toggle_mode(self):
-        self.mode = 2 if self.mode == 4 else self.mode + 1
+        self.mode = 2 if self.mode == 5 else self.mode + 1
         self._steps = _steps_for(self.mode)
         self.lbl_mode.text = _mode_title(self.mode)
         self._si = 0

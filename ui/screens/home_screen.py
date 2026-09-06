@@ -45,8 +45,12 @@ class HomeScreen(Screen):
         root.add_widget(self.cards)
         # 横屏 1×4，竖屏 2×2；监听窗口尺寸变化重排。
         from kivy.core.window import Window
+        self._last_win_size = None
         Window.bind(size=self._relayout)
         Clock.schedule_once(self._relayout, 0.1)
+        # 兜底轮询：Kivy 的 Window.size 事件在部分平台（尤其 Android 转屏、
+        # 或以代码方式改尺寸）不触发，主动周期性比对，尺寸变了才重排。
+        Clock.schedule_interval(self._poll_layout, 0.2)
 
         # ---- 操作区 ----
         actions = BoxLayout(orientation="vertical", spacing=10,
@@ -86,8 +90,16 @@ class HomeScreen(Screen):
         from kivy.core.window import Window
         self._apply_layout(Window.width, Window.height)
 
+    def _poll_layout(self, _dt):
+        """兜底：周期性检查窗口尺寸，变了才重排（避免依赖不稳定的 size 事件）。"""
+        from kivy.core.window import Window
+        cur = (Window.width, Window.height)
+        if cur != self._last_win_size:
+            self._apply_layout(*cur)
+
     def _apply_layout(self, w, h):
         """横屏：4 列 1 行（1×4）；竖屏：2 列 2 行（2×2）。"""
+        self._last_win_size = (w, h)
         if w > h:
             self.cards.cols = 4
             self.cards.height = self._card_height(h)

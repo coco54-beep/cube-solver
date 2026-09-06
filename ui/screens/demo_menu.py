@@ -110,7 +110,7 @@ class DemoMenuScreen(Screen):
         for si, step in enumerate(steps):
             head = Label(text=f"第{_num(si)}步 · {step['title']}", font_size="16sp",
                          bold=True, halign="left", valign="middle",
-                         color=(0.95, 0.97, 1, 1))
+                         color=_app().theme.text)
             _autofit(head)
             self.list.add_widget(head)
             for ci, case in enumerate(step["cases"]):
@@ -131,9 +131,9 @@ class DemoMenuScreen(Screen):
         name = Label(text=case["name"], font_size="16sp", bold=True,
                      halign="left", valign="middle")
         formula = Label(text=case["text"], font_size="13sp", halign="left",
-                        valign="middle", color=(0.8, 0.84, 0.9, 1))
+                        valign="middle", color=_app().theme.text_muted)
         tip = Label(text=case["tip"], font_size="13sp", halign="left",
-                    valign="middle", color=(0.7, 0.74, 0.82, 1))
+                    valign="middle", color=_app().theme.text_faint)
         for w in (name, formula, tip):
             _autofit(w)
             info.add_widget(w)
@@ -156,6 +156,12 @@ class DemoMenuScreen(Screen):
             self.open_case(si, ci)
             return True
         return False
+
+    def refresh_theme(self):
+        """主题切换后按当前主题色重建列表。"""
+        self.lbl_title.color = _app().theme.text
+        if getattr(self, "list", None):
+            self._rebuild()
 
     def open_case(self, si, ci):
         demo = self.manager.get_screen("DemoScreen")

@@ -19,6 +19,11 @@ from renderer.cube_view import CubeView
 from renderer.turn import decompose_move
 
 
+def _theme():
+    from kivy.app import App
+    return App.get_running_app().theme
+
+
 def _mode_title(n):
     return {2: "二阶 · 分层法", 3: "三阶 · 七步法", 4: "四阶 · 降阶法"}[n]
 
@@ -85,15 +90,15 @@ class DemoScreen(Screen):
                          padding=[2, 0, 2, 0])
         info.bind(minimum_height=info.setter("height"))
         self.lbl_title = Label(text="", font_size="17sp", bold=True, halign="left",
-                               valign="middle", color=(0.95, 0.97, 1, 1))
+                               valign="middle", color=_theme().text)
         self.lbl_desc = Label(text="", font_size="13sp", halign="left", valign="top",
-                              color=(0.78, 0.82, 0.9, 1))
+                              color=_theme().text_muted)
         self.lbl_case = Label(text="", font_size="15sp", halign="left", valign="middle",
-                              color=(0.9, 0.93, 0.98, 1))
+                              color=_theme().text)
         self.lbl_text = Label(text="", font_size="18sp", halign="center",
                               valign="middle", bold=True)
         self.lbl_tip = Label(text="", font_size="14sp", halign="center",
-                             valign="middle", color=(0.8, 0.84, 0.9, 1))
+                             valign="middle", color=_theme().text_muted)
         for w in (self.lbl_title, self.lbl_desc, self.lbl_case,
                   self.lbl_text, self.lbl_tip):
             _autofit(w)
@@ -118,6 +123,15 @@ class DemoScreen(Screen):
         root.add_widget(ctl)
 
         self.add_widget(root)
+
+    def refresh_theme(self):
+        """主题切换后刷新信息区文字颜色。"""
+        t = _theme()
+        self.lbl_mode.color = t.text
+        self.lbl_title.color = t.text
+        self.lbl_desc.color = t.text_muted
+        self.lbl_case.color = t.text
+        self.lbl_tip.color = t.text_muted
 
     # ---- 模式 / 导航 ----
     def enter_case(self, mode, si, ci):

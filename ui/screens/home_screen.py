@@ -8,6 +8,7 @@ from kivy.uix.anchorlayout import AnchorLayout
 from kivy.clock import Clock
 
 from app.config import Config
+from app.theme import AUTO, LIGHT, DARK
 
 
 class HomeScreen(Screen):
@@ -23,7 +24,7 @@ class HomeScreen(Screen):
         self.title = Label(text=Config.app_name, font_size="34sp", bold=True,
                            halign="center", valign="middle", size_hint_y=None, height=90)
         self.subtitle = Label(text="2 阶 / 3 阶 / 4 阶 / 5 阶魔方 · 智能还原", font_size="15sp",
-                              color=(0.72, 0.76, 0.85, 1), halign="center",
+                              color=_app().theme.text_muted, halign="center",
                               valign="middle", size_hint_y=None, height=42)
         head.add_widget(self.title)
         head.add_widget(self.subtitle)
@@ -53,21 +54,25 @@ class HomeScreen(Screen):
         Clock.schedule_interval(self._poll_layout, 0.2)
 
         # ---- 操作区 ----
-        actions = BoxLayout(orientation="vertical", spacing=10,
+        actions = BoxLayout(orientation="horizontal", spacing=10,
                             size_hint=(1.0, None), height=52)
         help_btn = Button(text="使用说明", font_size="17sp")
         help_btn.bind(on_release=lambda *a: self.show_help())
+        self.theme_btn = Button(text="主题：自动", font_size="15sp")
+        self.theme_btn.bind(on_release=lambda *a: self.cycle_theme())
         actions.add_widget(help_btn)
+        actions.add_widget(self.theme_btn)
         root.add_widget(actions)
+        self._update_theme_btn()
 
         # 弹性空白
         root.add_widget(BoxLayout(size_hint_y=1))
 
         # ---- 底部版本 ----
         bottom = AnchorLayout(size_hint_y=None, height=40)
-        ver = Label(text=f"版本 {Config.app_version}", font_size="13sp",
-                    color=(0.5, 0.53, 0.62, 1), halign="center", valign="middle")
-        bottom.add_widget(ver)
+        self._ver_label = Label(text=f"版本 {Config.app_version}", font_size="13sp",
+                                color=_app().theme.text_faint, halign="center", valign="middle")
+        bottom.add_widget(self._ver_label)
         root.add_widget(bottom)
 
         self.add_widget(root)
@@ -111,25 +116,57 @@ class HomeScreen(Screen):
     def _card(self, big, title, desc, onClick):
         """创建一个卡片式按钮（大字标题 + 描述）。"""
         from kivy.graphics import Color, RoundedRectangle
+        theme = _app().theme
         card = BoxLayout(orientation="vertical", spacing=2, padding=10)
         card.bind(on_touch_down=lambda instance, touch, c=card: self._on_card_touch(c, touch))
         with card.canvas.before:
-            Color(0.17, 0.23, 0.34, 1)
+            fill = Color(*theme.surface)
             rect = RoundedRectangle(pos=card.pos, size=card.size, radius=[16, 16, 16, 16])
         card.bind(pos=lambda *a: setattr(rect, "pos", card.pos),
                   size=lambda *a: setattr(rect, "size", card.size))
         # 用 size_hint 比例占满卡片，避免固定高度导致文字重叠
         big_label = Label(text=big, font_size="46sp", bold=True, halign="center",
-                          valign="middle", color=(1, 1, 1, 1), size_hint_y=0.52)
+                          valign="middle", color=theme.text, size_hint_y=0.52)
         title_label = Label(text=title, font_size="19sp", bold=True, halign="center",
-                            valign="middle", size_hint_y=0.26)
+                            valign="middle", color=theme.text, size_hint_y=0.26)
         desc_label = Label(text=desc, font_size="13sp", halign="center",
-                           valign="middle", color=(0.8, 0.84, 0.9, 1), size_hint_y=0.22)
+                           valign="middle", color=theme.text_muted, size_hint_y=0.22)
         card.add_widget(big_label)
         card.add_widget(title_label)
         card.add_widget(desc_label)
         card._on_click = onClick
+        card._fill_rgba = fill
+        card._labels = (big_label, title_label, desc_label)
         return card
+
+    def _update_theme_btn(self):
+        labels = {AUTO: "主题：自动", LIGHT: "主题：浅色", DARK: "主题：深色"}
+        self.theme_btn.text = labels.get(_app().theme_mode, "主题：自动")
+
+    def cycle_theme(self):
+        app = _app()
+        order = (AUTO, LIGHT, DARK)
+        idx = order.index(app.theme_mode)
+        app.set_theme_mode(order[(idx + 1) % len(order)])
+        self.refresh_theme()
+
+    def refresh_theme(self):
+        """主题切换后刷新 Python 端硬编码的颜色。"""
+        theme = _app().theme
+        self.subtitle.color = theme.text_muted
+        self._ver_label.color = theme.text_faint
+        self._update_theme_btn()
+        cards = getattr(self, "cards", None)
+        if cards:
+            for card in cards.children:
+                try:
+                    card._fill_rgba.rgba = theme.surface
+                    big, title, desc = card._labels
+                    big.color = theme.text
+                    title.color = theme.text
+                    desc.color = theme.text_muted
+                except Exception:
+                    pass
 
     def _on_card_touch(self, card, touch):
         if card.collide_point(*touch.pos):

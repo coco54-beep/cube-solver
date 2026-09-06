@@ -1,11 +1,12 @@
 #:import get_color_from_hex kivy.utils.get_color_from_hex
 
-# ===== 全局主题 =====
-# 背景与文字
+# ===== 全局主题（绑定 app.theme.*，随主题切换自动重绘） =====
+
+# 背景
 <Screen>:
     canvas.before:
         Color:
-            rgba: get_color_from_hex("12141c")
+            rgba: app.theme.bg
         Rectangle:
             pos: self.pos
             size: self.size
@@ -13,15 +14,14 @@
 # 统一按钮
 <Button>:
     background_normal: ""
-    background_color: get_color_from_hex("2b3a55")
-    color: 1, 1, 1, 1
+    background_color: app.theme.button
+    color: app.theme.button_text
     font_size: "17sp"
     bold: False
-    # 禁用态
-    disabled_color: 0.5, 0.5, 0.55, 1
+    disabled_color: app.theme.disabled_text
     canvas.before:
         Color:
-            rgba: get_color_from_hex("2b3a55") if self.state == "normal" else get_color_from_hex("3d5175")
+            rgba: app.theme.button if self.state == "normal" else app.theme.button_pressed
         RoundedRectangle:
             pos: self.pos
             size: self.size
@@ -29,10 +29,11 @@
 
 # 主要操作按钮（绿色）
 <PrimaryButton>:
-    background_color: get_color_from_hex("2e7d4f")
+    background_color: app.theme.primary
+    color: app.theme.primary_text
     canvas.before:
         Color:
-            rgba: get_color_from_hex("2e7d4f") if self.state == "normal" else get_color_from_hex("3d9b62")
+            rgba: app.theme.primary if self.state == "normal" else app.theme.primary_pressed
         RoundedRectangle:
             pos: self.pos
             size: self.size
@@ -40,10 +41,11 @@
 
 # 次要/危险按钮（红色）
 <DangerButton>:
-    background_color: get_color_from_hex("7d3b3b")
+    background_color: app.theme.danger
+    color: app.theme.danger_text
     canvas.before:
         Color:
-            rgba: get_color_from_hex("7d3b3b") if self.state == "normal" else get_color_from_hex("9b5050")
+            rgba: app.theme.danger if self.state == "normal" else app.theme.danger_pressed
         RoundedRectangle:
             pos: self.pos
             size: self.size
@@ -51,7 +53,7 @@
 
 # 标签
 <Label>:
-    color: 1, 1, 1, 1
+    color: app.theme.text
     font_size: "16sp"
     halign: "left"
     valign: "middle"
@@ -65,5 +67,5 @@
 # 子标题
 <SubLabel@Label>:
     font_size: "15sp"
-    color: 0.75, 0.78, 0.85, 1
+    color: app.theme.text_muted
     halign: "center"

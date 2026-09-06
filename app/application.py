@@ -21,6 +21,7 @@ from cube.cube2 import Cube2
 from cube.cube3 import Cube3
 from cube.cube4 import Cube4
 from cube.cube5 import Cube5
+from app.theme import Theme, AUTO, LIGHT, DARK, resolve_dark, load_saved_mode, save_mode
 
 _KV_PATH = os.path.join(os.path.dirname(__file__), "..", "ui", "kv", "app.kv")
 
@@ -36,6 +37,12 @@ class CubeApp(App):
         self.solve_result = None
         self.facelets_input = None  # 用户录入的 facelets
         self._kv_loaded = False
+        # ---- 主题 ----
+        self.theme = Theme()
+        self.theme_mode = load_saved_mode()
+        self.is_dark = True
+        self.theme.apply(True)
+        self._apply_theme_mode()
 
     def build(self):
         # 惰性加载 KV：保证在 App 上下文中
@@ -77,6 +84,35 @@ class CubeApp(App):
         else:
             self.cube = Cube3(cubies)
         self.solve_result = None
+
+
+    def _apply_theme_mode(self):
+        """根据当前 theme_mode（auto/light/dark）解析深浅并应用到 Theme。"""
+        self.is_dark = resolve_dark(self.theme_mode)
+        self.theme.apply(self.is_dark)
+        self._refresh_screens()
+
+    def set_theme_mode(self, mode: str):
+        """设置主题模式（auto/light/dark），持久化并实时生效。"""
+        if mode not in (AUTO, LIGHT, DARK):
+            return
+        self.theme_mode = mode
+        save_mode(mode)
+        self._apply_theme_mode()
+
+    def _refresh_screens(self):
+        """通知所有已构建的屏幕刷新其 Python 端颜色。"""
+        sm = getattr(self, "root", None)
+        if sm is None:
+            return
+        screens = list(getattr(sm, "screens", [])) or list(sm.children)
+        for scr in screens:
+            fn = getattr(scr, "refresh_theme", None)
+            if fn:
+                try:
+                    fn()
+                except Exception:
+                    pass
 
 
 def _screen(name):

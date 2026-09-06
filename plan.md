@@ -1,1191 +1,1176 @@
-可以。建议采用 **Python + Kivy + OpenGL ES 2.0 + Buildozer** 开发 Android APK。  
-其中界面、状态管理、求解流程都使用 Python；3D 魔方建议直接使用 Kivy 的 OpenGL 指令实现，不建议依赖多年未维护的 `kivy3`。
-
-下面是一份可以直接交给其他 AI 编程工具的开发任务书。
+可以。下面给出从当前 **430 tests passed、M1+M2 已入库**，一直到“任意合法5×5打乱能够端到端还原”的完整实施计划。后续可按此连续推进，不再每完成一小段就重新确认方向。
 
 ---
 
-# 3阶/4阶魔方智能还原 Android App 开发任务书
+# 一、总路线
 
-## 一、项目基本信息
-
-### 1. 项目名称
-
-**3D魔方智能还原助手**
-
-### 2. 项目目标
-
-开发一款可安装在 Android 手机端的 APK，支持：
-
-1. 3阶魔方状态录入；
-2. 4阶魔方状态录入；
-3. 魔方状态合法性校验；
-4. 根据用户手动输入的六面颜色自动计算还原步骤；
-5. 使用3D魔方动画逐步展示还原过程；
-6. 支持上一步、下一步、自动播放、暂停和重新开始；
-7. 整个求解过程离线完成，不依赖服务器。
-
-### 3. 开发技术
-
-- Python 3.10+
-- Kivy 2.x
-- OpenGL ES 2.0
-- NumPy
-- Buildozer
-- python-for-android
-- Android 最低版本：Android 8.0
-- 目标架构：优先支持 `arm64-v8a`
-- 数据存储：JSON 或 SQLite
-- 开发环境：Linux、WSL2 或 Ubuntu 虚拟机
-
-> Windows 可以编写代码，但 Buildozer 打包 APK 建议放在 WSL2/Ubuntu 中完成。
-
----
-
-# 二、重要开发原则
-
-## 1. 必须根据录入状态求解
-
-不允许使用“记录用户打乱操作后倒序播放”的伪求解方式。
-
-用户可能直接拿来一个已打乱的真实魔方，逐面输入颜色。因此程序必须：
-
-- 根据六面颜色建立完整魔方状态；
-- 对状态进行合法性检查；
-- 从任意合法状态计算还原步骤。
-
-## 2. 必须同时支持3阶和4阶
-
-- 3阶不能只是演示；
-- 4阶不能用3阶模型冒充；
-- 4阶必须支持中心块整理、棱块配对和特殊翻棱情况；
-- 4阶需要正确处理 OLL parity、PLL parity 等特殊情况。
-
-## 3. 求解与3D显示使用同一状态模型
-
-求解器输出的每一步必须能够应用到逻辑状态和3D模型。
-
-严禁出现：
-
-- 求解器显示已还原，但3D模型没有还原；
-- 动画旋转方向与公式方向相反；
-- 3D模型还原了，但内部颜色状态不一致；
-- 4阶宽层转动只转外层、漏转内层。
-
----
-
-# 三、核心功能需求
-
-## 3.1 首页
-
-首页包含以下内容：
-
-- 应用名称；
-- “3阶魔方”按钮；
-- “4阶魔方”按钮；
-- “使用说明”按钮；
-- “历史记录”按钮，可放到后续版本；
-- 版本号。
-
-用户点击3阶或4阶后进入对应录入页面。
-
----
-
-## 3.2 魔方颜色录入
-
-### 3.2.1 录入方式
-
-采用“六面展开图+逐格点击”的方式输入颜色。
-
-六个面的标准标识：
-
-- `U`：上面
-- `R`：右面
-- `F`：前面
-- `D`：下面
-- `L`：左面
-- `B`：后面
-
-建议展开图布局：
+完整流程固定为：
 
 ```text
-            U
-      L     F     R     B
-            D
+输入合法5×5状态
+    ↓
+中心还原 solve_centers5（已完成、冻结）
+    ↓
+常规棱配对（前10条）
+    ↓
+最后两棱 + 配对奇偶
+    ↓
+验证：中心按颜色归面 + 12条棱全部配对
+    ↓
+构造 reduced 3×3
+    ↓
+检测并修正降阶奇偶
+    ↓
+调用 solve_3x3
+    ↓
+把3×3动作映射为5×5外层动作
+    ↓
+整机重放、校验、简化动作
 ```
 
-### 3.2.2 颜色选项
+剩余工作分成七个里程碑：
 
-默认支持六种颜色：
-
-- 白色
-- 黄色
-- 红色
-- 橙色
-- 蓝色
-- 绿色
-
-不能仅仅通过颜色区分，还要增加字母或符号，方便色觉异常用户使用，例如：
-
-- W：白
-- Y：黄
-- R：红
-- O：橙
-- B：蓝
-- G：绿
-
-### 3.2.3 操作方式
-
-录入页面包含：
-
-- 当前选择颜色；
-- 六种颜色按钮；
-- 魔方六面展开图；
-- 点击格子后填入当前颜色；
-- 长按或再次点击可修改颜色；
-- 清空当前面；
-- 清空全部；
-- 自动填充标准中心颜色；
-- 恢复默认配色；
-- 查看3D预览；
-- 检查状态；
-- 开始破解。
-
-### 3.2.4 3阶颜色录入
-
-3阶每面为 `3×3`，共54个色块。
-
-要求：
-
-- 每种颜色必须正好出现9次；
-- 六个中心块必须为六种不同颜色；
-- 默认中心面配色可设置为：
-
-```text
-U = 白
-D = 黄
-F = 绿
-B = 蓝
-R = 红
-L = 橙
-```
-
-用户可以修改配色，但必须保持相对方向一致。
-
-### 3.2.5 4阶颜色录入
-
-4阶每面为 `4×4`，共96个色块。
-
-要求：
-
-- 每种颜色必须正好出现16次；
-- 4阶没有固定中心块，不能简单使用单个中心格确定面；
-- 用户录入前需要选择或确认六个面的空间方向；
-- 默认仍采用：
-
-```text
-U = 白
-D = 黄
-F = 绿
-B = 蓝
-R = 红
-L = 橙
-```
-
-录入页面应显示明确提示：
-
-> 请固定魔方方向后依次录入。录入过程中不要旋转整个魔方的空间方向。
+| 里程碑 | 内容                                |
+| ------ | ----------------------------------- |
+| M2.5   | 穿谷单棱构造器                      |
+| M3     | 保护式常规棱配对                    |
+| M4     | 前10条棱配对                        |
+| M5     | 最后两棱与配对奇偶                  |
+| M6     | reduced 3×3 映射与奇偶检测          |
+| M7     | 接入 `solve_3x3`                    |
+| M8     | `solver5.py` 端到端集成、回归和优化 |
 
 ---
 
-# 四、状态合法性校验
+# 二、模块规划
 
-## 4.1 通用校验
+建议最终形成：
 
-点击“检查状态”或“开始破解”时进行以下校验：
+```text
+solver/
+├── center5/                    # 已冻结
+├── edge5/
+│   ├── __init__.py
+│   ├── positions.py            # 已完成
+│   ├── state.py                # 已完成
+│   ├── moves.py                # 已完成
+│   ├── compact_state.py        # 联合搜索紧凑状态
+│   ├── heuristic.py            # 搜索评分和下界
+│   ├── single_edge.py          # 单棱构造器正式实现
+│   ├── macro_search.py         # 中心闭环宏挖掘
+│   ├── macros.py               # 已验证高层宏
+│   ├── protected.py            # 已配棱保护模型
+│   ├── regular_pairing.py      # 常规前10棱
+│   ├── last_edges.py           # 最后两棱
+│   ├── parity.py               # 棱配对/降阶奇偶
+│   └── solver.py               # solve_edges5
+├── reduction5/
+│   ├── __init__.py
+│   ├── state.py                # reduced 3×3 状态
+│   ├── mapping.py              # Cube5 → Cube3
+│   ├── validation.py           # 降阶合法性检查
+│   └── replay.py               # 3×3外层动作回放到Cube5
+└── solver5.py                  # 总流程
 
-1. 是否所有格子都已经输入；
-2. 是否只包含六种允许颜色；
-3. 每种颜色数量是否正确；
-4. 是否存在重复面配色；
-5. 对面颜色关系是否有效；
-6. 色块能否映射成有效的角块、棱块、中心块组合。
+tools/research/5x5/
+├── benchmark_single_edge.py
+├── search_edge_macros.py
+├── analyze_last_edges.py
+└── edge_pairing_analysis.md
 
-错误时不能崩溃，必须用中文说明具体原因。
+tests/
+├── test_edge5_search.py
+├── test_edge5_regular_pairing.py
+├── test_edge5_last_edges.py
+├── test_edge5_parity.py
+├── test_reduction5.py
+└── test_solver5_e2e.py
+```
 
-例如：
+原则：
 
-- “白色色块应为9个，当前为8个。”
-- “红色色块应为16个，当前为17个。”
-- “右面第2行第3列尚未输入颜色。”
-- “检测到不存在的角块：白-黄-红。”
-- “该状态可能由录入错误导致，无法通过正常转动还原。”
-- “3阶角块翻转状态不合法。”
-- “3阶棱块翻转状态不合法。”
-- “角块与棱块排列奇偶性不一致。”
-
-## 4.2 3阶状态校验
-
-至少检查：
-
-- 8个角块是否完整且唯一；
-- 12个棱块是否完整且唯一；
-- 角块方向总和是否合法；
-- 棱块方向总和是否合法；
-- 角块与棱块置换奇偶性是否一致；
-- 中心颜色和面方向映射是否有效。
-
-## 4.3 4阶状态校验
-
-至少检查：
-
-- 8个角块；
-- 24个棱翼块；
-- 24个中心块；
-- 各类零件颜色组合是否合法；
-- 是否存在明显不可能的颜色组合；
-- 是否存在录入缺失或重复零件。
-
-由于4阶存在中心块和同色棱翼块不可区分问题，校验模块应允许合法的4阶奇偶状态，不能误判为3阶非法状态。
+- 不修改已冻结的 `solver/center5/`；
+- 新算法只通过其公开状态判定或已有接口使用中心模块；
+- 不把研究脚本直接作为运行时依赖；
+- 所有正式动作必须在真实 `Cube5` 上重放验证。
 
 ---
 
-# 五、魔方内部数据模型
+# 三、M2.5：破解深打乱单棱构造
 
-## 5.1 统一坐标系
+这是当前第一优先级。
 
-必须在项目开始时固定坐标系，不得在各模块中自行定义不同方向。
+## 3.1 联合目标
 
-建议：
+废弃严格的：
 
 ```text
-X轴正方向：R
-X轴负方向：L
-Y轴正方向：U
-Y轴负方向：D
-Z轴正方向：F
-Z轴负方向：B
+Gather完成后保持目标棱不拆 → Restore中心
 ```
 
-## 5.2 状态表示
-
-建议同时提供两种状态模型。
-
-### A. FaceletModel
-
-用于颜色录入和界面显示：
+改为单一联合目标：
 
 ```python
-faces = {
-    "U": [...],
-    "R": [...],
-    "F": [...],
-    "D": [...],
-    "L": [...],
-    "B": [...]
-}
+is_edge_paired(cube, target_type) \
+and centers_are_color_solved(cube)
 ```
 
-3阶每个面9个元素，4阶每个面16个元素。
+搜索过程中允许：
 
-### B. CubieModel
+- 目标三块棱暂时聚集后再次拆散；
+- 中心错位暂时增加；
+- 匹配数从3退回2、1甚至0；
+- 未保护棱任意变化。
 
-用于转动、求解和合法性判断：
+## 3.2 紧凑状态
+
+建立：
 
 ```python
-class Cubie:
-    position: tuple[int, int, int]
-    home_position: tuple[int, int, int]
-    stickers: dict[str, str]
-    orientation: object
+@dataclass(frozen=True)
+class CompactPairingState:
+    middle_pos: int
+    wing_pos_a: int
+    wing_pos_b: int
+    center_color_signature: tuple[int, ...]
 ```
 
-3阶包含：
+其中：
 
-- 8个角块；
-- 12个棱块；
-- 6个中心块。
+- 两个同色翼不可区分时，对位置排序；
+- 中心签名只记录位置颜色，不记录同色块身份；
+- 第一版不记录其余33个棱块身份；
+- 每条候选路径最终必须在完整 `Cube5` 上重放，防止抽象状态丢失约束。
 
-4阶包含：
-
-- 8个角块；
-- 24个棱翼块；
-- 24个中心块。
-
-## 5.3 状态同步
-
-必须实现：
+如果紧凑状态出现不同真实状态映射到同一键、导致错误剪枝，再按需增加：
 
 ```python
-facelets_to_cubies()
-cubies_to_facelets()
-apply_move()
-is_solved()
-clone_state()
-validate_state()
+work_area_edge_signature
 ```
 
-每次动画完成一个90度转动后，逻辑状态必须准确更新。
+而不是直接退回完整98块状态。
+
+## 3.3 穿谷分桶 beam
+
+每层候选按以下维度分桶：
+
+```text
+目标匹配成员数：0 / 1 / 2 / 3
+中心颜色错位：0 / 1–8 / 9–16 / 17–24 / 25+
+穿谷深度：0 / 1–2 / 3–4 / 5+
+```
+
+每个桶独立保留候选，防止“目标已聚集但中心无法恢复”的状态占满整个 beam。
+
+评分建议：
+
+```python
+score = (
+    goal_reached,
+    target_members_in_same_slot,
+    -target_piece_slot_distance,
+    -center_color_mismatch,
+    -valley_depth,
+    -path_length,
+)
+```
+
+不能把评分做成硬单调约束。
+
+## 3.4 多样性保留
+
+同一层除高分候选外，额外保留：
+
+- 中心错位最低的一批；
+- 目标棱聚集度最高的一批；
+- 与当前最优状态差异最大的一批；
+- 最近首次达到某种 `(matched, center_bucket)` 组合的一批。
+
+这样可以保留跨越局部低谷的路线。
+
+## 3.5 禁忌与动作剪枝
+
+只做安全剪枝：
+
+- 禁止动作后立即执行其逆；
+- 同一面连续动作规范化；
+- 四次同动作循环不展开；
+- 相邻同轴可交换动作按规范顺序保留一种；
+- 不禁止“暂时拆棱”；
+- 不禁止“暂时增加中心错位”。
+
+## 3.6 双向/meet-in-the-middle 备选
+
+如果穿谷 beam 对长度8～10仍无明显改善，再加入双向搜索。
+
+目标集合不是单状态，而是：
+
+```text
+目标色对三块处于同一逻辑槽
++
+中心按颜色归面
+```
+
+可以先固定一个工作槽以缩小目标集合。
+
+流程：
+
+```text
+当前紧凑状态正向展开 d1
+目标集合反向展开 d2
+在紧凑状态键上相遇
+拼接动作
+完整 Cube5 重放验证
+```
+
+## 3.7 中心闭环宏挖掘
+
+与穿谷搜索并行研究，但不阻塞主线。
+
+宏的验收条件改为：
+
+```text
+起点中心颜色归面
+终点中心颜色归面
+中间可任意扰动中心
+对目标棱产生有利变化
+```
+
+候选结构：
+
+```text
+S A S'
+[A, B]
+S [A, B] S'
+A B C B' A'
+```
+
+不再要求：
+
+- 纯翼3-cycle；
+- 固定所有中棱；
+- 只移动三个棱块。
+
+正式宏只需满足：
+
+- 中心最终恢复；
+- 固定面心保持；
+- 动作合法；
+- 对某类配对状态有稳定效果；
+- 在真实 `Cube5` 上可重放；
+- 逆动作正确。
+
+## 3.8 M2.5 验收标准
+
+固定同一组种子和动作生成规则：
+
+| 打乱长度 |               最低目标 |
+| -------: | ---------------------: |
+|     1～3 |                   100% |
+|     4～6 |                   ≥90% |
+|    8～10 | ≥70%，且明显优于旧beam |
+|       15 |   至少出现稳定成功案例 |
+
+所有成功结果必须满足：
+
+```python
+assert is_edge_paired(replay, target)
+assert centers_are_color_solved(replay)
+assert fixed_face_centers_unchanged(replay)
+assert all_moves_are_legal(result.moves)
+```
+
+失败必须返回：
+
+```text
+NODE_LIMIT
+DEPTH_LIMIT
+TIME_LIMIT
+FRONTIER_EXHAUSTED
+ABSTRACTION_REPLAY_MISMATCH
+```
+
+不能无限搜索，也不能把部分结果报告为成功。
 
 ---
 
-# 六、转动公式和记号
+# 四、M3：保护式单棱构造
 
-## 6.1 基础公式
+M2.5解决“能否构造一条”，M3解决“能否在已有成果上再增加一条”。
 
-支持：
+## 4.1 保护对象按块组身份跟踪
 
-```text
-U U' U2
-D D' D2
-L L' L2
-R R' R2
-F F' F2
-B B' B2
-```
-
-含义：
-
-- 无后缀：顺时针90度；
-- `'`：逆时针90度；
-- `2`：旋转180度。
-
-顺逆时针必须以“正对正在旋转的面观察”为准。
-
-## 6.2 4阶宽层公式
-
-至少支持：
-
-```text
-Uw Uw' Uw2
-Dw Dw' Dw2
-Lw Lw' Lw2
-Rw Rw' Rw2
-Fw Fw' Fw2
-Bw Bw' Bw2
-```
-
-也可兼容小写写法：
-
-```text
-u d l r f b
-```
-
-内部统一转换为标准写法，例如：
-
-```text
-r  -> Rw
-r' -> Rw'
-r2 -> Rw2
-```
-
-## 6.3 可选公式
-
-如求解器内部需要，还可支持：
-
-```text
-x x' x2
-y y' y2
-z z' z2
-```
-
-这些代表整个魔方旋转。
-
-建议求解器最终输出时尽量消除整体旋转，将其转换为用户容易执行的面转动。
-
----
-
-# 七、3阶破解算法
-
-## 7.1 算法要求
-
-3阶建议采用 Two-Phase Algorithm，即两阶段算法，或者集成可靠的 Kociemba 求解实现。
-
-求解器接口统一为：
+不能只保护槽位，因为外层转会整体搬运配好的棱。
 
 ```python
-def solve_3x3(facelets: dict) -> SolveResult:
-    ...
+@dataclass(frozen=True)
+class PairedEdgeGroup:
+    edge_type: EdgeType
+    middle_piece: int
+    wing_piece_a: int
+    wing_piece_b: int
 ```
 
-返回：
+检查：
 
 ```python
-@dataclass
-class SolveResult:
-    success: bool
-    moves: list[str]
-    message: str
-    elapsed_ms: int
-    move_count: int
+def is_group_still_paired(cube, group) -> bool:
+    """三个成员仍聚集在某个逻辑槽，不要求原槽不变。"""
 ```
 
-## 7.2 性能要求
-
-普通中端 Android 手机上：
-
-- 首次初始化允许加载剪枝表；
-- 初始化过程必须显示进度提示；
-- 常规3阶求解目标：10秒内完成；
-- 热启动后的求解目标：3秒内完成；
-- 推荐解法控制在30步左右；
-- 最宽松不得超过50步。
-
-## 7.3 求解表
-
-如果使用预计算表：
-
-- 放入 APK 的 assets；
-- 第一次启动可解压到应用私有目录；
-- 不允许写入公共存储目录；
-- 加载时不得阻塞界面；
-- 必须放入后台线程；
-- UI 更新必须回到 Kivy 主线程。
-
-## 7.4 开源许可
-
-若使用第三方 Kociemba、min2phase 或其他算法代码：
-
-- 检查其许可证；
-- 在“关于”页面列出项目名称、作者和许可证；
-- 不要直接复制许可证不兼容的代码；
-- 必须确保 Android 环境可编译。
-
----
-
-# 八、4阶破解算法
-
-## 8.1 基本方案
-
-4阶采用 Reduction Method，即降阶法：
-
-1. 整理六面中心块；
-2. 配对12组棱块；
-3. 将4阶映射为等效3阶；
-4. 调用3阶求解器；
-5. 检测并处理4阶特殊翻棱；
-6. 检测并处理4阶交换奇偶；
-7. 生成完整的4阶还原公式。
-
-## 8.2 4阶求解阶段
-
-求解结果中需要给每一步标记所属阶段：
+## 4.2 搜索状态加入保护摘要
 
 ```python
-@dataclass
-class SolveStage:
+@dataclass(frozen=True)
+class ProtectedPairingState:
+    target_state: CompactPairingState
+    protected_group_slots: tuple[int, ...]
+    center_color_signature: tuple[int, ...]
+```
+
+保护约束分两档：
+
+### 硬保护
+
+任何一步都不允许拆散已有配对。
+
+优点是可控，缺点是可能找不到路径。
+
+### 软保护
+
+允许短暂拆散，但最终必须恢复；评分中施加高惩罚。
+
+第一版先尝试硬保护：
+
+```text
+k = 0、1、2、3
+```
+
+若 k 增加后搜索断裂，再启用有预算的软保护：
+
+```text
+最多临时拆1条
+最多连续拆散4～6层
+终点必须全部恢复
+```
+
+## 4.3 固定工作槽和工作带
+
+根据 `EdgeMoveEffect` 自动选择工作区，不照搬人工公式。
+
+候选工作槽应满足：
+
+- 外层动作容易将目标中棱送入；
+- 宽层动作能插入两翼；
+- 涉及的逻辑槽数量少；
+- 容易将已配棱移入保护区；
+- 宏结束时中心容易闭环。
+
+对12个槽进行离线评分，最终固定一个主工作槽和一个备用槽。
+
+## 4.4 高层动作集
+
+M3搜索不再只使用36个原子动作，也使用经过验证的宏：
+
+```text
+外层定位宏
+单翼插入宏
+中心闭环宏
+工作槽交换宏
+已配棱移出宏
+```
+
+每个宏记录：
+
+```python
+@dataclass(frozen=True)
+class EdgePairMacro:
     name: str
-    description: str
-    moves: list[str]
+    moves: tuple[str, ...]
+    precondition: ...
+    edge_effect: ...
+    center_effect: ...
+    protected_slots_touched: ...
 ```
 
-推荐阶段名称：
+高层搜索输出宏序列，最后展开成原子动作。
 
-- 整理上面中心；
-- 整理下面中心；
-- 整理四个侧面中心；
-- 棱块配对；
-- 按3阶方式还原；
-- OLL特殊情况处理；
-- PLL特殊情况处理；
-- 还原完成。
+## 4.5 M3验收
 
-## 8.3 4阶求解要求
+分别构造具有 `k` 条预配棱的状态：
 
-不能只识别 parity 而不解决。
+```text
+k = 0、1、2、3
+```
 
-至少支持：
+要求：
 
-- OLL parity；
-- PLL parity；
-- 中心块未完成状态；
-- 棱翼块未配对状态；
-- 任意合法打乱状态。
+```text
+输入：k条已配
+输出：至少k+1条已配
+原k条仍配对
+中心颜色归面
+动作可重放
+```
+
+通过后扩展到：
+
+```text
+k = 4、5、6
+```
+
+---
+
+# 五、M4：常规前10条棱配对
+
+## 5.1 主循环
+
+```python
+def pair_regular_edges(
+    cube: Cube5,
+    target_count: int = 10,
+) -> EdgePairingResult:
+    while paired_count(cube) < target_count:
+        target = choose_next_edge_type(cube)
+        result = pair_one_protected_edge(cube, target, protected)
+        ...
+```
+
+## 5.2 目标选择策略
+
+优先顺序：
+
+1. 已经配好，直接加入保护集合；
+2. 某槽已有中棱+一个匹配翼；
+3. 三个成员中已有两个同槽；
+4. 目标翼靠近工作槽；
+5. 对当前保护区干扰最少；
+6. 完全分散的目标最后处理。
+
+每轮可对多个候选目标执行有限前瞻：
+
+```text
+估算配对成本
+估算保护冲突
+估算中心恢复成本
+```
+
+选择预计总代价最低者。
+
+## 5.3 保护区动态管理
+
+若保护区占据工作路径，可使用外层动作整体重新排列配好棱，因为外层动作不会拆组，也不会破坏中心颜色归面。
+
+保护集合记录块组身份，而不是固定槽名。
+
+## 5.4 允许有限回退
+
+如果严格单调从 `k` 到 `k+1` 无解，允许：
+
+```text
+临时拆1条已配棱
+一次操作最终净增加至少1条
+```
+
+即：
+
+```text
+k → k-1 → k+1
+```
+
+不能无限破坏已有成果。
+
+## 5.5 M4验收
+
+分阶段要求：
+
+```text
+随机状态配到4条
+→ 配到6条
+→ 配到8条
+→ 稳定配到10条
+```
+
+前10条完成后必须：
+
+```python
+assert paired_edge_count(cube) >= 10
+assert centers_are_color_solved(cube)
+```
+
+建议随机回归：
+
+| 打乱长度 | 案例数 |
+| -------: | -----: |
+|        5 |     20 |
+|       10 |     20 |
+|       20 |     20 |
+|       50 |     20 |
+
+研究期允许失败，但正式进入M5前，固定回归集必须稳定可复现。
+
+---
+
+# 六、M5：最后两棱与配对奇偶
+
+最后两条不能继续依赖自由槽，单独实现。
+
+## 6.1 规范化最后两棱状态
+
+通过外层动作，把两条未配棱搬到固定工作槽，例如：
+
+```text
+UF / UB
+```
+
+其他10条作为保护集合。
+
+对最后两条的：
+
+- 两个中棱位置；
+- 四个翼位置；
+- 局部中心颜色状态；
+- 配对关系；
+
+进行规范化编码。
+
+## 6.2 枚举状态类别
+
+从大量随机“前10条已配”状态收集最后两棱签名，按对称归一化，分类为：
+
+```text
+可直接配对
+翼需要交叉交换
+两组翼错配
+降阶单棱翻转型
+其他奇偶类
+```
+
+不要仅凭人工名称判断，必须由置换和重放验证。
+
+## 6.3 最后两棱查表
+
+优先构建小型精确表，而不是继续通用 beam：
+
+```python
+LAST_EDGE_TABLE[state_signature] = macro_sequence
+```
+
+从已解决状态反向 BFS：
+
+- 使用中心闭环宏；
+- 固定或整体搬运前10条配好棱；
+- 只保存最后两棱的规范化签名；
+- 每条生成路径在完整 `Cube5` 上验证。
+
+如果状态空间仍大，按奇偶类别拆分多个表。
+
+## 6.4 奇偶检测
+
+明确区分：
+
+1. 实体翼块没有独立翻转；
+2. 配对后逻辑棱可能表现为降阶单棱翻转；
+3. reduced 3×3 可能因此成为普通3×3不可达状态。
 
 接口：
 
 ```python
-def solve_4x4(facelets: dict) -> SolveResult:
+@dataclass(frozen=True)
+class EdgeParityReport:
+    pairing_parity: int
+    reduced_edge_flip_parity: int
+    reduced_edge_perm_parity: int
+    corner_perm_parity: int
+    parity_kind: EdgeParityKind
+```
+
+奇偶宏必须满足：
+
+- 修正目标奇偶；
+- 最终12条棱全部配对；
+- 中心颜色归面；
+- 不破坏角块合法性；
+- 固定面心保持。
+
+## 6.5 M5验收
+
+```python
+result = solve_edges5(cube)
+
+assert result.success
+assert all_edges_paired(result_cube)
+assert centers_are_color_solved(result_cube)
+assert validate_5x5(result_cube).valid
+```
+
+覆盖：
+
+- 普通最后两棱；
+- 每个已识别奇偶类别；
+- 宏及其逆；
+- 固定seed随机状态；
+- 从原状态重放。
+
+---
+
+# 七、M6：构造 reduced 3×3
+
+中心和棱配对完成后，把5×5视为逻辑3×3。
+
+## 7.1 映射规则
+
+### 角块
+
+8个实体角块直接映射到3×3角块：
+
+```text
+位置
+置换
+朝向
+```
+
+### 逻辑棱
+
+每个逻辑槽的三块棱已经配对，因此映射为一个3×3逻辑棱：
+
+```text
+色对身份
+逻辑位置
+逻辑朝向
+```
+
+### 中心
+
+使用六个固定面心确定面颜色和坐标系。
+
+## 7.2 映射接口
+
+```python
+@dataclass(frozen=True)
+class ReducedCube3State:
+    corner_perm: tuple[int, ...]
+    corner_ori: tuple[int, ...]
+    edge_perm: tuple[int, ...]
+    edge_ori: tuple[int, ...]
+    face_colors: tuple[Color, ...]
+```
+
+```python
+def build_reduced_cube3(cube5: Cube5) -> ReducedCube3State:
     ...
 ```
 
-## 8.4 性能目标
-
-普通中端 Android 手机上：
-
-- 常规状态60秒内返回结果；
-- 求解时必须显示进度；
-- 界面不能无响应；
-- 支持用户取消求解；
-- 典型解法建议控制在80～250步；
-- 如果超过最大搜索限制，应返回明确提示，不能死循环。
-
-## 8.5 4阶开发风险
-
-4阶任意状态求解明显比3阶复杂，应按以下顺序开发：
-
-1. 先完成4阶状态模型；
-2. 完成所有基础和宽层转动；
-3. 完成已知公式播放；
-4. 完成中心块求解；
-5. 完成棱配对；
-6. 完成降阶映射；
-7. 完成 parity 检测和处理；
-8. 最后接入完整自动求解。
-
-不得在转动模型尚未通过测试时直接开发求解器。
-
----
-
-# 九、3D魔方显示
-
-## 9.1 显示要求
-
-支持3阶和4阶3D模型：
-
-- 透视投影；
-- 环境背景；
-- 魔方块之间有黑色或深灰色间隙；
-- 色块颜色清晰；
-- 支持拖动观察；
-- 支持双指缩放；
-- 支持恢复默认视角；
-- 旋转动画流畅；
-- 目标帧率不低于30 FPS。
-
-## 9.2 实现方案
-
-建议使用 Kivy 的 OpenGL ES 2.0：
-
-- `RenderContext`
-- `Mesh`
-- 顶点着色器
-- 片段着色器
-- 深度测试
-- 模型矩阵
-- 观察矩阵
-- 投影矩阵
-
-不建议将每一个色块都实现成独立 Kivy Widget。
-
-建议每个小方块使用：
-
-- 一个立方体网格；
-- 每面分配材质颜色；
-- 通过模型矩阵控制位置和旋转。
-
-## 9.3 旋转动画
-
-转动某一层时：
-
-1. 查找属于该层的所有 Cubie；
-2. 临时加入旋转组；
-3. 从0度插值到90度或180度；
-4. 动画结束后更新 Cubie 的离散坐标；
-5. 更新色块方向；
-6. 将角度吸附到精确值；
-7. 清理临时旋转矩阵；
-8. 校验逻辑状态与3D状态一致。
-
-为避免浮点误差：
-
-- 坐标最终必须四舍五入到离散整数位置；
-- 不能连续累计浮点旋转矩阵作为永久状态；
-- 永久状态使用整数坐标和离散朝向表示。
-
-## 9.4 观察手势与公式转动隔离
-
-用户拖动查看魔方时，只修改摄像机或整个场景的观察角度，不能修改魔方逻辑状态。
-
-公式中的 `x/y/z` 整体转动如果作为实际步骤，则必须由求解器状态单独处理。
-
----
-
-# 十、破解结果页面
-
-页面包含：
-
-- 3D魔方；
-- 当前步骤序号；
-- 总步骤数；
-- 当前公式；
-- 下一步公式；
-- 中文动作说明；
-- 上一步；
-- 下一步；
-- 自动播放；
-- 暂停；
-- 重新开始；
-- 跳到结尾；
-- 调整播放速度；
-- 返回录入；
-- 重新求解。
-
-示例：
+前置条件不满足时明确失败：
 
 ```text
-当前进度：18 / 76
-当前步骤：Rw U2 Rw'
-动作说明：右侧两层逆时针旋转90度
-当前阶段：棱块配对
+CENTERS_NOT_COLOR_SOLVED
+EDGES_NOT_ALL_PAIRED
+INVALID_LOGICAL_EDGE_COLORS
+INCONSISTENT_LOGICAL_EDGE_ORIENTATION
 ```
 
-## 10.1 自动播放
+## 7.3 reduced 合法性
 
-播放速度至少提供：
+调用3×3求解器前检查：
 
-- 0.25倍；
-- 0.5倍；
-- 1倍；
-- 1.5倍；
-- 2倍。
+```text
+角朝向和 mod 3 == 0
+棱朝向和 mod 2 == 0
+角置换奇偶 == 棱置换奇偶
+每种角/棱身份各一次
+```
 
-自动播放时：
+如果失败：
 
-- 一次只执行一个动作；
-- 当前动画未结束前不得启动下一动作；
-- 用户点击暂停后，在当前动作结束位置准确停止；
-- 退出页面时停止动画线程；
-- 不得发生两个转动动画叠加。
+- 若属于5×5降阶奇偶，返回M5做奇偶修正；
+- 若不属于已知降阶奇偶，则报告映射或配对错误；
+- 不把非法状态直接交给 `solve_3x3`。
 
-## 10.2 上一步
+## 7.4 M6验收
 
-“上一步”不能简单修改步骤编号，必须执行当前公式的逆公式。
+测试来源：
 
-例如：
+1. 已还原5×5；
+2. 仅执行外层打乱的5×5；
+3. 中心解好、棱配好但逻辑3×3打乱；
+4. 已知奇偶状态；
+5. 随机配对输出。
+
+应验证 reduced 状态与外层动作效果一致。
+
+---
+
+# 八、M7：接入 `solve_3x3`
+
+## 8.1 适配现有接口
+
+根据现有求解器输入，提供：
 
 ```python
-inverse_move("R")   == "R'"
-inverse_move("R'")  == "R"
-inverse_move("R2")  == "R2"
-inverse_move("Rw")  == "Rw'"
+def reduced_state_to_3x3_input(state: ReducedCube3State):
+    ...
 ```
 
----
+可能是：
 
-# 十一、中文动作提示
+- `Cube3` 对象；
+- cubie permutation/orientation；
+- 54 facelets。
 
-实现公式到中文说明的转换：
+优先使用内部 cubie 表示，避免重复颜色解析。
+
+## 8.2 只允许外层动作
+
+3×3求解阶段只能输出：
 
 ```text
-R   -> 右面顺时针旋转90度
-R'  -> 右面逆时针旋转90度
-R2  -> 右面旋转180度
-U   -> 上面顺时针旋转90度
-Fw  -> 前侧两层顺时针旋转90度
-Rw' -> 右侧两层逆时针旋转90度
+U D L R F B
+及其 ' / 2
 ```
 
-页面上需要提示：
+不能输出任何宽层动作。
 
-> 顺逆时针方向均以正对该面观察为准。
+原因：
 
-可以增加正在转动层的高亮效果。
+- 外层动作整体搬运配好的三块棱；
+- 不拆配对；
+- 中心按颜色仍归面。
+
+## 8.3 回放验证
+
+```python
+cube5_after_reduction.apply_moves(solution3)
+```
+
+必须验证：
+
+```python
+assert cube5_after_reduction.is_solved()
+```
+
+而不是只验证 reduced 3×3 模型已解。
+
+同时验证：
+
+```python
+assert all_edges_paired_during_or_after_outer_solution
+assert centers_are_color_solved(...)
+```
+
+## 8.4 M7验收
+
+- 外层短打乱全部成功；
+- reduced随机状态成功；
+- 3×3输出动作全部可由5×5 parser解析；
+- 返回动作在原始5×5上重放后完全还原。
 
 ---
 
-# 十二、多线程要求
+# 九、M8：正式接入 `solver5.py`
 
-求解计算不得运行在 UI 主线程。
+## 9.1 总结果对象
+
+```python
+@dataclass(frozen=True)
+class Solve5Result:
+    success: bool
+    moves: tuple[str, ...]
+    center_moves: tuple[str, ...]
+    edge_moves: tuple[str, ...]
+    parity_moves: tuple[str, ...]
+    reduced_3x3_moves: tuple[str, ...]
+    diagnostics: Solve5Diagnostics
+    error_code: str | None = None
+    message: str = ""
+```
+
+诊断至少记录：
+
+```text
+中心3-cycle数量
+中心setup缓存命中
+单棱搜索节点数/深度
+配对顺序
+保护回退次数
+最后两棱类型
+奇偶类型
+各阶段动作数和耗时
+```
+
+## 9.2 正式流水线
+
+```python
+def solve_5x5(cube):
+    validate_5x5(cube)
+
+    center_result = solve_centers5(cube)
+    apply(center_result.moves)
+
+    edge_result = solve_edges5(cube)
+    apply(edge_result.moves)
+
+    reduced = build_reduced_cube3(cube)
+
+    if reduced_has_parity(reduced):
+        parity_result = fix_reduction_parity(cube)
+        apply(parity_result.moves)
+        reduced = build_reduced_cube3(cube)
+
+    solution3 = solve_3x3(reduced)
+    apply(solution3.moves)
+
+    replay_all_from_original()
+    verify_fully_solved()
+
+    return Solve5Result(...)
+```
+
+每个阶段失败立即返回明确错误，不继续污染状态。
+
+## 9.3 输入修改约定
 
 建议：
 
-```python
-from concurrent.futures import ThreadPoolExecutor
+```text
+solve_5x5 默认不修改输入Cube5
+内部使用副本
+返回动作序列
+最终从原始状态重放验证
 ```
-
-主要流程：
-
-1. 主线程获取录入状态；
-2. 复制不可变状态；
-3. 后台线程执行校验与求解；
-4. 通过 `Clock.schedule_once` 更新UI；
-5. 求解完成后进入播放页面。
-
-必须处理：
-
-- 重复点击破解；
-- 用户中途返回；
-- 求解任务取消；
-- 页面销毁后后台线程回调；
-- 求解异常；
-- 搜索超时；
-- 内存不足。
 
 ---
 
-# 十三、页面结构
+# 十、动作简化与计数
 
-建议页面如下：
+完整功能成功后再优化，不能提前影响正确性。
+
+## 10.1 局部合并
 
 ```text
-HomeScreen
-├── 选择3阶
-├── 选择4阶
-└── 使用说明
-
-InputScreen
-├── 六面展开图
-├── 颜色选择器
-├── 清空
-├── 状态检查
-├── 3D预览
-└── 开始破解
-
-SolvingScreen
-├── 求解进度
-├── 当前阶段
-├── 取消按钮
-└── 耗时提示
-
-PlaybackScreen
-├── 3D魔方
-├── 当前步骤
-├── 上一步/下一步
-├── 自动播放/暂停
-├── 播放速度
-└── 重置视角
-
-HelpScreen
-├── 录入方法
-├── 魔方持握方向
-├── 公式说明
-└── 常见错误
-
-AboutScreen
-├── 版本号
-├── 第三方组件
-└── 开源许可证
+R R    → R2
+R R'   → 删除
+R2 R   → R'
+2R 2R' → 删除
 ```
 
----
-
-# 十四、推荐工程结构
+严格区分：
 
 ```text
-cube_solver_app/
-├── main.py
-├── buildozer.spec
-├── requirements.txt
-├── README.md
-├── assets/
-│   ├── icons/
-│   ├── fonts/
-│   ├── shaders/
-│   │   ├── cube.vert
-│   │   └── cube.frag
-│   └── solver_tables/
-├── app/
-│   ├── application.py
-│   ├── config.py
-│   ├── theme.py
-│   └── constants.py
-├── ui/
-│   ├── screens/
-│   │   ├── home_screen.py
-│   │   ├── input_screen.py
-│   │   ├── solving_screen.py
-│   │   ├── playback_screen.py
-│   │   ├── help_screen.py
-│   │   └── about_screen.py
-│   ├── widgets/
-│   │   ├── face_grid.py
-│   │   ├── color_picker.py
-│   │   ├── cube_view.py
-│   │   └── playback_controls.py
-│   └── kv/
-│       ├── home.kv
-│       ├── input.kv
-│       └── playback.kv
-├── cube/
-│   ├── colors.py
-│   ├── coordinates.py
-│   ├── moves.py
-│   ├── notation.py
-│   ├── facelet_model.py
-│   ├── cubie_model.py
-│   ├── cube3.py
-│   ├── cube4.py
-│   ├── conversion.py
-│   └── validation.py
-├── solver/
-│   ├── result.py
-│   ├── solver3.py
-│   ├── solver4.py
-│   ├── reduction/
-│   │   ├── center_solver.py
-│   │   ├── edge_pairing.py
-│   │   ├── parity.py
-│   │   └── reduced_cube.py
-│   └── tables/
-├── renderer/
-│   ├── camera.py
-│   ├── mesh.py
-│   ├── cubie_renderer.py
-│   ├── scene.py
-│   ├── gesture_controller.py
-│   └── turn_animator.py
-├── services/
-│   ├── solve_service.py
-│   ├── settings_service.py
-│   └── history_service.py
-└── tests/
-    ├── test_notation.py
-    ├── test_moves_3x3.py
-    ├── test_moves_4x4.py
-    ├── test_validation_3x3.py
-    ├── test_validation_4x4.py
-    ├── test_solver_3x3.py
-    ├── test_solver_4x4.py
-    └── test_playback.py
+R2  = 外层180°
+2R  = 两层宽转90°
+2R2 = 两层宽转180°
 ```
+
+## 10.2 跨宏抵消
+
+宏展开后统一简化：
+
+```text
+... S + S' ...
+```
+
+但不能跨越不可交换动作错误重排。
+
+## 10.3 阶段统计
+
+输出：
+
+```text
+raw moves
+simplified moves
+center moves
+edge-pairing moves
+parity moves
+3×3 moves
+```
+
+第一版目标仍以正确率为主，不以动作最短为阻塞条件。
 
 ---
 
-# 十五、关键接口定义
+# 十一、完整测试矩阵
+
+## 11.1 单元测试
+
+覆盖：
+
+- 紧凑状态与真实状态一致；
+- 每个原子动作影响一致；
+- 宏效果与真实重放一致；
+- 保护组跟踪；
+- 最后两棱签名；
+- 奇偶分类；
+- reduced映射；
+- 动作简化。
+
+## 11.2 分阶段随机测试
+
+### 单棱构造
+
+```text
+长度1、3、5、8、10、15
+```
+
+### 前10棱
+
+```text
+长度5、10、20、50
+```
+
+### 全棱配对
+
+```text
+普通状态
+最后两棱状态
+每种奇偶状态
+```
+
+### 完整5×5
+
+逐步扩大：
+
+```text
+短打乱：100例
+中等打乱：100例
+长打乱：50例
+持续随机：夜间/非CI测试
+```
+
+## 11.3 每个端到端案例验证
 
 ```python
-from dataclasses import dataclass, field
+original = scrambled.copy()
+result = solve_5x5(original)
 
+assert result.success
 
-@dataclass
-class SolveStage:
-    name: str
-    description: str
-    moves: list[str] = field(default_factory=list)
+replay = scrambled.copy()
+replay.apply_moves(result.moves)
 
-
-@dataclass
-class SolveResult:
-    success: bool
-    moves: list[str]
-    message: str
-    elapsed_ms: int
-    move_count: int
-    stages: list[SolveStage] = field(default_factory=list)
-
-
-class BaseCube:
-    size: int
-
-    def apply_move(self, move: str) -> None:
-        raise NotImplementedError
-
-    def apply_moves(self, moves: list[str]) -> None:
-        for move in moves:
-            self.apply_move(move)
-
-    def validate(self) -> tuple[bool, list[str]]:
-        raise NotImplementedError
-
-    def is_solved(self) -> bool:
-        raise NotImplementedError
-
-    def clone(self):
-        raise NotImplementedError
-
-
-class BaseSolver:
-    def solve(self, cube: BaseCube) -> SolveResult:
-        raise NotImplementedError
-
-    def cancel(self) -> None:
-        raise NotImplementedError
+assert replay.is_solved()
+assert validate_5x5(replay).valid
+assert all_moves_are_legal(result.moves)
 ```
 
-公式解析器：
+## 11.4 确定性
+
+固定输入和配置应得到相同结果：
 
 ```python
-def parse_algorithm(text: str) -> list[str]:
-    """将公式字符串转换为标准动作列表。"""
-
-
-def normalize_move(move: str) -> str:
-    """将 r、u 等写法转换为 Rw、Uw。"""
-
-
-def inverse_move(move: str) -> str:
-    """返回单个动作的逆动作。"""
-
-
-def inverse_algorithm(moves: list[str]) -> list[str]:
-    """逆序并逐个取逆。"""
+solve_5x5(cube).moves == solve_5x5(cube).moves
 ```
 
----
+除非显式启用随机搜索模式。
 
-# 十六、自动测试要求
-
-## 16.1 基础转动测试
-
-对3阶、4阶分别验证：
+## 11.5 CI与慢测试分离
 
 ```text
-R + R' = 原状态
-U + U' = 原状态
-F2 + F2 = 原状态
-R执行4次 = 原状态
-Rw执行4次 = 原状态
+普通CI：单元测试 + 固定短案例
+slow：中长打乱
+stress：大量随机状态和性能统计
 ```
 
-## 16.2 随机可逆测试
-
-随机生成100～1000组公式：
-
-1. 创建已还原魔方；
-2. 执行随机公式；
-3. 执行逆公式；
-4. 断言恢复已还原状态。
-
-## 16.3 求解测试
-
-测试流程：
-
-1. 从已还原状态开始；
-2. 生成随机打乱公式；
-3. 应用打乱；
-4. 只把最终颜色状态交给求解器；
-5. 求解器生成还原步骤；
-6. 应用还原步骤；
-7. 断言 `is_solved() == True`。
-
-注意第4步必须保证求解器不知道原打乱步骤，以防实现成倒放。
-
-## 16.4 3阶测试规模
-
-至少测试：
-
-- 100个随机10步打乱；
-- 100个随机20步打乱；
-- 100个随机30步打乱；
-- 已还原状态；
-- 单步打乱；
-- 非法颜色数量；
-- 单角翻转；
-- 单棱翻转；
-- 仅交换两个角块；
-- 角棱置换奇偶不一致。
-
-## 16.5 4阶测试规模
-
-至少测试：
-
-- 50个随机10步打乱；
-- 50个随机30步打乱；
-- 50个随机60步打乱；
-- 只打乱中心；
-- 只打乱宽层；
-- OLL parity；
-- PLL parity；
-- 已还原状态；
-- 非法颜色数量；
-- 缺少棱翼块；
-- 中心颜色录入错误。
+避免日常全量测试因搜索耗时失控。
 
 ---
 
-# 十七、APK打包要求
+# 十二、性能和资源上限
 
-`buildozer.spec` 至少配置：
+所有搜索接口统一支持：
 
-```ini
-[app]
-title = 3D魔方智能还原助手
-package.name = cubesolver
-package.domain = com.example
-source.dir = .
-source.include_exts = py,kv,png,jpg,json,txt,bin,vert,frag
-version = 1.0.0
-requirements = python3,kivy,numpy
-orientation = portrait
-fullscreen = 0
-
-android.archs = arm64-v8a
-android.minapi = 26
-android.api = 34
+```python
+SearchLimits(
+    max_nodes=...,
+    max_depth=...,
+    timeout_seconds=...,
+    beam_width=...,
+)
 ```
 
-具体依赖需根据求解器调整。
+失败时返回搜索统计。
 
-要求：
+不能出现：
 
-- 输出可直接安装的 APK；
-- APK 启动后不闪退；
-- 不申请无关权限；
-- 离线使用时可正常求解；
-- 不强制申请存储权限；
-- 屏幕适配常见1080×2400分辨率；
-- 返回键行为正常；
-- 进入后台再返回时不丢失当前步骤。
+- 无限循环；
+- 无边界BFS；
+- CI机器内存爆炸；
+- 超时后没有诊断；
+- 搜索失败却返回部分动作并标记成功。
 
----
-
-# 十八、开发阶段划分
-
-## 第一阶段：基础状态模型
-
-完成：
-
-- 3阶状态模型；
-- 4阶状态模型；
-- 六面颜色映射；
-- 基础转动；
-- 宽层转动；
-- 公式解析；
-- 逆公式；
-- 单元测试。
-
-验收条件：
-
-- 任意动作执行4次恢复；
-- 任意公式加逆公式恢复；
-- 3阶和4阶测试全部通过。
-
-## 第二阶段：颜色录入
-
-完成：
-
-- 3阶录入页面；
-- 4阶录入页面；
-- 六面展开图；
-- 颜色数量检查；
-- 配色方向提示；
-- 保存和恢复输入状态。
-
-## 第三阶段：3D显示
-
-完成：
-
-- 3阶3D模型；
-- 4阶3D模型；
-- 拖动视角；
-- 缩放；
-- 面转动动画；
-- 宽层转动动画；
-- 逻辑状态与动画同步。
-
-## 第四阶段：3阶求解
-
-完成：
-
-- 3阶合法性检查；
-- Two-Phase/Kociemba求解器；
-- 后台线程求解；
-- 求解结果播放；
-- 上一步、下一步和自动播放。
-
-## 第五阶段：4阶求解
-
-完成：
-
-- 中心块求解；
-- 棱块配对；
-- 降阶映射；
-- 调用3阶求解器；
-- OLL parity；
-- PLL parity；
-- 完整步骤输出。
-
-## 第六阶段：Android适配
-
-完成：
-
-- Buildozer配置；
-- 真机测试；
-- 性能优化；
-- 内存优化；
-- APK生成；
-- 安装说明；
-- 第三方许可证说明。
-
----
-
-# 十九、最终交付物
-
-必须交付：
-
-1. 完整Python源代码；
-2. Kivy界面文件；
-3. Shader文件；
-4. 求解器代码或合法依赖；
-5. 单元测试；
-6. `requirements.txt`；
-7. `buildozer.spec`；
-8. 可安装APK；
-9. README开发文档；
-10. APK打包说明；
-11. 操作使用说明；
-12. 第三方组件和许可证清单；
-13. 已知问题清单。
-
-README必须说明：
-
-- 如何运行桌面调试版本；
-- 如何在WSL2/Ubuntu打包；
-- 如何生成APK；
-- 如何执行测试；
-- 求解算法来源；
-- 3阶和4阶求解原理；
-- 坐标系和转动方向定义。
-
----
-
-# 二十、最终验收标准
-
-项目只有同时满足以下条件才算完成：
-
-- [ ] APK可以在Android手机正常安装；
-- [ ] 支持3阶颜色手动录入；
-- [ ] 支持4阶颜色手动录入；
-- [ ] 能检查颜色数量错误；
-- [ ] 能识别主要非法3阶状态；
-- [ ] 3阶可根据最终颜色独立求解；
-- [ ] 4阶可根据最终颜色独立求解；
-- [ ] 4阶支持中心整理；
-- [ ] 4阶支持棱块配对；
-- [ ] 4阶支持OLL parity；
-- [ ] 4阶支持PLL parity；
-- [ ] 3D模型颜色与录入状态一致；
-- [ ] 3D动画方向与公式一致；
-- [ ] 支持自动播放和暂停；
-- [ ] 支持上一步和下一步；
-- [ ] 支持播放速度调整；
-- [ ] 求解过程不阻塞UI；
-- [ ] 无网络也能完成求解；
-- [ ] 随机打乱自动测试通过；
-- [ ] 不是通过倒放打乱记录实现伪求解；
-- [ ] 提供完整源代码、测试和APK。
-
----
-
-# 给编程AI的执行指令
-
-可以把下面这段附在任务书最后：
+setup、最后两棱表和宏库均应版本化缓存，缓存键包含：
 
 ```text
-请严格按照任务书开发，不要只生成演示界面，也不要使用假数据或固定公式冒充求解。
-
-开发时按阶段提交代码。每完成一个阶段，必须：
-1. 列出新增和修改的文件；
-2. 给出完整代码，不能只给伪代码；
-3. 给出运行命令；
-4. 给出自动测试；
-5. 说明当前已完成和未完成内容；
-6. 不得删除已经通过测试的功能；
-7. 所有转动方向必须通过可逆性测试；
-8. 3阶和4阶求解器必须根据最终颜色状态求解，不能依赖打乱历史；
-9. 在开始4阶求解算法前，先完成4阶状态模型、宽层转动和3D动画；
-10. 遇到第三方依赖无法在Android编译时，必须替换方案，不能跳过APK验证。
-
-请首先完成：
-A. 工程目录；
-B. 统一坐标系；
-C. 公式解析器；
-D. 3阶/4阶逻辑状态模型；
-E. 基础转动和宽层转动；
-F. pytest自动测试。
-
-第一阶段测试全部通过后，再开发UI和3D显示。
+动作集合
+位置编号版本
+状态编码版本
+宏库版本
 ```
 
-特别提醒：这个项目中真正难的部分不是 APK 界面，而是**4阶任意状态求解器、状态合法性判断以及求解步骤与3D动画的准确同步**。让其他 AI 开发时，应坚持分阶段验收，避免它先做出一个漂亮界面，最后用固定公式或倒放历史步骤冒充破解。
+---
+
+# 十三、提交顺序
+
+建议按以下提交推进：
+
+```text
+1. feat(5x5-edge): add compact joint pairing state and valley search
+
+2. research(5x5-edge): add center-closed macro discovery and benchmarks
+
+3. feat(5x5-edge): add protected paired-edge tracking
+
+4. feat(5x5-edge): implement regular pairing planner
+
+5. test(5x5-edge): add protected pairing and first-ten regressions
+
+6. feat(5x5-edge): solve last two edges and classify parity
+
+7. test(5x5-edge): add last-edge and parity regressions
+
+8. feat(5x5-reduction): map paired cube to reduced 3x3
+
+9. feat(5x5): integrate reduced solve_3x3 replay
+
+10. feat(5x5): implement end-to-end solve_5x5 pipeline
+
+11. test(5x5): add randomized end-to-end regression suite
+
+12. perf(5x5): simplify moves and version search caches
+
+13. docs(5x5): document reduction architecture and known limits
+```
+
+不要把所有工作压成一个大提交。
+
+---
+
+# 十四、各阶段停止条件与备选路线
+
+## 穿谷 beam 仍失败
+
+转向：
+
+```text
+中心闭环宏库
++ 固定工作槽
++ 抽象状态双向搜索
+```
+
+不再无上限扩大 beam。
+
+## 硬保护无法增加配对数
+
+启用：
+
+```text
+有限软保护
+允许暂拆1条
+终点净增加1条
+```
+
+## 前10棱成功、最后两棱状态太复杂
+
+采用：
+
+```text
+状态规范化
++ 小状态反向查表
++ 奇偶类别分表
+```
+
+不强迫常规配对器解决最后两棱。
+
+## reduced 3×3 非法
+
+先判断是否为已知降阶奇偶：
+
+- 是：执行奇偶宏；
+- 否：视为配对器或映射器缺陷，停止并报告；
+- 禁止让3×3求解器处理非法输入。
+
+## 完整随机状态仍有失败
+
+保留完整诊断：
+
+```text
+失败阶段
+搜索边界
+目标棱
+保护集合
+中心签名
+最后两棱类别
+reduced合法性报告
+随机seed和打乱动作
+```
+
+将失败样例固化为回归测试后再修复。
+
+---
+
+# 十五、最终完成标准
+
+只有同时满足以下条件，才能宣布5×5求解器完成：
+
+1. 中心按颜色全部归面；
+2. 六个固定面心保持；
+3. 12条逻辑棱全部配对；
+4. 降阶奇偶能够检测和处理；
+5. reduced 3×3状态合法；
+6. `solve_3x3`输出能在真实 `Cube5` 上重放；
+7. 最终98个 cubie全部还原；
+8. 输入对象修改行为明确；
+9. 所有动作合法且可解析；
+10. 固定随机回归稳定通过；
+11. 搜索全部有节点、深度和时间上限；
+12. 失败返回结构化诊断，不假装成功；
+13. 全量现有测试保持通过；
+14. 中心冻结模块无回归改动。
+
+---
+
+# 十六、预计剩余工作量
+
+按当前进度粗估：
+
+| 工作              |         预计有效开发时间 |
+| ----------------- | -----------------------: |
+| M2.5 穿谷单棱构造 |                   2～5天 |
+| M3 保护式构造     |                   2～5天 |
+| M4 前10棱         |                   2～5天 |
+| M5 最后两棱和奇偶 |                   3～7天 |
+| M6 reduced 3×3    |                   1～2天 |
+| M7/M8 集成与回归  |                   2～5天 |
+| **合计**          | **约12～29个有效开发日** |
+
+最大不确定性仍在：
+
+```text
+深状态单棱构造
+保护已有配对
+最后两棱奇偶
+```
+
+---
+
+## 最终执行顺序
+
+后续直接按下面这条主线连续做：
+
+```text
+联合紧凑状态
+→ 穿谷分桶beam
+→ 中心闭环宏
+→ 稳定单棱构造
+→ 保护组跟踪
+→ 前10棱
+→ 最后两棱查表
+→ 奇偶修正
+→ reduced 3×3
+→ solve_3x3
+→ solver5端到端
+→ 随机回归
+→ 动作优化
+```
+
+其中只有遇到明确的架构性矛盾或数学不可达状态时才需要暂停重新决策；普通阶段完成后无需逐段再确认。

@@ -238,15 +238,17 @@ class InputScreen(Screen):
 
         # ---- 操作按钮行 ----
         action_row = BoxLayout(size_hint_y=None, height=52, spacing=8)
-        rnd = Button(text="随机")
+        twist = Button(text="拧魔方", font_size="15sp")
+        twist.bind(on_release=lambda *a: self.open_twist())
+        rnd = Button(text="随机", font_size="15sp")
         rnd.bind(on_release=lambda *a: self.random_load())
-        clear = DangerButton(text="清空")
+        clear = DangerButton(text="清空", font_size="15sp")
         clear.bind(on_release=lambda *a: self.confirm_clear())
-        check = Button(text="校验")
+        check = Button(text="校验", font_size="15sp")
         check.bind(on_release=lambda *a: self.check())
-        solve = PrimaryButton(text="开始求解")
+        solve = PrimaryButton(text="开始求解", font_size="15sp")
         solve.bind(on_release=lambda *a: self.start_solve())
-        for b in (rnd, clear, check, solve):
+        for b in (twist, rnd, clear, check, solve):
             action_row.add_widget(b)
         root.add_widget(action_row)
 
@@ -611,6 +613,9 @@ class InputScreen(Screen):
         menu = self.manager.get_screen("DemoMenuScreen")
         menu.set_mode(self._n())
         self.manager.current = "DemoMenuScreen"
+
+    def open_twist(self):
+        self.manager.current = "TwistScreen"
 
 
 def _app():

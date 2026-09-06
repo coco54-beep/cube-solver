@@ -314,3 +314,144 @@ def gate1_stats(hits: List[PairingTransaction]) -> Dict[str, int]:
         if tx.created_groups:
             stats["any_created"] += 1
     return stats
+
+
+# ============================================================================
+# Gate 2：「配好一条并保护组全存活」的事务（转出 + 兼容筛 + 下一条装配）
+# ============================================================================
+#
+# 核心思路：
+# 1) 先 `store_paired_tredge` 把某个已配对组整体搬到当前活动切片的 safe_storage_slot；
+# 2) 用 MacroIndex 的 compatible_storage_mask 筛出「不拆任何保护组」的 gather 宏；
+# 3) 用兼容宏聚齐一条未配对 target，再做翻转修正；
+# 4) 验收 strict gate2_success：
+#        centers_are_color_solved ∧ 原所有保护组都存活 ∧ paired ≥ before + 1
+
+
+def _group_slot_mask(cube: Cube5, groups: Sequence[ProtectedTredge], macro_index) -> int:
+    """返回保护组当前所属槽的并集掩码。"""
+    from .storage_planner import group_current_slot
+    from .macro_index import SLOT_INDEX
+    mask = 0
+    for g in groups:
+        s = group_current_slot(cube, g)
+        if s is not None:
+            mask |= (1 << SLOT_INDEX[s])
+    return mask
+
+
+@dataclass(frozen=True)
+class Gate2Result:
+    after: Cube5
+    moves: Tuple[str, ...]
+    band_open: str
+    protected_before: Tuple[ProtectedTredge, ...]
+    protected_survived: Tuple[ProtectedTredge, ...]
+    paired_before: int
+    paired_after: int
+    gate2_success: bool
+    error_code: Optional[str] = None
+
+
+def pair_one_protected(
+    before: Cube5,
+    macro_index,
+    band_open: str,
+    target_slot: Optional[str] = None,
+    gather_width: int = 40,
+    gather_depth: int = 3,
+) -> Gate2Result:
+    """在单次事务中，从 before（已有 ≥1 保护组）配出一条新棱，并保证保护组全存活。
+
+    事务结构：store(保护组 → safe) → gather(兼容宏，凑齐 target) → flip_fix → 验收。
+    不修改 before。失败时 error_code 说明原因。
+    """
+    from .slice_band import BANDS
+    from .storage_planner import store_paired_tredge
+    from .macro_index import SLOT_INDEX
+    from .free_slice import edge_relation
+    from .compact_state import state_of, step
+
+    band = BANDS[band_open]
+    protected_before = extract_paired_tredges(before)
+    paired_before = paired_count(before)
+
+    # 1) 转出：把每个保护组都搬到 safe 槽（任一成功即可推进一个）
+    w = before.clone()
+    store_moves = []
+    for g in protected_before:
+        res = store_paired_tredge(w, g, band)
+        if not res.success:
+            return Gate2Result(None, tuple(store_moves), band_open, protected_before, (),
+                               paired_before, paired_before, False, "store_fail_%s" % str(g.middle_piece_id))
+        for mv in res.moves:
+            w.apply_move(mv)
+        store_moves.extend(res.moves)
+
+    # 2) 兼容宏集（不拆任何保护组）
+    gmask = _group_slot_mask(w, extract_paired_tredges(w), macro_index)
+    compat = [e for e in macro_index.effects if (gmask & ~e.compatible_storage_mask) == 0]
+    if not compat:
+        return Gate2Result(None, tuple(store_moves), band_open, protected_before, (),
+                           paired_before, paired_before, False, "no_compatible_macro")
+
+    # 3) 找一条未配对 target 并聚齐
+    candidates = [target_slot] if target_slot else list(SLOT_NAMES)
+    for tgt in candidates:
+        if tgt is None or is_edge_paired(w, tgt):
+            continue
+        st = state_of(w)
+        # gather beam
+        frontier = [(st, [])]
+        best = (st, [], edge_relation(st, tgt).relation)
+        for _ in range(gather_depth):
+            cands = []
+            for s, path in frontier:
+                for e in compat:
+                    s2 = s
+                    for mv in e.moves:
+                        s2 = step(s2, mv)
+                    r = edge_relation(s2, tgt).relation
+                    if r > best[2]:
+                        best = (s2, path + [e.moves], r)
+                    cands.append((s2, path + [e.moves], r))
+            cands.sort(key=lambda t: -t[2])
+            frontier = [(s, p) for s, p, r in cands[:gather_width]]
+            if not frontier:
+                break
+        gpath, rel_best = best[1], best[2]
+        if rel_best < 3:
+            continue
+        g2 = w.clone()
+        for mac in gpath:
+            for mv in mac:
+                g2.apply_move(mv)
+        # 4) flip fix
+        fx = None
+        if not is_edge_paired(g2, tgt):
+            for e in compat:
+                if e.length > 5:
+                    continue
+                x = g2.clone()
+                for mv in e.moves:
+                    x.apply_move(mv)
+                if centers_are_color_solved(x) and is_edge_paired(x, tgt):
+                    fx = e.moves
+                    break
+            if fx is None:
+                continue
+            for mv in fx:
+                g2.apply_move(mv)
+        # 5) 验收
+        survived = tuple(g for g in protected_before if is_tredge_group_paired(g2, g))
+        pa = paired_count(g2)
+        ok = (centers_are_color_solved(g2) and len(survived) >= 1 and pa >= paired_before + 1)
+        moves = tuple(store_moves) + tuple(m for mac in gpath for m in mac) + (fx or ())
+        if ok:
+            return Gate2Result(g2, moves, band_open, protected_before, survived,
+                               paired_before, pa, ok)
+        # 不成功则继续尝试下一个 target
+        continue
+
+    return Gate2Result(None, tuple(store_moves), band_open, protected_before, (),
+                       paired_before, paired_before, False, "no_target_completable")

@@ -51,7 +51,7 @@ class CubeApp(App):
             self._kv_loaded = True
         sm = ScreenManager()
         for name in ("HomeScreen", "InputScreen", "SolvingScreen", "PlaybackScreen",
-                     "DemoScreen", "DemoMenuScreen"):
+                     "DemoScreen", "DemoMenuScreen", "TwistScreen"):
             scr = _screen(name)
             scr.name = name
             sm.add_widget(scr)

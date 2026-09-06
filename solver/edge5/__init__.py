@@ -68,6 +68,24 @@ from .single_edge import (
     ValleySingleEdgeResult,
     pair_single_edge_valley,
 )
+from .pairing_transaction import (
+    ProtectedTredge,
+    Gate2Result,
+    extract_paired_tredges,
+    is_tredge_group_paired,
+    cube_fingerprint,
+    pair_one_protected,
+)
+from .protected_pairing import pair_all_protected
+from .batch_pairing import (
+    BatchBody,
+    BatchPairingResult,
+    BatchSearchLimits,
+    is_successful_batch,
+    search_pure_body_batch,
+    search_store_prefixed_batch,
+    search_inner_store_batch,
+)
 
 __all__ = [
     "COORD_TO_SLOT",
@@ -126,4 +144,18 @@ __all__ = [
     "SearchLimits",
     "ValleySingleEdgeResult",
     "pair_single_edge_valley",
+    "ProtectedTredge",
+    "Gate2Result",
+    "extract_paired_tredges",
+    "is_tredge_group_paired",
+    "cube_fingerprint",
+    "pair_one_protected",
+    "pair_all_protected",
+    "BatchBody",
+    "BatchPairingResult",
+    "BatchSearchLimits",
+    "is_successful_batch",
+    "search_pure_body_batch",
+    "search_store_prefixed_batch",
+    "search_inner_store_batch",
 ]

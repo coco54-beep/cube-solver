@@ -7,6 +7,8 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.clock import Clock
 
+from ui.screens.input_screen import PrimaryButton
+
 from app.config import Config
 from app.theme import AUTO, LIGHT, DARK
 
@@ -231,20 +233,42 @@ class HomeScreen(Screen):
         from kivy.uix.scrollview import ScrollView
         theme = _app().theme
         inner = BoxLayout(orientation="vertical", spacing=4,
-                          size_hint_y=None, padding=[8, 4, 8, 4])
+                          size_hint_y=None, padding=[10, 6, 10, 4])
         inner.bind(minimum_height=inner.setter("height"))
         for title, body in _HELP_SECTIONS:
+            # 每章用一张圆角"卡片"，标题加深、正文用主题主文本保证清晰可读。
+            card = BoxLayout(orientation="vertical", size_hint_y=None,
+                             spacing=2, padding=[12, 8, 12, 8])
             t = Label(text=title, font_size="17sp", bold=True, halign="left",
                       valign="middle", color=theme.text)
             b = Label(text=body, font_size="15sp", halign="left", valign="top",
-                      color=theme.text_muted)
-            _autofit(t, pad=8)
-            _autofit(b, pad=8)
-            inner.add_widget(t)
-            inner.add_widget(b)
+                      color=theme.text)
+            _autofit(t, pad=6)
+            _autofit(b, pad=6)
+            card.add_widget(t)
+            card.add_widget(b)
+            card.bind(minimum_height=card.setter("height"))
+            # 卡片底色用 surface，深/浅主题都够圆润现代。
+            card._card_color = theme.surface
+            from kivy.graphics import Color, RoundedRectangle
+            with card.canvas.before:
+                Color(rgba=theme.surface)
+                RoundedRectangle(
+                    pos=card.pos, size=card.size,
+                    radius=[12, 12, 12, 12],
+                )
+            inner.add_widget(card)
         sv = ScrollView()
         sv.add_widget(inner)
-        popup = Popup(title="使用说明", content=sv, size_hint=(0.92, 0.9))
+        # 弹窗内容：标题说明 + 滚动正文 + 圆角"关闭"按钮。
+        outer = BoxLayout(orientation="vertical", spacing=8, padding=[8, 4, 8, 8])
+        outer.add_widget(sv)
+        foot = BoxLayout(size_hint_y=None, height=52, spacing=8)
+        close = PrimaryButton(text="关闭", font_size="17sp")
+        foot.add_widget(close)
+        outer.add_widget(foot)
+        popup = Popup(title="使用说明", content=outer, size_hint=(0.92, 0.92))
+        close.bind(on_release=lambda *a: popup.dismiss())
         popup.open()
 
 

@@ -70,11 +70,10 @@ def _make_move_tables() -> Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...], Tup
     """
     tables = {}
     from solver.center5.legal_moves import LEGAL_5X5_CENTER_MOVES
-    inner = []
-    for base in ("U", "D", "L", "R", "F", "B"):
-        for sfx in ("", "'", "2"):
-            inner.append("3" + base + sfx)
-    for mv in list(LEGAL_5X5_CENTER_MOVES) + inner:
+    # 只用物理合法动作（外层 1X + 两层宽转 2X）。3X/4X/5X 会置换 6 个固定面心，
+    # 属非物理状态，禁止进入紧凑搜索空间（见 tests/test_move_physical_semantics.py）。
+    # 真正的 free-slice 原语是合法宽转 + 外层组合（2X / 2X X'），它们保持固定面心。
+    for mv in list(LEGAL_5X5_CENTER_MOVES):
         c = Cube5.solved()
         c.apply_move(mv)
         mid = tuple(MIDDLE_INDEX[c.cubies[p].home] for p in MIDDLE_ORDER)

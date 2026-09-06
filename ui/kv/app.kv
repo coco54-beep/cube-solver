@@ -25,7 +25,12 @@
         RoundedRectangle:
             pos: self.pos
             size: self.size
-            radius: [10, 10, 10, 10]
+            radius: [12, 12, 12, 12]
+        Color:
+            rgba: app.theme.border
+        Line:
+            width: 1.4
+            rounded_rectangle: self.x + 0.7, self.y + 0.7, self.width - 1.4, self.height - 1.4, 12
 
 # 主要操作按钮（绿色）
 <PrimaryButton>:
@@ -37,7 +42,7 @@
         RoundedRectangle:
             pos: self.pos
             size: self.size
-            radius: [10, 10, 10, 10]
+            radius: [12, 12, 12, 12]
 
 # 次要/危险按钮（红色）
 <DangerButton>:
@@ -49,7 +54,7 @@
         RoundedRectangle:
             pos: self.pos
             size: self.size
-            radius: [10, 10, 10, 10]
+            radius: [12, 12, 12, 12]
 
 # 标签
 <Label>:

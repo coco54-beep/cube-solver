@@ -1,7 +1,7 @@
 # 🧩 3D魔方智能还原
 
-> **拍一张？不用。把这六个面输进去，剩下的交给算法。** 一个用 Python + Kivy 写的跨平台魔方还原应用，
-> 从 6 面色块输入、到 20 步以内的最优还原、再到可交互动画的 3D 回放，全流程开箱即用。
+> **拍一张？不用。把这几个面输进去，剩下的交给算法。** 一个用 Python + Kivy 写的跨平台魔方还原应用，
+> 从 6 面色块输入、到算法求解（2 阶 / 3 阶 Kociemba 两阶段 ≤ 20 步 / 4 阶降阶法 / 5 阶降阶法）、再到可交互动画的 3D 回放，全流程开箱即用。
 
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white&style=flat-square)
 ![Kivy](https://img.shields.io/badge/Kivy-2.3.1-7D66BC?logo=kivy&logoColor=white&style=flat-square)
@@ -11,20 +11,22 @@
 [![Download APK](https://img.shields.io/github/v/release/coco54-beep/cube-solver?label=Download%20APK&logo=android&color=3DDC84)](https://github.com/coco54-beep/cube-solver/releases/latest)
 
 <div align="center">
-  <img src="assets/screenshots/home.png" width="190" alt="首页" />
-  &nbsp;&nbsp;<img src="assets/screenshots/input_4x4.png" width="190" alt="4x4 录入" />
-  &nbsp;&nbsp;<img src="assets/screenshots/input_3x3.png" width="190" alt="3x3 录入" />
-  &nbsp;&nbsp;<img src="assets/screenshots/playback.png" width="190" alt="3D 回放" />
-  &nbsp;&nbsp;<img src="assets/screenshots/playback_stepping.png" width="190" alt="回放进行中" />
+  <img src="assets/screenshots/home.png" width="180" alt="首页（2/3/4/5 阶）" />
+  &nbsp;&nbsp;<img src="assets/screenshots/input_4x4.png" width="180" alt="4x4 录入" />
+  &nbsp;&nbsp;<img src="assets/screenshots/input_5x5.png" width="180" alt="5x5 录入" />
+  &nbsp;&nbsp;<img src="assets/screenshots/playback.png" width="180" alt="3D 回放" />
+  &nbsp;&nbsp;<img src="assets/screenshots/demo_menu.png" width="180" alt="演示目录" />
+  &nbsp;&nbsp;<img src="assets/screenshots/demo_screen.png" width="180" alt="演示屏" />
 </div>
 
 ---
 
 ## ✨ 亮点
 
-- **真·算法求解**：3 阶走 **Kociemba 两阶段算法**（保证 ≤ 20 步），4 阶走**降阶法**（中心 → 棱配对 → 翻棱 → 按三阶还原），不是背公式、不是查表硬解。
+- **真·算法求解**：2 阶直接解，3 阶走 **Kociemba 两阶段算法**（保证 ≤ 20 步），4 / 5 阶走**降阶法**（中心 → 棱配对 → 翻棱 → 按三阶还原），不是背公式、不是查表硬解。
 - **零学习成本录入**：展开图点格子填色，支持「随机」一键载入打乱布局、「校验」实时检查状态合法性。
 - **沉浸式 3D 回放**：实时渲染的 OpenGL 魔方，拖动旋转、缩放、步进、自动播放、调速度，还原过程看得清清楚楚。
+- **内置教学演示**：按阶数收录分层法 / 七步法 / 降阶法的分步案例，逐个魔方状态带你去学。
 - **跨平台**：桌面（Windows）＋ Android（buildozer 打包），同一套代码。
 - **中文界面 · 深色主题**：为触屏优化的大按钮、避免误触的行间距、危险操作二次确认。
 
@@ -34,10 +36,12 @@
 
 | 页面 | 作用 |
 |------|------|
-| **首页** | 选择 3 阶 / 4 阶，进入录入、演示或帮助 |
-| **录入页** | 六个面的展开图 · 6 色选择器 · 随机 / 校验 / 求解 |
+| **首页** | 选择 2 / 3 / 4 / 5 阶（横屏 1×4、竖屏 2×2 卡片），进入录入、演示或帮助 |
+| **录入页** | 对应阶数的六个面展开图 · 6 色选择器 · 随机 / 校验 / 求解 |
 | **求解页** | 后台多阶段求解，实时进度与阶段提示，可取消 |
 | **回放页** | 3D 动画演示每一步还原，支持回到初始 / 跳结尾 |
+| **演示目录** | 按阶数列出分层法 / 七步法 / 降阶法的教学案例（缩略图 + 文字） |
+| **演示屏** | 逐个魔方状态的 3D 分步教学与高亮 |
 
 > 过程：`录入魔方 → 一键求解 → 3D 看它还原`。
 
@@ -66,9 +70,59 @@ buildozer android debug
 
 ## 🧠 求解器是如何工作的
 
+- **2 阶**：`solver/solver2.py` 直接把 2 阶映射到 3 阶色块子集走 Kociemba 求解。
 - **3 阶**：`solver/solver3.py` 把录入的 54 面转换到 Kociemba 坐标系，调用 `kociemba-src/package_src/twophase` 两阶段求解，再把结果映射回本项目的记号。
 - **4 阶**：`solver/solver4.py` 走降阶法 —— 先还原中心块，再配对棱块，处理特殊翻棱（parity），最后按 3 阶方式还原。还原过程按阶段回调进度，UI 实时显示。
+- **5 阶**：`solver/solver5.py` 同样走降阶法 —— 中心归面（`solver/center5`）、三块棱配对（`solver/edge5`）、折叠为 3×3 后再由 Kociemba 求解；配棱阶段对过深打乱返回结构化失败而非输出错误解法。
 - 求解在后台线程运行（`services/solve_service.py`），不阻塞界面，可随时取消。
+
+---
+
+## 🔬 算法研究与优化
+
+本项目不止「能求解」，4 阶降阶法的每个环节都经过**建模、实现、实验验证与调优**，
+下面按阶段记录我们研究与落地的关键点。
+
+### 1. 中心还原：两阶段下降 + seeded 变体（`solver/reduction/center_solver.py`）
+
+- 把中心状态拆成**联合位置码**（joint code）与**侧面码**（side code）两段分别求解，
+  各自用预计算距离表做**下降法**（descend）逼近目标。
+- `solve_centers_variant(cube, seed)` 让同构的下降可以按 `seed` 重滚出**多条等价最优解**，
+  这条通道是后面规避 OLL parity 的关键（见 §3）。
+
+### 2. 配棱（Edge Pairing）：交换基元 + 精确增益模拟（`solver/reduction/edge_pairing.py`）
+
+- **交换基元 P**：`u R U R' F R' F' R u'`（9 步）。它把 `FR-bottom↔BR-top` 两翼互换，
+  同时使 U 层 4 组棱块**整体轮换**（保持已配对组不变），并额外产生一个 2-cycle——
+  「一次交换」因此最多能**同时配对 2~3 个槽**。
+- **精确增益模拟** `_simulate_swap_gain`：不再低估或高估，而是用 24 个翼位的真实置换精确算出
+  「setup + P + 逆 setup」后配对槽数的净增量（1~3），让贪心/beam 能选中真正划算的交换。
+- **多目标排序**：候选交换按 `(-净增益, 压缩后净长度, setup 长度)` 排序，兼顾步数最少与一步多配对。
+- **双向 setup BFS**：`_find_setup_pair` 用 meet-in-the-middle 在两种目标摆放次序下求最短 setup，
+  避免单向前向搜索的指数爆炸。
+- **尾段 beam 搜索** `_pair_beam_finish`：配到后期贪心易陷入局部最优，改用受限 beam
+  （按压缩长度择优、允许「穿谷」）精搜尾段，预算不足自动回退贪心。
+
+### 3. Parity 处理：从「事后修复」到「事前规避」（`solver/reduction/parity.py` + `solver4.py`）
+
+- 4x4 的 **OLL parity（单棱翻转）** 只由「内层切片 90° 数量」的奇偶决定（`_inner_parity`）。
+- 因此我们**不修、而是躲**：预先枚举多条中心解（`_CENTER_SELECT_EXTRA`），
+  从中选出「内层奇偶 == 目标」的那条并重滚出对应降阶解，从而在配棱完成后 **OLL 天然为偶**，
+  直接省掉约 **15 步**的 OLL 修复。该「内层奇偶 == 固有奇偶」关系在 48/48 个测试状态上验证成立。
+- **PLL parity（棱组置换奇偶）** 会随最后一次交换改变：尾段 beam 在预算内**优先返回
+  「降阶后 3x3 直接可解」的完成态**，从而省掉 PLL repair（6 步）。
+
+### 4. 性能优化（实测）
+
+| 优化 | 效果 |
+|------|------|
+| `clone()` 由 `deepcopy` 改为逐 cubie 浅复制 | 命中最大热点，显著提速 |
+| 中心择优候选数与 tail beam 规模按「步数/耗时」折中刻画 | 步数优先时保持最优步数 |
+| 贪心 + 受限 beam 分层 | 在不显著劣化步数的前提下把 beam 耗时压到可控 |
+
+> 经过实验验证，配棱基元 P 的 9 步是**满足「能完成配棱」约束下的最短可行基元**
+> （更短的 `w X w'` 类候选和裸 `R2` 均无法完成配对）；交换次数已被贪心压到近下限，
+> 进一步增大 beam 搜索对总步数收益已饱和。
 
 ---
 
@@ -77,8 +131,8 @@ buildozer android debug
 ```
 app/               应用入口、配置与屏幕流程（常量、字体）
 ui/                Kivy 界面（kv 主题、屏幕、颜色选择器、面网格）
-cube/              魔方逻辑模型（3x3 / 4x4、坐标、记号、校验）
-solver/            求解逻辑（Kociemba 桥接 + 4x4 降阶法）
+cube/              魔方逻辑模型（2x2 / 3x3 / 4x4 / 5x5、坐标、记号、校验）
+solver/            求解逻辑（2/3 阶 Kociemba 桥接 + 4/5 阶降阶法）
 renderer/          3D 渲染（OpenGL 场景、正方体视图、转动动画）
 services/          后台求解线程服务
 twophase/          两阶段求解器预计算表
@@ -95,7 +149,7 @@ assets/            字体与着色器（NotoSansSC.ttf）
 python -m pytest
 ```
 
-覆盖：3x3 / 4x4 转动、记号解析、输入合法性、3 阶 Kociemba 桥接、4 阶降阶各阶段。
+覆盖：2x2 / 3x3 / 4x4 / 5x5 转动、记号解析、输入合法性、2/3 阶 Kociemba 桥接、4/5 阶降阶各阶段。
 
 > 4 阶求解需要 `p4_table.bin`（约 300 MB，见仓库根目录 `.gitattributes`，通过 **Git LFS** 管理）。
 > 克隆仓库后执行 `git lfs pull` 即可获取；CI 与 APK 构建都已自动处理。
@@ -138,5 +192,5 @@ git push origin v1.1.0
 
 - [x] 补充新版界面截图（首页 / 4×4 录入 / 3×3 录入 / 3D 回放）
 - [x] 用 `git-lfs` 收纳超大预计算表，让仓库开箱可跑 4 阶
-- [ ] 新增 N 阶（≥5）支持
+- [x] 新增 N 阶（≥5）支持（2 / 3 / 4 / 5 阶全可用）
 - [ ] 加一个有声音的引导演示视频

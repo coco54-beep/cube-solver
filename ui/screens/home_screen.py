@@ -5,6 +5,7 @@ from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.anchorlayout import AnchorLayout
+from kivy.clock import Clock
 
 from app.config import Config
 
@@ -32,17 +33,20 @@ class HomeScreen(Screen):
         root.add_widget(BoxLayout(size_hint_y=1))
 
         # ---- 主选择区：2 阶 / 3 阶 / 4 阶（大卡片按钮）----
-        cols = BoxLayout(orientation="horizontal", spacing=20,
-                         size_hint=(1.0, None), height=self._card_height(), padding=0)
+        from kivy.uix.gridlayout import GridLayout
+        self.cards = GridLayout(cols=4, spacing=20, size_hint=(1.0, None),
+                                padding=0, height=self._card_height())
         b2 = self._card("2", "2 阶魔方", "还原 Pocket Cube", onClick=lambda *a: self.pick(2))
         b3 = self._card("3", "3 阶魔方", "还原 Rubik's Cube", onClick=lambda *a: self.pick(3))
         b4 = self._card("4", "4 阶魔方", "还原 Rubik's Revenge", onClick=lambda *a: self.pick(4))
         b5 = self._card("5", "5 阶魔方", "还原 Professor's Cube", onClick=lambda *a: self.pick(5))
-        cols.add_widget(b2)
-        cols.add_widget(b3)
-        cols.add_widget(b4)
-        cols.add_widget(b5)
-        root.add_widget(cols)
+        for b in (b2, b3, b4, b5):
+            self.cards.add_widget(b)
+        root.add_widget(self.cards)
+        # 横屏 1×4，竖屏 2×2；监听窗口尺寸变化重排。
+        from kivy.core.window import Window
+        Window.bind(size=self._relayout)
+        Clock.schedule_once(self._relayout, 0.1)
 
         # ---- 操作区 ----
         actions = BoxLayout(orientation="vertical", spacing=10,
@@ -64,11 +68,33 @@ class HomeScreen(Screen):
 
         self.add_widget(root)
 
-    def _card_height(self):
+    def _card_height(self, h=None):
         """卡片区高度，随屏幕尺寸微调（基准高屏 240，小屏略降）。"""
         from kivy.core.window import Window
-        h = Window.height if Window.height else 800
+        h = h if h is not None else (Window.height if Window.height else 800)
         return int(max(180, min(240, h * 0.30)))
+
+    def _card_size(self, w=None):
+        """方块卡片尺寸：竖屏 2×2 时按列宽近似正方形。"""
+        from kivy.core.window import Window
+        w = w if w is not None else (Window.width if Window.width else 420)
+        sp = self.cards.spacing
+        gap = sp[0] if isinstance(sp, (list, tuple)) else sp
+        return int((w - 48 - gap) / 2)
+
+    def _relayout(self, *args):
+        from kivy.core.window import Window
+        self._apply_layout(Window.width, Window.height)
+
+    def _apply_layout(self, w, h):
+        """横屏：4 列 1 行（1×4）；竖屏：2 列 2 行（2×2）。"""
+        if w > h:
+            self.cards.cols = 4
+            self.cards.height = self._card_height(h)
+        else:
+            self.cards.cols = 2
+            side = self._card_size(w)
+            self.cards.height = side * 2 + self.cards.spacing[0]
 
     def _card(self, big, title, desc, onClick):
         """创建一个卡片式按钮（大字标题 + 描述）。"""

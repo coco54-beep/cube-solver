@@ -1,10 +1,27 @@
-"""录入页：展开图输入 + 颜色选择 + 校验 + 求解。"""
+"""录入页：3D 单面填色输入 + 颜色选择 + 校验 + 求解。
 
+与旧版展开图不同，此处用 CubeView 呈现一个完整的 3D 魔方，每次只有
+一个面正对相机（展示面很大），使用户直接在该面上点击格子填色。
+通过 "下一步/上一步" 按钮整体旋转魔方，切换当前填色面。
+"""
+
+from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.screenmanager import Screen
+
+from renderer.cube_view import CubeView
+from renderer.cube_orientation import CubeOrientation
+
+# 屏幕方位 -> 箭头字符（指示该侧的面将转到正面）
+_DIR_ARROW = {
+    "right": "→",
+    "left": "←",
+    "up": "↑",
+    "down": "↓",
+}
 
 
 class PrimaryButton(Button):
@@ -16,16 +33,16 @@ class DangerButton(Button):
     """危险操作按钮（红色主题，见 app.kv 的 <DangerButton> 规则）。"""
     pass
 
+
 from app.constants import FACE_LABEL, FACES
-from cube.conversion import facelets_to_cubies, cubies_to_facelets
+from cube.conversion import facelets_to_cubies
 from cube.cubie_model import Cubie
-from cube.coordinates import FACE_NORMALS, pos_from_rc, get_d_maxc, coord_values, rc_from_pos
+from cube.coordinates import FACE_NORMALS, pos_from_rc, get_d_maxc, rc_from_pos, coord_values
 from cube.validation import validate_2x2, validate_3x3, validate_4x4, validate_5x5
 from cube.cube2 import Cube2
 from cube.cube4 import Cube4
 from cube.cube3 import Cube3
 from cube.cube5 import Cube5
-from ui.widgets.face_grid import FaceGrid
 from ui.widgets.color_picker import ColorSelector
 from solver.solver4 import _rebuild_center_homes
 
@@ -85,14 +102,79 @@ def _build_partial_cube(facelets, n):
     return Cube3(cubies)
 
 
+class _InputCubeView(CubeView):
+    """3D 输入视图：允许缩放，但禁用拖拽旋转；单击回调 on_pick(x, y)，拖动回调 on_drag(x, y)。"""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.on_pick = None
+        self.on_drag = None
+        self.on_drag_end = None
+        self._press = None
+        self._moved = False
+
+    def on_touch_down(self, touch):
+        if not self.collide_point(*touch.pos):
+            return super().on_touch_down(touch)
+        if getattr(touch, "is_mouse_scrolling", False):
+            return super().on_touch_down(touch)
+        self._press = touch.pos
+        self._moved = False
+        try:
+            touch.grab(self)
+        except Exception:
+            pass
+        return True
+
+    def on_touch_move(self, touch):
+        if self._press is not None:
+            dx = touch.x - self._press[0]
+            dy = touch.y - self._press[1]
+            if dx * dx + dy * dy > 16 * 16:
+                self._moved = True
+        # 输入模式禁用拖拽旋转；仅上报拖动位置给连续填色回调。
+        if self._moved and self.on_drag is not None:
+            self.on_drag(touch.x, touch.y)
+            return True
+        return self._pass_rotate(touch)
+
+    def _pass_rotate(self, touch):
+        return CubeView.on_touch_move(self, touch)
+
+    def on_touch_up(self, touch):
+        if self._press is not None:
+            was_drag = self._moved
+            try:
+                touch.ungrab(self)
+            except Exception:
+                pass
+            self._press = None
+            if was_drag:
+                if self.on_drag_end is not None:
+                    self.on_drag_end()
+            elif self.on_pick is not None:
+                self.on_pick(touch.x, touch.y)
+            return True
+        return CubeView.on_touch_up(self, touch)
+
+
 class InputScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self._data = {}          # {face: n x n matrix}
+        self._ori = None         # CubeOrientation
+        self._busy_turn = False
+        self._pending_dir = None
+        self._initialized = False
+        self._pick_mode = False   # 吸色模式
+        self._history = []        # 撤销栈：每个动作为 [(face, r, c, old, new), ...]
+        self._redo = []           # 重做栈
+        self._drag_edits = {}     # 当前拖动手法累积的编辑 {(r,c): old}
         self.build_ui()
-        self.reset_all()
+        self._init_for_n()
 
     def build_ui(self):
-        root = BoxLayout(orientation="vertical", spacing=14, padding=[10, 6, 10, 10])
+        root = BoxLayout(orientation="vertical", spacing=8, padding=[8, 6, 8, 8])
 
         # ---- 顶栏 ----
         top = BoxLayout(size_hint_y=None, height=46, spacing=8)
@@ -107,30 +189,55 @@ class InputScreen(Screen):
         top.add_widget(demo)
         root.add_widget(top)
 
-        # ---- 主显示区：展开图（十字布局）居中占满 ----
-        # 用 AnchorLayout 让展开图在可用区域内居中，避免 ScrollView 左上对齐留白。
-        self.center_grid = AnchorLayout(size_hint=(1.0, 1.0))
-        self.grid_cross = BoxLayout(orientation="vertical", spacing=8,
-                                    size_hint=(None, None))
-        self._top_row = BoxLayout(orientation="horizontal", spacing=8,
-                                  size_hint=(None, None))
-        self._mid_row = BoxLayout(orientation="horizontal", spacing=8,
-                                  size_hint=(None, None))
-        self._bottom_row = BoxLayout(orientation="horizontal", spacing=8,
-                                     size_hint=(None, None))
-        self.grid_cross.add_widget(self._top_row)
-        self.grid_cross.add_widget(self._mid_row)
-        self.grid_cross.add_widget(self._bottom_row)
-        self.center_grid.add_widget(self.grid_cross)
-        root.add_widget(self.center_grid)
+        # ---- 3D 视图占满主区 ----
+        self.view = _InputCubeView(size_hint=(1.0, 1.0))
+        self.view.on_pick = self._handle_pick
+        self.view.on_drag = self._handle_drag
+        self.view.on_drag_end = self._handle_drag_end
+        root.add_widget(self.view)
+
+        # ---- 当前面 + 缩放 ----
+        nav = BoxLayout(size_hint_y=None, height=44, spacing=8)
+        zoom_in = Button(text="＋", size_hint_x=0.12, font_size="20sp")
+        zoom_in.bind(on_release=lambda *a: self._zoom(1.15))
+        zoom_out = Button(text="－", size_hint_x=0.12, font_size="20sp")
+        zoom_out.bind(on_release=lambda *a: self._zoom(1 / 1.15))
+        self.face_label = Label(text="当前面：前", size_hint_x=0.5,
+                                halign="center", font_size="17sp", bold=True)
+        for w in (zoom_out, self.face_label, zoom_in):
+            nav.add_widget(w)
+        root.add_widget(nav)
 
         # ---- 颜色选择器 ----
-        self.picker = ColorSelector(size_hint_y=None, height=60)
-        self.picker.bind(on_select=lambda *a: self._sync_grid_colors())
+        self.picker = ColorSelector(size_hint_y=None, height=52)
         root.add_widget(self.picker)
 
+        # ---- 录入辅助工具 ----
+        edit_row = BoxLayout(size_hint_y=None, height=44, spacing=8)
+        self.btn_pick = Button(text="吸色", font_size="15sp")
+        self.btn_pick.bind(on_release=lambda *a: self.toggle_pick())
+        self.btn_fill = Button(text="整面填充", font_size="15sp")
+        self.btn_fill.bind(on_release=lambda *a: self.fill_face())
+        self.btn_undo = Button(text="撤销", font_size="15sp")
+        self.btn_undo.bind(on_release=lambda *a: self.undo())
+        self.btn_redo = Button(text="重做", font_size="15sp")
+        self.btn_redo.bind(on_release=lambda *a: self.redo())
+        for b in (self.btn_pick, self.btn_fill, self.btn_undo, self.btn_redo):
+            edit_row.add_widget(b)
+        root.add_widget(edit_row)
+
+        # ---- 翻转导航 ----
+        turn_row = BoxLayout(size_hint_y=None, height=48, spacing=8)
+        self.btn_prev = Button(text="上一步", font_size="16sp")
+        self.btn_prev.bind(on_release=lambda *a: self.prev_face())
+        self.btn_next = Button(text="下一步", font_size="16sp")
+        self.btn_next.bind(on_release=lambda *a: self.next_face())
+        for b in (self.btn_prev, self.btn_next):
+            turn_row.add_widget(b)
+        root.add_widget(turn_row)
+
         # ---- 操作按钮行 ----
-        action_row = BoxLayout(size_hint_y=None, height=60, spacing=8)
+        action_row = BoxLayout(size_hint_y=None, height=52, spacing=8)
         rnd = Button(text="随机")
         rnd.bind(on_release=lambda *a: self.random_load())
         clear = DangerButton(text="清空")
@@ -144,116 +251,232 @@ class InputScreen(Screen):
         root.add_widget(action_row)
 
         # ---- 状态提示 ----
-        self.msg = Label(text="", size_hint_y=None, height=36,
+        self.msg = Label(text="", size_hint_y=None, height=34,
                          color=(1, 0.55, 0.55, 1), halign="center")
         root.add_widget(self.msg)
         self.add_widget(root)
 
-        # 展开图占满显示区
-        self.center_grid.size_hint = (1, 1)
-        self.bind(size=self._reflow)
+        self.bind(size=self._on_resize)
 
-    # ---- 初始化网格 ----
-    def _fit_cell(self, n):
-        """根据可用显示区宽高计算格子尺寸，使展开图尽可能铺满且不超屏。
+    def _on_resize(self, *args):
+        # 尺寸变化时重新取景（整体旋转与颜色数据保留）。
+        Clock.schedule_once(lambda *a: self._refresh_view(keep_anim=False), 0)
 
-        十字布局：中排 4 个面最宽，纵向 3 排最高。用最小值保证不溢出，
-        再限制在 [16, 46] 之间，兼容 3 阶 / 4 阶与不同分辨率。
-        """
-        from kivy.core.window import Window
-        width = self.width if self.width > 1 else Window.width
-        height = self.height if self.height > 1 else Window.height
-        # 扣除顶栏与控制区（含颜色选择行、按钮行、消息、间距、padding）的估算高度
-        controls_h = 46 + 60 + 60 + 36 + 48
-        avail_w = max(1.0, width - 2 * 10 - 8)
-        avail_h = max(1.0, height - controls_h)
-        cell_w = (avail_w - 3 * 8) / (4.0 * n)
-        cell_h = (avail_h - 2 * 8) / (3.0 * n)
-        cell = int(min(cell_w, cell_h, 46))
-        return max(16, cell)
-
-    def _reflow(self, *args):
-        """屏幕尺寸变化时重建展开图，并保留已录入的颜色。"""
-        from kivy.clock import Clock
-        Clock.schedule_once(self._do_reflow, 0)
-
-    def _do_reflow(self, *dt):
-        if not hasattr(self, "_grids"):
-            return
-        data = None
-        try:
-            data = self.collect_facelets()
-        except Exception:
-            data = None
-        self.reset_all()
-        if data:
-            self.set_facelets(data)
-
-    def reset_all(self):
+    def _init_for_n(self):
         n = self._n()
-        # 清掉旧的 FaceGrid（标准十字布局）
-        self._top_row.clear_widgets()
-        self._mid_row.clear_widgets()
-        self._bottom_row.clear_widgets()
-        self._grids = {}
-        cell = self._fit_cell(n)
-        fw = n * cell                 # 单个网格宽/高（无标签）
-        gw = 4 * fw + 3 * 8           # 中排 4 格宽 + spacing
-        gh = 3 * fw + 2 * 8           # 3 排高 + spacing
-        # 中排 4 个面：L F R B（按相邻接触顺序 L-F、F-R、R-B，从左到右）
-        for face in ("L", "F", "R", "B"):
-            fg = FaceGrid(face=face, size_n=n, cell_size=cell,
-                          show_labels=False, on_change=self.on_grid_change)
-            self._mid_row.add_widget(fg)
-            self._grids[face] = fg
-        # 顶排 U、底排 D：spacing=0，spacer(宽=L宽+spacing) 使 U/D 左缘= F 左缘
-        self._top_row.spacing = 0
-        self._bottom_row.spacing = 0
-        spacer = fw + 8
-        for face, row in (("U", self._top_row), ("D", self._bottom_row)):
-            sp = BoxLayout(size_hint_x=None, width=spacer)
-            row.add_widget(sp)
-            fg = FaceGrid(face=face, size_n=n, cell_size=cell,
-                          show_labels=False, on_change=self.on_grid_change)
-            row.add_widget(fg)
-            self._grids[face] = fg
-        # 顶/底排宽度 = 中排宽度（U/D 左缘对齐 F 左缘）
-        for row in (self._top_row, self._mid_row, self._bottom_row):
-            row.size_hint = (None, None)
-            row.size = (gw, fw)
-        self.grid_cross.size = (max(gw, fw), gh)
-        self.grid_cross.pos_hint = {"center_x": 0.5, "center_y": 0.5}
-        # 同步当前选中颜色到网格
-        self._sync_grid_colors()
+        self._data = {f: [[""] * n for _ in range(n)] for f in FACES}
+        self._ori = CubeOrientation(n)
+        self.title.text = f"录入 {n}x{n}"
+        # 录入页相机正对当前面（+Z），不使用演示页的斜视角度。
+        self.view.camera.elevation = 0.0
+        self.view.camera.azimuth = 0.0
+        self.view._display_zoom = 1.0
+        self._reset_edits()
+        self._refresh_view()
+        self._update_turn_hints()
 
-    def _sync_grid_colors(self):
-        """把颜色选择器的当前色同步到所有网格，点击格子用该颜色。"""
-        col = self.picker.current_color
-        for g in self._grids.values():
-            g.set_color(col)
-
-    def on_grid_change(self):
-        self.msg.text = ""
+    def _reset_edits(self):
+        self._history = []
+        self._redo = []
+        self._drag_edits = {}
+        self._pick_mode = False
+        self.btn_pick.background_color = [0.5, 0.5, 0.5, 1]
+        self._update_edit_buttons()
 
     def _n(self):
-        app = _app()
-        return app.n
+        return _app().n
+
+    # ---- 3D 视图 ----
+    def _refresh_view(self, keep_anim=True):
+        if not hasattr(self, "view"):
+            return
+        facelets = self.collect_facelets()
+        cube = _build_partial_cube(facelets, self._n())
+        if cube is None:
+            self.view.cube = None
+            self.view._redraw()
+            return
+        if not keep_anim:
+            self.view._cancel_whole_anim()
+        self.view.set_cube(cube)
+        self.view.set_whole_world(self._ori.world)
+        self._update_face_label()
+
+    def _update_face_label(self):
+        face = self._ori.current_face()
+        self.face_label.text = f"当前面：{FACE_LABEL.get(face, face)} ({face})"
+
+    def _update_turn_hints(self):
+        """在"上一步/下一步"按钮上显示本次转向的方位箭头。"""
+        left = _DIR_ARROW.get(self._ori.prev_dir(), "◀")
+        right = _DIR_ARROW.get(self._ori.next_dir(), "▶")
+        self.btn_prev.text = f"{left}上一步"
+        self.btn_next.text = f"{right}下一步"
+
+    def _zoom(self, factor):
+        self.view._display_zoom *= factor
+        self.view._display_zoom = max(0.25, min(4.0, self.view._display_zoom))
+        self.view._draw_mesh()
+
+    def _handle_pick(self, x, y):
+        if self._busy_turn:
+            return
+        face = self._ori.current_face()
+        hit = self.view.pick_cell(face, self._n(), x, y)
+        if hit is None:
+            return
+        r, c = hit
+        if self._pick_mode:
+            col = self._data[face][r][c]
+            if col:
+                self.picker.select(col)
+                self.toggle_pick()
+                self.msg.text = f"已吸色 {col}，可继续填色"
+            return
+        self.on_cell(r, c, face)
+
+    def _handle_drag(self, x, y):
+        if self._busy_turn or self._pick_mode:
+            return
+        face = self._ori.current_face()
+        hit = self.view.pick_cell(face, self._n(), x, y)
+        if hit is None:
+            return
+        r, c = hit
+        self._fill_cell(face, r, c, self.picker.current_color,
+                        action=self._drag_edits)
+
+    def _handle_drag_end(self):
+        if self._drag_edits:
+            self._commit_action(self._drag_edits)
+            self._drag_edits = {}
+            self._refresh_view()
+
+    # ---- 颜色填充 ----
+    def _fill_cell(self, face, r, c, col, action=None):
+        """填一个格子；若给定 action 字典则记录旧值（供连续拖动合并一次撤销）。"""
+        old = self._data[face][r][c]
+        if old == col:
+            return
+        if action is not None:
+            if (r, c) not in action:
+                action[(r, c)] = old
+        self._data[face][r][c] = col
+        self.msg.text = ""
+        if action is None:
+            self._commit_action({(r, c): old})
+        self._refresh_view()
+
+    def _commit_action(self, edits):
+        """把一次编辑（多为 dict {(r,c): old}）压入撤销栈，并清空重做栈。"""
+        face = self._ori.current_face()
+        action = [(face, r, c, old, self._data[face][r][c])
+                  for (r, c), old in edits.items()]
+        if action:
+            self._history.append(action)
+            self._redo = []
+        self._update_edit_buttons()
+
+    def fill_face(self):
+        """把当前面所有格子填成当前色（作为一次可撤销操作）。"""
+        if self._busy_turn:
+            return
+        face = self._ori.current_face()
+        col = self.picker.current_color
+        n = self._n()
+        edits = {}
+        for r in range(n):
+            for c in range(n):
+                if self._data[face][r][c] != col:
+                    edits[(r, c)] = self._data[face][r][c]
+                    self._data[face][r][c] = col
+        if edits:
+            self._commit_action(edits)
+            self.msg.text = f"已将 {face} 面填充为 {col}"
+        else:
+            self.msg.text = f"{face} 面已是 {col}"
+        self._refresh_view()
+
+    def toggle_pick(self):
+        self._pick_mode = not self._pick_mode
+        self.btn_pick.background_color = (
+            [0.25, 0.55, 0.95, 1] if self._pick_mode else [0.5, 0.5, 0.5, 1])
+
+    # ---- 撤销 / 重做 ----
+    def undo(self):
+        if not self._history:
+            return
+        action = self._history.pop()
+        for face, r, c, old, _new in reversed(action):
+            self._data[face][r][c] = old
+        self._redo.append(action)
+        self.msg.text = "已撤销"
+        self._refresh_view()
+        self._update_edit_buttons()
+
+    def redo(self):
+        if not self._redo:
+            return
+        action = self._redo.pop()
+        for face, r, c, _old, new in action:
+            self._data[face][r][c] = new
+        self._history.append(action)
+        self.msg.text = "已重做"
+        self._refresh_view()
+        self._update_edit_buttons()
+
+    def _update_edit_buttons(self):
+        self.btn_undo.disabled = not self._history
+        self.btn_redo.disabled = not self._redo
+
+    def next_face(self):
+        self._animate_turn("next")
+
+    def prev_face(self):
+        self._animate_turn("prev")
+
+    def _animate_turn(self, direction):
+        if self._busy_turn:
+            return
+        self._busy_turn = True
+        self._pending_dir = direction
+        if direction == "prev":
+            angle, axis = self._ori.prev_axis_deg()
+        else:
+            angle, axis = self._ori.next_axis_deg()
+        self.view.animate_whole_turn(
+            axis, angle, 0.55, on_done=lambda: self._after_turn()
+        )
+
+    def _after_turn(self):
+        if getattr(self, "_pending_dir", None) == "prev":
+            self._ori.turn_prev()
+        else:
+            self._ori.turn_next()
+        self._pending_dir = None
+        self._busy_turn = False
+        self._update_face_label()
+        self._update_turn_hints()
 
     # ---- 数据存取 ----
     def collect_facelets(self):
-        return {f: g.get_grid() for f, g in self._grids.items()}
+        return {f: [row[:] for row in self._data.get(f, [])] for f in FACES}
 
     def set_facelets(self, facelets):
+        n = self._n()
         for f in FACES:
             if f in facelets:
-                self._grids[f].set_grid(facelets[f])
+                grid = facelets[f]
+                self._data[f] = [[grid[r][c] for c in range(n)]
+                                 for r in range(n)]
+        self._reset_edits()
+        self._refresh_view()
+
+    def on_cell(self, r, c, face):
+        col = self.picker.current_color
+        self._fill_cell(face, r, c, col)
 
     def random_load(self):
-        """随机打乱一个该阶的已还原魔方，填充展开图（方便测试破解）。
-
-        随机生成若干基础/宽层动作，从 solved 应用得到随机状态，
-        转成 facelets 填充各面网格并同步 3D 视图。
-        """
         import random
         from cube.cube2 import Cube2
         from cube.cube4 import Cube4
@@ -285,7 +508,6 @@ class InputScreen(Screen):
         self.msg.text = f"已加载随机布局（{len(moves)} 步打乱）"
 
     def confirm_clear(self):
-        """清空操作前二次确认。"""
         from kivy.uix.popup import Popup
         content = BoxLayout(orientation="vertical", spacing=12, padding=16)
         label = Label(text="确定要清空全部已录入的颜色吗？", halign="center",
@@ -304,16 +526,26 @@ class InputScreen(Screen):
         popup.open()
 
     def clear_all(self):
+        n = self._n()
         for face in FACES:
-            grid = [[""] * self._n() for _ in range(self._n())]
-            self._grids[face].set_grid(grid)
+            self._data[face] = [[""] * n for _ in range(n)]
+        self._ori = CubeOrientation(n)
+        self._busy_turn = False
+        self._pending_dir = None
+        self._reset_edits()
+        self._refresh_view()
         self.msg.text = "已清空"
+
+    def reset_all(self):
+        self._init_for_n()
 
     def on_enter(self):
         n = self._n()
         self.title.text = f"录入 {n}x{n}"
-        self.reset_all()
-        # 从回放/求解返回时，自动恢复上次布局，减少重复录入
+        if not self._initialized or getattr(self, "_n_for_screen", None) != n:
+            self._init_for_n()
+            self._n_for_screen = n
+            self._initialized = True
         app = _app()
         if app.facelets_input is not None:
             self.set_facelets(app.facelets_input)
@@ -323,7 +555,6 @@ class InputScreen(Screen):
     def check(self):
         facelets = self.collect_facelets()
         n = self._n()
-        # 空格检查
         empty = []
         for face in FACES:
             for r in range(n):
@@ -333,7 +564,6 @@ class InputScreen(Screen):
         if empty:
             self.msg.text = f"未填写: {','.join(empty[:8])}"
             return
-        n = self._n()
         if n == 2:
             errs = validate_2x2(facelets)
         elif n == 3:
@@ -356,7 +586,6 @@ class InputScreen(Screen):
         facelets = self.collect_facelets()
         prev_result = app.solve_result
         prev_layout = app.facelets_input
-        # 布局与上次一致且有上次方案：直接复用，跳过重新求解
         reuse = prev_result is not None and prev_layout == facelets
         self._commit_cube(facelets)
         if reuse:
@@ -373,17 +602,10 @@ class InputScreen(Screen):
         app.set_cube(cubies, self._n())
         app.facelets_input = facelets
 
-    def on_cell(self, r, c, face):
-        col = self.picker.current_color
-        self._grids[face]._data[(r, c)] = col
-        self._grids[face]._paint(r, c, col)
-        self.msg.text = ""
-
     def go_home(self):
         self.manager.current = "HomeScreen"
 
     def open_demo(self):
-        """进入当前阶数的演示页，同时保存已录入颜色以便返回时恢复。"""
         app = _app()
         app.facelets_input = self.collect_facelets()
         menu = self.manager.get_screen("DemoMenuScreen")

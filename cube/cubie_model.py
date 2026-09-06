@@ -13,7 +13,6 @@ Cubie 数据:
     180/270 度: 循环 count 次 (每次90度顺时针)。
 """
 
-import copy
 from dataclasses import dataclass, field
 from typing import Dict, List, Tuple
 
@@ -127,7 +126,9 @@ class BaseCube:
         return True
 
     def clone(self):
-        return type(self)(copy.deepcopy(self.cubies))
+        # 逐 cubie 浅复制（Cubie.clone 已复制其 stickers dict），
+        # 避免 copy.deepcopy 的递归开销；在配棱/beam 大量克隆时收益明显。
+        return type(self)({k: c.clone() for k, c in self.cubies.items()})
 
     # -- 转动引擎 --
     def apply_move(self, move_str: str) -> None:

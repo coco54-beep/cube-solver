@@ -21,6 +21,8 @@ class PlaybackScreen(Screen):
         self._speed = 1.0
         self._busy = False
         self._queue = []        # 待播放的 MoveStep 队列
+        self._hold = 0.5        # 每转完一步后的停留时间（秒）
+        self._hold_ev = None    # 停留计时器
 
     def build_ui(self):
         root = BoxLayout(orientation="vertical", spacing=4, padding=6)
@@ -61,10 +63,15 @@ class PlaybackScreen(Screen):
         root.add_widget(control)
 
         speed_row = BoxLayout(size_hint_y=0.08, spacing=6)
-        speed_row.add_widget(Label(text="速度", font_size="15sp", size_hint_x=0.2))
-        self.slider = Slider(min=0.25, max=2.0, value=1.0, step=0.25, size_hint_x=0.8)
+        speed_row.add_widget(Label(text="速度", font_size="15sp", size_hint_x=0.14))
+        self.slider = Slider(min=0.25, max=2.0, value=1.0, step=0.25, size_hint_x=0.36)
         self.slider.bind(value=self._on_speed)
         speed_row.add_widget(self.slider)
+        speed_row.add_widget(Label(text="停留", font_size="15sp", size_hint_x=0.14))
+        self.hold_slider = Slider(min=0.0, max=2.0, value=self._hold, step=0.1,
+                                  size_hint_x=0.36)
+        self.hold_slider.bind(value=self._on_hold)
+        speed_row.add_widget(self.hold_slider)
         root.add_widget(speed_row)
 
         self.add_widget(root)
@@ -89,6 +96,7 @@ class PlaybackScreen(Screen):
         self._playing = False
         self._busy = False
         self._queue = []
+        self._cancel_hold()
         # 取消 CubeView 正在进行的动画（若在播放中点跳结尾/上一步）
         if hasattr(self.view, "_cancel_animation"):
             self.view._cancel_animation()
@@ -100,6 +108,7 @@ class PlaybackScreen(Screen):
     def toggle_play(self):
         if self._playing:
             self._playing = False
+            self._cancel_hold()
         else:
             self._playing = True
             self._advance()
@@ -107,6 +116,9 @@ class PlaybackScreen(Screen):
 
     def _on_speed(self, instance, value):
         self._speed = value
+
+    def _on_hold(self, instance, value):
+        self._hold = max(0.0, value)
 
     def next(self):
         self._playing = False
@@ -153,7 +165,26 @@ class PlaybackScreen(Screen):
             self._busy = False
             self._update_buttons()
             if self._playing:
-                self._advance()
+                self._schedule_next()
+
+    def _schedule_next(self):
+        """一步转完后暂停 self._hold 秒，再走下一步。"""
+        self._cancel_hold()
+        delay = max(0.0, self._hold)
+        if delay <= 0:
+            self._advance()
+        else:
+            self._hold_ev = Clock.schedule_once(self._do_advance, delay)
+
+    def _do_advance(self, *args):
+        self._hold_ev = None
+        if self._playing:
+            self._advance()
+
+    def _cancel_hold(self):
+        if self._hold_ev is not None:
+            self._hold_ev.cancel()
+            self._hold_ev = None
 
     def _animate_step(self, step):
         # 用 CubeView.start_turn 驱动动画（内部用 Clock.schedule_interval 逐帧推进）。

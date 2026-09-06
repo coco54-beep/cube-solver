@@ -39,6 +39,17 @@ class CubeView(Widget):
 		self._anim = None
 		self._anim_event = None
 
+		# 显示整体旋转（输入界面用于把某面转到正对相机）。
+		# 逻辑魔方状态不随其变化；渲染时对顶点额外施加该变换。
+		self._whole_world = None
+
+		# 最近一次 _draw_mesh 的取景参数，供拾取（world -> screen）复用。
+		self._last_proj = None
+
+		# 当前整体翻转动画信息
+		self._whole_anim = None
+		self._whole_anim_event = None
+
 		# 当前拖拽触摸
 		self._touch0 = None
 		self._touch0_pos = None
@@ -69,6 +80,8 @@ class CubeView(Widget):
 		中心块始终保留颜色作方向参照。
 		"""
 		self._cancel_animation()
+		self._cancel_whole_anim()
+		self._whole_world = None
 		self.cube = cube
 		self._highlight = highlight
 		self._redraw()
@@ -82,6 +95,148 @@ class CubeView(Widget):
 		self._display_zoom = 1.0
 		self._redraw()
 
+	def set_whole_world(self, world):
+		"""设置显示整体旋转矩阵（把某面转到正对相机）。None 表示无整体旋转。"""
+		self._whole_world = world
+		self._redraw()
+
+	def animate_whole_turn(self, axis, angle_deg, duration, on_done=None):
+		"""播放一次整体旋转动画（把整块魔方绕 axis 转到 angle_deg）。"""
+		self._cancel_whole_anim()
+		self._whole_anim = {
+			"axis": axis,
+			"angle_total": float(angle_deg),
+			"angle_current": 0.0,
+			"duration": max(0.0, float(duration)),
+			"elapsed": 0.0,
+			"base_world": self._whole_world,
+			"on_done": on_done,
+		}
+		if self._whole_anim["duration"] <= 0.0:
+			self._whole_anim["angle_current"] = self._whole_anim["angle_total"]
+			self._apply_whole_anim()
+			self._finish_whole_anim()
+			return
+		self._whole_anim_event = Clock.schedule_interval(self._whole_anim_tick, 0)
+
+	def _whole_anim_tick(self, dt):
+		if self._whole_anim is None:
+			return False
+		anim = self._whole_anim
+		anim["elapsed"] += max(0.0, dt)
+		duration = max(anim["duration"], _EPSILON)
+		t = min(1.0, anim["elapsed"] / duration)
+		eased_t = t * t * (3.0 - 2.0 * t)
+		anim["angle_current"] = anim["angle_total"] * eased_t
+		self._apply_whole_anim()
+		if t >= 1.0:
+			self._finish_whole_anim()
+			return False
+		return True
+
+	def _apply_whole_anim(self):
+		anim = self._whole_anim
+		if anim is None:
+			return
+		base = anim["base_world"]
+		if base is not None:
+			delta = _rotation_matrix_for_whole(anim["angle_current"], anim["axis"])
+			self._whole_world = delta * base
+		else:
+			self._whole_world = None
+		self._draw_mesh()
+
+	def _finish_whole_anim(self):
+		anim = self._whole_anim
+		self._whole_anim = None
+		if self._whole_anim_event is not None:
+			self._whole_anim_event.cancel()
+			self._whole_anim_event = None
+		if anim is not None and anim.get("on_done") is not None:
+			anim["on_done"]()
+		self._draw_mesh()
+
+	def _cancel_whole_anim(self):
+		self._whole_anim = None
+		if self._whole_anim_event is not None:
+			self._whole_anim_event.cancel()
+			self._whole_anim_event = None
+
+	# ------------------------------------------------------------------
+	# 拾取：屏幕坐标 -> 当前正对面的格子 (r, c)
+	# ------------------------------------------------------------------
+
+	def pick_cell(self, face, n, px, py):
+		"""把屏幕坐标 (px, py) 映射到 face 面上的格子 (r, c)。
+
+		使用与 _draw_mesh 相同的取景参数。正对面的 n x n 格子中心点
+		被投影到屏幕，选距离点击点最近且落在容忍距离内的格子。
+		无匹配时返回 None。
+		"""
+		if self._last_proj is None:
+			return None
+		proj = self._last_proj
+		eye, right, camera_up, forward = proj["basis"]
+		pixel_scale = proj["pixel_scale"]
+		pcx = proj["center_x"]
+		pcy = proj["center_y"]
+		wcx = proj["widget_center_x"]
+		wcy = proj["widget_center_y"]
+
+		from cube.coordinates import pos_from_rc
+
+		# 先把每个格子中心投影到屏幕坐标。
+		pts = {}
+		for r in range(n):
+			for c in range(n):
+				pos = pos_from_rc(n, face, r, c)
+				world = self._whole_world
+				if world is not None:
+					pos = world.transform(*pos)
+				rel = (
+					pos[0] - eye[0],
+					pos[1] - eye[1],
+					pos[2] - eye[2],
+				)
+				z = _dot(rel, forward)
+				if z <= _EPSILON:
+					continue
+				qx = _dot(rel, right) / z
+				qy = _dot(rel, camera_up) / z
+				sx = wcx + (qx - pcx) * pixel_scale
+				sy = wcy + (qy - pcy) * pixel_scale
+				pts[(r, c)] = (sx, sy)
+
+		if not pts:
+			return None
+
+		# 最近格。
+		best = None
+		best_dist = None
+		for key, (sx, sy) in pts.items():
+			dist = ((sx - px) ** 2 + (sy - py) ** 2) ** 0.5
+			if best_dist is None or dist < best_dist:
+				best_dist = dist
+				best = key
+		if best is None:
+			return None
+
+		# 容忍距离：用相邻格中心间距衡量（约 1 格宽）。
+		r, c = best
+		spacing = None
+		for dr, dc in ((0, 1), (1, 0)):
+			nb = (r + dr, c + dc)
+			if nb in pts:
+				sx, sy = pts[best]
+				nsx, nsy = pts[nb]
+				d = ((sx - nsx) ** 2 + (sy - nsy) ** 2) ** 0.5
+				spacing = d if spacing is None else max(spacing, d)
+		if spacing is None:
+			spacing = max(1.0, pixel_scale)
+		if best_dist is not None and best_dist > spacing:
+			return None
+		return best
+
 	# ------------------------------------------------------------------
 	# 绘制
 	# ------------------------------------------------------------------
@@ -93,6 +248,7 @@ class CubeView(Widget):
 	def _draw_mesh(self):
 		"""生成场景并绘制魔方网格。"""
 		self._mesh_group.clear()
+		self._last_proj = None
 
 		if self.cube is None:
 			return
@@ -118,6 +274,19 @@ class CubeView(Widget):
 			rotation=rotation,
 			highlight=getattr(self, "_highlight", None),
 		)
+
+		# 施加显示整体旋转（输入界面用于把某面转到正对相机）。
+		if self._whole_world is not None and len(vertices) >= 7:
+			w = self._whole_world
+			for i in range(0, len(vertices) - 6, 7):
+				p = w.transform(
+					float(vertices[i]),
+					float(vertices[i + 1]),
+					float(vertices[i + 2]),
+				)
+				vertices[i] = p[0]
+				vertices[i + 1] = p[1]
+				vertices[i + 2] = p[2]
 
 		if not vertices:
 			return
@@ -320,6 +489,16 @@ class CubeView(Widget):
 		# canvas 使用父级坐标，因此使用 Widget 的实际中心坐标。
 		widget_center_x = self.center_x
 		widget_center_y = self.center_y
+
+		# 保存取景参数，供 pick_cell 把世界点投影回屏幕坐标。
+		self._last_proj = {
+			"basis": (eye, right, camera_up, forward),
+			"pixel_scale": pixel_scale,
+			"center_x": projected_center_x,
+			"center_y": projected_center_y,
+			"widget_center_x": widget_center_x,
+			"widget_center_y": widget_center_y,
+		}
 
 		# --------------------------------------------------------------
 		# 每4个连续顶点组成一个四边形。
@@ -728,6 +907,11 @@ def _rotation_matrix_for(animation):
 		angle_deg,
 		(0.0, 0.0, 1.0),
 	)
+
+
+def _rotation_matrix_for_whole(angle_deg, axis):
+	"""根据整体翻转动画状态生成旋转矩阵（axis 为三维向量）。"""
+	return Mat4.rotation_axis(angle_deg, axis)
 
 
 def _dot(a, b):

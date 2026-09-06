@@ -167,3 +167,50 @@ search_store_prefixed_batch��**��ǰ�ݡ�һ���ѹ������
 ### 缁撴灉锛歴eed11/20 7鈫? 浠嶆湭鍛戒腑
 瀵?seed11/20 娴嬭瘯锛坰tore-prefix 鍏虫€佷笌 inner-store 鎵撳紑鎬佸潎璇曪級锛?- store-prefix锛堝叧鎬侊級锛?4 涓幓閲嶅墠缂€鎬侊紙2B:40 / 2D:14锛夛紝best_paired_after=7锛屽叏 no_gain銆?- inner-store 鎵撳紑鎬侊紙max_store_depth=3銆佸叏 open / 鑱氱劍 2B/2D銆乵ax_checked=46080銆?15s锛夛細NO_INNER_STORE_BATCH銆?- inner-store 鎵撳紑鎬侊紙max_store_depth=4锛岃仛鐒?2B/2D锛宮ax_checked=60000銆?64s锛夛細NO_INNER_STORE_BATCH銆?- 鏅鸿兘鎼滅储锛堟柊缁勪紭鍏?+ body2 鍓灊锛宮ax_checked=80000銆?15s锛夛細NO_INNER_STORE_BATCH銆?
 **缁撹**锛氬湪褰撳墠 `W body1 store1 body2 W'` 缁撴瀯 + 鐜版湁浣撳簱涓嬶紝seed11/20 鐨?7鈫? 鏄?纭钩鍙版湡锛涙毚鍔?鏅鸿兘鎼滅储绌洪棿杩囧ぇ鏃犳硶绌峰敖锛屼笖璇ョ粨鏋勫眰绾у緢鍙兘涓嶈冻浠ヨ閰嶃€?seed5(9鈫?0 绾綋) 涓?seed9(8鈫? store-prefix) 宸茬ǔ瀹氫氦浠樺苟鏈夋祴璇曪紝鍏朵綑锛坰eed11/20锛?闇€寮曞叆鏇存繁/鏇磋冻鐨勬満鍒讹紙澶?store銆佹洿瓒充綋搴撱€佹垨鎹?slice 杞磋閰嶏級锛屽綋鍓嶅垪涓哄紑鏀鹃毦棰樸€?
+
+
+## ===== 第四阶段：物理动作语义审计 + 确定性 + 合法 free-slice Gate 1（最新更正）=====
+
+### 1. 更正「内层切片改善配对」的结论（关键纠错）
+早期「3X 内层切片能改善配对」的结果**无效**，因为 `3X / 4X / 5X` 在当前 Cube5 引擎中会
+**移动 6 个固定面心**（物理动作语义审计证实：`3R/3L/3U/3D/3F/3B/4X/5X` 均移动 4 个固定面心；
+仅 `1X` 外层与 `2X` 两层宽转保持不变）。该结果来自**非法动作进入 compact 搜索空间**，
+不构成实体 5×5 的可行性证据。正式 free-slice 后续**只使用固定面心不变的 1X/2X 动作**。
+
+- 已从 `compact_state._make_move_tables` 清除 `3X` 内层切片动作，正式搜索动作集固定为 **36 个 1X/2X** 动作。
+- 硬测试：`tests/test_move_physical_semantics.py`（断言 1X/2X 与合法切片原语 `2R R'` 等保留固定面心；3X/4X/5X 移动固定面心）。
+- 遗留文件 `solver/edge5/free_slice_pair.py`（依赖 3X）已标注 HISTORICAL / INVALID，未被任何正式模块导入。
+
+### 2. 确定性结论
+`pair_all_protected` 及宏观配棱器对**相同输入、相同预算、相同宏顺序**是完全确定的：
+相同 seed 重放得到相同 `paired` 计数与绝对相同的动作序列（跨进程、跨 `PYTHONHASHSEED` 均一致）。
+早期观察到的「同 seed 出现 7~10 波动」来自**不同 scramble 生成器**，而非配棱器本身不确定。
+
+- 硬测试：`tests/test_protected_pairing_determinism.py`（同一轨迹多次调用结果一致）。
+
+### 3. Gate 1 准确后置条件（合法 free-slice 插翼）
+从受控分散态（目标中棱 home、目标翼-a 分散到别的工作带槽）出发，单条 `W + outer + W'` 宏
+（仅 1X/2X）把目标翼聚到目标中棱槽。后置条件为：
+
+```text
+relation >= 2
+centers_are_color_solved == True
+fixed centers preserved == True
+real Cube5 replay matches  （只含 1X/2X，全部合法）
+```
+
+- 例：`2F U F' U' 2F'`（rel 聚集、中心归面、固定面心保持）。
+- 硬测试：`tests/test_freeslice_legal_gate.py`（4 组 target/entry 组合）。
+- 注意：`relation >= 2` 只是「同槽聚合」的抽象分值，**不等于真实配对**（翼朝向仍由真实 `Cube5`
+  用 `is_edge_paired` 判定），不能据此宣称完整配成一条 tredge。
+
+### 4. 能力边界
+Gate 1 证明**合法 free-slice 的插翼原语存在**（仅 1X/2X、保持固定面心、真实重放一致），
+但**尚未证明**可保护累积到 12 条。后续 Gate 依次为：Gate 2 固定工作布局 → Gate 3 原子插翼 →
+Gate 4 保存部分组合 → Gate 5 完整一条 → Gate 6 保护式梯度 1→2→4→6→8→10 → Gate 7 最后两棱与奇偶。
+
+### 5. 关于「9→12 硬不变量」的严谨化
+「9→12 无法跨越」**并非已被证明的数学硬不变量**。更严谨表述：
+在当前合法动作集、宏库与搜索预算下，最后 3~5 条需要非单调、多步穿谷及专用最后两棱处理；
+现有贪婪、beam 与双向 BFS 未能稳定跨越。除非给出群论证明，否则不宣称其为数学上的硬不变量。
+

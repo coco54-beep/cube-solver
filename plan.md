@@ -2,6 +2,46 @@
 
 ---
 
+# 〇、5×5 Current Status（当前状态）
+
+> 本节为当前实际进度总览，随里程碑推进更新。
+
+### Completed
+- [x] Center solving（中心还原，已冻结）
+- [x] Protected partial edge pairing（保护式部分配棱，可稳定推进到 7～10 条，具体取决于输入 scramble；`pair_all_protected` 对相同状态是确定的）
+- [x] Pairing determinism audit（配棱确定性审计：相同输入、相同预算、相同宏顺序 → 相同结果）
+- [x] Physical move semantics audit（物理动作语义审计）
+- [x] Remove non-physical 3X/4X/5X from compact search（从 compact 搜索移除非物理深层动作）
+- [x] Legal free-slice Gate 1（合法 free-slice 插翼 Gate 1）
+- [x] Real Cube5 replay validation（真实 Cube5 重放验证）
+- [x] Full suite 519 tests passing
+
+### Current legal move model（当前合法动作模型）
+只允许外层转与两层宽转：
+
+```text
+1X: legal（外层）
+2X: legal（两层宽转）
+3X/4X/5X: non-physical in the current Cube5 engine（非法，因其会移动 6 个固定面心）
+```
+
+正式搜索动作集固定为 36 个 1X/2X 动作。
+
+### Next gates（后续 Gate）
+- [ ] Gate 2: fixed work layout（固定工作布局 + 纯外层定位表）
+- [ ] Gate 3: deterministic atomic wing insertion（确定性原子插翼）
+- [ ] Gate 4: store partial assembly（保存部分组合）
+- [ ] Gate 5: complete one tredge（完整配成一条三块棱）
+- [ ] Gate 6: protected ladder 1→2→4→6→8→10（保护式累积梯度）
+- [ ] Gate 7: last two edges and parity（最后两棱与奇偶）
+- [ ] End-to-end deep scramble regression（端到端深乱回归）
+
+> 说明：当前「9→12」并非已被群论证明的硬不变量。更严谨表述为：
+> 在当前合法动作集、宏库与搜索预算下，最后 3～5 条需要非单调、多步穿谷及专用最后两棱处理；
+> 现有贪婪、beam 与双向 BFS 未能稳定跨越。除非给出群论证明，否则不宣称其为数学上的硬不变量。
+
+---
+
 # 一、总路线
 
 完整流程固定为：

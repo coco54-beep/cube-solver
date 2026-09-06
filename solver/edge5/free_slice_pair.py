@@ -1,7 +1,10 @@
-"""free-slice 边缘配对：基于紧凑状态 + 内层切片动作，把目标棱的三块聚到同一槽。
+"""HISTORICAL / INVALID（不再用于正式求解）。
 
-搜索在紧凑态上进行（含 wide + outer + 纯内层切片 3X），用 beam + 关系等级评分。
-找到动作序列后，在真实 Cube5 上重放并用 member_slots / is_edge_paired 校验。
+早期 free-slice 实验：基于紧凑状态 + 非物理内层切片 3X 动作把目标棱三块聚到同一槽。
+3X/4X/5X 会移动 6 个固定面心，属非物理动作，已从 compact 搜索空间剔除
+（见 tests/test_move_physical_semantics.py）。本文件未被任何正式模块或测试导入，
+仅作历史参考；正式 free-slice 请使用 solver/edge5/freeslice_* 相关模块
+（仅 1X 外层 + 2X 宽转）。请勿在正式算法中 import 本模块或依赖其 3X 逻辑。
 """
 
 from __future__ import annotations

@@ -35,6 +35,15 @@
 - [x] Gate 3: deterministic atomic wing insertion（确定性原子插翼，`solver/edge5/atomic_insert.py`）
 - [x] Gate 4: store partial assembly（保存部分组合，`solver/edge5/store_partial.py`，store+survival only）
 - [ ] Gate 5: complete one tredge（完整配成一条三块棱）
+      - 主机制已达：把「中棱+翼-A」部分组合与松散的翼-B 在**任意逻辑槽**配成完整三块棱
+        （`completion_goal_states` 覆盖全部 12 槽 + 24 翼入口，纯外层联合 setup + `2F U F' U' 2F'`）。
+      - **散置（scatter）已解决**：展开候选 partial_slot 至全部 12 槽后，`NO_GOAL_COMPLETED` 18→0，
+        成功率 30→40（seed 11 等此前 NO_GOAL 的种子现可配齐，如 seed 11 在 UL 槽配成）。
+      - **遗留：单棱翻转（flip）**：约 19/59 可构建部分组合的种子，装配后三块同槽但朝向翻转。
+        已证：任何切片轴(2F/2B/2R/2L/2U/2D)×任何插翼本体×任何槽/入口，单次装配都无法给出朝向一致
+        的 tredge（41 次命中全为翻转）；单次 free-slice 环(2R/2U 带，≤3 外层)亦无法翻转。
+        ⇒ 翻转是 5×5 单棱朝向（奇偶级）问题，需要专用翻转算法（可能依赖双棱交换宏或允许短暂打乱
+        另条棱再恢复），待后续 Gate / 专项研究。当前对翻转种子返回 `FLIP_FIX_UNAVAILABLE`。
 - [ ] Gate 6: protected ladder 1→2→4→6→8→10（保护式累积梯度）
 - [ ] Gate 7: last two edges and parity（最后两棱与奇偶）
 - [ ] End-to-end deep scramble regression（端到端深乱回归）

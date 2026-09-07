@@ -81,6 +81,32 @@ SOURCED_L2E: Tuple[SourcedFormula, ...] = (
         notation_definition=_LEGEND,
         original_formula=("Rw'", "U'", "R'", "U", "R'", "F", "R", "F'", "Rw"),
     ),
+    # --- 含物理中央切片 / 宽三层的公式（此前因 `3Rw` 被拒绝，现重新验证）---
+    SourcedFormula(
+        name="L2E6_0_Rw_U2_3Rw_U2_3Rw_F2_Rw2_U2_Rw_U2_Rw_U2_F2_Rw2_F2",
+        source_url=_SRC, source_title=_TITLE, retrieved_date=_DATE,
+        stated_purpose="5x5 Last Two Edges case L2E 6,0 (wide-3 heavy, fixes the flip/swap pair)",
+        notation_definition=_LEGEND,
+        original_formula=("Rw'", "U2", "3Rw", "U2", "3Rw'", "F2", "Rw2",
+                          "U2", "Rw", "U2", "Rw'", "U2", "F2", "Rw2", "F2"),
+    ),
+    SourcedFormula(
+        name="L2E12_0_Rw_U2_Rw_U2_3Lw_U2_Rw_U2_Rw_U2_Rw_U2_Rw_U2_Rw2_D2_F2_U2_D2",
+        source_url=_SRC, source_title=_TITLE, retrieved_date=_DATE,
+        stated_purpose="5x5 Last Two Edges case L2E 12,0 (L-side wide-3 L2E)",
+        notation_definition=_LEGEND,
+        original_formula=("Rw'", "U2", "Rw", "U2", "3Lw'", "U2", "Rw", "U2",
+                          "Rw", "U2'", "Rw'", "U2", "Rw", "U2'", "Rw2",
+                          "D2", "F2", "U2", "D2"),
+    ),
+    SourcedFormula(
+        name="L2E_M_EDGE_FLIP_xMURURFRFMx",
+        source_url=_SRC, source_title=_TITLE, retrieved_date=_DATE,
+        stated_purpose="5x5 Last Two Edges single-edge flip via M-slice commutator "
+                       "(L2E 3,0), conjugated by whole-cube x",
+        notation_definition=_LEGEND,
+        original_formula=("x'", "M'", "U'", "R'", "U", "R'", "F", "R", "F'", "M", "x"),
+    ),
 )
 
 

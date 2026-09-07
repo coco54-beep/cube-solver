@@ -53,6 +53,17 @@
         测试 `tests/test_freeslice_gate5b_transfer.py`（18 覆盖 6 翻转 fixture）。
       - **下一步**：规范化 A→UF、B→UR/UB，优先适配标准 5x5 L2E/edge-flip 公式；无可靠公式再用参考
         求解器生成轨迹；最后才宏级 meet-in-the-middle。
+      - **Phase 2（公式适配与效果分类）结论（本 checkpoint 提交）**：
+        - 物理中央切片语义已补齐：`3Rw = 2R + M`（保持 6 固定面心）、`M/E/S`→`apply_inner_slice`；
+          `solver/edge5/formula_application.py`（物理解析/效果分类/变体/往返校准）。
+        - 记号绑定来源 legend：speedcubedb `r`=`2R`、K4 scalar `r`=`2R+R'`；`x/y/z` 与 `U2'` 无法解析→整体拒。
+        - **分类矩阵**（6 翻转 fixture × 公式 × 变体，`tests/test_phase2_formula_matrix.py`）：
+          所有可物理解析来源公式均**未达成 `TARGET_VALID`**，结果全为双棱翼交换副作用
+          （`PROTECTED_BROKEN`(96)/`CENTER_BROKEN`(24)/`NOTATION_UNSUPPORTED`(12)）。
+        - **结论**：公开 5x5 L2E 算法是双棱翼交换，不能单独让单条翻转 tredge 变 `VALID`；
+          属**公式类别不符**，非数学不可解。按决策树**转向 reference-solver oracle（Phase 4）**。
+        - 若 oracle 也只在全局最后两棱阶段修复，则把翻转缺陷延迟至 Gate 7 联合处理（合法架构结论）。
+
 - [ ] Gate 6: protected ladder 1→2→4→6→8→10（保护式累积梯度）
 - [ ] Gate 7: last two edges and parity（最后两棱与奇偶）
 - [ ] End-to-end deep scramble regression（端到端深乱回归）

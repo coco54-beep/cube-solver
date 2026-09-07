@@ -353,8 +353,31 @@ UL 例：绝对未翻、相对已翻）。因此**不以"当前宏修不了 ⇒ 
 最后才做宏级双向 meet-in-the-middle；真正无缓冲的最后两棱奇偶留 Gate 7。
 
 
+### 6.6.4 Phase 2（公式适配与效果分类）已完成的结论 —— 转向 oracle
+先补齐物理中央切片语义（`apply_inner_slice` / `is_fixed_face_center`，
+`cube/middle_slice.py`，提交 `bcc03bb`），随后建立 `solver/edge5/formula_application.py`
+（物理解析 `parse_sourced_sequence` / 效果分类 `classify_formula` / 变体 `build_variants` /
+往返校准 `calibrate_formula_roundtrip`）。
+
+- **记号规则**（绑定来源 legend）：speedcubedb 下 `r`=`Rw`=宽2 `2R`；K4 scalar 下
+  `r`=内层单切片 `2R+R'`；`M/E/S`→`apply_inner_slice`；`3Rw`→`2R + 物理M`；
+  `x/y/z`（整体转体）与 `U2'`（非标准后缀，即 180° 写 2 又带 `'`）无法物理解析，整体拒绝。
+- **物理分解验证**：`3Rw = 2R + M`，且 `2R + M == M + 2R`（可交换），保持全部 6 个固定面心。
+  `L2E6_0`（含真实 `3Rw`）解析为 `2R+M` 后在 solved 上往返校准通过（`roundtrip_solved=True`）。
+- **分类矩阵**（`tools/research/5x5/phase2_formula_matrix.py`，6 个翻转 fixture × 公式 × 变体，
+  共 132 行，`tests/test_phase2_formula_matrix.py` 固化断言）：所有可物理解析的来源公式
+  均**未达成 `TARGET_VALID`**；结果全部为双棱翼交换副作用
+  `PROTECTED_BROKEN`(96) / `CENTER_BROKEN`(24) / `NOTATION_UNSUPPORTED`(12)。
+- **结论**：公开 5x5 L2E 算法是**双棱翼交换**，不能单独把单条已装配翻转 tredge 改 `VALID`。
+  这不是「单棱翻转数学上不可解」，而是**当前可靠公式类别不符合 Gate 5b 目标**（公式类别不符）。
+
+**下一分支**：按既定决策树转向 **reference-solver oracle**（Phase 4，离线研究工具，非运行时依赖）。
+若参考求解器也只在全局最后两棱联合阶段修复，则把翻转缺陷延迟至 Gate 7 联合处理，作为合法架构结论。
+
+
 ### 7. 关于「9→12 硬不变量」的严谨化
 「9→12 无法跨越」**并非已被证明的数学硬不变量**。更严谨表述：
 在当前合法动作集、宏库与搜索预算下，最后 3~5 条需要非单调、多步穿谷及专用最后两棱处理；
 现有贪婪、beam 与双向 BFS 未能稳定跨越。除非给出群论证明，否则不宣称其为数学上的硬不变量。
+
 

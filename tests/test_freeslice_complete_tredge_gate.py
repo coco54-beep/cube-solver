@@ -33,7 +33,7 @@ from solver.edge5.compact_state import _SLOT_MID, _SLOT_WINGS
 from solver.edge5.complete_tredge import (
     complete_tredge, completion_goal_states, find_partial_wing_setup,
     describe_partial, all_three_target_pieces_in_output_slot,
-    TredgeCompletionState, PartialRelation,
+    TredgeCompletionState, PartialRelation, TredgeCompletionKind,
     PRECONDITION_FAILED, PARTIAL_NOT_RECOVERABLE, NO_GOAL_COMPLETED,
     FLIP_FIX_UNAVAILABLE,
 )
@@ -87,6 +87,11 @@ def test_gate5_completes_valid_tredge(seed):
     assert centers_are_color_solved(after)
     assert _fixed_centers_preserved(after)
     assert r.centers_solved_after and r.fixed_centers_preserved
+    # 完成类型分类：VALID
+    assert r.completion_kind is TredgeCompletionKind.VALID
+    assert r.positional_tredge_formed
+    assert r.orientation_consistent
+    assert not r.flip_fix_required
 
 
 @pytest.mark.parametrize("seed", [3, 6, 11, 21])
@@ -141,12 +146,18 @@ def test_gate5_already_valid_fast_path():
 
 @pytest.mark.parametrize("seed,reason", [(7, "flip")])
 def test_gate5_known_boundary_documented(seed, reason):
-    # 把遗留边界固化：目前返回规定 error_code（不静默失败、不伪造成功）。
+    # 把遗留边界固化：位置装配已完成但朝向翻转 → 返回 FLIPPED + FLIP_FIX_UNAVAILABLE。
     c = _stored_state(seed)
     r = complete_tredge(c, middle_piece_id=UF_MID, wing_a_piece_id=UF_WA,
                         wing_b_piece_id=UF_WB, layout=LAYOUT)
     assert not r.success
     assert r.error_code == FLIP_FIX_UNAVAILABLE
+    # 位置装配已形成（三块同槽），仅朝向需要 Gate 5b 修正；不归类为 NO_GOAL。
+    assert r.completion_kind is TredgeCompletionKind.FLIPPED
+    assert r.positional_tredge_formed
+    assert not r.orientation_consistent
+    assert r.flip_fix_required
+    assert r.output_slot is not None
 
 
 # ------------------------- 单位：goal 枚举 -------------------------

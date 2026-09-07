@@ -11,6 +11,13 @@ Gate 5 目标：给定一个「中棱 + 翼-A」的 rel>=2 部分组合（通常
 - 随后执行 free-slice 本体 `2F + outer + 2F'`，把翼-B 装配进中棱所在槽（含翼-A）。
 - 若本体后三块同槽但未朝向一致，用中心保持宏做 flip-fix（见 `_flip_fix`）。
 
+完成类型：`CompleteTredgeResult.completion_kind` 区分
+`VALID`（三块同槽且朝向一致，可注册保护组）/ `FLIPPED`（位置装配完成但整体翻转，
+位置动作保留、须交 Gate 5b 双棱修正）/ `POSITIONAL_ONLY` / `NOT_COMPLETED`。
+单棱翻转在「单 tredge 装配 + 中心保持宏」空间内不可修正（见 `SINGLE_TREDGE_FLIP_CLASS`
+说明），需借用第二条未配对棱（缓冲棱）做双棱修正（Gate 5b），真正无缓冲的最后两棱
+奇偶留在 Gate 7。
+
 多目标：`completion_goal_states` 枚举多个合法输出槽（工作槽 UF 与安全槽
 BL/BR/DB/UB）及多种翼入口位置，避免单一固定目标过窄（解决 seed 5 类「中棱已在安全槽」
 与部分不可达问题）。
@@ -71,6 +78,21 @@ class PartialRelation(Enum):
     SCATTERED = "scattered"                  # 三块不同槽
     POSITIONAL_TREDGE = "positional_tredge"  # 三块同槽但未朝向一致
     VALID_TREDGE = "valid_tredge"            # 三块同槽且 is_edge_paired（完整正确）
+
+
+class TredgeCompletionKind(Enum):
+    """一次 complete_tredge 调用的完成类型（区分位置装配与朝向是否一致）。
+
+    - VALID          三块位置聚集同槽且朝向一致（is_edge_paired），可注册为保护组。
+    - FLIPPED        三块位置聚集同槽但朝向翻转，位置装配动作保留、需 Gate 5b 双棱修正。
+    - POSITIONAL_ONLY 三块位置聚集同槽但朝向未知/修正被禁用（仅暴露位置装配）。
+    - NOT_COMPLETED  未能在任何槽把三块位置聚集（前置失败 / NO_GOAL 等）。
+    """
+
+    VALID = "valid"
+    FLIPPED = "flipped"
+    POSITIONAL_ONLY = "positional_only"
+    NOT_COMPLETED = "not_completed"
 
 
 @dataclass(frozen=True)
@@ -307,6 +329,10 @@ class CompleteTredgeResult:
     replay_consistent: bool
     error_code: Optional[str]
     message: str = "ok"
+    completion_kind: TredgeCompletionKind = TredgeCompletionKind.NOT_COMPLETED
+    positional_tredge_formed: bool = False
+    orientation_consistent: bool = False
+    flip_fix_required: bool = False
 
 
 def _protected_slots_affected(cube_before, cube_after) -> Dict[str, object]:
@@ -349,6 +375,15 @@ def _flip_fix(cube, output_slot, macro_index=None, max_len: int = 5):
     return None
 
 
+def _kind_from_error(code, output_slot) -> TredgeCompletionKind:
+    """根据错误码与「是否已形成位置 tridge」推导完成类型。"""
+    if code == POSITIONAL_TREDGE_NOT_FORMED:
+        return TredgeCompletionKind.POSITIONAL_ONLY
+    if code in (FLIP_FIX_UNAVAILABLE, FLIP_FIX_FAILED):
+        return TredgeCompletionKind.FLIPPED if output_slot is not None else TredgeCompletionKind.NOT_COMPLETED
+    return TredgeCompletionKind.NOT_COMPLETED
+
+
 def complete_tredge(
     cube,
     *,
@@ -381,6 +416,10 @@ def complete_tredge(
             fixed_centers_preserved=kw.get("fixed_centers_preserved", False),
             replay_consistent=kw.get("replay_consistent", False),
             error_code=code, message=msg,
+            completion_kind=_kind_from_error(code, kw.get("output_slot")),
+            positional_tredge_formed=kw.get("output_slot") is not None,
+            orientation_consistent=kw.get("orientation_consistent", False),
+            flip_fix_required=kw.get("flip_fix_required", False),
         )
 
     # 前置
@@ -401,6 +440,9 @@ def complete_tredge(
             side_effects=_protected_slots_affected(cube, cube),
             centers_solved_after=True, fixed_centers_preserved=True,
             replay_consistent=True, error_code=None, message="already valid",
+            completion_kind=TredgeCompletionKind.VALID,
+            positional_tredge_formed=True, orientation_consistent=True,
+            flip_fix_required=False,
         )
     if state_before.partial_relation is not PartialRelation.STORED_TOGETHER:
         return fail(PARTIAL_NOT_RECOVERABLE,
@@ -434,13 +476,15 @@ def complete_tredge(
                                 "三块已同槽但 flip-fix 被禁用/不可用",
                                 output_slot=out_slot, state_before=state_before,
                                 state_after=state_mid, goal=goal,
-                                setup_moves=setup_moves, insert_moves=insert_moves)
+                                setup_moves=setup_moves, insert_moves=insert_moves,
+                                flip_fix_required=True, orientation_consistent=False)
                 fx = _flip_fix(w2, out_slot, macro_index)
                 if fx is None:
                     return fail(FLIP_FIX_UNAVAILABLE, "三块同槽但无法翻转成配对",
                                 output_slot=out_slot, state_before=state_before,
                                 state_after=state_mid, goal=goal,
-                                setup_moves=setup_moves, insert_moves=insert_moves)
+                                setup_moves=setup_moves, insert_moves=insert_moves,
+                                flip_fix_required=True, orientation_consistent=False)
                 flip_moves = tuple(fx)
                 for mv in flip_moves:
                     w2.apply_move(mv)
@@ -502,6 +546,9 @@ def complete_tredge(
                 centers_solved_after=after.centers_solved,
                 fixed_centers_preserved=after.fixed_centers_preserved,
                 replay_consistent=True, error_code=None, message="ok",
+                completion_kind=TredgeCompletionKind.VALID,
+                positional_tredge_formed=True, orientation_consistent=True,
+                flip_fix_required=bool(flip_moves),
             )
 
     # 尝试了全部目标仍未装配出三块同槽

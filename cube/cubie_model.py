@@ -170,3 +170,38 @@ class BaseCube:
             c.stickers = {rot(*d): col for d, col in c.stickers.items()}
             new_cubies[c.pos] = c
         self.cubies = new_cubies
+
+    # -- 物理中央切片 --
+    def apply_inner_slice(self, axis_label: str, turns: int = 1) -> None:
+        """物理中央切片：绕 `axis_label`（x/y/z）坐标==0 的平面转动。
+
+        与旧 `3X`（刚性几何平面旋转，会搬走固定面心）不同，这里**排除六个固定面心**：
+        只移动该平面上的可动中棱与活动中心。方向与对应面转动一致（x->R, y->U, z->F），
+        方向与组合顺序由 `cube/middle_slice.py` 测试按置换验证。
+        """
+        axis_idx = {"x": 0, "y": 1, "z": 2}[axis_label]
+        rot = WHOLE_CUBE[axis_label]
+        for _ in range(turns % 4):
+            selected = [
+                c for c in self.cubies.values()
+                if c.pos[axis_idx] == 0 and not is_fixed_face_center(c)
+            ]
+            new_cubies: Dict[Coord, Cubie] = {}
+            for c in self.cubies.values():
+                if c in selected:
+                    c = c.clone()
+                    c.pos = rot(*c.pos)
+                    c.stickers = {rot(*d): col for d, col in c.stickers.items()}
+                new_cubies[c.pos] = c
+            self.cubies = new_cubies
+
+
+def is_fixed_face_center(cubie: Cubie) -> bool:
+    """是否为固定面心（不随任何切层转动的 1-sticker 中心块）。
+
+    固定面心 = 恰好 1 个 sticker 且位置只有**一个**非零坐标（如 (0,0,±maxc)）。
+    活动中心（同一张面上偏移的中心块）有 2 个非零坐标，故不是固定面心。
+    """
+    if len(cubie.stickers) != 1:
+        return False
+    return len([a for a in cubie.pos if a != 0]) == 1

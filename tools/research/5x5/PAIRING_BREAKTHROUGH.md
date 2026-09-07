@@ -280,6 +280,45 @@ Gate 7 最后两棱与奇偶。
 Gate 4 测试：`tests/test_freeslice_store_partial_gate.py`（30 passed, 1 skipped）。
 
 
+### 6.5 Gate 5 完成（完整配成一条 + 完成类型分类）
+实现 `solver/edge5/complete_tredge.py`：`completion_goal_states`/`find_partial_wing_setup`/
+`complete_tredge`/`describe_partial`/`TredgeCompletionKind`/`CompleteTredgeResult` 及错误码。
+
+#### 6.5.1 scatter 根因 = 目标槽枚举不完整（已解决）
+`completion_goal_states` 原先只枚举 {UF,BL,BR,DB,UB} 5 个 partial_slot，导致 `NO_GOAL_COMPLETED`
+（18 个 seed）。展开到**全部 12 逻辑槽 × 24 翼入口**后：
+- `NO_GOAL_COMPLETED` **18 → 0**；
+- seed 11（原 NO_GOAL）现在在 **UL** 槽配齐（旧枚举不含 UL）；
+- 可评估样本（有部分组合）成功率 30 → 40 / 59。
+
+#### 6.5.2 完成类型分类（`TredgeCompletionKind`）
+区分 `VALID`（三块同槽 + 朝向一致，可注册保护组）/ `FLIPPED`（位置装配完成但整体翻转，
+位置动作保留、交 Gate 5b）/ `POSITIONAL_ONLY` / `NOT_COMPLETED`。翻转组**不得**直接注册为
+`ProtectedTredge`（`is_edge_paired` 要求朝向一致），需 `FlippedTredge` 独立类型，待
+Gate 5b 修正后才升级为 `ProtectedTredge`。
+
+#### 6.5.3 能否用现有单装配/宏库修正翻转？（已证不能）
+对翻转样本，在任何合法 free-slice 轴 (2F/2B/2R/2L/2U/2D) × 任何插翼本体 × 任何槽/入口下，
+单次装配都得到翻转结果（41 次"同槽"命中全部 `is_edge_paired==False`）；单次 free-slice 环
+（2U/2R 带，≤3 外层）亦不能翻转；现有 `build_macro_index(3)`（526 宏，len≤5）也无法修正。
+
+#### 6.5.4 翻转签名统一（`SINGLE_TREDGE_FLIP`）
+`flip_signature` 把翻转棱共轭归一化到槽 frame：edge_type（当前均为 {G,W}）+ 每片相对槽两面的
+朝向符号。全部 14 个翻转 sample 归一化为**恰好两个等价模式** `-++` 与 `+--`（绕槽轴 180° 旋转
+共轭），均表示**中棱朝向与两翼相反**。⇒ 需要一个**参数化双棱宏（含旋转共轭）**即可修正全部。
+**严谨表述**：这是"在单 tredge 装配 + 中心保持宏空间内无法修正"，并非已从完整合法移动群
+群论证明的不可修正奇偶；需借用第二条未配对棱（缓冲棱）做双棱修正（Gate 5b），真正无缓冲的
+最后两棱奇偶留 Gate 7。
+
+#### 6.5.5 冻结的翻转 fixtures
+`tests/fixtures/edge5/gate5b/flip_seed{7,19,23,2,4,51}.json`：覆盖 `UR`/`DF`/`UL` 输出槽、
+`FLIP_FIX_UNAVAILABLE`/`FLIP_FIX_FAILED`、两种模式；含完整生成轨迹（scramble/center/gate3/
+gate4/setup/insert）+ state_fingerprint，重建一致。Gate 5 测试：
+`tests/test_freeslice_complete_tredge_gate.py`。
+
+Gate 5 提交：`3c6e101`（全槽 scatter 修复 + core）、`875370f`（完成类型分类）。
+
+
 ### 7. 关于「9→12 硬不变量」的严谨化
 「9→12 无法跨越」**并非已被证明的数学硬不变量**。更严谨表述：
 在当前合法动作集、宏库与搜索预算下，最后 3~5 条需要非单调、多步穿谷及专用最后两棱处理；

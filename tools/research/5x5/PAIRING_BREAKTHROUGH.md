@@ -319,6 +319,40 @@ gate4/setup/insert）+ state_fingerprint，重建一致。Gate 5 测试：
 Gate 5 提交：`3c6e101`（全槽 scatter 修复 + core）、`875370f`（完成类型分类）。
 
 
+### 6.6 Gate 5b 重定义：显式双棱「目标→缓冲」奇偶转移
+
+#### 6.6.1 诚实负结果：naive 绝对朝向奇偶**不是**移动群不变式
+为找"单棱翻转不可达"的严格依据，构造了 `solver/edge5/orientation.py` 的 `edge_cubie_flip`
+（相对 home 轴指派的**绝对**翻转）。实测**证伪**其不变性：
+- 纯外层序列 `U' L L2` 即产生 middle parity=1，且从 parity=1 状态单个合法动作可把它翻回 0；
+- 随机状态中 middle/wing parity 均取 {0,1}（分布 173/127 与 239/61）；
+- 单个翼棱翻转可为非 0，直接推翻研究旧注"翼永不各自翻转"（那指翼间相对一致，非绝对）。
+
+**结论**：该 naive 模型不是不变量，且与"槽内相对翻转"（中棱相对同槽两翼）不同（seed51 的
+UL 例：绝对未翻、相对已翻）。因此**不以"当前宏修不了 ⇒ 群论不可达"下结论**；朝向模块定位为
+**探测器**（`tests/test_edge_orientation_parity.py` 只验证可复现 / solved 全零 / 12 维形态）。
+
+#### 6.6.2 双棱转移目标（用户裁定，覆盖旧"只翻目标一条"的宏搜索）
+停止"目标单棱必须翻转、其余全固定"的宏搜索；Gate 5b 改为**显式双棱奇偶转移**：
+- 状态含目标 A + 缓冲 B；
+- 终点 `A：FLIPPED→VALID；B：允许拆散/重排/接收翻转缺陷；其它保护组存活；中心归面；可重放一致`；
+- **不要求**缓冲 B 最终配好。
+
+#### 6.6.3 状态模型（`solver/edge5/flip_transfer.py`）
+- `FlipTransferState`：target/buffer 的三块 `piece_positions`、`target_orientation`/
+  `buffer_orientation`（按"三块此刻共同的槽是否未配对"判断，可跨非 home 槽）、
+  `protected_signature`、`center_signature`、`fixed_centers_preserved`、`centers_solved`。
+- `compute_flip_transfer_state(cube, target_a_slot, buffer_b_slot, protected_slots)` 只读构造。
+- `choose_unpaired_buffer_edge(cube, ...)`：确定性选**未配对**且中棱可经纯外层搬到固定缓冲槽
+  （默认 `UR`/`UB`）的逻辑棱作为缓冲；排除目标与保护组。
+- 翻转检测按"三块此刻共同槽"判断（翻转棱常聚集在非 home 槽，如 DF 上的 UF 家棱）。
+  测试：`tests/test_freeslice_gate5b_transfer.py`（覆盖 6 个翻转 fixture，18 passed）。
+
+**下一步**：规范化目标 A 到 UF、缓冲 B 到 UR/UB 后，优先适配标准 5x5 L2E/edge-flip 公式
+（原式/逆式/镜像/旋转共轭/副作用分析），无可靠公式再用参考 NxNxN 求解器生成轨迹提取修正；
+最后才做宏级双向 meet-in-the-middle；真正无缓冲的最后两棱奇偶留 Gate 7。
+
+
 ### 7. 关于「9→12 硬不变量」的严谨化
 「9→12 无法跨越」**并非已被证明的数学硬不变量**。更严谨表述：
 在当前合法动作集、宏库与搜索预算下，最后 3~5 条需要非单调、多步穿谷及专用最后两棱处理；

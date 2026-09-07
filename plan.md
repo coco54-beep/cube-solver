@@ -34,16 +34,25 @@
 - [x] Gate 2: fixed work layout（固定工作布局 + 纯外层定位表，`solver/edge5/freeslice_layout.py`）
 - [x] Gate 3: deterministic atomic wing insertion（确定性原子插翼，`solver/edge5/atomic_insert.py`）
 - [x] Gate 4: store partial assembly（保存部分组合，`solver/edge5/store_partial.py`，store+survival only）
-- [ ] Gate 5: complete one tredge（完整配成一条三块棱）
-      - 主机制已达：把「中棱+翼-A」部分组合与松散的翼-B 在**任意逻辑槽**配成完整三块棱
+- [x] Gate 5: complete one tredge（完整配成一条三块棱；提交 `3c6e101`/`875370f`）
+      - 主机制：把「中棱+翼-A」部分组合与松散的翼-B 在**任意逻辑槽**配成完整三块棱
         （`completion_goal_states` 覆盖全部 12 槽 + 24 翼入口，纯外层联合 setup + `2F U F' U' 2F'`）。
       - **散置（scatter）已解决**：展开候选 partial_slot 至全部 12 槽后，`NO_GOAL_COMPLETED` 18→0，
         成功率 30→40（seed 11 等此前 NO_GOAL 的种子现可配齐，如 seed 11 在 UL 槽配成）。
-      - **遗留：单棱翻转（flip）**：约 19/59 可构建部分组合的种子，装配后三块同槽但朝向翻转。
-        已证：任何切片轴(2F/2B/2R/2L/2U/2D)×任何插翼本体×任何槽/入口，单次装配都无法给出朝向一致
-        的 tredge（41 次命中全为翻转）；单次 free-slice 环(2R/2U 带，≤3 外层)亦无法翻转。
-        ⇒ 翻转是 5×5 单棱朝向（奇偶级）问题，需要专用翻转算法（可能依赖双棱交换宏或允许短暂打乱
-        另条棱再恢复），待后续 Gate / 专项研究。当前对翻转种子返回 `FLIP_FIX_UNAVAILABLE`。
+      - **完成类型分类**：`TredgeCompletionKind`（VALID / FLIPPED / POSITIONAL_ONLY / NOT_COMPLETED），
+        翻转组不得直接注册 `ProtectedTredge`，需 `FlippedTredge` 独立类型，待 Gate 5b 修正后升级。
+- [ ] Gate 5b: 双棱「目标→缓冲」奇偶转移（进行中）
+      - **统计（79 seeds）**：59 可构建 / 40 valid / 19 flipped / 0 no-goal。
+      - **负结果（诚实）**：naive 绝对朝向奇偶（`orientation.edge_cubie_flip`）**不是**移动群不变式——
+        `U' L L2` 即产生 middle parity=1，且单动作可翻回；故不以「当前宏修不了 ⇒ 群论不可达」下结论。
+        朝向模块定位为**探测器**（`tests/test_edge_orientation_parity.py`，只验证可复现/solved 全零/12 维）。
+      - **双棱转移目标（用户裁定）**：`A：FLIPPED→VALID`；`B：允许拆散/重排/接收翻转缺陷`；其它保护组
+        存活；中心归面；可重放一致。不要求缓冲 B 最终配好。
+      - **状态模型**：`solver/edge5/flip_transfer.py`（`FlipTransferState` + `compute_flip_transfer_state`
+        + `choose_unpaired_buffer_edge`，翻转按"三块此刻共同槽是否未配对"判断，可跨非 home 槽）。
+        测试 `tests/test_freeslice_gate5b_transfer.py`（18 覆盖 6 翻转 fixture）。
+      - **下一步**：规范化 A→UF、B→UR/UB，优先适配标准 5x5 L2E/edge-flip 公式；无可靠公式再用参考
+        求解器生成轨迹；最后才宏级 meet-in-the-middle。
 - [ ] Gate 6: protected ladder 1→2→4→6→8→10（保护式累积梯度）
 - [ ] Gate 7: last two edges and parity（最后两棱与奇偶）
 - [ ] End-to-end deep scramble regression（端到端深乱回归）

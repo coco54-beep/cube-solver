@@ -298,15 +298,41 @@ def enumerate_wide_outer_wide_compact(
 # --- 受控分散态构造 ----------------------------------------------------------
 
 def controlled_start(target_home_slot: str, entry_pos) -> CompactPairingState:
-    """构造受控分散态：目标中棱在 home、目标翼-a 移到 entry_pos、中心身份一致。
+    """构造受控分散态：目标中棱在 home、目标翼-a 移到 entry_pos、目标翼-b 移到另一
+    非目标槽的翼位，中心身份一致。
+
+    目的：让初始关系为**分散**（rel < 2，n_same==0），从而任何后续宏的「关系提升」
+    都是真正从零开始，不会被「翼-b 仍停在目标槽」所掩蔽。
 
     entry_pos 必须是合法翼坐标（两个 ±6，一个 ±3）。
     """
     mid = tuple(range(12))
     wing = list(range(24))
     wa_home = _SLOT_WINGS[target_home_slot][0]
+    wb_home = _SLOT_WINGS[target_home_slot][1]
     e_idx = WING_INDEX[entry_pos]
-    wing[wa_home], wing[e_idx] = wing[e_idx], wing[wa_home]
+    entry_slot = _POS_HOME_SLOT[entry_pos]
+
+    # 选一个「非目标槽、非入口槽」的翼位作为翼-b 的散置位
+    b_slot = None
+    for sname in SLOT_NAMES:
+        if sname == target_home_slot or sname == entry_slot:
+            continue
+        wing_coord = slot(sname).left_wing
+        # 确保不与 entry 翼位相同（不同槽自然不同翼位）
+        b_slot = WING_INDEX[wing_coord]
+        break
+    if b_slot is None:
+        b_slot = e_idx  # 兜底（正常不会走到）
+
+    # 交换 wing_a 到 entry；再交换 wing_b 到 b_slot（注意别把已放好的覆盖）
+    if e_idx == b_slot:
+        # entry 与 b_slot 重合（兜底情形），只散置 wing_a
+        wing[wa_home], wing[e_idx] = wing[e_idx], wing[wa_home]
+    else:
+        # 先移 wing_a，再移 wing_b（各自与目标位交换；wa_home/wb_home 互异）
+        wing[wa_home], wing[e_idx] = wing[e_idx], wing[wa_home]
+        wing[wb_home], wing[b_slot] = wing[b_slot], wing[wb_home]
     cen = tuple(range(54))
     return CompactPairingState(tuple(mid), tuple(wing), cen)
 

@@ -205,27 +205,54 @@ real Cube5 replay matches  （只含 1X/2X，全部合法）
   用 `is_edge_paired` 判定），不能据此宣称完整配成一条 tredge。
 
 ### 4. Gate 2 完成（固定工作布局 + 纯外层定位表）
-实现 `solver/edge5/freeslice_layout.py`：固定工作槽 = `UF`，自由切片 = `2U/2U'`，
-入口槽 = `UR`（其右翼位），并离线预计算**纯外层（仅 1X）定位表**：
+实现 `solver/edge5/freeslice_layout.py`：固定工作槽 = `UF`，入口槽 = `UR`（其右翼位），
+并离线预计算**纯外层（仅 1X）定位表**：
 
 - `middle_to_work`: 任一位置的下标 -> 纯外层序列（把该位置的中棱 piece 送入工作槽）。
 - `wing_to_entry`: 任一翼位置的下标 -> 纯外层序列（把该位置的翼 piece 送入入口翼位）。
 
 **关键认知（实证）**：在中心归面的 5x5 上，只有外层 1X 动作保持 `centers_are_color_solved`；
 所有宽转 2X 都会破坏中心归面。故「定位 setup」只用纯外层 1X（天然保持中心与固定面心），
-真正的 free-slice 用 `2U + outer + 2U'`（关切片时恢复中心）。
+真正的 free-slice 用 `2X + outer + 2X'`（关切片时恢复中心）。
+
+> **更正（Gate 3 实证，见第 5 节）**：Gate 2 原选自由切片 `2U`，但实证发现 `2U` 的 F-band
+> 无法组装 UF 工作槽；**天然自由切片应为 `2F`**（循环 F-band：UF↔FR↔DF↔FL）。Gate 3 已把
+> `build_layout()` 默认 `open_move` 由 `"2U"` 改为 `"2F"`（close=`"2F'"`），name 改为 `"uf-f-band"`。
 
 b 定位表以「位置下标」为键（纯外层是纯位置置换、与 piece 身份无关，对任意 piece 均正确）。
 硬测试 `tests/test_freeslice_layout_gate.py`（11 项）覆盖：12 中棱起始位、24 翼起始位、
 3 个固定背景态、原式与逆式、确定性、全部纯外层且真实 Cube5 重放一致。
 
-### 5. 能力边界
-Gate 1 证明**合法 free-slice 的插翼原语存在**（仅 1X/2X、保持固定面心、真实重放一致），Gate 2
-证明固定布局 + 纯外层定位表可用；但**尚未证明**可保护累积到 12 条。后续 Gate 依次为：
-Gate 3 原子插翼 → Gate 4 保存部分组合 → Gate 5 完整一条 → Gate 6 保护式梯度 1→2→4→6→8→10 →
+### 5. Gate 3 完成（确定性原子插翼 + 自由切片切换 2F + 朝向推迟）
+实现 `solver/edge5/atomic_insert.py`：`middle_wing_relation_real`/`insert_wing_atomic`/
+`AtomicWingInsertResult` 及关系等级常量（REL_SCATTERED=0/REL_SAME_SLOT=1/REL_COMBO=2/REL_ORIENTED=3）。
+组装宏 body 确定为 **`2F U F' U' 2F'`**（rel≥2 位置组合、关切片恢复中心、固定面心保持）。
+
+#### 5.1 自由切片切换为 2F（Gate 3 实证）
+Gate 2 原选 `open_move="2U"`，但实证发现 **`2U` 无法组装 UF 工作槽**（F-band 循环为
+UF↔UR↔UB↔UL，与 `2F`（UF↔FR↔DF↔FL）不同）；**`2F` 才是 UF 工作槽的天然自由切片**。
+Gate 3 已切 `build_layout()` 默认 `open_move="2F"`（close=`"2F'"`），name=`"uf-f-band"`。
+重建 `2F` 布局验证：joint_setup coverage **264/288**；staging=(DF,DL,DR,FL,FR,UF,UL,UR)、
+storage(safe)=(BL,BR,DB,DF,FL,FR,UB,UF)、entry=UR。
+
+#### 5.2 关系等级语义（edge_relation）
+`relation` 是“三块同槽”的抽象分值（类型锚定，**不看朝向**），`is_edge_paired` 才要求
+“三块同色对 + 朝向一致”。故插翼宏先保证 **rel=2（同槽位置组合）**，朝向一致性推迟到
+rel=3（第二翼到位时的 tredge 完成）。
+
+#### 5.3 朝向一致性推迟决策（用户裁定）
+rel=2（中棱+单翼）**无法可靠做到朝向一致**（骨架 526 宏库也无法翻转）；用户裁定：
+**保持 rel=2，朝向推迟到 rel=3（完整 tredge，第二翼到位时强制）**。故 rel=2 阶段
+`orientation_consistent` 允许为 False。Gate 1 强化为：初始 rel<目标（分散双翼）且成功需
+严格真实提升（`controlled_start` 现把**两翼都散置**，初始 n_same==0 → rel<2）。
+
+#### 5.4 能力边界
+Gate 1~3 分别证明合法 free-slice 插翼原语存在、固定布局+纯外层定位表可用、**确定性原子
+插翼（rel≥2、中心恢复）**可行；但**尚未证明**可保护累积到 12 条。后续 Gate 依次为：
+Gate 4 保存部分组合 → Gate 5 完整一条 → Gate 6 保护式梯度 1→2→4→6→8→10 →
 Gate 7 最后两棱与奇偶。
 
-### 6. 关于「9→12 硬不变量」的严谨化
+### 7. 关于「9→12 硬不变量」的严谨化
 「9→12 无法跨越」**并非已被证明的数学硬不变量**。更严谨表述：
 在当前合法动作集、宏库与搜索预算下，最后 3~5 条需要非单调、多步穿谷及专用最后两棱处理；
 现有贪婪、beam 与双向 BFS 未能稳定跨越。除非给出群论证明，否则不宣称其为数学上的硬不变量。

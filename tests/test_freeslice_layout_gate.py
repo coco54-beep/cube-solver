@@ -54,12 +54,12 @@ ENTRY_WING_POS = WING_INDEX[slot(LAYOUT.wing_entry_slots[0]).right_wing]
 
 def test_layout_is_fully_defined():
     assert LAYOUT.work_slot == "UF"
-    assert LAYOUT.open_move == "2U"
-    assert LAYOUT.close_move == "2U'"
+    assert LAYOUT.open_move == "2F"
+    assert LAYOUT.close_move == "2F'"
     assert LAYOUT.wing_entry_slots == ("UR",)
-    assert set(LAYOUT.storage_slots) == set(band_for_open("2U").safe_storage_slots)
-    assert LAYOUT.safe_storage_mask == band_for_open("2U").slot_mask_safe
-    assert LAYOUT.touched_slots_mask == band_for_open("2U").slot_mask_touched
+    assert set(LAYOUT.storage_slots) == set(band_for_open("2F").safe_storage_slots)
+    assert LAYOUT.safe_storage_mask == band_for_open("2F").slot_mask_safe
+    assert LAYOUT.touched_slots_mask == band_for_open("2F").slot_mask_touched
 
 
 def test_all_middle_positions_have_setup():

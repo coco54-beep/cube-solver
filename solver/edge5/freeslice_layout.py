@@ -12,14 +12,14 @@
 
 背景（关键认知）：
 - 只有外层 1X 在中心归面时保持 centers_are_color_solved；宽转 2X 会破坏中心归面。
-- 因此「定位 setup」只用纯外层 1X；真正的 free-slice 用 2U + outer + 2U'（开/关切片）。
+- 因此「定位 setup」只用纯外层 1X；真正的 free-slice 用 2F + outer + 2F'（开/关切片）。
 - 正式搜索动作集为 36 个 1X/2X（不含 3X/4X/5X，它们会移动固定面心）。
 """
 from __future__ import annotations
 
 from collections import deque
 from dataclasses import dataclass
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 from .compact_state import MOVE_TABLES
 from .positions import (
@@ -78,6 +78,48 @@ def _bfs_outer_idx(source_index: int, target_index: int, idx_perm, max_depth: in
     return None
 
 
+def _build_joint_table(
+    work_mid_pos: int,
+    entry_wing_pos: int,
+    max_depth: int,
+) -> Dict[Tuple[int, int], Tuple[str, ...]]:
+    """联合 setup：BFS 于 (中棱位置, 翼位置) 状态空间，求每个状态到达
+    (work_mid_pos, entry_wing_pos) 的最短纯外层序列。
+
+    由于外层动作可逆，从目标用**逆置换**向外 BFS，得到所有可达状态的最短前向序列。
+    状态数 ≤ 12×24=288，很小，可完整预计算。
+    """
+    mid_perm = {mv: _FWD[mv][0] for mv in OUTER_MOVES}
+    wing_perm = {mv: _FWD[mv][1] for mv in OUTER_MOVES}
+    # 逆向：从目标状态应用某动作的前向置换，相当于在「由目标回溯」时
+    # 用该动作把状态从 target 推回到「前一步」。为得到前向最短序列，我们用
+    # 逆置换从 target 向外 BFS，记录「到达该状态所需的前向序列」。
+    inv_mid = {mv: _invert_perm(mid_perm[mv]) for mv in OUTER_MOVES}
+    inv_wing = {mv: _invert_perm(wing_perm[mv]) for mv in OUTER_MOVES}
+
+    # 从 target 反向 BFS：状态 s，若前向用 mv 能到 t（即 t=apply(mv,s)），则
+    # 从 t 出发用 mv 的置换取 s = inv_perm[t]。我们直接 BFS 目标，记录到每个
+    # 状态的前向 mv 序列 = 反向路径的逆序。
+    target = (work_mid_pos, entry_wing_pos)
+    best: Dict[Tuple[int, int], Tuple[str, ...]] = {target: ()}
+    frontier = deque([target])
+    while frontier:
+        state = frontier.popleft()
+        mpos, wpos = state
+        path = best[state]
+        if len(path) >= max_depth:
+            continue
+        for mv in OUTER_MOVES:
+            prev = (inv_mid[mv][mpos], inv_wing[mv][wpos])
+            if prev in best:
+                continue
+            newpath = (mv,) + path
+            best[prev] = newpath
+            frontier.append(prev)
+    # 移除目标自身（=空序列），调用方按需用空序列处理已达目标的情况。
+    return best
+
+
 @dataclass(frozen=True)
 class FreeSliceLayout:
     """固定 free-slice 工作布局（字段遵循 Gate 2 说明）。"""
@@ -97,10 +139,14 @@ class FreeSliceLayout:
     middle_to_work: Dict[int, Tuple[str, ...]]
     wing_to_entry: Dict[int, Tuple[str, ...]]
 
+    # 联合 setup：状态 (中棱位置, 翼位置) -> 纯外层序列，同时把中棱送入
+    # work 槽、把翼送入入口翼位。键覆盖所有可达状态。
+    joint_setup: Dict[Tuple[int, int], Tuple[str, ...]]
+
 
 def build_layout(
     work_slot: str = "UF",
-    open_move: str = "2U",
+    open_move: str = "2F",
     entry_slots: Tuple[str, ...] = ("UR",),
     max_depth: int = 8,
 ) -> FreeSliceLayout:
@@ -138,8 +184,10 @@ def build_layout(
         if seq is not None:
             wing_to_entry[i] = seq
 
+    joint_setup = _build_joint_table(work_mid_pos, entry_wing_pos, max_depth)
+
     return FreeSliceLayout(
-        name="uf-u-band",
+        name="uf-f-band",
         work_slot=work_slot,
         middle_target_slot=work_slot,
         wing_entry_slots=entry_slots,
@@ -151,8 +199,56 @@ def build_layout(
         safe_storage_mask=band.slot_mask_safe,
         middle_to_work=middle_to_work,
         wing_to_entry=wing_to_entry,
+        joint_setup=joint_setup,
     )
+
+
+def work_mid_pos(layout: FreeSliceLayout) -> int:
+    """工作槽的中棱位置下标。"""
+    return MIDDLE_INDEX[_slot_middle(layout.work_slot)]
+
+
+def entry_wing_pos(layout: FreeSliceLayout) -> int:
+    """入口槽的右翼位置下标（默认取第一个入口槽）。"""
+    e = layout.wing_entry_slots[0] if layout.wing_entry_slots else "UR"
+    return WING_INDEX[slot(e).right_wing]
 
 
 # 模块级默认布局（导入时构建，纯外层 BFS 很快）
 DEFAULT_LAYOUT: FreeSliceLayout = build_layout()
+
+
+def find_middle_wing_setup(
+    middle_pos: int,
+    wing_pos: int,
+    layout: Optional[FreeSliceLayout] = None,
+) -> Optional[Tuple[str, ...]]:
+    """joint setup：求把「位于 middle_pos 的中棱」与「位于 wing_pos 的翼」同时
+    送入 (work, entry) 的纯外层序列。
+
+    若该状态不可达，返回 None；调用方按 JOINT_SETUP_UNREACHABLE 处理。
+    键 (middle_pos, wing_pos) 覆盖所有可达状态（可达覆盖数见 layout.joint_setup）。
+    """
+    layout = layout or DEFAULT_LAYOUT
+    return layout.joint_setup.get((middle_pos, wing_pos))
+
+
+def current_joint_setup(
+    cube,
+    middle_home: int,
+    wing_home: int,
+    layout: Optional[FreeSliceLayout] = None,
+) -> Optional[Tuple[str, ...]]:
+    """从 cube 读取指定中棱/翼 piece 的当前位置，查 joint setup 表。
+
+    middle_home / wing_home 为 piece 的 home 下标（见 compact_state._SLOT_MID / _SLOT_WINGS）。
+    若目标状态或该组合不可达，返回 None。
+    """
+    from .compact_state import state_of
+    layout = layout or DEFAULT_LAYOUT
+    st = state_of(cube)
+    mpos = next((j for j, v in enumerate(st.middle) if v == middle_home), None)
+    wpos = next((j for j, v in enumerate(st.wing) if v == wing_home), None)
+    if mpos is None or wpos is None:
+        return None
+    return find_middle_wing_setup(mpos, wpos, layout)

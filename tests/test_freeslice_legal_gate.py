@@ -39,9 +39,11 @@ def _fixed_preserved(cube):
 ])
 def test_gate_legal_macro_gathers_wing_keeping_centers_fixed(target, entry_slot, entry_wing):
     entry_pos = getattr(slot(entry_slot), entry_wing)
-    # 受控起始：目标中棱 home，目标翼-a 分散到别的工作带槽
+    # 受控起始：目标中棱 home、目标两翼都散置到非目标槽（初始关系必须 < combo=2）
     start = controlled_start(target, entry_pos)
     rel0 = edge_relation(start, target).relation
+    # 强化：初始关系必须低于目标（否则后续「提升」被翼-b 停在目标槽所掩蔽）
+    assert rel0 < 2, f"受控起始关系应 <2（分散），实际 rel0={rel0}（掩蔽风险）"
 
     found = None
     for max_outer in (2, 3):
@@ -68,5 +70,7 @@ def test_gate_legal_macro_gathers_wing_keeping_centers_fixed(target, entry_slot,
 
     r_after = edge_relation(state_of(w), target)
     assert r_after.relation >= 2
+    # 强化：真实重放须严格提升（> 初始关系），且中心/固定面心保持。
+    assert r_after.relation > rel0, "真实重放关系未严格提升"
     assert centers_are_color_solved(w)
     assert _fixed_preserved(w)

@@ -214,6 +214,21 @@ def entry_wing_pos(layout: FreeSliceLayout) -> int:
     return WING_INDEX[slot(e).right_wing]
 
 
+def relocate_middle_to_pos(
+    middle_pos: int,
+    target_mid_pos: int,
+    max_depth: int = 8,
+) -> Optional[Tuple[str, ...]]:
+    """求把「位于 middle_pos 的中棱 piece」移到 target_mid_pos 的最短纯外层序列。
+
+    纯外层是纯位置置换，会把与中棱同槽的翼**一起**带走（同槽保持不变），故适用于
+    「整体搬运一个部分组合（中棱+翼）」到安全存储槽（Gate 4 store）。
+    不可达返回 None。
+    """
+    mid_perm = {mv: _FWD[mv][0] for mv in OUTER_MOVES}
+    return _bfs_outer_idx(middle_pos, target_mid_pos, mid_perm, max_depth)
+
+
 # 模块级默认布局（导入时构建，纯外层 BFS 很快）
 DEFAULT_LAYOUT: FreeSliceLayout = build_layout()
 

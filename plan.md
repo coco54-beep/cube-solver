@@ -15,8 +15,9 @@
 - [x] Legal free-slice Gate 1（合法 free-slice 插翼 Gate 1）
 - [x] Fixed work layout Gate 2（固定工作布局 + 纯外层定位表）
 - [x] Atomic wing insertion Gate 3（确定性原子插翼，rel≥2 位置组合，朝向推迟到 rel3）
+- [x] Store partial combo Gate 4（纯外层把部分组合存到 safe-untouched 槽，需在 free-slice 后存活且可恢复）
 - [x] Real Cube5 replay validation（真实 Cube5 重放验证）
-- [x] Full suite 553 tests passing
+- [x] Full suite 583 tests passing
 
 ### Current legal move model（当前合法动作模型）
 只允许外层转与两层宽转：
@@ -32,7 +33,7 @@
 ### Next gates（后续 Gate）
 - [x] Gate 2: fixed work layout（固定工作布局 + 纯外层定位表，`solver/edge5/freeslice_layout.py`）
 - [x] Gate 3: deterministic atomic wing insertion（确定性原子插翼，`solver/edge5/atomic_insert.py`）
-- [ ] Gate 4: store partial assembly（保存部分组合）
+- [x] Gate 4: store partial assembly（保存部分组合，`solver/edge5/store_partial.py`，store+survival only）
 - [ ] Gate 5: complete one tredge（完整配成一条三块棱）
 - [ ] Gate 6: protected ladder 1→2→4→6→8→10（保护式累积梯度）
 - [ ] Gate 7: last two edges and parity（最后两棱与奇偶）

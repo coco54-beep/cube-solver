@@ -247,10 +247,38 @@ rel=2（中棱+单翼）**无法可靠做到朝向一致**（骨架 526 宏库�
 严格真实提升（`controlled_start` 现把**两翼都散置**，初始 n_same==0 → rel<2）。
 
 #### 5.4 能力边界
-Gate 1~3 分别证明合法 free-slice 插翼原语存在、固定布局+纯外层定位表可用、**确定性原子
-插翼（rel≥2、中心恢复）**可行；但**尚未证明**可保护累积到 12 条。后续 Gate 依次为：
-Gate 4 保存部分组合 → Gate 5 完整一条 → Gate 6 保护式梯度 1→2→4→6→8→10 →
+Gate 1~4 分别证明合法 free-slice 插翼原语存在、固定布局+纯外层定位表可用、**确定性原子
+插翼（rel≥2、中心恢复）**可行、**部分组合存储（store+survival+recoverable）**可行；
+但**尚未证明**可保护累积到 12 条。后续 Gate 依次为：
+Gate 5 完整配成一条 → Gate 6 保护式梯度 1→2→4→6→8→10 →
 Gate 7 最后两棱与奇偶。
+
+### 6. Gate 4 完成（部分组合存储 store + survival only）
+实现 `solver/edge5/store_partial.py`：`store_partial_combo`/`combo_survives_free_slice`/
+`safe_untouched_slots`/`StorePartialResult` 及错误码。freeslice_layout 新增
+`relocate_middle_to_pos`（把中棱 piece 移到任意目标中棱位的纯外层 BFS）。
+
+#### 6.1 关键实证
+- **纯外层单步永远把同槽「中棱+翼」带在一起**（同槽保持不变）→ 适合整体搬运部分组合。
+- `insert_wing_atomic` 产出的组合落在**入口槽 UR**；单步 `R` 即可把它搬到 `BR`（safe-untouched，
+  不被 2F 触碰），组合 rel≥2、中心/固定面心均保持。（`U'` 可搬到 `UB`。）
+- **存储目标槽 = storage_slots − staging_slots**（= {BL,BR,DB,UB}），即开/关切片
+  `2F` 都完全保留且不触碰的槽。
+
+#### 6.2 Gate 4 三件套（用户裁定 store + survival only）
+1. **store**：`store_partial_combo` 用纯外层把组合整体搬到 safe-untouched 槽，验证
+   rel≥2 且同槽、中心归面、6 固定面心保持、真实重放一致、不改写输入、确定性。
+2. **survival**：`combo_survives_free_slice` 证明该存储组合在「对其它 piece 做一次
+   free-slice 开/关循环（open+outer+close）」后仍存活（rel≥2 且同槽）——因目标槽不被
+   `2F` 触碰而天然成立。
+3. **recoverable**：`relocate_middle_to_pos` 能把组合整体搬回工作带（第一关系可恢复）。
+
+#### 6.3 明确留给 Gate 5
+「同一 tredge 的第二翼插入（把存储组的**中棱**带回工作槽并插翼-B）会**拆散**部分组合
+（seed 11 实测 relA 降到 0）」，且部分 seed（5）命中结构性 `JOINT_SETUP_UNREACHABLE`。
+这是 Gate 5「完整配成一条三块棱」的核心难题，Gate 4 不处理。
+Gate 4 测试：`tests/test_freeslice_store_partial_gate.py`（30 passed, 1 skipped）。
+
 
 ### 7. 关于「9→12 硬不变量」的严谨化
 「9→12 无法跨越」**并非已被证明的数学硬不变量**。更严谨表述：

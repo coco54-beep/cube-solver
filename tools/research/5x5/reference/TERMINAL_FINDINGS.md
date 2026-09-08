@@ -104,3 +104,31 @@ seed19 回放后：12 槽全部 `complete&home=True`，但 **10 槽 `oriented=Fa
   可复用 `flip_transfer.py` 的 buffer/parity 转移模型。
 - 奇偶：要么接受「必须先用更长的结构化奇置换宏」，要么把奇偶放到**虚拟 3×3** 层面的
   降阶奇偶宏处理（plan.md Plan 10：归属全对后检查虚拟 3×3 合法性，再执行 5×5 降阶 parity 宏）。
+
+---
+
+## 追加迭代：Plan 10 关键**正向**实证（2026-09-08）
+
+### 目标判据修正（重大）：真正的降阶成功判据 = 「归属全对 + 虚拟 3×3 合法」，
+**不是**「12/12 每条 tredge VALID」。
+
+- 复用 `solver/reduction/reduced_cube5.py::build_reduced_facelets`（已把中心归面+12条逻辑棱
+  配对的 Cube5 映射为 3×3 facelets，对棱「任取3块之一、读朝该面颜色」）。
+- 复用 `solver/reduction/parity.py::detect_parity`（以 hkociemba `solve_3x3` 为**权威判据**）。
+
+### seed19 实证（唯一归属可达的 fixture）
+配翼 + 归属求解到 identity 后真实回放：
+- 12 槽 `is_complete_tredge==True` 且归属全对（defects 全为 FLIPPED/VALID，无 MISMATCH）；
+- `count_valid=2`（10 槽 FLIPPED）、`center_color_off=0`、`_fixed_centers_preserved=True`；
+- 用 `build_reduced_facelets` 构造虚拟 3×3 后，**`solve_3x3` 返回 `success=True`**（20 步解），
+  即虚拟 3×3 **合法且可解**。
+
+### 结论
+- 10 槽翻转 = **偶数**，故虚拟 3×3 的翻转总数合法（3×3 允许偶数条棱翻转）。
+  这正是「翻转不构成障碍」的原因——即使 10/12 条 FLIPPED，虚拟 3×3 仍可被 3×3 求解器接受。
+- 因此**不必**把每条 tredge 解到朝向正确。末段只需：
+  1. 12 槽**归属全对**（每槽三块为同一逻辑棱，且在正确槽位）；
+  2. 构造虚拟 3×3，用 `solve_3x3` 判定合法（非法则应用 5×5 降阶 parity 宏 OLL/PLL_FIX）。
+- seed19 **已达成降阶成功**（归属可达 + 虚拟 3×3 合法），可直接接 Plan 12（3×3 阶段）。
+- 剩余种子（seed2/51/7/23/4）卡点收敛为**归属层奇偶**：内容物置换为奇时，纯偶宏（3-cycle）
+  无法归位，需 5×5 降阶 parity 宏或奇置换宏改变归属奇偶。

@@ -132,3 +132,54 @@ seed19 回放后：12 槽全部 `complete&home=True`，但 **10 槽 `oriented=Fa
 - seed19 **已达成降阶成功**（归属可达 + 虚拟 3×3 合法），可直接接 Plan 12（3×3 阶段）。
 - 剩余种子（seed2/51/7/23/4）卡点收敛为**归属层奇偶**：内容物置换为奇时，纯偶宏（3-cycle）
   无法归位，需 5×5 降阶 parity 宏或奇置换宏改变归属奇偶。
+
+---
+
+## 追加迭代：6/6 fixtures 全部打通 + 整合模块 `reduce5.py`（2026-09-08）
+
+### 不变量（决定性）
+
+真正的不变量是 **`parity(mid) XOR parity(wing)`**（不是 mid、wing 各自守恒）。
+在「保持翼对已配对」的生成元集下不变：
+
+- 整体搬运 3-cycle（`transport`，`mid_map == wing_map`，对两侧同奇偶 → XOR 不变）；
+- 纯净中棱 3-cycle（对 wing 是恒等偶 → XOR 不变）；
+- 单层外层转 = 整体搬槽 4-cycle（奇 × 奇 → XOR 不变）。
+
+因此 XOR=0 可由上述生成元 A* 直达 all-complete；XOR=1 必须改变 XOR。
+
+### 奇偶源在**配翼阶段**可变（关键实证）
+
+seed19 打乱后 `mid_par=1`，**配翼后 `mid_par=0`**：配翼序列含外层 setup，对中棱施加了
+奇置换。故 XOR=1 可解：先用「奇左翼 2-cycle 宏」打破配对，再**重新配翼**（重配会翻转 XOR），
+之后同 XOR=0 路径。
+
+### 奇翼宏的正确形式（并修正一次转录错误）
+
+`joint_solver.collect_lw_odd_parity()` 给出 45 条**换位子形式** `2R (B'L'B) 2R' (B'LB)`，
+逐条实测在复原态 `center_color_off==0` 且 `_fixed_centers_preserved`、中棱不动、左翼单 2-cycle。
+
+> 教训：此前误用 `2R B'L'B2R'B'LB`（含 `B2`，非换位子形式）——它在**复原态就把中心
+> 打乱**（`center_off=12`），只是「从原始态重新配翼」时碰巧把中心带回 0，属侥幸。
+> 现已改为已验证的换位子宏，并加回归测试 `test_lw_odd_macros_preserve_centers`。
+
+### 整合模块 `reduce5.py`
+
+`reduce_edges(cube) -> (moves, info)`：配翼 → 算 XOR → 若 XOR=1 用 `_LW_ODD_MACROS`
+破配对并重配 → A* 到 all-complete → 断言 complete / `center_off==0` / fixed。
+生成元 = 43 transport + 232 mid-only + 18 outer（共 293），A* 4~5 宏可达。
+`virtual_3x3_legal(cube)` = `solve_3x3(build_reduced_facelets(cube)).success`。
+
+### 结果（6/6，真实回放断言）
+
+```text
+flip_seed19  xor=0 complete=True center_off=0 fixed=True v3=True moves=133
+flip_seed2   xor=0 complete=True center_off=0 fixed=True v3=True moves=136
+flip_seed51  xor=0 complete=True center_off=0 fixed=True v3=True moves=126
+flip_seed23  xor=1 complete=True center_off=0 fixed=True v3=True moves=187
+flip_seed4   xor=1 complete=True center_off=0 fixed=True v3=True moves=182
+flip_seed7   xor=1 complete=True center_off=0 fixed=True v3=True moves=155
+```
+
+测试：`tests/test_reference_reduce5.py`（9 passed，含 3 条奇翼宏保中心回归 + 6 fixture 端到端）。
+末段棱降阶**已解决**，可接 Plan 12（完整 end-to-end：中心 → 配翼 → 降阶 → 虚拟 3×3 → `solve_3x3` 回放）。

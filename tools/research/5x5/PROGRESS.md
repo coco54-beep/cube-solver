@@ -214,8 +214,9 @@ LayerTurn(axis="y", layer=2, turns=-1)
 | Gate 5 完整配成一条 | ✅ | 12 槽 × 24 翼枚举，VALID/FLIPPED 分类 |
 | Gate 5a 翻转 fixtures + 公式矩阵 | ✅ | 6 fixtures 冻结；来源 L2E 公式均 UNSAT TARGET_VALID |
 | Gate 5b 双棱翻转转移 | ⏳ | 状态模型已建；公式类别不符 → 转 oracle |
-| Phase 4 reference oracle | ⏳ | 独立翼配对器 + tredge 分类器已完成；中棱锚定不可达诊断 |
-| Gate 5c 切片宏搜索 | 🔄 **进行中** | 基础 commutator 失败，待共轭 / 双切片扩展 |
+| Phase 4 reference oracle | ✅ | 独立翼配对器 + tredge 分类器 + 末段降阶器 `reduce5.py` |
+| Gate 5c 切片宏搜索 | ✅ | 拿到纯净中棱 3-cycle（`E R2 E' R2`）+ 奇左翼换位子宏 |
+| Gate 5d/5e 末段降阶 | ✅ | 6/6 fixtures all-complete + 中心归面 + 虚拟 3×3 合法 |
 | 保护式累积到 12 条 | ❌ | 生产端 8~10 条后卡住，最后 2~4 条（翻转/奇偶）未跨越 |
 | Gate 7 最后两棱奇偶 | ⬜ | 真正无缓冲的最后两棱奇偶，留到最后 |
 
@@ -225,7 +226,8 @@ LayerTurn(axis="y", layer=2, turns=-1)
 
 - 全量收集：**749 tests collected**（含新增 reference 相关）。
 - reference 定向测试：`tests/test_reference_pairing5.py`（8 passed）+
-  `tests/test_reference_tredge.py`（14 passed）= **22 passed**。
+  `tests/test_reference_tredge.py`（14 passed）+ `tests/test_reference_reduce5.py`
+  （9 passed）= **31 passed**。
 - 分支：`wip/deterministic-freeslice`；已提交适配：
   `24e0b18`（独立配棱器）、`2826712`（tredge 分类器）、`1d023fc`（不可达诊断）。
 
@@ -333,3 +335,39 @@ TredgeSlot(middle_id, left_wing_id, right_wing_id, 朝向)
 2. 处理 parity=1 与翼对错位：采用**整体搬运宏（R'FRF' 类整条 tredge 3-cycle）** 与纯中棱宏组合，
    或 plan.md 方案四（直接在最后 4 条真实状态上双向搜索）。
 3. 覆盖 6 个 fixtures 达到 12/12 VALID + 中心归面 + 虚拟 3×3 合法。
+
+---
+
+## 10. 本次里程碑：末段棱降阶**全部打通**（6/6 fixtures）
+
+> 日期：2026-09-08 分支续。落地 Plan 5–12 的末段：`tools/research/5x5/reference/reduce5.py`。
+
+### 10.1 决定性判据（再次确认）
+
+降阶成功 = **12 条 tredge 全部 complete（归属全对）+ 中心归面 + 固定面心不动 + 虚拟 3×3 合法**；
+**不要求**每条 tredge 朝向 VALID（FLIPPED 为偶数时虚拟 3×3 仍可解）。
+
+### 10.2 奇偶：联合不变量 + 配翼阶段可变
+
+- 真正不变量 = `parity(mid) XOR parity(wing)`，在保持翼对配对的生成元集下不变
+  （transport 3-cycle、纯中棱 3-cycle、单层外层 4-cycle 均为「同奇偶」或「偶」）。
+- XOR=0：A*（293 生成元）直达 all-complete。
+- XOR=1：先用**奇左翼换位子宏**破配对，再**重新配翼**（重配翻转 XOR），再走 XOR=0 路径。
+- 奇翼宏正确形式：`2R B'L'B 2R' B'LB`（换位子；实测复原态保中心）。
+  **教训**：曾误用 `2R B'L'B2R'B'LB`（非换位子），它复原态即打乱中心，靠重配侥幸带回 0；
+  已修正并加回归测试。
+
+### 10.3 结果（真实回放断言）
+
+```text
+flip_seed19  xor=0 complete=True center_off=0 fixed=True v3=True moves=133
+flip_seed2   xor=0 complete=True center_off=0 fixed=True v3=True moves=136
+flip_seed51  xor=0 complete=True center_off=0 fixed=True v3=True moves=126
+flip_seed23  xor=1 complete=True center_off=0 fixed=True v3=True moves=187
+flip_seed4   xor=1 complete=True center_off=0 fixed=True v3=True moves=182
+flip_seed7   xor=1 complete=True center_off=0 fixed=True v3=True moves=155
+```
+
+### 10.4 下一步（Plan 12）
+
+完整 end-to-end：中心 → 配翼 → 末段降阶 → 虚拟 3×3 → `solve_3x3` 回放，验证整条流水线。

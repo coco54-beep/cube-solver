@@ -14,47 +14,32 @@
 # 统一按钮
 <Button>:
     background_normal: ""
+    background_down: ""
+    background_disabled_normal: ""
+    background_disabled_down: ""
     background_color: app.theme.button
     color: app.theme.button_text
     font_size: "17sp"
     bold: False
     disabled_color: app.theme.disabled_text
-    canvas.before:
-        Color:
-            rgba: app.theme.button if self.state == "normal" else app.theme.button_pressed
-        RoundedRectangle:
-            pos: self.pos
-            size: self.size
-            radius: [12, 12, 12, 12]
-        Color:
-            rgba: app.theme.border
-        Line:
-            width: 1.4
-            rounded_rectangle: self.x + 0.7, self.y + 0.7, self.width - 1.4, self.height - 1.4, 12
 
 # 主要操作按钮（绿色）
 <PrimaryButton>:
+    background_normal: ""
+    background_down: ""
+    background_disabled_normal: ""
+    background_disabled_down: ""
     background_color: app.theme.primary
     color: app.theme.primary_text
-    canvas.before:
-        Color:
-            rgba: app.theme.primary if self.state == "normal" else app.theme.primary_pressed
-        RoundedRectangle:
-            pos: self.pos
-            size: self.size
-            radius: [12, 12, 12, 12]
 
 # 次要/危险按钮（红色）
 <DangerButton>:
+    background_normal: ""
+    background_down: ""
+    background_disabled_normal: ""
+    background_disabled_down: ""
     background_color: app.theme.danger
     color: app.theme.danger_text
-    canvas.before:
-        Color:
-            rgba: app.theme.danger if self.state == "normal" else app.theme.danger_pressed
-        RoundedRectangle:
-            pos: self.pos
-            size: self.size
-            radius: [12, 12, 12, 12]
 
 # 标签
 <Label>:
@@ -74,3 +59,10 @@
     font_size: "15sp"
     color: app.theme.text_muted
     halign: "center"
+
+# 弹窗：标题用主题文本色（浅/深主题均清晰），背景在 Python 端以主题色重画
+<Popup>:
+    title_color: app.theme.text
+    title_size: "20sp"
+    title_align: "left"
+    separator_color: app.theme.card_border

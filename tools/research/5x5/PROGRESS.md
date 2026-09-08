@@ -216,7 +216,9 @@ LayerTurn(axis="y", layer=2, turns=-1)
 | Gate 5b 双棱翻转转移 | ⏳ | 状态模型已建；公式类别不符 → 转 oracle |
 | Phase 4 reference oracle | ✅ | 独立翼配对器 + tredge 分类器 + 末段降阶器 `reduce5.py` |
 | Gate 5c 切片宏搜索 | ✅ | 拿到纯净中棱 3-cycle（`E R2 E' R2`）+ 奇左翼换位子宏 |
-| Gate 5d/5e 末段降阶 | ✅ | 6/6 fixtures all-complete + 中心归面 + 虚拟 3×3 合法 |
+| Gate 5d/5e 末段降阶 | ⚠️→✅ | 6/6 色对 all-complete；`virtual_3x3_legal` 曾为假阳性（第 11 节） |
+| 中棱朝向修正（GF(2)） | ✅ | 恒等置换 2-flip 宏词线性消去 `d`，见第 12 节 |
+| Plan 12 端到端 | ✅ | `solve5_ref` 中心→配翼→降阶→朝向修正→3×3→回放，20/20 `is_solved` |
 | 保护式累积到 12 条 | ❌ | 生产端 8~10 条后卡住，最后 2~4 条（翻转/奇偶）未跨越 |
 | Gate 7 最后两棱奇偶 | ⬜ | 真正无缓冲的最后两棱奇偶，留到最后 |
 
@@ -338,11 +340,14 @@ TredgeSlot(middle_id, left_wing_id, right_wing_id, 朝向)
 
 ---
 
-## 10. 本次里程碑：末段棱降阶**全部打通**（6/6 fixtures）
+## 10. 末段棱降阶「6/6」——⚠️ 已被第 11 节证伪（判据假阳性）
 
 > 日期：2026-09-08 分支续。落地 Plan 5–12 的末段：`tools/research/5x5/reference/reduce5.py`。
+>
+> **重要**：本节结论建立在 `virtual_3x3_legal` 判据上，第 11 节已证明该判据**假阳性**。
+> 保留本节作为历史记录，但**不要**再把它当作降阶成功的依据。
 
-### 10.1 决定性判据（再次确认）
+### 10.1 决定性判据（已被证伪）
 
 降阶成功 = **12 条 tredge 全部 complete（归属全对）+ 中心归面 + 固定面心不动 + 虚拟 3×3 合法**；
 **不要求**每条 tredge 朝向 VALID（FLIPPED 为偶数时虚拟 3×3 仍可解）。
@@ -371,3 +376,439 @@ flip_seed7   xor=1 complete=True center_off=0 fixed=True v3=True moves=155
 ### 10.4 下一步（Plan 12）
 
 完整 end-to-end：中心 → 配翼 → 末段降阶 → 虚拟 3×3 → `solve_3x3` 回放，验证整条流水线。
+
+---
+
+## 11. ⚠️ 重大修正：`virtual_3x3_legal` 假阳性；降阶真正判据是 tredge **内部一致**
+
+> 日期：2026-09-08 分支续（Plan 12 end-to-end 排查中发现）。
+
+### 11.1 现象
+
+`solve5_ref.py` 端到端 5 个随机打乱全部 `solved=False`（`moves3=20`，末态 54~56 块错位），
+尽管 `reduce5.reduce_edges` 报告 `complete=True / center_off=0 / fixed=True / xor=0`。
+
+### 11.2 根因
+
+- `build_reduced_facelets`（`solver/reduction/reduced_cube5.py:104-123`）对每条 tredge
+  **只取第一块（优先中棱）**的贴纸构造虚拟 3×3，**完全忽略两翼朝向**。
+- `is_complete_tredge` 只比较**无序色对身份**（`tredge.py:62`），不检查三块在槽两面是否**同色**。
+- 实测：`reduce5` 输出常满足 12/12 色对 complete，但中棱与两翼**内部翻转不一致**
+  （某 scramble：`complete=12` 而内部一致仅 DB/BL；另一 scramble：`mo!=wo` 4 槽）。
+- 于是 `solve_3x3` 求解的是「中棱构成的虚拟 3×3」，回放后中棱归位、但**翼被留下翻转** ⇒ 整体未复原。
+
+### 11.3 朝向可精确追踪（已实证，关键正面结论）
+
+- 定义 `orient_bit[槽]=0` 当该块在槽**主面**（槽名首字母）的颜色 == 其 **home 主面色**。
+- 在随机态上实证：每个宏的翻转增量 **只依赖源位置 q**（与 home 无关），
+  `new_orient[dest] = orient[q] XOR delta[q]`；扩展状态
+  `(mid_home, wing_home, mid_orient, wing_orient)` 的更新规则**逐位精确成立**。
+- 因此朝向感知搜索是可行的；每宏仅需 12 位 delta 表。
+
+### 11.4 朝向修复为何困难
+
+- 293 生成元中**无恒等槽置换的宏**（无法「原地翻转中棱」）。
+- `reduce5` 输出已 `mid==wing`（色对齐）；仅用 43 个 transport 宏（保 `mid==wing`）
+  A* 3M 状态仍**找不到 `mo==wo`**（目标不可达或极深）。
+- `P`（`pairing5` 原语）**会移动 4 个 U 中棱**，中心求解也打乱中棱 ⇒
+  「按槽内中棱配对」从源头保证一致的路子也被堵。
+
+### 11.5 修正后的真正降阶判据
+
+```text
+12 槽：mid/left_wing/right_wing 三块在槽两面上分别同色（内部一致）
+     ∧ center_color_off==0 ∧ fixed centers preserved
+     ∧ 虚拟 3×3 可解（build_reduced_facelets + solve_3x3）
+     ∧ 回放后 is_solved()
+```
+
+### 11.6 下一步（待定路线）
+
+1. **中棱保持的配棱原语**：寻找不移动中棱的翼交换触发（从源头让「翼对匹配槽内中棱」），
+   是比事后朝向搜索更可能的干净解。
+2. 若沿用现有架构：把朝向纳入末段求解，但需解决「无恒等置换翻转宏」与深搜索问题
+   （可能需引入真正的 5x5 奇偶算法宏）。
+3. 修正 `reduce5`/测试判据，弃用 `virtual_3x3_legal` 单判据。
+
+---
+
+## 12. ✅ 决定性突破：中棱朝向修正（GF(2) 线性消去），端到端 20/20 复原
+
+> 日期：2026-09-08 分支续。解决第 11 节遗留的「中棱相对翼内部翻转」，`solve5_ref`
+> 端到端**真正复原**（`is_solved()==True`）。
+
+### 12.1 结构洞察（实证）
+
+对 `build_all_macros()` 的 275 个宏做朝向增量分类（`delta` 只依赖源位置 q，见 11.3）：
+
+```text
+transport 宏（mid_map == wing_map）：43 个，全部 md == wd  ⇒ 中棱+翼整体搬运，保持内部一致
+中棱-only 宏（wing_map == identity）：232 个
+    ├─ 112 个 g == 0（g = md XOR wd）：只搬中棱、不改相对朝向
+    └─ 120 个 g != 0，且 popcount(g) == 2：搬中棱的同时翻转恰好 2 个中棱
+```
+
+关键推论：**transport 宏保持 `d = mo XOR wo` 不变**（`g==0`，只置换 d），
+所以「4 处不一致」不可能靠整体搬运修好（解释了第 11 节 transport-only A* 的失败）。
+必须用「中棱恒等置换 + 翻转偶数个中棱」的词。
+
+### 12.2 关键性质：朝向作用是线性仿射
+
+朝向更新是仿射映射 `mo → P·mo XOR c`。对**中棱恒等置换**的词，`P=identity`，
+故对任意起始态都有 `mo → mo XOR 掩码`（平移项 c 与起始朝向无关）。
+于是「使 `mo == wo`」等价于求掩码子集 XOR = `d`，**纯 GF(2) 线性代数**，
+无需大搜索。
+
+### 12.3 实现
+
+- `tools/research/5x5/reference/middle_orient_fix.py`：
+  - `build_patterns()`：BFS（深度≤3）枚举「中棱恒等置换 + 朝向非零」的词，
+    得到 **60 个不同掩码**，落盘 `.midflip_cache.pkl`（首次约 17s，之后秒载）。
+    首个 2-flip 词 = `M U2 M' U2` · `U R2 S R2 S' U'` · `R' F E F2 E' F R`。
+  - `solve_mask()`：GF(2) 高斯消元求子集 XOR == `d`。
+  - `fix_middle_orientation(cube)`：读出 `d`，返回修正动作（不改色对归属）。
+- `solve5_ref.py`：在 `reduce5` 之后、`build_reduced_facelets` 之前插入该修正。
+
+### 12.4 结果（真实回放断言）
+
+```text
+端到端 solve5_ref（40 步宽转打乱，5 个随机种子）：
+  scramble#0 solved=True total=779 (center=321 edge=181 orient=... 3x3=20)
+  scramble#1 solved=True total=814 ...
+  scramble#2 solved=True total=650 ...
+  scramble#3 solved=True total=673 ...
+  scramble#4 solved=True total=743 ...
+
+批量 20 个种子（含 XOR=0/1）：20/20 solved；d_popcount ∈ {2,4,6,8} 均可消去。
+回归：tests/test_reference_solve5_ref.py（5 passed）+
+      reduce5/pairing5/tredge 既有测试 = 36 passed。
+```
+
+### 12.5 真正降阶判据（最终）
+
+```text
+12 槽三块内部一致（mid_orient == wing_orient）
+  ∧ mid_home == wing_home（色对对齐）
+  ∧ center_color_off == 0 ∧ fixed centers preserved
+  ∧ 回放后 is_solved()
+```
+
+`virtual_3x3_legal` 仅保证中棱子集自洽，**不能**单独作为降阶成功判据（见第 11 节）。
+
+---
+
+## 13. 生产端移植：`solve_5x5` 端到端 12/12 复原
+
+> 日期：2026-09-08。把 reference oracle 管线搬入生产包，`solve_5x5` 从
+> 「11-15/12 卡住」变为**真正复原**（`is_solved()==True`）。
+
+### 13.1 移植策略（方案 A：整管线搬迁）
+
+新建 `solver/reduction/ref5/` 生产包，从 `tools/research/5x5/reference/` 移植 8 个核心
+模块，去掉硬编码路径与 importlib hack，改为包内相对导入：
+
+```text
+solver/reduction/ref5/
+  tredge.py            槽/逻辑棱数据工具（无包内依赖）
+  macro_effect.py      宏置换效果（apply_macro 支持 M/E/S 切片）
+  macro_lib.py         已验证中棱 3-cycle 宏库（REACHABLE）
+  terminal_state.py    末段抽象状态
+  terminal_solver.py   宏级 A*（275 宏；macro_cache.pkl）
+  pairing5.py          配翼（贪心）
+  reduce5.py           末段棱降阶（reduce_edges）
+  middle_orient_fix.py 中棱朝向 GF(2) 修正（midflip_cache.pkl）
+  pipeline.py          reduce_after_centers / solve5_ref 编排
+```
+
+- `terminal_solver.py` 的 `_CACHE_FILE` 指向包目录；`macro_cache.pkl` 随包发。
+  pickle 内含 `Macro` 类，**类模块路径随包改变**，旧缓存不可复用，已用新包重新生成。
+- `midflip_cache.pkl`（60 掩码）随包发；`middle_orient_fix.build_patterns()` 首次
+  重建约 17s。
+- 未移植 `joint_solver.py`/`parity_solver.py`（不在主管线内；其 `r"D:\coco\cube-solver"`
+  硬编码不影响生产路径）。
+
+### 13.2 接入 `solve_5x5`
+
+`stage 2` 由生产 `pair_all_edges`（单调贪心，卡 11-15/12）替换为：
+
+```text
+reduce_edges(work)              # 配翼 + 末段宏级 A* → 12/12 complete
+fix_middle_orientation(work)    # 消除中棱相对翼内部翻转
+build_reduced_facelets + solve_3x3
+```
+
+注意：棱降阶/朝向阶段含 `M/E/S` 物理切片 token，必须用 `macro_effect.apply_macro`
+回放（`Cube5.apply_moves` 不识别切片）。
+
+### 13.3 结果
+
+```text
+solve_5x5，40 步宽转打乱：
+  12/12 solved=True（首解 3.91s 含 hkociemba 表加载；其后 0.17–0.34s）
+  总步数 650–846（中心 ~311–376 + 棱降阶 117–207 + 朝向 119–273 + 3x3 19–20）
+
+回归：tests/test_solver5_end_to_end.py = 5 passed
+      全量 tests = 769 passed, 4 skipped（282s）
+```
+
+---
+
+## 14. App 路径修复：facelets 重建的 cube 也能复原（100/100）
+
+> 日期：2026-09-08。用户反馈 App 仍「怎么还不能解」。生产 `solve_5x5` 对
+> 直接打乱的 cube 12/12，但 App 走 `cubies_to_facelets → facelets_to_cubies`
+> 后 **0/30**，全部「中心还原后校验失败」。
+
+### 14.1 根因一：`facelets_to_cubies` 设 `home == pos`
+
+`cube/conversion.py:facelets_to_cubies` 对每个 cubie 令 `home = pos`。
+`solve_centers5` 依赖 `cubie.home`（`build_pos_to_home_permutation` 读
+`CENTER_INDEX[cubie.home]`）→ 置换为单位置换，中心求解器认为「已解」直接返回，
+但颜色 `center_color_off` 未变。App 仅在 4x4 调用 `_rebuild_center_homes`
+（`ui/screens/input_screen.py:593`），5x5 未调用。
+
+**修复**：`solver/solver5.py` 新增 `_center_homes_consistent` / `_rebuild_center_homes`
+（按 `(轨道, 颜色)` 分桶赋互异 home），`solve_5x5` 开头检测 home 不可信则重建。
+
+### 14.2 根因二：中心置换奇偶导致 odd-d（5x5 单棱翻假象）
+
+重建中心 home 后仍有 ~50% 报「中棱朝向修正失败: no GF(2) solution for
+orientation mask」。实测：
+
+```text
+直接打乱（真 home）        ：odd-d = 0/120
+facelets 重建（规范 home）：odd-d ≈ 50%（14/30、20/30、13/30、16/30）
+```
+
+`fix_middle_orientation` 的 GF(2) 基由「中棱恒等置换 + 翻转偶数中棱」宏构成，
+只能消去偶数权重掩码。odd-d 并非真实物理态（直接打乱从不出现），而是中心
+home 赋值奇偶错误所致：**交换任意两个同色同轨道中心的 home**，odd-d 立即变偶
+（实测 2 例、全部 66 种交换均成立）。
+
+**修复**：`solve_5x5` 首解失败时交换两个同色中心 home 再解一次
+（`_swap_two_center_homes` + `_solve_once(force_center=True)`）。
+`SolveResult.success == work.is_solved()`，故重试不会引入假成功。
+
+同时修 `solve_5x5_facelets` 既存 bug：`facelets_to_cubies(facelets)` 缺 `n` 参数。
+
+### 14.3 结果
+
+```text
+App 路径（cubies→facelets→facelets_to_cubies(home==pos)→solve_5x5）：
+  5 seeds × 20 = 100/100 success
+  solve_5x5_facelets(facelets) 同样全部成功
+直接打乱路径无回归（真 home，不触发重试）
+
+回归：tests/test_solver5_end_to_end.py = 10 passed（新增 5 条 App 路径用例）
+      全量 tests = 774 passed, 4 skipped（288s）
+```
+
+## 15. App 回放 M/E/S：`solve_5x5` 的动作现可由 App 动画回放（20/20）
+
+> 日期：2026-09-08。§14 修好求解后，App 仍会在**播放**阶段崩溃：
+> `solve_5x5` 返回的 moves 含 M/E/S 物理切片，而 App 的解析/渲染链完全不认。
+
+### 15.1 阻塞点（实证）
+
+```text
+Cube5.apply_move("M")        -> ValueError: 非法公式起始字符: 'M'
+decompose_move("M", 5)       -> 同上（内部用 parse_move_str）
+solve_5x5 一例 token 分布     -> {2:269, F:91, R:84, U:61, L:31, M:30,
+                                  B:25, u:22, D:19, E:16, S:12}
+```
+
+其中 `2` 前缀（`2U`/`2R`…，宽 2 层）在逻辑层 `parse_move_full` 已支持，
+但 `decompose_move`（旧用 `parse_move_str`）不支持前导数字。
+
+### 15.2 修复（原生支持，不改成 3 层组合）
+
+1. `cube/cubie_model.py:apply_move`：首字符 M/E/S → `middle_slice.slice_turns`
+   → `apply_inner_slice(axis, turns)`（只转中层可动块，固定面心不动）。
+2. `renderer/turn.py:decompose_move`：
+   - 切片分支：`slice_turns` → 同向面 base（x→R, y→U, z→F）、`layers=(0,)`、
+     `_quarter_angle(base, ccw)` 定角。
+   - 面转动改用 `parse_move_full` + `coordinates.layer_values` 计算层坐标，
+     与 `apply_move` 完全一致，从而支持 `2U` 等前导数字宽层。
+3. `ui/screens/playback_screen.py:_single_turn_string`：切片返回单字符 token；
+   层数 >2 返回 `f"{n}{base}"`，==2 返回小写，==1 返回大写。
+4. `renderer/cube_view.py:start_turn`：旋转集合排除固定面心
+   （`is_fixed_face_center`），避免中层动画视觉上拖动面心（最终 `set_cube` 本会纠正）。
+
+### 15.3 结果
+
+```text
+App 动画回放路径（decompose_move + _single_turn_string + apply_move）：
+  5 seeds × 20 = 20/20 复原（含 M/E/S 与 2U 宽层）
+回归：tests/test_solver5_end_to_end.py = 14 passed
+      新增 test_slice_tokens_match_inner_slice（M/E/S 与 apply_inner_slice 等价）
+      新增 test_solve_5x5_app_playback（3 seeds，App 回放复原）
+      全量 tests = 779 passed, 4 skipped（215s）
+```
+
+## 16. 中棱朝向修正：GF(2) 解改为最少步数（朝向 ~147 → ~52 步）
+
+> 日期：2026-09-08。用户反馈「步骤有点多」。实测 5 seeds 平均 **711 步**
+> （中心 346 + 棱降阶 199 + 朝向 147 + 3x3 20），约为人类解法的 3-4 倍。
+
+### 16.1 根因：`solve_mask` 只求有解、不求最短
+
+`middle_orient_fix.solve_mask` 原用高斯消去拼接基向量，宏词条数不受控：
+seed 3 用 **14 条宏** 去翻转 **6 个中棱**（`d_popcount=6`），共 239 步。
+
+### 16.2 修复：12 位掩码空间上的 Dijkstra
+
+掩码空间仅 4096 个状态，对 `patterns`（每条掩码 → 展平动作）做 Dijkstra，
+主代价 = 总动作数，次代价 = 宏词条数。仅改 `solve_mask`，接口不变。
+
+### 16.3 结果（5 seeds）
+
+```text
+朝向修正：136/51/239/188/121 -> 68/35/51/51/54（平均 147 -> 52，-95 步）
+总步数  ：711 -> 616（-13%）；最坏 812 -> 624
+正确性  ：19 passed（end-to-end + reference）；全量 779 passed, 4 skipped
+```
+
+中心（346，精确置换 3-cycle 法，已近该方法下界）与棱降阶（199）为下一步。
+
+## 17. 第一轮低风险优化：整段化简 + 候选联合评分 + 配翼变体 → 平均 616 降到 555
+
+> 日期：2026-09-08。在 §16 基础上做不改变算法的低风险优化，5 seeds 平均
+> **616 → 554.6**（-61，-10%）；最坏 624 → 584。
+
+### 17.1 整段物理层化简（`solver/reduction/ref5/simplify_moves.py`，新增）
+
+把整段动作映射为「绕某轴、对某些层坐标的带符号 90° 计数」，折叠**连续同轴**动作后
+按 `outer/wide2/slice` 分解重建（同轴动作恒可交换，不同轴不可跨轴折叠）。
+单趟折叠会漏掉「中间同轴段抵消后两侧同轴段合并」的级联情形（`R U U' R'`），
+故迭代到不动点。随机 80 步串约降 13%。`simplify_verified` 在复原态重放比对块状态。
+
+`solver5._solve_once` 末尾对全序列化简并回放校验，消息追加「化简前 %d」。
+
+### 17.2 末段候选联合评分（`reduce5.solve_all_complete_candidates`）
+
+A* 不再只取首个目标，而是收集至多 `max_candidates=6` 个 all-complete 宏序列；
+对每个候选施加中棱朝向修正（Dijkstra 距离，`middle_orient_fix.orient_cost/orient_mask`）
+并校验虚拟 3x3 合法，按 **棱展开成本 + 朝向修正成本** 取最优。
+
+> 偏差记录：任务原设想把 A* 边成本直接改成真实展开步数，但 293 个宏、
+> 弱启发式下按成本排序会指数级膨胀（深度版 11 次弹出即命中目标，成本版
+> 数万次仍无解）。故搜索仍按「深度 + 错配」排序，真实成本只用于候选间评分。
+
+### 17.3 配翼变体 + 优先 XOR=0（Task 6）
+
+`reduce_edges` 生成 6 个配翼变体（首个确定性贪心，其余随机贪心），
+每个变体消除 XOR 后求最优末段计划，按「配翼 + parity + 棱 + 朝向」总成本选最优。
+实测不同配翼可改变 XOR 奇偶：seed 1-5 均找到 XOR=0 变体，省下原先约 38 步的
+「奇翼宏 + 重配」parity 修正；个别变体以略长配翼换取显著更短的朝向修正。
+
+### 17.4 结果（5 seeds）
+
+```text
+总步数  ：616 -> 554.6（531/572/518/584/568）
+分阶段  ：中心 346（不变）、棱降阶 199 -> 178、朝向 52 -> 28、3x3 20
+正确性  ：新增 tests/test_simplify_moves.py 6 passed
+          定向 36 passed；全量 785 passed, 4 skipped（268s）
+```
+
+中心阶段仍占 ~62%，为第二轮主攻方向。
+
+## 18. 第二轮：中心同色等价求解（宏数 21.6 -> 15.4），端到端 554.6 -> 481
+
+> 日期：2026-09-08。第二轮首项：中心只要求「按颜色归面」，同色中心块可互换，
+> 从而把长置换拆成更短循环。新建 `solver/center5/color_solver.py`。
+
+### 18.1 原理与算法
+
+- 精确求解要求每块回唯一 home，会在面内同色置换上浪费动作。
+- 颜色多重图：每个错色位置记 `(demand=所在面颜色, supply=块颜色)`。
+- 分解为闭合 trail（优先 3-cycle、再 2-cycle、剩余闭合）；沿 trail 分配具体位置，
+  令块 `p_i -> p_{i+1}`，由 `supply(p_i)==demand(p_{i+1})` 保证落位即归色。
+- 置换奇偶只取决于循环个数 T：`parity=(W-T) mod 2`（W=错色位置数）。重启中优先筛
+  偶置换分解；必要时在共享颜色顶点拼接两条 trail 翻转奇偶（普通拼接会破坏同色有效性）。
+- `decompose_even_pos_to_home` 把偶置换分解为正向 3-cycle，逐个实例化为宏并施加。
+
+### 18.2 结果：中心宏数
+
+```text
+seeds 1-5 宏数（corner+edge）：13/14/14/19/17，平均 15.4
+精确求解宏数：21.6，中心步数 346 -> 247.6（-98，约 -28%）
+```
+
+### 18.3 下游耦合与回退
+
+中心 3-cycle 基元同时会扰动棱（`validate_center_primitive` 只保证中心轨道/固定面心，
+不保证棱不动），故同色中心解与精确中心解产生**不同的棱状态**。末段棱降阶 oracle
+（`ref5.reduce_edges`）只在其验证过的棱状态上完备：实测精确中心 12/12 可降阶，
+同色中心仅 7/12；失败均为 `middle_orient_fix.solve_mask` 无解（朝向掩码不可达），
+加大搜索预算/配翼变体数均无效。
+
+处理：`solve_5x5` 先试同色中心；整条流水线失败时用精确 home 中心重解（精确棱状态
+始终可降阶），保证正确性。5 seeds 端到端：
+
+```text
+总步数  ：554.6 -> 481.0（441/468/518/517/461）
+分阶段  ：中心 210/226/354/306/268（seed 3 回退精确 = 354）
+正确性  ：tests/test_center_color_solver_5x5.py 24 passed
+          定向 39 + end-to-end 14 passed；全量 809 passed, 4 skipped（259s）
+```
+
+### 18.4 待办
+
+- 同色中心使棱降阶 oracle 不完备（~40% 回退），是当前主要收益损失。需让末段降阶对
+  任意中心置换鲁棒（配翼 beam / 朝向掩码完备化 / parity 联合）。
+- 中心 3-cycle 执行顺序优化（当前按 decompose 顺序，未按 setup 长度联合排序）。
+
+## 19. 第三轮：棱降阶完备化 + 配翼 beam + 双基元 setup → 端到端 481 降到 450
+
+> 日期：2026-09-09。针对 §18.4 三项待办逐条处理，另验第 4 项（朝向/parity 联合）。
+
+### 19.1 棱降阶完备化（OLL parity，消除 ~40% 回退）
+
+- 根因：同色中心解产生的棱态配对后 `mid/wing` 置换奇偶 XOR=1，且朝向掩码 d 为奇；
+  `_best_edge_plan` 返回 None（偶翻掩码库只张成偶子空间）。精确中心始终为偶。
+- 新增 `_OLL_PARITY`（15 步）：`r2 B2 U2 l U2 r' U2 r U2 F2 r F2 l' B2 r2`。
+  在复原态重放后 all-complete、`center_color_off=0`、fixed、`d=1`（单条 dedge 内翻）。
+- `reduce_edges`：`_best_edge_plan` 返回 None 时，克隆、施加 `_OLL_PARITY`、重试；
+  成功则并入前缀并记 `info["oll_parity"]`。
+- 结果：5 个原失败 seed 全部可降阶；seed 3 端到端 518→443（不再回退精确中心）。
+
+### 19.2 配翼束搜索（`pairing5.pair_edges_beam`）
+
+- 新增 `pair_edges_beam(cube, beam_width=6, per_state=6)`：贪心展开做束搜索，
+  按（已配对槽数，-已用步数）排序，不修改输入。
+- 新增 `_SETUP_CACHE`：memoize `_find_best_setup(a,b)`（24×24 有序对）。
+- `reduce_edges` 在既有 `pair_variants` 个贪心变体之外追加一个 beam 变体。
+- 实测配翼：贪心 ~121.4 → beam(w6) ~116.8 → beam(w16) ~115 步；端到端 466 → 453。
+
+### 19.3 双基元最短 setup
+
+- 每轨道有主/备用两个 3-cycle 基元（`CORNER_MAIN/BACKUP`、`EDGE_MAIN/BACKUP`），
+  对同一有序三重产生**同向** 3-cycle，但 setup 长度不同。
+- `color_solver` 改用 `_primitives_for(orbit)` 同时建两张表，逐三重取较短宏。
+- setup 平均：corner 3.93 → min 3.72、edge 4.69 → min 4.33（每宏省 ~0.2/0.36 步）。
+- 端到端 453 → 450.2。
+
+### 19.4 第 4 项（朝向/parity 联合）：无收益，已回退
+
+- `_best_edge_plan` 已联合评分「棱展开 + 朝向修正」；`fix_middle_orientation` 已是最优
+  Dijkstra（§16）。
+- 试验：XOR=1 时遍历全部 3 条 `_LW_ODD_MACROS` 取总成本最优 → 5 seeds 净变化 0，
+  且多出 2 次昂贵末段搜索，已回退。
+
+### 19.5 结果（5 seeds）
+
+```text
+总步数  ：481 -> 450.2（421/424/445/483/478；最坏 483）
+分阶段  ：棱降阶 178 -> ~150（beam 配翼）、中心 247.6 -> ~245（双基元）
+正确性  ：tests/test_center_color_solver_5x5.py 24 passed
+          reference 22 passed；end-to-end 14 passed；全量 809 passed, 4 skipped（271s）
+```
+
+### 19.6 后续（需换算法，非低风险项）
+
+- 配翼已近 floor（P 基元 9 步 × ~10 对）；大降需 freeslice 重写（破坏中心同色，风险高）。
+- 中心宏数 15.4 已近 `decompose_even_pos_to_home` 下界；缩短需更短基元
+  （已搜 4 步换位子，无合法者）或跨轨道联合（setup 不共享，无收益）。
+
+
+

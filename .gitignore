@@ -15,6 +15,10 @@ __pycache__/
 .venv/
 venv/
 env/
+*.pkl
+# 生产 ref5 预计算缓存需随包发布（否则首次求解在设备上重建约 20s）
+!solver/reduction/ref5/macro_cache.pkl
+!solver/reduction/ref5/midflip_cache.pkl
 
 # --- Logs & misc build artifacts ---
 *.log

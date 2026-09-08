@@ -1,8 +1,9 @@
 """拧魔方页：三维自由视角下，直接拖动魔方来拧动某一层。
 
 模式：
-- 卡视角 开：手指在魔方上拖动 = 拧动一层（拖动方向与抓取位置决定轴、
-  层与方向）。视图不随手指旋转。
+- 卡视角 开：手指在魔方上拖动 = 拧动一层。以手指接触的"小面"为动点：
+  转动作用在哪一层由该小面所属的块决定（小面所在层），
+  绕哪根轴 / 顺逆方向由拖动方向决定。视图不随手指旋转。
 - 卡视角 关：拖动旋转视角、滚轮/双指缩放（CubeView 默认行为）。
 - 还原视角：回到默认的三维观察角度。
 
@@ -12,7 +13,7 @@
 
 from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
+from ui.widgets.buttons import UIButton
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 
@@ -43,17 +44,21 @@ class _TwistCubeView(CubeView):
         self.on_twist = None
         self._press = None
         self._touch0 = None
+        self._grab_pick = None      # 本次按下接触的小面 (cubie_pos, face_name)
 
     def on_touch_down(self, touch):
         if not self.collide_point(*touch.pos):
             return super().on_touch_down(touch)
         if getattr(touch, "is_mouse_scrolling", False):
+            if self.lock_view:
+                return True
             return super().on_touch_down(touch)
         if self.lock_view:
             if self.on_twist is not None:
-                # 拧层模式：记录按下点，不抓取相机旋转。
+                # 拧层模式：记录按下点（接触的小面），不抓取相机旋转。
                 self._touch0 = touch
                 self._press = touch.pos
+                self._grab_pick = self.pick_facelet(*touch.pos)
                 try:
                     touch.grab(self)
                 except Exception:
@@ -82,19 +87,24 @@ class _TwistCubeView(CubeView):
             press = self._press
             self._touch0 = None
             self._press = None
+            grab_pick = self._grab_pick
+            self._grab_pick = None
             if press is not None and self.on_twist is not None:
                 dx = touch.x - press[0]
                 dy = touch.y - press[1]
                 if dx * dx + dy * dy > 18 * 18:
-                    self._resolve_and_twist(press, (dx, dy))
+                    self._resolve_and_twist(press, (dx, dy), grab_pick)
             return True
         return super().on_touch_up(touch)
 
-    def _resolve_and_twist(self, press, drag):
+    def _resolve_and_twist(self, press, drag, grab_pick=None):
         proj = self._last_proj
         if proj is None:
             return
         basis = proj["basis"]
+        grab_pos = grab_face = None
+        if grab_pick is not None:
+            grab_pos, grab_face = grab_pick
         spec = resolve_twist(
             self._n(),
             basis,
@@ -106,6 +116,8 @@ class _TwistCubeView(CubeView):
             drag,
             press,
             wide=self._wide,
+            grab_pos=grab_pos,
+            grab_face=grab_face,
         )
         if spec is not None:
             self.on_twist(spec)
@@ -127,7 +139,7 @@ class TwistScreen(Screen):
 
         # 顶栏
         top = BoxLayout(size_hint_y=None, height=46, spacing=8)
-        back = Button(text="←返回", size_hint_x=0.22)
+        back = UIButton(text="←返回", size_hint_x=0.22)
         back.bind(on_release=lambda *a: self.go_back())
         self.title = Label(text="拧魔方", size_hint_x=0.56, halign="center",
                            font_size="20sp", bold=True)
@@ -146,11 +158,11 @@ class TwistScreen(Screen):
 
         # 控制区
         ctl = BoxLayout(size_hint_y=None, height=52, spacing=8)
-        self.btn_lock = Button(text="卡视角：开", font_size="15sp", size_hint_x=0.3)
+        self.btn_lock = UIButton(text="卡视角：开", font_size="15sp", size_hint_x=0.3)
         self.btn_lock.bind(on_release=lambda *a: self.toggle_lock())
-        self.btn_wide = Button(text="宽层：关", font_size="15sp", size_hint_x=0.3)
+        self.btn_wide = UIButton(text="宽层：关", font_size="15sp", size_hint_x=0.3)
         self.btn_wide.bind(on_release=lambda *a: self.toggle_wide())
-        reset = Button(text="还原视角", font_size="15sp", size_hint_x=0.4)
+        reset = UIButton(text="还原视角", font_size="15sp", size_hint_x=0.4)
         reset.bind(on_release=lambda *a: self.view.reset_camera())
         ctl.add_widget(self.btn_lock)
         ctl.add_widget(self.btn_wide)
@@ -178,7 +190,7 @@ class TwistScreen(Screen):
         self.btn_lock.text = "卡视角：开"
         self.view.reset_camera()
         self._refresh_view()
-        self.msg.text = "卡视角开：拖动魔方拧层；关：拖动转视角"
+        self.msg.text = "卡视角开：拖动魔方拧层；滚轮缩放已锁定"
 
     def _input_screen(self):
         try:
@@ -194,7 +206,7 @@ class TwistScreen(Screen):
         self.view.lock_view = not self.view.lock_view
         self.btn_lock.text = "卡视角：开" if self.view.lock_view else "卡视角：关"
         if self.view.lock_view:
-            self.msg.text = "卡视角开：拖动魔方拧层"
+            self.msg.text = "卡视角开：拖动魔方拧层；滚轮缩放已锁定"
         else:
             self.msg.text = "卡视角关：拖动转视角，滚轮缩放"
 
@@ -217,6 +229,7 @@ class TwistScreen(Screen):
             dur,
             on_done=lambda: self._after_twist(spec),
             layer_positions=spec.layer_positions,
+            include_fixed_centers=True,
         )
 
     def _after_twist(self, spec):
@@ -237,6 +250,9 @@ class TwistScreen(Screen):
             grid = facelets.get(f, [])
             clean[f] = [[(g if g else "") for g in row] for row in grid]
         input_screen.set_facelets(clean)
+        # 同步刷新应用记录的布局，避免回到录入页时 on_enter
+        # 用拧动前的旧 facelets_input 覆盖刚拧好的分布。
+        _app().facelets_input = clean
 
     def go_back(self):
         self._write_back()

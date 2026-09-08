@@ -1,6 +1,6 @@
 """首页：选择 3 阶 / 4 阶、使用说明、版本号（美观启动页式）。"""
 
-from kivy.uix.button import Button
+from ui.widgets.buttons import UIButton
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
@@ -68,13 +68,16 @@ class HomeScreen(Screen):
         root = BoxLayout(orientation="vertical", spacing=12, padding=[24, 24, 24, 14])
 
         # ---- 标题区（顶部）----
-        head = BoxLayout(orientation="vertical", size_hint_y=None, height=150, spacing=8)
-        self.title = Label(text=Config.app_name, font_size="34sp", bold=True,
-                           halign="center", valign="middle", size_hint_y=None, height=90)
+        head = BoxLayout(orientation="vertical", size_hint_y=None, height=160, spacing=8)
+        self.title = Label(text=Config.app_name, font_size="36sp", bold=True,
+                           halign="center", valign="middle", size_hint_y=None, height=88)
         self.subtitle = Label(text="2 阶 / 3 阶 / 4 阶 / 5 阶魔方 · 智能还原", font_size="15sp",
                               color=_app().theme.text_muted, halign="center",
-                              valign="middle", size_hint_y=None, height=42)
+                              valign="middle", size_hint_y=None, height=40)
+        # 强调色渐变装饰条，置于标题下方
+        self._accent_bar = self._accent_bar_widget()
         head.add_widget(self.title)
+        head.add_widget(self._accent_bar)
         head.add_widget(self.subtitle)
         root.add_widget(head)
 
@@ -104,9 +107,9 @@ class HomeScreen(Screen):
         # ---- 操作区 ----
         actions = BoxLayout(orientation="horizontal", spacing=10,
                             size_hint=(1.0, None), height=52)
-        help_btn = Button(text="使用说明", font_size="17sp")
+        help_btn = UIButton(text="使用说明", font_size="17sp")
         help_btn.bind(on_release=lambda *a: self.show_help())
-        self.theme_btn = Button(text="主题：自动", font_size="15sp")
+        self.theme_btn = UIButton(text="主题：自动", font_size="15sp")
         self.theme_btn.bind(on_release=lambda *a: self.cycle_theme())
         actions.add_widget(help_btn)
         actions.add_widget(self.theme_btn)
@@ -161,20 +164,74 @@ class HomeScreen(Screen):
             side = self._card_size(w)
             self.cards.height = side * 2 + self.cards.spacing[0]
 
+    def _accent_bar_widget(self):
+        """标题下的强调色渐变装饰条。"""
+        from kivy.uix.widget import Widget
+        from kivy.graphics.instructions import InstructionGroup
+        from ui.widgets import fx
+        bar = Widget(size_hint_y=None, height=4)
+        bar._grad_grp = InstructionGroup()
+        bar.canvas.before.add(bar._grad_grp)
+
+        def _draw(*a):
+            theme = _app().theme
+            g = bar._grad_grp
+            g.clear()
+            g.add(fx.gradient(theme.accent, theme.accent_dim, bar.pos, bar.size, radius=2))
+
+        bar._draw = _draw
+        bar.bind(pos=_draw, size=_draw)
+        _draw()
+        return bar
+
+    def _card_draw(self, card):
+        """绘制卡片背景：柔和投影 + 渐变填充 + 描边 + 顶部高光。"""
+        from kivy.graphics import Color, Line, RoundedRectangle
+        from ui.widgets import fx
+        theme = _app().theme
+        bg = getattr(card, "_bg", None)
+        if bg is None:
+            return
+        bg.clear()
+        pressed = getattr(card, "_pressed", False)
+        # 柔和投影
+        for inst in fx.soft_shadow(card.pos, card.size, 16, theme.card_shadow,
+                                   layers=3, spread=4.0, blur=7.0):
+            bg.add(inst)
+        # 圆角实心底
+        base = theme.surface_hi if pressed else theme.surface
+        bg.add(Color(*base))
+        bg.add(RoundedRectangle(pos=card.pos, size=card.size, radius=[16] * 4))
+        # 描边
+        bg.add(Color(*theme.card_border))
+        bg.add(Line(width=1.4, rounded_rectangle=(
+            card.x + 0.7, card.y + 0.7, card.width - 1.4, card.height - 1.4, 16)))
+
+    def _card_press(self, card, touch, down):
+        if not card.collide_point(*touch.pos):
+            return False
+        card._pressed = down
+        self._card_draw(card)
+        if (not down) and getattr(card, "_on_click", None) is not None:
+            card._on_click()
+        return False
+
     def _card(self, big, title, desc, onClick):
-        """创建一个卡片式按钮（大字标题 + 描述）。"""
-        from kivy.graphics import Color, RoundedRectangle
+        """创建一个卡片式按钮（大号强调数字 + 标题 + 描述）。"""
+        from kivy.graphics.instructions import InstructionGroup
         theme = _app().theme
         card = BoxLayout(orientation="vertical", spacing=2, padding=10)
-        card.bind(on_touch_down=lambda instance, touch, c=card: self._on_card_touch(c, touch))
-        with card.canvas.before:
-            fill = Color(*theme.surface)
-            rect = RoundedRectangle(pos=card.pos, size=card.size, radius=[16, 16, 16, 16])
-        card.bind(pos=lambda *a: setattr(rect, "pos", card.pos),
-                  size=lambda *a: setattr(rect, "size", card.size))
+        card._pressed = False
+        card._on_click = onClick
+        card._bg = InstructionGroup()
+        card.canvas.before.add(card._bg)
+        card.bind(pos=lambda *a: self._card_draw(card),
+                  size=lambda *a: self._card_draw(card))
+        card.bind(on_touch_down=lambda inst, touch, c=card: self._card_press(c, touch, True),
+                  on_touch_up=lambda inst, touch, c=card: self._card_press(c, touch, False))
         # 用 size_hint 比例占满卡片，避免固定高度导致文字重叠
-        big_label = Label(text=big, font_size="46sp", bold=True, halign="center",
-                          valign="middle", color=theme.text, size_hint_y=0.52)
+        big_label = Label(text=big, font_size="50sp", bold=True, halign="center",
+                          valign="middle", color=theme.accent, size_hint_y=0.52)
         title_label = Label(text=title, font_size="19sp", bold=True, halign="center",
                             valign="middle", color=theme.text, size_hint_y=0.26)
         desc_label = Label(text=desc, font_size="13sp", halign="center",
@@ -182,9 +239,8 @@ class HomeScreen(Screen):
         card.add_widget(big_label)
         card.add_widget(title_label)
         card.add_widget(desc_label)
-        card._on_click = onClick
-        card._fill_rgba = fill
         card._labels = (big_label, title_label, desc_label)
+        self._card_draw(card)
         return card
 
     def _update_theme_btn(self):
@@ -204,15 +260,19 @@ class HomeScreen(Screen):
         self.subtitle.color = theme.text_muted
         self._ver_label.color = theme.text_faint
         self._update_theme_btn()
+        # 强调色装饰条
+        bar = getattr(self, "_accent_bar", None)
+        if bar is not None and getattr(bar, "_draw", None) is not None:
+            bar._draw()
         cards = getattr(self, "cards", None)
         if cards:
             for card in cards.children:
                 try:
-                    card._fill_rgba.rgba = theme.surface
                     big, title, desc = card._labels
-                    big.color = theme.text
+                    big.color = theme.accent
                     title.color = theme.text
                     desc.color = theme.text_muted
+                    self._card_draw(card)
                 except Exception:
                     pass
 
@@ -229,47 +289,142 @@ class HomeScreen(Screen):
         self.manager.current = "InputScreen"
 
     def show_help(self):
-        from kivy.uix.popup import Popup
+        """「使用说明」：自定义主题化模态对话框（遮罩 + 居中面板），
+        不依赖 Kivy 默认 Popup 的灰暗底色，保证浅/深主题都清晰可读。"""
+        from kivy.uix.floatlayout import FloatLayout
+        from kivy.uix.boxlayout import BoxLayout
+        from kivy.uix.anchorlayout import AnchorLayout
         from kivy.uix.scrollview import ScrollView
+        from kivy.core.window import Window
+        from kivy.graphics import Color, RoundedRectangle, Line, Rectangle
+        from kivy.graphics.instructions import InstructionGroup
+        from ui.widgets import fx
         theme = _app().theme
-        inner = BoxLayout(orientation="vertical", spacing=4,
-                          size_hint_y=None, padding=[10, 6, 10, 4])
+
+        scroll = ScrollView()
+
+        # 遮罩层：半透明黑，铺满窗口；点击面板外关闭
+        overlay = FloatLayout()
+
+        def draw_overlay(*_):
+            overlay.canvas.before.clear()
+            overlay.canvas.before.add(Color(0, 0, 0, 0.45))
+            overlay.canvas.before.add(
+                Rectangle(pos=overlay.pos, size=overlay.size))
+
+        overlay.bind(pos=draw_overlay, size=draw_overlay)
+        draw_overlay()
+
+        # 居中面板
+        holder = AnchorLayout(anchor_x="center", anchor_y="center")
+        holder.size_hint = (1, 1)
+        panel = BoxLayout(orientation="vertical", spacing=0,
+                          size_hint=(None, None))
+        panel.width = min(760, Window.width * 0.9)
+        panel.height = min(560, Window.height * 0.88)
+        panel._bg = InstructionGroup()
+        panel.canvas.before.add(panel._bg)
+
+        def draw_panel(*_):
+            panel._bg.clear()
+            t = _app().theme
+            for inst in fx.soft_shadow(panel.pos, panel.size, 20, t.card_shadow,
+                                       layers=2, spread=3.0, blur=8.0):
+                panel._bg.add(inst)
+            panel._bg.add(Color(*t.surface))
+            panel._bg.add(RoundedRectangle(pos=panel.pos, size=panel.size,
+                                           radius=[20] * 4))
+            panel._bg.add(Color(*t.card_border))
+            panel._bg.add(Line(width=1.3, rounded_rectangle=(
+                panel.x + 0.6, panel.y + 0.6,
+                panel.width - 1.2, panel.height - 1.2, 20)))
+
+        panel.bind(pos=draw_panel, size=draw_panel)
+        draw_panel()
+
+        # 标题栏：标题 + 强调色横条
+        header = BoxLayout(orientation="vertical", size_hint_y=None,
+                           height=62, padding=[22, 14, 22, 6])
+        t = Label(text="使用说明", font_size="22sp", bold=True, halign="left",
+                  valign="middle", color=theme.text, size_hint_y=1)
+        header.add_widget(t)
+
+        bar = BoxLayout(size_hint_y=None, height=4)
+        bar._bg = InstructionGroup()
+        bar.canvas.before.add(bar._bg)
+
+        def draw_bar(*_):
+            bar._bg.clear()
+            th = _app().theme
+            bar._bg.add(Color(*th.accent))
+            bar._bg.add(Rectangle(pos=bar.pos, size=bar.size))
+
+        bar.bind(pos=draw_bar, size=draw_bar)
+        draw_bar()
+        header.add_widget(bar)
+        panel.add_widget(header)
+
+        # 正文卡片（滚动）
+        inner = BoxLayout(orientation="vertical", spacing=6,
+                          size_hint_y=None, padding=[22, 8, 22, 8])
         inner.bind(minimum_height=inner.setter("height"))
-        for title, body in _HELP_SECTIONS:
-            # 每章用一张圆角"卡片"，标题加深、正文用主题主文本保证清晰可读。
+        for sec_title, body in _HELP_SECTIONS:
             card = BoxLayout(orientation="vertical", size_hint_y=None,
-                             spacing=2, padding=[12, 8, 12, 8])
-            t = Label(text=title, font_size="17sp", bold=True, halign="left",
-                      valign="middle", color=theme.text)
-            b = Label(text=body, font_size="15sp", halign="left", valign="top",
-                      color=theme.text)
-            _autofit(t, pad=6)
-            _autofit(b, pad=6)
-            card.add_widget(t)
-            card.add_widget(b)
+                             spacing=2, padding=[14, 10, 14, 10])
+            ct = Label(text=sec_title, font_size="18sp", bold=True, halign="left",
+                       valign="middle", color=theme.text)
+            cb = Label(text=body, font_size="15sp", halign="left", valign="top",
+                       color=theme.text)
+            _autofit(ct, pad=6)
+            _autofit(cb, pad=6)
+            card.add_widget(ct)
+            card.add_widget(cb)
             card.bind(minimum_height=card.setter("height"))
-            # 卡片底色用 surface，深/浅主题都够圆润现代。
-            card._card_color = theme.surface
-            from kivy.graphics import Color, RoundedRectangle
-            with card.canvas.before:
-                Color(rgba=theme.surface)
-                RoundedRectangle(
-                    pos=card.pos, size=card.size,
-                    radius=[12, 12, 12, 12],
-                )
+            card._bg = InstructionGroup()
+            card.canvas.before.add(card._bg)
+
+            def draw_card(card=card):
+                card._bg.clear()
+                th = _app().theme
+                card._bg.add(Color(*th.surface_hi))
+                card._bg.add(RoundedRectangle(pos=card.pos, size=card.size,
+                                              radius=[12] * 4))
+                card._bg.add(Color(*th.card_border))
+                card._bg.add(Line(width=1.0, rounded_rectangle=(
+                    card.x + 0.5, card.y + 0.5,
+                    card.width - 1.0, card.height - 1.0, 12)))
+
+            card._bgedraw = draw_card
+            card.bind(pos=lambda *a, c=card: c._bgedraw(),
+                      size=lambda *a, c=card: c._bgedraw())
+            draw_card()
             inner.add_widget(card)
-        sv = ScrollView()
-        sv.add_widget(inner)
-        # 弹窗内容：标题说明 + 滚动正文 + 圆角"关闭"按钮。
-        outer = BoxLayout(orientation="vertical", spacing=8, padding=[8, 4, 8, 8])
-        outer.add_widget(sv)
-        foot = BoxLayout(size_hint_y=None, height=52, spacing=8)
+        scroll.add_widget(inner)
+        panel.add_widget(scroll)
+
+        # 底部：关闭按钮
+        foot = BoxLayout(size_hint_y=None, height=62, padding=[22, 10, 22, 14])
         close = PrimaryButton(text="关闭", font_size="17sp")
         foot.add_widget(close)
-        outer.add_widget(foot)
-        popup = Popup(title="使用说明", content=outer, size_hint=(0.92, 0.92))
-        close.bind(on_release=lambda *a: popup.dismiss())
-        popup.open()
+        panel.add_widget(foot)
+
+        holder.add_widget(panel)
+        overlay.add_widget(holder)
+        Window.add_widget(overlay)
+
+        def dismiss(*_):
+            if overlay.parent is not None:
+                Window.remove_widget(overlay)
+
+        close.bind(on_release=dismiss)
+
+        def overlay_touch(inst, touch):
+            if not panel.collide_point(*touch.pos):
+                dismiss()
+                return True
+            return False
+
+        overlay.bind(on_touch_down=overlay_touch)
 
 
 def _app():

@@ -132,7 +132,18 @@ class BaseCube:
 
     # -- 转动引擎 --
     def apply_move(self, move_str: str) -> None:
-        """应用单个动作（字符串），就地更新状态。"""
+        """应用单个动作（字符串），就地更新状态。
+
+        识别物理中央切片 M/E/S（只转坐标 0 平面上的可动块，固定面心不动），
+        其余动作走面/宽/整机转动解析。
+        """
+        if move_str and move_str[0] in ("M", "E", "S"):
+            from cube.middle_slice import slice_turns
+            axis, turns = slice_turns(move_str)
+            if turns == 0:
+                raise ValueError(f"非法切片后缀: {move_str!r}")
+            self.apply_inner_slice(axis, turns)
+            return
         label, layers, count = parse_move_full(move_str)
         for _ in range(count):
             self._apply_single_quarter(label, layers)

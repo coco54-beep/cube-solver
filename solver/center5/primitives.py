@@ -90,6 +90,17 @@ EDGE_BACKUP = CenterPrimitive(
     expected_cycle=(1, 46, 52),
 )
 
+# 4 步联合换位子：一次做 edge 轨道 1 个 3-cycle + corner 轨道 2 个 3-cycle，
+# 且不动 6 个固定面心。仅用于「先解 edge、再解 corner」的联合流程：
+# edge 用它（更短），随后 corner 用 edge-pure 基元（不扰动已解 edge）。
+# 注意：它会扰动 corner 轨道，故不通过 validate_center_primitive（后者要求另一轨道不动）。
+EDGE_COMM4 = CenterPrimitive(
+    name="edge_comm4",
+    orbit=CenterOrbitKind.EDGE,
+    moves=("2B", "D2", "2B'", "D2"),
+    expected_cycle=(3, 21, 23),
+)
+
 CENTER_PRIMITIVES: Tuple[CenterPrimitive, ...] = (
     CORNER_MAIN, CORNER_BACKUP, EDGE_MAIN, EDGE_BACKUP,
 )

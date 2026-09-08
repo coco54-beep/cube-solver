@@ -2,7 +2,7 @@
 
 from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
+from ui.widgets.buttons import UIButton
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 from kivy.uix.progressbar import ProgressBar
@@ -22,7 +22,7 @@ class SolvingScreen(Screen):
         self.title = Label(text="正在求解…", font_size="24sp", size_hint_y=0.2)
         self.progress = ProgressBar(max=100, value=0, size_hint_y=0.15)
         self.detail = Label(text="准备中", font_size="17sp", size_hint_y=0.15)
-        self.cancel = Button(text="取消", font_size="20sp", size_hint_y=0.15)
+        self.cancel = UIButton(text="取消", font_size="20sp", size_hint_y=0.15)
         self.cancel.bind(on_release=lambda *a: self.on_cancel())
         root.add_widget(self.title)
         root.add_widget(self.progress)

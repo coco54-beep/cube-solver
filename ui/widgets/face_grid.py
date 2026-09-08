@@ -5,7 +5,7 @@
 
 from kivy.properties import NumericProperty, StringProperty
 from kivy.uix.gridlayout import GridLayout
-from kivy.uix.button import Button
+from ui.widgets.buttons import UIButton
 from kivy.graphics import Line, Color
 
 from app.constants import COLOR_INFO
@@ -94,7 +94,7 @@ class FaceGrid(GridLayout):
             gi += 1
 
     def _make_cell(self, r, c, cs):
-        b = Button(size_hint=(None, None), size=(cs - 2, cs - 2))
+        b = UIButton(size_hint=(None, None), size=(cs - 2, cs - 2))
         b.background_normal = ""
         b.background_color = _EMPTY
         # 清除全局 <Button> 的圆角蓝底，改用背景色直接上色；

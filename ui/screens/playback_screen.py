@@ -2,7 +2,7 @@
 
 from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
+from ui.widgets.buttons import UIButton
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 from kivy.uix.slider import Slider
@@ -39,23 +39,23 @@ class PlaybackScreen(Screen):
         # 播放控制（两行：播放步进 + 视角/返回）
         control = BoxLayout(orientation="vertical", size_hint_y=0.22, spacing=6)
         play_row = BoxLayout(spacing=6)
-        self.btn_start = Button(text="回到初始", font_size="15sp")
+        self.btn_start = UIButton(text="回到初始", font_size="15sp")
         self.btn_start.bind(on_release=lambda *a: self.to_start())
-        self.btn_prev = Button(text="上一步", font_size="15sp")
+        self.btn_prev = UIButton(text="上一步", font_size="15sp")
         self.btn_prev.bind(on_release=lambda *a: self.prev())
-        self.btn_play = Button(text="播放", font_size="15sp")
+        self.btn_play = UIButton(text="播放", font_size="15sp")
         self.btn_play.bind(on_release=lambda *a: self.toggle_play())
-        self.btn_next = Button(text="下一步", font_size="15sp")
+        self.btn_next = UIButton(text="下一步", font_size="15sp")
         self.btn_next.bind(on_release=lambda *a: self.next())
-        self.btn_end = Button(text="跳结尾", font_size="15sp")
+        self.btn_end = UIButton(text="跳结尾", font_size="15sp")
         self.btn_end.bind(on_release=lambda *a: self.to_end())
         for b in (self.btn_start, self.btn_prev, self.btn_play, self.btn_next, self.btn_end):
             play_row.add_widget(b)
         control.add_widget(play_row)
         util_row = BoxLayout(spacing=6)
-        self.btn_view = Button(text="还原视角", font_size="15sp")
+        self.btn_view = UIButton(text="还原视角", font_size="15sp")
         self.btn_view.bind(on_release=lambda *a: self.reset_view())
-        self.btn_back = Button(text="返回录入", font_size="15sp")
+        self.btn_back = UIButton(text="返回录入", font_size="15sp")
         self.btn_back.bind(on_release=lambda *a: self.go_back())
         for b in (self.btn_view, self.btn_back):
             util_row.add_widget(b)
@@ -257,8 +257,14 @@ def _app():
 
 def _single_turn_string(step):
     """返回表示 step 一次 90° 的动作字符串（base + 可选宽层小写）。"""
+    token = step.move_str
+    if token and token[0] in ("M", "E", "S"):
+        return token[0]
     base = step.base
-    if step.wide:
+    n_layers = len(step.layers)
+    if n_layers > 2:
+        return f"{n_layers}{base}"
+    if n_layers == 2:
         return base.lower()
     return base
 

@@ -23,7 +23,7 @@
 
 from typing import List, Optional, Tuple
 
-from cube.coordinates import coord_values, get_d_maxc
+from cube.coordinates import coord_values, get_d_maxc, FACE_SPEC
 
 AXIS_VEC = {0: (1.0, 0.0, 0.0), 1: (0.0, 1.0, 0.0), 2: (0.0, 0.0, 1.0)}
 
@@ -136,7 +136,8 @@ def _wide_positions(n, axis, slab):
 
 
 def resolve_twist(n, basis, pixel_scale, center_x, center_y,
-                  wcx, wcy, drag_screen, grab_screen, wide=False):
+                  wcx, wcy, drag_screen, grab_screen, wide=False,
+                  grab_pos=None, grab_face=None):
     """把一次拖动解析为 TwistSpec。
 
     参数：
@@ -147,13 +148,23 @@ def resolve_twist(n, basis, pixel_scale, center_x, center_y,
         drag_screen: 本次累计拖动向量 (dx, dy)。dx 向右、dy 向上。
         grab_screen: 按下点屏幕坐标 (sx, sy)。
         wide: 是否宽层模式。
+        grab_pos: 可选。接触的小面所属 cubie 的当前空间位置（层坐标）。
+        grab_face: 可选。接触的小面所在的面名（如 "U"、"R"）。
+            给定时按"面的上下左右"解析：在接触面的本地坐标系中，
+            上下滑动转"行"对应层，左右滑动转"列"对应层，方向取滑动正负。
+            （grab_pos + grab_face 即位"点哪个小面就动哪一层/列"。）
+            两者都未给定时退回用射线命中魔方外盒 + 切向速度判断。
 
-    返回 TwistSpec；无法解析（射线未命中魔方、拖拽过短/方向不明确）时返回 None。
+    返回 TwistSpec；无法解析（方向不明确）时返回 None。
     """
     eye, right, camera_up, forward = basis
     d_hat = _norm((drag_screen[0], drag_screen[1], 0.0))
     if d_hat is None:
         return None
+
+    if grab_pos is not None and grab_face is not None:
+        return _resolve_face_layer(n, basis, drag_screen, grab_pos,
+                                   grab_face, wide)
 
     origin, direction = _screen_ray(
         eye, right, camera_up, forward,
@@ -164,6 +175,11 @@ def resolve_twist(n, basis, pixel_scale, center_x, center_y,
     g = _ray_box_hit(origin, direction, float(maxc))
     if g is None:
         return None
+
+    # 若给定接触小面的 cubie 位置，则以其为动点（层=该块所在层）；
+    # 否则用射线命中盒子的交点近似。
+    if grab_pos is not None:
+        g = tuple(float(v) for v in grab_pos)
 
     # 选轴 + 方向。
     best_axis = None
@@ -193,6 +209,89 @@ def resolve_twist(n, basis, pixel_scale, center_x, center_y,
     else:
         slabs = [slab]
     return TwistSpec(best_axis, slabs, best_sign)
+
+
+def _axis_vec(axis, sign):
+    """返回沿指定轴、指定符号的单位向量（world 坐标）。"""
+    v = [0.0, 0.0, 0.0]
+    v[axis] = float(sign)
+    return tuple(v)
+
+
+def _project_dir(vec, right, camera_up, forward):
+    """把 world 向量投影到屏幕，返回归一化的屏幕方向；无法判定返回 None。"""
+    sx = vec[0] * right[0] + vec[1] * right[1] + vec[2] * right[2]
+    sy = vec[0] * camera_up[0] + vec[1] * camera_up[1] + vec[2] * camera_up[2]
+    n = _norm((sx, sy, 0.0))
+    if n is None:
+        return None
+    return (sx, sy)
+
+
+def _resolve_face_layer(n, basis, drag_screen, grab_pos, grab_face, wide):
+    """以"接触小面所在面的上下左右"解析一层转动。
+
+    FACE_SPEC 定义每个面的 row_axis/row_sign 与 col_axis/col_sign。
+    在接触面的二维视角里：
+        - 上下滑动（行方向占主导）转"列"对应轴，让该面上下翻转；
+        - 左右滑动（列方向占主导）转"行"对应轴，让该面左右摆动。
+    两层各取接触小面所属 cubie 在该轴上的层坐标（即"点哪个小面就动
+    哪一行/列"）；方向取滑动正负。
+
+    返回 TwistSpec；方向不明确（如两方向投影都极小）时返回 None。
+    """
+    if grab_face not in FACE_SPEC:
+        return None
+    n_axis, n_sign, row_axis, row_sign, col_axis, col_sign = FACE_SPEC[grab_face]
+
+    eye, right, camera_up, forward = basis
+    d_hat = _norm((drag_screen[0], drag_screen[1], 0.0))
+    if d_hat is None:
+        return None
+
+    t_row = _project_dir(_axis_vec(row_axis, row_sign), right, camera_up, forward)
+    t_col = _project_dir(_axis_vec(col_axis, col_sign), right, camera_up, forward)
+    if t_row is None or t_col is None:
+        return None
+
+    d_row = d_hat[0] * t_row[0] + d_hat[1] * t_row[1]
+    d_col = d_hat[0] * t_col[0] + d_hat[1] * t_col[1]
+
+    # 上下滑动（行方向占主导）→ 转"列"对应轴：让面在竖直方向翻转（面上下转）。
+    # 左右滑动（列方向占主导）→ 转"行"对应轴：让面在水平方向摆动（面左右转）。
+    if abs(d_row) >= abs(d_col):
+        axis = col_axis
+        slab = grab_pos[col_axis]
+    else:
+        axis = row_axis
+        slab = grab_pos[row_axis]
+
+    # 方向不明确（拖拽几乎垂直于该面的行/列方向）时放弃。
+    if abs(d_row) < 0.2 and abs(d_col) < 0.2:
+        return None
+
+    # 正负统一用"该轴转动下抓取点的切向速度投影"与拖动方向的一致性判定：
+    # 这样无论哪个面，都是朝拖动方向转，不会因各面朝向不同而出现有的面方向相反。
+    av = AXIS_VEC[axis]
+    g = (float(grab_pos[0]), float(grab_pos[1]), float(grab_pos[2]))
+    t = _cross(av, g)  # 正转（sign=+1）时抓取点的速度方向
+    t_screen = (t[0] * right[0] + t[1] * right[1] + t[2] * right[2],
+                t[0] * camera_up[0] + t[1] * camera_up[1] + t[2] * camera_up[2])
+    t_hat = _norm(t_screen)
+    if t_hat is not None:
+        sign = 1 if (d_hat[0] * t_hat[0] + d_hat[1] * t_hat[1]) >= 0 else -1
+    else:
+        # 抓取点恰在旋转轴线上（切向为零）时，退回用行/列方向正负。
+        if abs(d_row) >= abs(d_col):
+            sign = 1 if d_row >= 0 else -1
+        else:
+            sign = 1 if d_col >= 0 else -1
+
+    if wide:
+        slabs = _wide_positions(n, axis, slab)
+    else:
+        slabs = [slab]
+    return TwistSpec(axis, slabs, sign)
 
 
 def apply_layer_turn(cubies, axis, layer_positions, sign):

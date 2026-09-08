@@ -34,7 +34,7 @@ class ColorSelector(BoxLayout):
             # 魔方色背景圆角矩形（canvas.before，不受全局 <Button> 主题矩形影响）
             with b.canvas.before:
                 b._fill_ctx = Color(*rgba)
-                b._fill = RoundedRectangle(pos=b.pos, size=b.size, radius=[8, 8, 8, 8])
+                b._fill = RoundedRectangle(pos=b.pos, size=b.size, radius=[12, 12, 12, 12])
             # 选中描边（高对比颜色），初始隐藏
             b._ring_color = self._contrast(rgba)
             b._ring_ctx = Color(*(*b._ring_color[:3], 0.0))

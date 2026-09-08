@@ -38,6 +38,9 @@ from .solver import (
     CenterSolveResult,
     solve_centers5,
 )
+from .color_solver import (
+    solve_centers5_color,
+)
 
 __all__ = [
     "LEGAL_5X5_CENTER_MOVES",
@@ -68,4 +71,5 @@ __all__ = [
     "conjugate_cycle",
     "CenterSolveResult",
     "solve_centers5",
+    "solve_centers5_color",
 ]

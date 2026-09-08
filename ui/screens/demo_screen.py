@@ -7,7 +7,7 @@
 
 from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
+from ui.widgets.buttons import UIButton
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 from kivy.uix.scrollview import ScrollView
@@ -72,11 +72,11 @@ class DemoScreen(Screen):
 
         # 顶栏：返回目录 + 标题 + 播放
         top = BoxLayout(size_hint_y=None, height=46, spacing=6)
-        back = Button(text="←目录", size_hint_x=0.2)
+        back = UIButton(text="←目录", size_hint_x=0.2)
         back.bind(on_release=lambda *a: self.go_menu())
         self.lbl_mode = Label(text=_mode_title(3), size_hint_x=0.45, halign="center",
                               bold=True, font_size="18sp")
-        btn = Button(text="切换阶数", size_hint_x=0.35)
+        btn = UIButton(text="切换阶数", size_hint_x=0.35)
         btn.bind(on_release=lambda *a: self.toggle_mode())
         top.add_widget(back)
         top.add_widget(self.lbl_mode)
@@ -111,13 +111,13 @@ class DemoScreen(Screen):
 
         # 控制区
         ctl = BoxLayout(size_hint_y=None, height=52, spacing=6)
-        prev = Button(text="上一步", size_hint_x=0.3)
+        prev = UIButton(text="上一步", size_hint_x=0.3)
         prev.bind(on_release=lambda *a: self.prev_case())
-        self.btn_play = Button(text="播放", size_hint_x=0.2)
+        self.btn_play = UIButton(text="播放", size_hint_x=0.2)
         self.btn_play.bind(on_release=lambda *a: self.play())
-        nxt = Button(text="下一步", size_hint_x=0.3)
+        nxt = UIButton(text="下一步", size_hint_x=0.3)
         nxt.bind(on_release=lambda *a: self.next_case())
-        reset = Button(text="还原视角", size_hint_x=0.2)
+        reset = UIButton(text="还原视角", size_hint_x=0.2)
         reset.bind(on_release=lambda *a: self.view.reset_camera())
         ctl.add_widget(prev)
         ctl.add_widget(self.btn_play)

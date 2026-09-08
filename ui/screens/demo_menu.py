@@ -7,7 +7,7 @@
 import os
 
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
+from ui.widgets.buttons import UIButton
 from kivy.uix.image import Image
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
@@ -86,7 +86,7 @@ class DemoMenuScreen(Screen):
         root = BoxLayout(orientation="vertical", spacing=4, padding=[8, 6, 8, 8])
 
         top = BoxLayout(size_hint_y=None, height=46, spacing=6)
-        back = Button(text="←返回", size_hint_x=0.22)
+        back = UIButton(text="←返回", size_hint_x=0.22)
         back.bind(on_release=lambda *a: self.go_home())
         self.lbl_title = Label(text="三阶 · 教学目录", size_hint_x=0.78, halign="center",
                                bold=True, font_size="20sp")

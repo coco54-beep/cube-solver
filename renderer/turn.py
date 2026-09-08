@@ -8,16 +8,15 @@
 3x3 无宽层（wide 等价基础）。
 """
 
-import math
-
-from cube.notation import parse_move_str
-from cube.coordinates import get_d_maxc, TURNS
+from cube.notation import parse_move_full
+from cube.coordinates import layer_values, TURNS
+from cube.middle_slice import SLICE_TOKENS, slice_turns
 
 _AXIS = {"R": 0, "L": 0, "U": 1, "D": 1, "F": 2, "B": 2}
 _AXIS_VEC = {0: (1, 0, 0), 1: (0, 1, 0), 2: (0, 0, 1)}
 
-# 面层符号
-_SIGN = {"R": 1, "L": -1, "U": 1, "D": -1, "F": 1, "B": -1}
+# 中央切片 -> 同向面（用于取轴向与转动方向）
+_SLICE_FACE = {"x": "R", "y": "U", "z": "F"}
 
 
 def _quarter_angle(base: str, ccw: bool) -> float:
@@ -72,18 +71,22 @@ def decompose_move(move_str, n):
     180 / 270 度不拆成多个 90°，而是作为一次动画转完，
     避免中间 set_cube 造成的颜色跳变。
     """
-    label, is_wide, count = parse_move_str(move_str)
+    if move_str and move_str[0] in SLICE_TOKENS:
+        axis_letter, count = slice_turns(move_str)
+        base = _SLICE_FACE[axis_letter]
+        ccw = (count == 3)
+        axis = _AXIS[base]
+        per = _quarter_angle(base, ccw)
+        angle = per if count == 3 else per * count
+        return [MoveStep(base, axis, (0,), angle, count, False, ccw, move_str)]
+
+    label, layers, count = parse_move_full(move_str)
     base = label
     ccw = (count == 3)
-    d, maxc = get_d_maxc(n)
     axis = _AXIS[base]
-    sign = _SIGN[base]
-    layers = [sign * maxc]
-    if is_wide and n > 3:
-        layers.append(sign * (maxc - d))
-    layers = tuple(sorted(set(layers), key=abs))
+    positions = tuple(sorted(set(layer_values(n, base, layers=layers)), key=abs))
     per = _quarter_angle(base, ccw)
     # 动画一次转的角度：90/180 转实际角度；270 只用一次 90°（逆时针），
     # 与 3 次顺时针 90° 最终的矩阵朝向一致（避免转 -270 的方向错位）。
     angle = per if count == 3 else per * count
-    return [MoveStep(base, axis, layers, angle, count, is_wide, ccw, move_str)]
+    return [MoveStep(base, axis, positions, angle, count, layers > 1, ccw, move_str)]

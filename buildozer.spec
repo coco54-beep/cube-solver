@@ -13,7 +13,7 @@ source.dir = .
 source.include_exts = py,kv,png,jpg,json,txt,bin,md,ttf
 
 # 额外包含的无后缀文件（twophase 预生成表）
-source.include_patterns = assets/solver_tables/*,twophase/*,joint_dist.bin,p4_table.bin
+source.include_patterns = assets/solver_tables/*,twophase/*,joint_dist.bin,p4_table.bin,solver/reduction/ref5/*.pkl
 
 # 打包时排除：构建脚本目录、探索/调试脚本、git
 source.exclude_dirs = scripts,.git,.buildozer,__pycache__,.pytest_cache,tests

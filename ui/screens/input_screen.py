@@ -7,10 +7,11 @@
 
 from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.screenmanager import Screen
+
+from ui.widgets.buttons import UIButton, PrimaryButton, DangerButton
 
 from renderer.cube_view import CubeView
 from renderer.cube_orientation import CubeOrientation
@@ -22,16 +23,6 @@ _DIR_ARROW = {
     "up": "↑",
     "down": "↓",
 }
-
-
-class PrimaryButton(Button):
-    """主操作按钮（绿色主题，见 app.kv 的 <PrimaryButton> 规则）。"""
-    pass
-
-
-class DangerButton(Button):
-    """危险操作按钮（红色主题，见 app.kv 的 <DangerButton> 规则）。"""
-    pass
 
 
 from app.constants import FACE_LABEL, FACES
@@ -178,11 +169,11 @@ class InputScreen(Screen):
 
         # ---- 顶栏 ----
         top = BoxLayout(size_hint_y=None, height=46, spacing=8)
-        back = Button(text="←返回", size_hint_x=0.22)
+        back = UIButton(text="←返回", size_hint_x=0.22)
         back.bind(on_release=lambda *a: self.go_home())
         self.title = Label(text="录入 4x4", size_hint_x=0.56, halign="center",
                            font_size="20sp", bold=True)
-        demo = Button(text="演示", size_hint_x=0.22)
+        demo = UIButton(text="演示", size_hint_x=0.22)
         demo.bind(on_release=lambda *a: self.open_demo())
         top.add_widget(back)
         top.add_widget(self.title)
@@ -198,9 +189,9 @@ class InputScreen(Screen):
 
         # ---- 当前面 + 缩放 ----
         nav = BoxLayout(size_hint_y=None, height=44, spacing=8)
-        zoom_in = Button(text="＋", size_hint_x=0.12, font_size="20sp")
+        zoom_in = UIButton(text="＋", size_hint_x=0.12, font_size="20sp")
         zoom_in.bind(on_release=lambda *a: self._zoom(1.15))
-        zoom_out = Button(text="－", size_hint_x=0.12, font_size="20sp")
+        zoom_out = UIButton(text="－", size_hint_x=0.12, font_size="20sp")
         zoom_out.bind(on_release=lambda *a: self._zoom(1 / 1.15))
         self.face_label = Label(text="当前面：前", size_hint_x=0.5,
                                 halign="center", font_size="17sp", bold=True)
@@ -214,13 +205,13 @@ class InputScreen(Screen):
 
         # ---- 录入辅助工具 ----
         edit_row = BoxLayout(size_hint_y=None, height=44, spacing=8)
-        self.btn_pick = Button(text="吸色", font_size="15sp")
+        self.btn_pick = UIButton(text="吸色", font_size="15sp")
         self.btn_pick.bind(on_release=lambda *a: self.toggle_pick())
-        self.btn_fill = Button(text="整面填充", font_size="15sp")
+        self.btn_fill = UIButton(text="整面填充", font_size="15sp")
         self.btn_fill.bind(on_release=lambda *a: self.fill_face())
-        self.btn_undo = Button(text="撤销", font_size="15sp")
+        self.btn_undo = UIButton(text="撤销", font_size="15sp")
         self.btn_undo.bind(on_release=lambda *a: self.undo())
-        self.btn_redo = Button(text="重做", font_size="15sp")
+        self.btn_redo = UIButton(text="重做", font_size="15sp")
         self.btn_redo.bind(on_release=lambda *a: self.redo())
         for b in (self.btn_pick, self.btn_fill, self.btn_undo, self.btn_redo):
             edit_row.add_widget(b)
@@ -228,9 +219,9 @@ class InputScreen(Screen):
 
         # ---- 翻转导航 ----
         turn_row = BoxLayout(size_hint_y=None, height=48, spacing=8)
-        self.btn_prev = Button(text="上一步", font_size="16sp")
+        self.btn_prev = UIButton(text="上一步", font_size="16sp")
         self.btn_prev.bind(on_release=lambda *a: self.prev_face())
-        self.btn_next = Button(text="下一步", font_size="16sp")
+        self.btn_next = UIButton(text="下一步", font_size="16sp")
         self.btn_next.bind(on_release=lambda *a: self.next_face())
         for b in (self.btn_prev, self.btn_next):
             turn_row.add_widget(b)
@@ -238,13 +229,13 @@ class InputScreen(Screen):
 
         # ---- 操作按钮行 ----
         action_row = BoxLayout(size_hint_y=None, height=52, spacing=8)
-        twist = Button(text="拧魔方", font_size="15sp")
+        twist = UIButton(text="拧魔方", font_size="15sp")
         twist.bind(on_release=lambda *a: self.open_twist())
-        rnd = Button(text="随机", font_size="15sp")
+        rnd = UIButton(text="随机", font_size="15sp")
         rnd.bind(on_release=lambda *a: self.random_load())
         clear = DangerButton(text="清空", font_size="15sp")
         clear.bind(on_release=lambda *a: self.confirm_clear())
-        check = Button(text="校验", font_size="15sp")
+        check = UIButton(text="校验", font_size="15sp")
         check.bind(on_release=lambda *a: self.check())
         solve = PrimaryButton(text="开始求解", font_size="15sp")
         solve.bind(on_release=lambda *a: self.start_solve())
@@ -515,7 +506,7 @@ class InputScreen(Screen):
         label = Label(text="确定要清空全部已录入的颜色吗？", halign="center",
                       font_size="18sp", size_hint_y=1)
         btns = BoxLayout(orientation="horizontal", spacing=8, size_hint_y=None, height=52)
-        cancel = Button(text="取消")
+        cancel = UIButton(text="取消")
         cancel.bind(on_release=lambda *a: popup.dismiss())
         ok = DangerButton(text="确定清空")
         ok.bind(on_release=lambda *a: (self.clear_all(), popup.dismiss()))

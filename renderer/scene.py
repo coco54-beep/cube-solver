@@ -84,10 +84,15 @@ def build_scene(cube, moving_positions=None, rotation=None, highlight=None):
     rotation: Kivy Matrix，用于转动层动画。
     highlight: 若给定（可迭代的 pos 集合），只对这些位置的块显示真实颜色，
                其余块显示灰色（教学演示的"聚焦"效果）。
-    返回 (vertices, indices)。
+    返回 (vertices, indices, face_info)：
+        - vertices/indices 用于绘制。
+        - face_info 与顶点段（每 4 个连续顶点 = 一个四边形面片）对齐，
+          每项为 (pos, face_name)，标识该面片属于哪个 cubie 的哪个面，
+          供屏幕拾取（pick_facelet）把触摸点还原成"接触的小面"。
     """
     vertices = []
     indices = []
+    face_info = []
     vi = 0
     d, maxc = get_d_maxc(cube.n)
 
@@ -135,12 +140,13 @@ def build_scene(cube, moving_positions=None, rotation=None, highlight=None):
                 vertices.extend([p[0], p[1], p[2], *color])
             indices.extend([vi, vi + 1, vi + 2, vi, vi + 2, vi + 3])
             vi += 4
-    return vertices, indices
+            face_info.append((pos, face_name))
+    return vertices, indices, face_info
 
 
 def build_mesh(cube, moving_positions=None, rotation=None):
     """构建可直接绘制的 Kivy Mesh。"""
-    vertices, indices = build_scene(
+    vertices, indices, _face_info = build_scene(
         cube, moving_positions=moving_positions, rotation=rotation)
     return Mesh(vertices=vertices, indices=indices, fmt=VERTEX_FORMAT,
                 mode="triangles")

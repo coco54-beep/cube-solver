@@ -46,6 +46,10 @@ class CubeView(Widget):
 		# 最近一次 _draw_mesh 的取景参数，供拾取（world -> screen）复用。
 		self._last_proj = None
 
+		# 最近一次绘制生成的面片屏幕四角 + cubie 位置 + 面名，
+		# 供 pick_facelet 把屏幕触摸点还原成"接触的小面"。
+		self._last_quads = []
+
 		# 当前整体翻转动画信息
 		self._whole_anim = None
 		self._whole_anim_event = None
@@ -237,6 +241,25 @@ class CubeView(Widget):
 			return None
 		return best
 
+	def pick_facelet(self, px, py):
+		"""把屏幕坐标 (px, py) 还原成"接触的小面"。
+
+		返回 (pos, face_name) 或 None：
+			pos: 被点中面片所属 cubie 的当前空间位置（即该 cubie 的层坐标）。
+			face_name: 该面片的朝向面（如 "U"、"R"）。
+
+		在最近一次绘制保存的面片（self._last_quads）中，从近到远
+		找到第一个包含该点的面片。四边形成两个三角形做点在三角内测试。
+		"""
+		quads = getattr(self, "_last_quads", None)
+		if not quads:
+			return None
+		# quads 按 depth 从大到小排序（远处在前），因此逆序 = 近处优先。
+		for group, pos, fname in reversed(quads):
+			if _point_in_quad(px, py, group):
+				return (pos, fname)
+		return None
+
 	# ------------------------------------------------------------------
 	# 绘制
 	# ------------------------------------------------------------------
@@ -249,6 +272,7 @@ class CubeView(Widget):
 		"""生成场景并绘制魔方网格。"""
 		self._mesh_group.clear()
 		self._last_proj = None
+		self._last_quads = []
 
 		if self.cube is None:
 			return
@@ -268,7 +292,7 @@ class CubeView(Widget):
 		# x, y, z, r, g, b, a
 		#
 		# build_scene 应保证每4个连续顶点表示一个四边形。
-		vertices, _indices = scene_mod.build_scene(
+		vertices, _indices, face_info = scene_mod.build_scene(
 			self.cube,
 			moving_positions=moving_positions,
 			rotation=rotation,
@@ -301,7 +325,7 @@ class CubeView(Widget):
 		# 会发生变化，从而导致相机距离和画面缩放出现轻微抖动。
 		# --------------------------------------------------------------
 		if self._anim is not None:
-			reference_vertices, _reference_indices = scene_mod.build_scene(
+			reference_vertices, _reference_indices, _reference_face_info = scene_mod.build_scene(
 				self.cube,
 				moving_positions=None,
 				rotation=None,
@@ -515,6 +539,10 @@ class CubeView(Widget):
 			if any(vertex is None for vertex in group):
 				continue
 
+			# 该面片对应的 cubie 位置与面名（与 build_scene 的顶点段对齐）。
+			quad_no = index // 4
+			fpos, fname = face_info[quad_no]
+
 			# camera_z 越大，表示沿相机前方向距离越远。
 			# 使用四个顶点的平均相机深度执行画家算法排序。
 			average_depth = sum(
@@ -542,6 +570,8 @@ class CubeView(Widget):
 			quads.append((
 				average_depth,
 				screen_group,
+				fpos,
+				fname,
 			))
 
 		# 远处的面先绘制，近处的面后绘制。
@@ -549,6 +579,11 @@ class CubeView(Widget):
 			key=lambda item: item[0],
 			reverse=True,
 		)
+		# 保存每个面片的屏幕坐标 + cubie 位置 + 面名，供小面拾取使用。
+		self._last_quads = [
+			(group, fpos, fname)
+			for (_depth, group, fpos, fname) in quads
+		]
 
 		line_width = max(
 			1.0,
@@ -563,7 +598,7 @@ class CubeView(Widget):
 		# 三角形1：0、1、2
 		# 三角形2：0、2、3
 		# --------------------------------------------------------------
-		for _depth, group in quads:
+		for _depth, group, _fpos, _fname in quads:
 			color = group[0]["color"]
 
 			self._mesh_group.add(
@@ -692,6 +727,7 @@ class CubeView(Widget):
 		duration,
 		on_done=None,
 		layer_positions=None,
+		include_fixed_centers=False,
 	):
 		"""播放单层/多层转动动画。
 
@@ -702,6 +738,11 @@ class CubeView(Widget):
 			duration: 动画持续时间（秒）。
 			on_done: 动画完成回调（通常应修改逻辑状态）。
 			layer_positions: 可选的层坐标列表（宽层转动时含内层）。
+			include_fixed_centers: True 时固定面心也随层转动（自由拧层的
+				物理转动），与 apply_layer_turn 一致；False 时保持面心不动
+				（标准记法 M/E/S），与 apply_inner_slice 一致。
+			无论该参数取值，位于旋转轴上的固定面心（整面转的轴心）都会
+				原地自转，使整面转动时轴心可见地旋转。
 		"""
 		if self.cube is None:
 			return
@@ -713,11 +754,21 @@ class CubeView(Widget):
 
 		if layer_positions is None:
 			layer_positions = [layer_pos]
-		positions = {
-			position
-			for position in self.cube.cubies
-			if any(position[axis] == lp for lp in layer_positions)
-		}
+		from cube.cubie_model import is_fixed_face_center
+		other_axes = [i for i in (0, 1, 2) if i != axis]
+		positions = set()
+		for position, cubie in self.cube.cubies.items():
+			if not any(position[axis] == lp for lp in layer_positions):
+				continue
+			if not is_fixed_face_center(cubie):
+				positions.add(position)
+				continue
+			# 固定面心：位于旋转轴上时只原地自转（整面转的轴心可见），
+			# 任何情况下都包含；偏离旋转轴时（M/E/S 切片）标准记法保持
+			# 不动，仅自由拧层（物理转动）才随层移动。
+			on_axis = all(position[i] == 0 for i in other_axes)
+			if on_axis or include_fixed_centers:
+				positions.add(position)
 
 		self._anim = {
 			"axis": axis,
@@ -1072,3 +1123,31 @@ def _project_points_to_q(vertices, eye, right, camera_up, forward):
         ))
 
     return points
+
+
+def _point_in_quad(px, py, group):
+    """判断屏幕点 (px, py) 是否落在四边形 group（4 个 {x,y} 点）内。
+
+    把四边形拆成两个三角形 (0,1,2) 与 (0,2,3)，任一点在三角形内即命中。
+    """
+    if len(group) < 4:
+        return False
+    pts = [(float(p["x"]), float(p["y"])) for p in group]
+    return (
+        _point_in_triangle(px, py, pts[0], pts[1], pts[2])
+        or _point_in_triangle(px, py, pts[0], pts[2], pts[3])
+    )
+
+
+def _point_in_triangle(px, py, a, b, c):
+    """屏幕点是否在三角形 (a,b,c) 内（含边界，采用符号一致法）。"""
+    d1 = _tri_sign(px, py, a, b)
+    d2 = _tri_sign(px, py, b, c)
+    d3 = _tri_sign(px, py, c, a)
+    has_neg = (d1 < 0) or (d2 < 0) or (d3 < 0)
+    has_pos = (d1 > 0) or (d2 > 0) or (d3 > 0)
+    return not (has_neg and has_pos)
+
+
+def _tri_sign(px, py, a, b):
+    return (px - b[0]) * (a[1] - b[1]) - (a[0] - b[0]) * (py - b[1])

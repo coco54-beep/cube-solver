@@ -84,37 +84,40 @@ def _inner_parity(moves) -> int:
 def _wing_perm_parity(cube) -> int:
     """24 个翼块的 位置->home 置换奇偶（= 该 4x4 状态的固有 OLL parity）。
 
-    与打乱历史无关，可直接从状态算出；经验验证与"内层切片奇偶"一致（30/30）。
+    与打乱历史无关，可直接从状态算出。把「当前翼位 p -> 该翼的 home 位」
+    视为 24 个位置上的置换，其奇偶即决定配棱完成后是否必然出现单棱翻转。
+    经验验证：外层转动恒为偶（位置偶置换），内层/宽层 90° 为奇，与
+    _inner_parity 一致；且 OLL == 该奇偶 ^ 中心解内层奇偶（24/24）。
     """
-    arr = sorted(
-        c.home for c in cube.cubies.values() if len(c.stickers) == 2
-    )
-    idx = {v: i for i, v in enumerate(sorted(arr))}
-    seen = [False] * len(arr)
+    home_of = {p: c.home for p, c in cube.cubies.items() if len(c.stickers) == 2}
+    poss = sorted(home_of)
+    idx = {p: i for i, p in enumerate(poss)}
+    seen = [False] * len(poss)
     p = 0
-    for i in range(len(arr)):
+    for i in range(len(poss)):
         if seen[i]:
             continue
         j = i
         ln = 0
         while not seen[j]:
             seen[j] = True
-            j = idx[arr[j]]
+            j = idx[home_of[poss[j]]]
             ln += 1
         p ^= (ln - 1) & 1
     return p
 
 
 def _find_center_solution_with_parity(
-    cube, target_parity: int, cancel_event=None, max_tries: int = 40
+    cube, target_parity: int, cancel_event=None, max_tries: int = 40, start: int = 1
 ):
     """确定性重滚出一条中心解，使 _inner_parity(解) == target_parity。
 
     OLL parity = 状态固有奇偶 ^ 中心解内层奇偶；配棱阶段不变。因此只要
     找到内层奇偶 == target_parity 的中心解，配棱完成后就不需要 OLL fix。
     Phase A/B 都走 seeded 下降，重滚种子即可覆盖两种奇偶；找不到返回 None。
+    种子从 `start` 起尝试，避免重算已作为候选解尝试过的种子。
     """
-    for s in range(1, max_tries + 1):
+    for s in range(start, start + max_tries):
         cm = solve_centers_variant(cube, s, cancel_event=cancel_event)
         if _inner_parity(cm) == target_parity:
             return cm
@@ -122,7 +125,7 @@ def _find_center_solution_with_parity(
 
 
 # 择优时额外尝试的等价最优中心解数量（不含默认解）。
-# 默认 4 -> 共 5 条中心解参与择优。OLL parity 在配棱阶段不变，而不同
+# 默认 10 -> 共 11 条中心解参与择优。OLL parity 在配棱阶段不变，而不同
 # 中心解的内层切片奇偶不同，因此更多候选能更大概率命中"OLL 为偶"的解，
 # 直接省掉 ~15 步的 OLL parity 修复。
 _CENTER_SELECT_EXTRA = 10
@@ -171,31 +174,32 @@ def _select_reduction(cube, cancel_event=None):
 
     base = _wing_perm_parity(cube)
     det_cm = solve_centers(cube, cancel_event=cancel_event)
-    even, odd = [], []
-    for cm in [det_cm] + [
+    candidates = [det_cm] + [
         solve_centers_variant(cube, seed, cancel_event=cancel_event)
         for seed in range(1, _CENTER_SELECT_EXTRA + 1)
-    ]:
-        (even if (base ^ _inner_parity(cm)) == 0 else odd).append(cm)
-    if not even:
-        # 常规变体没覆盖 OLL 为偶时，定向重滚一条（Phase B 也已 seeded，可跨越奇偶）。
-        cm = _find_center_solution_with_parity(cube, base, cancel_event=cancel_event)
+    ]
+    # 若常规变体没覆盖 OLL 为偶，定向重滚一条（Phase A/B 均已 seeded，可跨越奇偶）。
+    if not any((base ^ _inner_parity(cm)) == 0 for cm in candidates):
+        cm = _find_center_solution_with_parity(
+            cube, base, cancel_event=cancel_event,
+            start=_CENTER_SELECT_EXTRA + 1,
+            max_tries=40 - _CENTER_SELECT_EXTRA,
+        )
         if cm is not None:
-            even.append(cm)
+            candidates.append(cm)
 
+    # 逐条完整评分（中心 + 配棱 + parity，均已由确定性算法复现）。OLL 为奇的
+    # 候选自带 ~22 步 OLL fix，评分会自然淘汰；即使全部为奇，也在其中取最优，
+    # 而不是退回任意一条。
     det = _reduce(det_cm)
     best = det
-    for cm in even:
+    for cm in candidates[1:]:
         cand = _reduce(cm)
         if cand[0] < best[0]:
             best = cand
     if not (best[0] < det[0] - _SELECT_MARGIN):
         best = det
-    # 竞争池：OLL 为偶的解 + 默认解必在池中（可能还有兜底奇解）。
     pool = [det, best]
-    if odd:
-        # 奇解需要 OLL fix，通常更差；只取一条当兜底，避免浪费时间。
-        pool.append(_reduce(odd[0]))
     if _PAIR_TAIL_WIDTH > 0:
         # 尾段 beam 只对默认解与贪心最优解各重配对一次，结果加入竞争池；
         # 即使某条 beam 结果更差，贪心版本仍在池内兜底。

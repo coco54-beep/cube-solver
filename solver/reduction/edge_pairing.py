@@ -16,6 +16,7 @@
 """
 
 from collections import defaultdict, deque
+from functools import lru_cache
 from typing import List, Optional, Tuple
 
 from cube.cube4 import Cube4
@@ -103,6 +104,7 @@ def _inv_of(mv: str) -> str:
     return label + suffix_for_count((4 - count) % 4)
 
 
+@lru_cache(maxsize=None)
 def _slot_of(pos: Coord) -> Tuple[str, ...]:
     fs = []
     for ax, v in enumerate(pos):
@@ -182,6 +184,18 @@ def _find_setup_pair(
     return None
 
 
+@lru_cache(maxsize=None)
+def _find_best_setup_cached(a: Coord, b: Coord, cap: int) -> Optional[Tuple[str, ...]]:
+    best = None
+    for goal in ((_FR_BOTTOM, _BR_TOP), (_BR_TOP, _FR_BOTTOM)):
+        seq = _find_setup_pair(a, b, goal=goal, cap=cap)
+        if seq is None:
+            continue
+        if best is None or len(seq) < len(best):
+            best = seq
+    return tuple(best) if best is not None else None
+
+
 def _find_best_setup(
     a: Coord,
     b: Coord,
@@ -190,16 +204,11 @@ def _find_best_setup(
     """在两种目标摆放次序中取较短的一个 setup。
 
     P 交换的是 FR-bottom 与 BR-top，因此 setup 把 a、b 放到这两个位置时，
-    前后次序无关紧要，两种目标各搜索一次，取较短者。
+    前后次序无关紧要，两种目标各搜索一次，取较短者。setup 只依赖 (a, b)，
+    故用模块级缓存避免在贪心/beam 中反复做同样的双向 BFS。
     """
-    best = None
-    for goal in ((_FR_BOTTOM, _BR_TOP), (_BR_TOP, _FR_BOTTOM)):
-        seq = _find_setup_pair(a, b, goal=goal, cap=cap)
-        if seq is None:
-            continue
-        if best is None or len(seq) < len(best):
-            best = seq
-    return best
+    r = _find_best_setup_cached(a, b, cap)
+    return list(r) if r is not None else None
 
 
 def _apply(cube, moves: List[str]) -> None:

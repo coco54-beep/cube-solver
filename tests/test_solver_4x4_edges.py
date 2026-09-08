@@ -15,7 +15,14 @@ from solver.reduction.edge_pairing import edges_paired, matched_slots, pair_edge
 from solver.reduction.reduced_cube import build_reduced_facelets
 from solver.reduction.parity import apply_parity_fixes, detect_parity
 from solver.reduction.center_solver import solve_centers
-from solver.solver4 import solve_4x4, solve_4x4_facelets
+from solver.solver4 import (
+    _compress_moves,
+    _inner_parity,
+    _select_reduction,
+    _wing_perm_parity,
+    solve_4x4,
+    solve_4x4_facelets,
+)
 from solver.solver3 import solve_3x3
 from cube.conversion import cubies_to_facelets
 
@@ -145,6 +152,75 @@ class TestParity:
                 work.apply_move(tok)
         status, _ = detect_parity(work)
         assert status == "none"
+
+
+class TestWingPermParity:
+    """翼块置换奇偶：OLL 规避的依据（外层偶、宽层 90° 奇）。"""
+
+    def test_solved_is_even(self):
+        assert _wing_perm_parity(Cube4.solved()) == 0
+
+    def test_outer_quarter_is_even(self):
+        for face in "RLUDFB":
+            cube = Cube4.solved()
+            cube.apply_move(face)
+            assert _wing_perm_parity(cube) == 0, face
+
+    def test_wide_quarter_is_odd(self):
+        for face in "rludfb":
+            cube = Cube4.solved()
+            cube.apply_move(face)
+            assert _wing_perm_parity(cube) == 1, face
+
+    def test_wide_double_is_even(self):
+        for face in "rludfb":
+            cube = Cube4.solved()
+            cube.apply_move(face + "2")
+            assert _wing_perm_parity(cube) == 0, face
+
+    def test_tracks_inner_parity_of_scramble(self):
+        rng = random.Random(4242)
+        faces = ["R", "L", "U", "D", "F", "B"]
+        suff = ["", "'", "2"]
+        for _ in range(20):
+            moves = [rng.choice(faces).lower() + rng.choice(suff)
+                     for _ in range(30)]
+            cube = Cube4.solved()
+            cube.apply_moves(moves)
+            assert _wing_perm_parity(cube) == _inner_parity(moves)
+
+
+class TestReductionRegression:
+    """降阶择优是确定性的：同打乱两次得到相同中心/配棱/parity 动作，且降阶正确。
+
+    锁定 `_select_reduction` 的确定性部分（3x3 求解受时限影响不计入比较）。
+    """
+
+    def _scramble(self):
+        rng = random.Random(4242)
+        faces = ["R", "L", "U", "D", "F", "B"]
+        suff = ["", "'", "2"]
+        cube = Cube4.solved()
+        cube.apply_moves([rng.choice(faces).lower() + rng.choice(suff)
+                          for _ in range(30)])
+        return cube
+
+    def test_selection_deterministic_and_valid(self):
+        from solver.reduction.center_solver import centers_solved
+        cube = self._scramble()
+        cm, em, pm, _s3 = _select_reduction(cube)
+        cm2, em2, pm2, _s3b = _select_reduction(cube)
+        red = _compress_moves(list(cm) + list(em) + list(pm))
+        red2 = _compress_moves(list(cm2) + list(em2) + list(pm2))
+        assert red == red2, "降阶择优必须确定性"
+        assert len(red) <= 60, f"降阶步数异常膨胀: {len(red)}"
+        work = cube.clone()
+        _apply(work, cm)
+        assert centers_solved(work)
+        _apply(work, em)
+        assert edges_paired(work)
+        _apply(work, pm)
+        assert solve_3x3(build_reduced_facelets(work)).success
 
 
 class TestFullSolve:

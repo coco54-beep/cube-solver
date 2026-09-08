@@ -21,7 +21,7 @@ from cube.coordinates import (
     FACE_NORMALS,
     TURNS,
     WHOLE_CUBE,
-    is_in_layer,
+    layer_values,
 )
 from cube.notation import parse_move_full
 
@@ -150,11 +150,10 @@ class BaseCube:
 
         n_axis, n_sign = FACE_AXIS_SIGN[label]
         rot = TURNS[label]
-        selected = [c for c in self.cubies.values()
-                    if is_in_layer(self.n, label, False, c.pos, layers)]
+        layer_set = set(layer_values(self.n, label, layers=layers))
         new_cubies: Dict[Coord, Cubie] = {}
         for c in self.cubies.values():
-            if c in selected:
+            if c.pos[n_axis] in layer_set:
                 c = c.clone()
                 c.pos = rot(*c.pos)
                 c.stickers = {rot(*d): col for d, col in c.stickers.items()}
@@ -182,13 +181,9 @@ class BaseCube:
         axis_idx = {"x": 0, "y": 1, "z": 2}[axis_label]
         rot = WHOLE_CUBE[axis_label]
         for _ in range(turns % 4):
-            selected = [
-                c for c in self.cubies.values()
-                if c.pos[axis_idx] == 0 and not is_fixed_face_center(c)
-            ]
             new_cubies: Dict[Coord, Cubie] = {}
             for c in self.cubies.values():
-                if c in selected:
+                if c.pos[axis_idx] == 0 and not is_fixed_face_center(c):
                     c = c.clone()
                     c.pos = rot(*c.pos)
                     c.stickers = {rot(*d): col for d, col in c.stickers.items()}

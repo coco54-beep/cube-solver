@@ -23,6 +23,10 @@ from typing import Callable, Dict, List, Optional, Tuple
 
 from primitives import ALL_CENTERS, MOVES, SLOT_FACE, SLOT_INDEX
 
+# Phase A 距离表只读且体积大；按文件路径缓存，避免每个 CenterSolver4 实例
+# （每次 solve_centers / solve_centers_variant 都会新建）重复从磁盘读取。
+_JOINT_DIST_CACHE: Dict[str, bytearray] = {}
+
 
 # ---------- Phase A: colex 组合排名 ----------
 
@@ -460,8 +464,12 @@ class CenterSolver4:
 
         The table is a raw dump of the Phase-A distance array ordered by
         `combined_to_rank`, with dist[0] == 0 at the goal state. Falls back
-        to None (build via BFS) if missing or the wrong size.
+        to None (build via BFS) if missing or the wrong size. Results are
+        cached per path at module level; the table is read-only.
         """
+        cached = _JOINT_DIST_CACHE.get(self.joint_dist_path)
+        if cached is not None:
+            return cached
         try:
             with open(self.joint_dist_path, "rb") as f:
                 data = f.read()
@@ -469,7 +477,9 @@ class CenterSolver4:
             return None
         if len(data) != JOINT_STATE_COUNT:
             return None
-        return bytearray(data)
+        table = bytearray(data)
+        _JOINT_DIST_CACHE[self.joint_dist_path] = table
+        return table
 
     def _descend_joint(
         self,

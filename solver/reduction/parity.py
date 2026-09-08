@@ -15,7 +15,7 @@
 
 from typing import List, Tuple
 
-from solver.solver3 import solve_3x3
+from solver.solver3 import verify_3x3
 from solver.reduction.reduced_cube import build_reduced_facelets
 
 # 内层切片用 (宽层 + 外层) 组合表示（本项目小写 = 宽层）：
@@ -32,14 +32,13 @@ def detect_parity(cube) -> Tuple[str, str]:
 
     返回 (status, detail)：
         status: "none" | "oll" | "pll"
-        detail: 3x3 求解器返回的错误信息（或空串）。
-    以 hkociemba 求解返回为权威判据。
+        detail: hkociemba 校验返回的错误信息（或空串）。
+    以 hkociemba 的 CubieCube.verify() 为权威判据（不启动 2-phase 搜索）。
     """
     facelets = build_reduced_facelets(cube)
-    res = solve_3x3(facelets)
-    if res.success:
+    ok, msg = verify_3x3(facelets)
+    if ok:
         return "none", ""
-    msg = res.message or ""
     low = msg.lower()
     if "flip" in low or "翻转" in msg:
         return "oll", msg

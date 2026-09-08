@@ -25,6 +25,8 @@ sys.path.insert(0, _KOCIEMBA_SRC)
 import twophase.defs as defs  # noqa: E402
 defs.FOLDER = os.path.join(_BUNDLE_ROOT, "twophase")  # pre-generated tables dir
 import twophase.solver as sv  # noqa: E402
+from twophase import cubie as _tcubie  # noqa: E402
+from twophase import face as _tface  # noqa: E402
 
 # hkociemba reads faces in this order, 9 facelets each, row-major.
 _FACES = ("U", "R", "F", "D", "L", "B")
@@ -74,6 +76,25 @@ def _parse_solution(raw):
     return True, moves
 
 
+def verify_3x3(facelets):
+    """快速校验 3x3 状态是否可解（不搜索），返回 (ok, message)。
+
+    复用 hkociemba 的 FaceCube/CubieCube.verify()——与 solve() 在启动
+    2-phase 搜索前使用的判据完全一致，因此结果权威且等价，但没有搜索开销。
+    4x4 parity 检测只需知道「可解 / 翻棱 / 奇偶」，用本函数即可。
+    """
+    cubestring = _build_cubestring(facelets)
+    fc = _tface.FaceCube()
+    s = fc.from_string(cubestring)
+    if s != _tcubie.CUBE_OK:
+        return False, s
+    cc = fc.to_cubie_cube()
+    s = cc.verify()
+    if s != _tcubie.CUBE_OK:
+        return False, s
+    return True, ""
+
+
 def solve_3x3(facelets, max_length=20, timeout=3.0, minimize=False):
     """Solve a 3x3 cube given as a facelets dict; return a SolveResult.
 
@@ -103,7 +124,7 @@ def solve_3x3(facelets, max_length=20, timeout=3.0, minimize=False):
         for target in (18, 19):
             if target >= max_length:
                 break
-            raw = sv.solve(cubestring, target, min(timeout, 1.0))
+            raw = sv.solve(cubestring, target, min(timeout, 0.3))
             success, moves = _parse_solution(raw)
             if success and len(moves) <= target:
                 return _result(raw, success, moves)

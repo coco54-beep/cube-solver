@@ -17,6 +17,8 @@ from collections import deque
 from dataclasses import dataclass
 from functools import lru_cache
 from hashlib import sha256
+import os
+import pickle
 from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 
 from .legal_moves import (
@@ -35,6 +37,9 @@ _PERMUTATION_CONVENTION = "pos_to_home_forward_3cycle"
 _LEGAL: Tuple[str, ...] = tuple(
     m for m in LEGAL_5X5_CENTER_MOVES if is_legal_5x5_solver_move(m)
 )
+
+# 版本化磁盘缓存：首次 BFS 后落盘，之后启动直接反序列化（每个 ~0.4MB）。
+_CACHE_SUBDIR = "center5_setup"
 
 Coord = Tuple[int, int, int]
 TripState = Tuple[Coord, Coord, Coord]  # 三个 marker 的当前坐标
@@ -60,19 +65,30 @@ class SetupTable:
 class SetupCacheStats:
     builds: int
     hits: int
+    disk_hits: int = 0
 
 
-_STATS: Dict[str, int] = {"builds": 0, "hits": 0}
+_STATS: Dict[str, int] = {"builds": 0, "hits": 0, "disk_hits": 0}
 
 
 def setup_cache_stats() -> SetupCacheStats:
-    return SetupCacheStats(builds=_STATS["builds"], hits=_STATS["hits"])
+    return SetupCacheStats(builds=_STATS["builds"], hits=_STATS["hits"],
+                           disk_hits=_STATS["disk_hits"])
 
 
 def clear_setup_cache() -> None:
     get_setup_table.cache_clear()
     _STATS["builds"] = 0
     _STATS["hits"] = 0
+    _STATS["disk_hits"] = 0
+    directory = _disk_cache_dir()
+    if directory is not None:
+        for name in os.listdir(directory):
+            if name.endswith(".pkl"):
+                try:
+                    os.remove(os.path.join(directory, name))
+                except OSError:
+                    pass
 
 
 def cache_key_of(primitive: CenterPrimitive) -> str:
@@ -84,6 +100,37 @@ def cache_key_of(primitive: CenterPrimitive) -> str:
         _PERMUTATION_CONVENTION,
     ))
     return sha256(payload.encode("utf-8")).hexdigest()
+
+
+# ---------------------------------------------------------------------------
+# 版本化磁盘缓存（安卓写入应用私有目录，桌面写入 ~）
+# ---------------------------------------------------------------------------
+
+def _disk_cache_dir() -> Optional[str]:
+    """返回可写的缓存目录（不存在则创建）；无可用目录返回 None。"""
+    bases: List[str] = []
+    for var in ("ANDROID_PRIVATE", "ANDROID_APP_PATH"):
+        value = os.environ.get(var)
+        if value:
+            bases.append(value)
+    bases.append(os.path.expanduser("~"))
+    for base in bases:
+        try:
+            if not base or not os.path.isdir(base):
+                continue
+            directory = os.path.join(base, ".cubesolver_cache", _CACHE_SUBDIR)
+            os.makedirs(directory, exist_ok=True)
+            return directory
+        except OSError:
+            continue
+    return None
+
+
+def _disk_path(primitive: CenterPrimitive) -> Optional[str]:
+    directory = _disk_cache_dir()
+    if directory is None:
+        return None
+    return os.path.join(directory, cache_key_of(primitive) + ".pkl")
 
 
 # ---------------------------------------------------------------------------
@@ -116,9 +163,30 @@ def build_setup_table(
 
 @lru_cache(maxsize=None)
 def get_setup_table(primitive: CenterPrimitive) -> SetupTable:
-    """按基元取 setup 表；未构建时构建一次，后续直接命中。"""
+    """按基元取 setup 表：内存 → 磁盘 → BFS 构建（构建后落盘）。"""
+    key = cache_key_of(primitive)
+    path = _disk_path(primitive)
+    if path is not None:
+        try:
+            with open(path, "rb") as f:
+                data = pickle.load(f)
+            if data.get("version") == CACHE_VERSION and data.get("key") == key:
+                _STATS["disk_hits"] += 1
+                return data["table"]
+        except Exception:
+            pass
     _STATS["builds"] += 1
-    return build_setup_table(primitive)
+    table = build_setup_table(primitive)
+    if path is not None:
+        try:
+            tmp = path + ".tmp"
+            with open(tmp, "wb") as f:
+                pickle.dump({"version": CACHE_VERSION, "key": key, "table": table},
+                            f, protocol=pickle.HIGHEST_PROTOCOL)
+            os.replace(tmp, path)
+        except Exception:
+            pass
+    return table
 
 
 # ---------------------------------------------------------------------------

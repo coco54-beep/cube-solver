@@ -78,7 +78,7 @@ class SolveService:
                 facelets = cubies_to_facelets(cube.cubies, 3)
                 result = solve_3x3(facelets)
             elif isinstance(cube, Cube5):
-                result = solve_5x5(cube, cancel_event=cancel)
+                result = solve_5x5(cube, cancel_event=cancel, progress_callback=cb)
             else:
                 result = solve_4x4(
                     cube,

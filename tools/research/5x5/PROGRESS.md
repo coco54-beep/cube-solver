@@ -884,5 +884,101 @@ corner-only 3-cycle 最短 8 步。故多循环宏的 setup（6 约束 7-10 步�
   p95 438 / max 453 / min 380（~5.5s/seed）。
 - 结论：本框架各阶段已近上限（见 20.3/20.4），后续降步数需换根本算法。
 
+### 21. 手机求解体验优化：热路径 + 进度回调（预算最终保持 10/20）
+
+起因：手机端反馈五阶「点开始后等很久才出解」。profile 显示慢在纯 Python 搜索热路径，
+以及 20.5 的预算调大（`pair_variants 6→10`、`max_candidates 6→20`）——该调参只用了
+seeds 1-3，存在过拟合。
+
+#### 21.1 热路径优化（步数完全不变）
+
+- `middle_orient_fix.solve_mask`：原实现对每个候选重跑一次 12-bit 掩码空间 Dijkstra
+  （实测 ~1000 次 / 5 seeds）。改为对固定 `patterns` 全空间 Dijkstra **只算一次**，
+  任意 target 直接回溯；并把 `_load_patterns` 加模块级缓存（原来每次调用都反序列化，
+  导致全表 Dijkstra 被重建 23 次）。→ 5 seeds 26.97s → 15.16s（1.78x）。
+- `terminal_solver.Macro`：预计算 `operator.itemgetter` 组合 24 项索引（mid 0..11 +
+  12+wing 0..11），A* 展开用 `m.apply(state)` 取代两次 genexpr + tuple 拼接。
+  原 `apply_macro_to_state` 约 100 万次调用从热点消失。缓存键 `mid_trans_v2→v3`
+  （pickle 新增 `apply` 槽，需重建 `macro_cache.pkl`）。
+- `reduce5._mismatch` / `_all_complete`：改用 `map(ne/eq, state[:N], state[N:])`，
+  避免逐项生成器。
+- 综合：seeds 1-5 端到端 5.47s → 稳态 ~2.2s；seed3 cProfile 9.5s → 4.2s。
+
+#### 21.2 预算回退 10/20 → 6/6（留出集证明 20.5 过拟合）
+
+同种子端到端对比（seeds 100-119）：
+
+```text
+(6,6)    mean 421.9 步  median 428  max 482   reduce 阶段 ~2x 更快
+(10,20)  mean 415.0 步  median 420  max 453
+```
+
+- 真实代价 **+6.9 步（+1.7%）换 reduce ~2x 提速**。
+- seeds 100-129 的 `reduce_edges` 单测：(10,20) 171.2 / (6,6) 172.0（仅 +0.8）；
+  但差异**非单调**：部分种子 (6,6) 反而更短（seed113 137 vs 166、seed105 175 vs 190），
+  部分更长（seed119 176 vs 162、seed100 194 vs 187）。更多变体不等于更优。
+- 结论：20.5 的「6→10」主要过拟合 seeds 1-3；留出集上并无对应收益。
+- **最终决定（用户反馈）**：`(6,6)` 虽 reduce 阶段 ~2x 提速，但端到端总耗时占比不大
+  （中心阶段才是主耗时），而步数确实变多。故 **恢复默认 `(10,20)`**，热路径优化保留。
+
+#### 21.3 验证
+
+- seeds 1-10：10/10，mean 411.9 步（(10,20) 配置）。
+- 留出 seeds 100-119：20/20，mean 422.0 步，~1.15s/seed（median）。
+- 全量回归：809 passed, 4 skipped（238s）。
+
+#### 21.4 求解进度显示（5x5）
+
+- `solve_5x5` 早已接收 `progress_callback` 但从未调用；本次在 `solver5._solve_once`
+  各阶段边界上报 `{"stage","progress","label"}`：
+  - 中心：0.05 → 0.45（`solve_centers5_color` 新增 `progress_callback`，按轨道
+    edge/corner 上报 `{done,total}` 映射到 0.05..0.45）。
+  - 棱降阶：0.45 → 0.90（`reduce_edges` 新增 `progress_callback`，每个配翼变体
+    `{variant,variants}` 映射）。
+  - 朝向修正 0.92、降阶 3x3 0.95、完成 1.00。
+- `services/solve_service.py`：5x5 分支补传 `progress_callback=cb`（此前只 4x4 传）。
+- `ui/screens/solving_screen.py`：`_apply_progress` 支持浮点 `progress` 直接驱动进度条
+  与 `label` 文案；`app/constants.py` 的 `STAGE_LABEL` 增加 `orient`。
+- 实测 seeds 1-3 各 19 个进度事件，进度条平滑推进。
+
+### 22. 首解卡顿消除：应用启动后台预热
+
+起因：手机端「第一遍解特别慢，之后很快」——典型的惰性加载。桌面端实测各资源
+首次构建耗时：
+
+```text
+import solver3（kociemba 两阶段表）  6.885s   ← 主因
+setup_table EDGE_COMM4               1.762s
+setup_table CORNER_MAIN              1.785s
+setup_table CORNER_BACKUP            1.786s
+setup_table EDGE_MAIN                1.746s   ← 仅精确回退用
+build_all_macros / _load_patterns /
+_build_solve_prev / generators / orient_distance_map   均 < 0.02s
+```
+
+- 常用主路径需要 EDGE_COMM4 + CORNER_MAIN + CORNER_BACKUP（≈5.3s），精确回退
+  额外需要 EDGE_MAIN；`EDGE_BACKUP` 实际未被使用，故不预热。
+- 新增 `app/warmup.py`：`warmup_solvers()` 起守护线程，按
+  `solver3 → ref5(宏表/掩码/Dijkstra/生成元) → center setup 表` 顺序预热，
+  异常全部吞掉；`app/application.py` 的 `on_start` 里触发。
+- 实测：预热线程 14.0s 完成（后台），**预热后首次求解 2.11s**（稳态 2.32s），
+  首解额外开销基本归零。
+- 注意：预热与用户立即求解并发时会争 GIL（重复建表但不会损坏）；预热本身
+  不阻塞 UI 线程。
+
+#### 22.1 中心 setup 表版本化磁盘缓存
+
+- 内存缓存不跨进程存活，故每次启动都要重跑 BFS。给 `setup_cache.get_setup_table`
+  加**版本化磁盘缓存**：内存 → 磁盘 → BFS（构建后落盘）。
+- 缓存键沿用 `cache_key_of`（含 `CACHE_VERSION` + 基元 cycle + 合法动作集 +
+  置换约定），任一变化自动失效；文件 `<writable>/.cubesolver_cache/center5_setup/<key>.pkl`。
+- 可写目录：Android 优先 `ANDROID_PRIVATE`/`ANDROID_APP_PATH`，桌面回退 `~`；
+  无可用目录时静默退化为纯内存缓存。
+- 占用与收益（实测）：4 张表共 **1.7MB**（每张 0.4MB）；冷建 7.14s →
+  磁盘热载 **0.015s**。整个预热 14.0s → **7.08s**（余下为 kociemba 表加载）。
+- `clear_setup_cache()` 现在一并清空磁盘缓存（测试隔离）。
+- 未做：把预建表随 APK 发布（可让首启也免 BFS，但省的是后台时间，收益有限）。
+
+
 
 

@@ -57,6 +57,14 @@ class CubeApp(App):
             sm.add_widget(scr)
         return sm
 
+    def on_start(self):
+        # 后台预热求解器资源（kociemba 表 / 中心 setup 表等），消除首解长等待。
+        try:
+            from app.warmup import warmup_solvers
+            warmup_solvers()
+        except Exception:
+            pass
+
     # ---- 共享操作 ----
     def new_cube(self, n: int):
         """新建一个已还原的 n 阶魔方，重置求解结果。"""

@@ -19,6 +19,7 @@ from __future__ import annotations
 import os
 import sys
 import heapq
+import operator
 import pickle
 from typing import Dict, List, Optional, Tuple
 
@@ -94,7 +95,7 @@ def _map_from_perm(perm: Dict[str, str]) -> List[int]:
 
 class Macro:
     __slots__ = ("name", "seq", "mid_map", "wing_map", "mid_flip_src", "wing_flip_src",
-                 "cost")
+                 "cost", "apply")
 
     def __init__(self, name, seq, mid_map, wing_map, mid_flip_src, wing_flip_src):
         self.name = name
@@ -104,6 +105,9 @@ class Macro:
         self.mid_flip_src = mid_flip_src
         self.wing_flip_src = wing_flip_src
         self.cost = len(self.seq)       # A* 边权 = 宏展开动作数
+        # 组合 24 项索引：(mid 0..11) + (12+wing 0..11)，供 A* 用 itemgetter 展开状态。
+        self.apply = operator.itemgetter(
+            *(list(mid_map) + [N + w for w in wing_map]))
 
 
 _EFFECT_CACHE: Dict[tuple, object] = {}
@@ -201,7 +205,7 @@ _CACHE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "macro_ca
 
 
 def _macros_cache_key():
-    return "mid_trans_v2"
+    return "mid_trans_v3"
 
 
 def build_all_macros(use_cache: bool = True) -> List[Macro]:
@@ -248,7 +252,7 @@ def solve_abstract(state: Tuple[int, ...], macros: List[Macro],
         if is_goal(cur):
             return path
         for m in macros:
-            ns = apply_macro_to_state(cur, m.mid_map, m.wing_map)
+            ns = m.apply(cur)
             if ns in seen:
                 continue
             seen.add(ns)

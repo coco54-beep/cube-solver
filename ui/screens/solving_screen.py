@@ -50,12 +50,19 @@ class SolvingScreen(Screen):
 
     def _apply_progress(self, payload):
         stage = payload.get("stage")
-        if stage in STAGE_LABEL:
+        label = payload.get("label")
+        if label:
+            self.detail.text = label
+        elif stage in STAGE_LABEL:
             self.detail.text = STAGE_LABEL[stage]
         elif "paired" in payload:
             self.detail.text = f"棱块配对 {payload['paired']}/12"
         elif "depth" in payload:
             self.detail.text = f"中心求解深度 {payload['depth']}"
+        progress = payload.get("progress")
+        if progress is not None:
+            self.progress.value = max(0, min(100, int(progress * 100)))
+            return
         matched = payload.get("matched", payload.get("paired"))
         if matched is not None:
             self.progress.value = min(100, int(matched * 100 / 12))

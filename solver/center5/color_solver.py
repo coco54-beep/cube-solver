@@ -382,6 +382,7 @@ def solve_centers5_color(
     cube: Cube5,
     trials: int = 240,
     seed: int = 0,
+    progress_callback=None,
 ) -> CenterSolveResult:
     """同色等价求解中心。失败时 success=False，调用方可回退精确求解。"""
     original = cube.clone()
@@ -403,6 +404,12 @@ def solve_centers5_color(
             working, orbit, face_color, moves, trials, seed * 131 + orbit_index,
             primitives=prims,
         )
+        if progress_callback is not None:
+            try:
+                progress_callback({"done": orbit_index + 1,
+                                   "total": len(_ACTIVE_ORBITS)})
+            except Exception:
+                pass
         if not ok:
             return CenterSolveResult(
                 success=False, moves=tuple(moves),

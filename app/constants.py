@@ -24,6 +24,7 @@ APP_VERSION = "1.0.0"
 STAGE_LABEL = {
     "centers": "整理中心",
     "edge_pairing": "棱块配对",
+    "orient": "中棱朝向修正",
     "parity": "特殊翻棱处理",
     "reduced_3x3": "按3阶方式还原",
 }

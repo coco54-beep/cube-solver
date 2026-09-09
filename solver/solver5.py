@@ -34,6 +34,23 @@ def _replay(cube: Cube5, moves) -> None:
         cube.apply_move(mv)
 
 
+def _emit(progress_callback, stage=None, progress=None, label=None) -> None:
+    """向 UI 上报求解进度（后台线程调用；异常不得影响求解）。"""
+    if progress_callback is None:
+        return
+    payload = {}
+    if stage is not None:
+        payload["stage"] = stage
+    if progress is not None:
+        payload["progress"] = progress
+    if label is not None:
+        payload["label"] = label
+    try:
+        progress_callback(payload)
+    except Exception:
+        pass
+
+
 _SOLVED5: Cube5 = None
 
 
@@ -130,13 +147,23 @@ def _solve_once(cube: Cube5, cancel_event=None, progress_callback=None,
     # ---- stage 1: 中心还原（仅当中心颜色未归面时才求解，避免无谓拆棱）----
     center_moves: List[str] = []
     center_msg = ""
+    _emit(progress_callback, "centers", 0.05, "整理中心")
     if centers_are_color_solved(work) and not force_center:
         center_msg = "中心颜色已归面，跳过"
+        _emit(progress_callback, "centers", 0.45)
     else:
+        def _center_prog(payload):
+            done = payload.get("done", 0)
+            total = max(1, payload.get("total", 2))
+            _emit(progress_callback, "centers", 0.05 + 0.40 * done / total,
+                  "整理中心")
+
         # 优先同色等价求解（更快）；失败或无收益时回退精确 home 求解。
-        cr = None if prefer_exact_centers else solve_centers5_color(work)
+        cr = (None if prefer_exact_centers
+              else solve_centers5_color(work, progress_callback=_center_prog))
         if cr is None or not cr.success:
             cr = solve_centers5(work)
+        _emit(progress_callback, "centers", 0.45)
         if not cr.success:
             return SolveResult(False, [], "中心还原失败: %s" % cr.message, 0, 0,
                                [SolveStage("solve_centers5", cr.message, list(cr.moves))])
@@ -149,7 +176,14 @@ def _solve_once(cube: Cube5, cancel_event=None, progress_callback=None,
                                [SolveStage("solve_centers5", cr.message, list(cr.moves))])
 
     # ---- stage 2: 棱降阶（配翼 + 末段宏级规划；reference ref5 管线）----
-    emoves, einfo = ref5_reduce.reduce_edges(work)
+    def _reduce_prog(payload):
+        vi = payload.get("variant", 0)
+        vn = max(1, payload.get("variants", 1))
+        _emit(progress_callback, "edge_pairing", 0.45 + 0.45 * vi / vn,
+              "棱块配对")
+
+    emoves, einfo = ref5_reduce.reduce_edges(work, progress_callback=_reduce_prog)
+    _emit(progress_callback, "edge_pairing", 0.90, "棱块配对")
     if emoves is None:
         msg = "棱降阶失败: %s" % einfo.get("note", "未知")
         return SolveResult(
@@ -161,6 +195,7 @@ def _solve_once(cube: Cube5, cancel_event=None, progress_callback=None,
     all_moves.extend(emoves)
 
     # ---- stage 2b: 中棱朝向修正（消除中棱相对翼的内部翻转）----
+    _emit(progress_callback, "orient", 0.92, "中棱朝向修正")
     fix_moves, finfo = ref5_mof.fix_middle_orientation(work)
     if fix_moves is None:
         msg = "中棱朝向修正失败: %s" % finfo.get("error", "未知")
@@ -174,6 +209,7 @@ def _solve_once(cube: Cube5, cancel_event=None, progress_callback=None,
         all_moves.extend(fix_moves)
 
     # ---- stage 3: 降阶 3x3 ----
+    _emit(progress_callback, "reduced_3x3", 0.95, "按3阶方式还原")
     facelets = build_reduced_facelets(work)
     r3 = solve_3x3(facelets)
     if not r3.success:
@@ -192,6 +228,7 @@ def _solve_once(cube: Cube5, cancel_event=None, progress_callback=None,
     check = cube.clone()
     check.apply_moves(simplified)
     solved = check.is_solved()
+    _emit(progress_callback, "reduced_3x3", 1.0, "完成")
 
     return SolveResult(
         solved, simplified,

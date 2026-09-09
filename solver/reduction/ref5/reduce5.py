@@ -22,6 +22,7 @@ import heapq
 import os
 import random
 import sys
+from operator import eq, ne
 from typing import Dict, List, Optional, Tuple
 
 from cube.cube5 import Cube5
@@ -100,11 +101,11 @@ def generators() -> List[ms.Macro]:
 
 
 def _all_complete(state: Tuple[int, ...]) -> bool:
-    return all(state[i] == state[N + i] for i in range(N))
+    return all(map(eq, state[:N], state[N:]))
 
 
 def _mismatch(state: Tuple[int, ...]) -> int:
-    return sum(1 for i in range(N) if state[i] != state[N + i])
+    return sum(map(ne, state[:N], state[N:]))
 
 
 def solve_all_complete(state: Tuple[int, ...], gens: Optional[List[ms.Macro]] = None,
@@ -143,7 +144,7 @@ def solve_all_complete_candidates(
             goals.append(list(path))
             continue
         for m in gens:
-            ns = ms.apply_macro_to_state(cur, m.mid_map, m.wing_map)
+            ns = m.apply(cur)
             if ns in seen:
                 continue
             seen.add(ns)
@@ -235,7 +236,8 @@ def _best_edge_plan(cube: Cube5, iters: int, max_candidates: int):
 
 
 def reduce_edges(cube: Cube5, iters: int = 60000, max_candidates: int = 20,
-                 pair_variants: int = 10) -> Tuple[Optional[List[str]], Dict]:
+                 pair_variants: int = 10,
+                 progress_callback=None) -> Tuple[Optional[List[str]], Dict]:
     """对（中心已归面的）5x5 执行末段棱降阶，返回 (动作序列, 信息)。
 
     生成 `pair_variants` 个配翼变体（首个为确定性贪心，其余为随机贪心）；
@@ -247,7 +249,13 @@ def reduce_edges(cube: Cube5, iters: int = 60000, max_candidates: int = 20,
     from solver.edge5.free_slice import _fixed_centers_preserved
 
     best_overall = None  # (total, prefix, plan, edge_cost, fix_cost, pair_len, info)
-    for vi in range(max(1, pair_variants) + 1):
+    variants = max(1, pair_variants) + 1
+    for vi in range(variants):
+        if progress_callback is not None:
+            try:
+                progress_callback({"variant": vi, "variants": variants})
+            except Exception:
+                pass
         if vi == pair_variants:
             work, pair_moves = _pair_variant_beam(cube)
         else:

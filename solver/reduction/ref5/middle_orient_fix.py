@@ -133,13 +133,20 @@ def build_patterns(max_depth: int = 3) -> Dict[int, Tuple[str, ...]]:
     return patterns
 
 
+_PATTERNS_CACHE: Optional[Dict[int, Tuple[str, ...]]] = None
+
+
 def _load_patterns() -> Dict[int, Tuple[str, ...]]:
+    global _PATTERNS_CACHE
+    if _PATTERNS_CACHE is not None:
+        return _PATTERNS_CACHE
     if os.path.exists(_CACHE_FILE):
         try:
             with open(_CACHE_FILE, "rb") as f:
                 data = pickle.load(f)
             if data.get("version") == 1 and data.get("patterns"):
-                return data["patterns"]
+                _PATTERNS_CACHE = data["patterns"]
+                return _PATTERNS_CACHE
         except Exception:
             pass
     patterns = build_patterns()
@@ -148,6 +155,7 @@ def _load_patterns() -> Dict[int, Tuple[str, ...]]:
             pickle.dump({"version": 1, "patterns": patterns}, f)
     except Exception:
         pass
+    _PATTERNS_CACHE = patterns
     return patterns
 
 
@@ -191,15 +199,12 @@ def orient_mask(cube: Cube5) -> int:
 
 
 
-def solve_mask(target: int, patterns: Dict[int, Tuple[str, ...]]) -> Optional[List[Tuple[str, ...]]]:
-    """求掩码子集 XOR == target 的**最少总步数**解；返回对应宏词列表，无解返回 None。
+_SOLVE_PREV_SRC: Optional[Dict[int, Tuple[str, ...]]] = None
+_SOLVE_PREV: Dict[int, Tuple[int, Tuple[str, ...]]] = {}
 
-    掩码空间仅 12 位（4096 状态），对 `patterns` 每条掩码边做 Dijkstra，
-    以「总动作数」为主代价、宏词条数为次代价。高斯消去只保证有解，
-    这里额外保证步数最少（实测中棱朝向修正可从 ~150 步降到 ~50 步）。
-    """
-    if target == 0:
-        return []
+
+def _build_solve_prev(patterns: Dict[int, Tuple[str, ...]]) -> Dict[int, Tuple[int, Tuple[str, ...]]]:
+    """对全 12 位掩码空间做一次 Dijkstra，返回 {掩码: (前驱掩码, 宏词)}。"""
     items = list(patterns.items())
     dist: Dict[int, Tuple[int, int]] = {0: (0, 0)}
     prev: Dict[int, Tuple[int, Tuple[str, ...]]] = {}
@@ -208,15 +213,6 @@ def solve_mask(target: int, patterns: Dict[int, Tuple[str, ...]]) -> Optional[Li
         moves, words, mask = heapq.heappop(pq)
         if dist.get(mask) != (moves, words):
             continue
-        if mask == target:
-            out: List[Tuple[str, ...]] = []
-            cur = mask
-            while cur != 0:
-                pm, flat = prev[cur]
-                out.append(flat)
-                cur = pm
-            out.reverse()
-            return out
         for bits, flat in items:
             nm = mask ^ bits
             cand = (moves + len(flat), words + 1)
@@ -224,7 +220,33 @@ def solve_mask(target: int, patterns: Dict[int, Tuple[str, ...]]) -> Optional[Li
                 dist[nm] = cand
                 prev[nm] = (mask, flat)
                 heapq.heappush(pq, (cand[0], cand[1], nm))
-    return None
+    return prev
+
+
+def solve_mask(target: int, patterns: Dict[int, Tuple[str, ...]]) -> Optional[List[Tuple[str, ...]]]:
+    """求掩码子集 XOR == target 的**最少总步数**解；返回对应宏词列表，无解返回 None。
+
+    掩码空间仅 12 位（4096 状态）。对固定的 `patterns` 只做一次全空间 Dijkstra
+    （以「总动作数」为主代价、宏词条数为次代价），之后任意 target 直接回溯，
+    避免每次候选都重跑 Dijkstra。高斯消去只保证有解，这里额外保证步数最少。
+    """
+    if target == 0:
+        return []
+    global _SOLVE_PREV_SRC, _SOLVE_PREV
+    if _SOLVE_PREV_SRC is not patterns:
+        _SOLVE_PREV = _build_solve_prev(patterns)
+        _SOLVE_PREV_SRC = patterns
+    prev = _SOLVE_PREV
+    if target not in prev:
+        return None
+    out: List[Tuple[str, ...]] = []
+    cur = target
+    while cur != 0:
+        pm, flat = prev[cur]
+        out.append(flat)
+        cur = pm
+    out.reverse()
+    return out
 
 
 # --------------------------------------------------------------------------

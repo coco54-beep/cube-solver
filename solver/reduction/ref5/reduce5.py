@@ -234,8 +234,8 @@ def _best_edge_plan(cube: Cube5, iters: int, max_candidates: int):
     return best
 
 
-def reduce_edges(cube: Cube5, iters: int = 60000, max_candidates: int = 6,
-                 pair_variants: int = 6) -> Tuple[Optional[List[str]], Dict]:
+def reduce_edges(cube: Cube5, iters: int = 60000, max_candidates: int = 20,
+                 pair_variants: int = 10) -> Tuple[Optional[List[str]], Dict]:
     """对（中心已归面的）5x5 执行末段棱降阶，返回 (动作序列, 信息)。
 
     生成 `pair_variants` 个配翼变体（首个为确定性贪心，其余为随机贪心）；

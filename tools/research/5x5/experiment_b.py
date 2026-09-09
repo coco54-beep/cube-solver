@@ -26,7 +26,7 @@ from solver.edge5.state import center_color_off, centers_are_color_solved
 W = "2U"
 WQ = "2U'"
 INSERT_MACROS = {
-    "2U_F': {('2U'): ()},  # drop
+    "2U_F'": {('2U'): ()},  # drop
 }
 
 # 插入宏各自的 A（去掉开头 W 与结尾 W'）。这里以 2U 家族为例。

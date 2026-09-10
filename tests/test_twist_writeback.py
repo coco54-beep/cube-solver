@@ -9,6 +9,8 @@ import types
 
 import pytest
 
+pytest.importorskip("kivy")
+
 from cube.cube5 import Cube5
 
 import ui.screens.twist_screen as twist_screen

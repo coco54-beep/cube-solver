@@ -3,6 +3,10 @@
 用于捕获构造期文案/主题访问的回归（CI 无 OpenGL 窗口，无法跑真正的 App）。
 """
 
+import pytest
+
+pytest.importorskip("kivy")
+
 from app import i18n
 
 

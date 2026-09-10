@@ -1,5 +1,9 @@
 """测试整体旋转导航模块（cube_orientation）。"""
 
+import pytest
+
+pytest.importorskip("kivy")
+
 from cube.coordinates import FACE_NORMALS
 from renderer.cube_orientation import CubeOrientation, SEQ
 

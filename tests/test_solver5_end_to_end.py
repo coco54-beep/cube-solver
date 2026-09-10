@@ -12,6 +12,8 @@ import random
 
 import pytest
 
+pytest.importorskip("kivy")
+
 from cube.cube5 import Cube5
 from cube.conversion import cubies_to_facelets, facelets_to_cubies
 from renderer.turn import decompose_move

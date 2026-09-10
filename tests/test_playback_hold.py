@@ -2,6 +2,10 @@
 
 import types
 
+import pytest
+
+pytest.importorskip("kivy")
+
 from kivy.clock import Clock
 
 import ui.screens.playback_screen as ps

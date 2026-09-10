@@ -2,6 +2,8 @@
 
 import pytest
 
+pytest.importorskip("kivy")
+
 from cube.coordinates import get_d_maxc, FACE_AXIS_SIGN, coord_values
 from cube.cube2 import Cube2
 from cube.cube3 import Cube3

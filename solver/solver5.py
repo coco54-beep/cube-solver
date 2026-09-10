@@ -16,6 +16,7 @@
 from typing import Dict, List
 
 from cube.cube5 import Cube5
+from cube.conversion import cubies_to_facelets, facelets_to_cubies
 from solver.result import SolveResult, SolveStage
 
 from solver.center5 import solve_centers5, solve_centers5_color
@@ -91,6 +92,30 @@ def _rebuild_center_homes(cube: Cube5) -> None:
         cb.home = buckets[(kind_of_position(pos), col)].pop()
 
 
+def _face_center_color_map(cube: Cube5):
+    """当前各面中心贴纸色 -> 该面标准色 的映射；已是标准配色时返回 None。
+
+    5x5 若被 3 层转（或切片）打乱，六个固定面心会被置换。此时以「各面中心
+    当前的颜色」为目标配色重新贴色，即可把中心面视为已对齐，再用原降阶流程
+    求解，最终得到六面纯色（固定面心的位置可能非原位）。
+    """
+    fx = cubies_to_facelets(cube.cubies, cube.n)
+    solved_fx = cubies_to_facelets(_solved5().cubies, cube.n)
+    mid = cube.n // 2
+    mapping = {fx[f][mid][mid]: solved_fx[f][mid][mid] for f in fx}
+    if all(k == v for k, v in mapping.items()):
+        return None
+    return mapping
+
+
+def _relabel_centers(cube: Cube5, mapping) -> Cube5:
+    """按映射重贴全部颜色，得到「中心已对齐」的等价 cube。"""
+    fx = cubies_to_facelets(cube.cubies, cube.n)
+    new_fx = {f: [[mapping[c] for c in row] for row in grid]
+              for f, grid in fx.items()}
+    return Cube5(facelets_to_cubies(new_fx, cube.n))
+
+
 def _swap_two_center_homes(cube: Cube5) -> bool:
     """交换两个同 (轨道, 颜色) 中心的 home：翻转中心置换奇偶（用于修 odd-d）。"""
     groups = {}
@@ -115,6 +140,11 @@ def solve_5x5(cube: Cube5, cancel_event=None, progress_callback=None) -> SolveRe
                            [SolveStage("not_implemented", "cube 为 None")])
 
     work = cube.clone()
+    # 先按当前各面中心重贴配色：固定面心被置换（3 层转/切片打乱）时，
+    # 等价于「先把中心面对齐」，之后走原降阶流程，最终解成六面纯色。
+    mapping = _face_center_color_map(work)
+    if mapping is not None:
+        work = _relabel_centers(work, mapping)
     if not _center_homes_consistent(work):
         _rebuild_center_homes(work)
 

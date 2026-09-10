@@ -6,6 +6,7 @@ import pytest
 
 from cube.scramble import text_to_moves, random_scramble
 from cube.conversion import cubies_to_facelets
+from cube.notation import parse_move_full
 from cube.cube2 import Cube2
 from cube.cube3 import Cube3
 from cube.cube4 import Cube4
@@ -124,3 +125,15 @@ def test_random_scramble_apply_inverse_roundtrip(n):
     assert not cube.is_solved()
     cube.apply_moves([_invert(t) for t in reversed(moves)])
     assert cube.is_solved()
+
+
+def test_random_scramble_5x5_may_use_three_layer():
+    """5x5 随机打乱允许 3 层转（会移动固定面心），token 均合法且不非法叠层。"""
+    saw_three = False
+    for seed in range(15):
+        moves = random_scramble(5, rng=random.Random(seed))
+        for tok in moves:
+            _, layers, _ = parse_move_full(tok)
+            assert layers in (1, 2, 3), (seed, tok)
+            saw_three = saw_three or layers == 3
+    assert saw_three, "15 个种子中应至少出现一次 3 层转"

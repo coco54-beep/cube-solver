@@ -7,6 +7,15 @@ Slot i is the center position ALL_CENTERS[i] (a fixed position with a fixed
 face). A piece is "on" the face of its current slot.
 """
 
+import os as _os, sys as _sys
+_HERE = _os.path.dirname(_os.path.abspath(__file__))
+_ROOT = _HERE
+while _ROOT != _os.path.dirname(_ROOT) and not _os.path.exists(_os.path.join(_ROOT, "pytest.ini")):
+    _ROOT = _os.path.dirname(_ROOT)
+for _p in (_HERE, _ROOT):
+    if _p not in _sys.path:
+        _sys.path.insert(0, _p)
+
 from collections import deque
 
 from cube.cube4 import Cube4

@@ -1,5 +1,14 @@
 """开发脚本：在模型上验证 3x3 求解器的块识别与各阶段算法。"""
 
+import os as _os, sys as _sys
+_HERE = _os.path.dirname(_os.path.abspath(__file__))
+_ROOT = _HERE
+while _ROOT != _os.path.dirname(_ROOT) and not _os.path.exists(_os.path.join(_ROOT, "pytest.ini")):
+    _ROOT = _os.path.dirname(_ROOT)
+for _p in (_HERE, _ROOT):
+    if _p not in _sys.path:
+        _sys.path.insert(0, _p)
+
 from cube.cube3 import Cube3
 from cube.conversion import cubies_to_facelets
 from cube.coordinates import FACE_NORMALS

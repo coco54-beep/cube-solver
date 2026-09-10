@@ -3,6 +3,15 @@ U/D-safe, and at what depth? Prints per-depth growth + side-turn examples.
 """
 from __future__ import annotations
 
+import os as _os, sys as _sys
+_HERE = _os.path.dirname(_os.path.abspath(__file__))
+_ROOT = _HERE
+while _ROOT != _os.path.dirname(_ROOT) and not _os.path.exists(_os.path.join(_ROOT, "pytest.ini")):
+    _ROOT = _os.path.dirname(_ROOT)
+for _p in (_HERE, _ROOT):
+    if _p not in _sys.path:
+        _sys.path.insert(0, _p)
+
 import sys
 from collections import deque
 

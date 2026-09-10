@@ -7,6 +7,15 @@ Center piece = exactly one coord with abs == 3 (outer ring); it is always on
 exactly one face. Goal: each center on its home face.
 """
 
+import os as _os, sys as _sys
+_HERE = _os.path.dirname(_os.path.abspath(__file__))
+_ROOT = _HERE
+while _ROOT != _os.path.dirname(_ROOT) and not _os.path.exists(_os.path.join(_ROOT, "pytest.ini")):
+    _ROOT = _os.path.dirname(_ROOT)
+for _p in (_HERE, _ROOT):
+    if _p not in _sys.path:
+        _sys.path.insert(0, _p)
+
 from collections import deque
 
 from cube.cube4 import Cube4

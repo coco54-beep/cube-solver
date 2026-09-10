@@ -7,6 +7,15 @@ State = face-assignment: fa[i] = face-index of the piece occupying slot i.
 (Quotient by same-face interchangeability -> small state space.)
 U/D-safe: U/D slots hold U/D pieces; side slots (F/B/R/L) hold side pieces.
 """
+
+import os as _os, sys as _sys
+_HERE = _os.path.dirname(_os.path.abspath(__file__))
+_ROOT = _HERE
+while _ROOT != _os.path.dirname(_ROOT) and not _os.path.exists(_os.path.join(_ROOT, "pytest.ini")):
+    _ROOT = _os.path.dirname(_ROOT)
+for _p in (_HERE, _ROOT):
+    if _p not in _sys.path:
+        _sys.path.insert(0, _p)
 import primitives as P
 from collections import deque, Counter
 

@@ -4,6 +4,15 @@ Phase 2: D-home centers -> 4 D-slots, all 24 moves.
 Phase 3: U-home centers -> 4 U-slots, D-preserving moves.
 Phase 4: 16 side centers (face-labeled), 12 UD-preserving moves (p4_table.bin).
 """
+
+import os as _os, sys as _sys
+_HERE = _os.path.dirname(_os.path.abspath(__file__))
+_ROOT = _HERE
+while _ROOT != _os.path.dirname(_ROOT) and not _os.path.exists(_os.path.join(_ROOT, "pytest.ini")):
+    _ROOT = _os.path.dirname(_ROOT)
+for _p in (_HERE, _ROOT):
+    if _p not in _sys.path:
+        _sys.path.insert(0, _p)
 import os
 import random
 import struct

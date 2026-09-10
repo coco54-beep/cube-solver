@@ -32,7 +32,7 @@ An app that solves cubes with **real algorithms** — not memorized formulas, no
 | **2×2** instant solve | Maps directly onto a subset of 3×3 cubies and runs Kociemba |
 | **3×3** optimal solve | A real **Kociemba two-phase algorithm**, **guaranteed ≤ 20 moves** |
 | **4×4 / 5×5** smart solve | **Reduction method**: solve centers → pair edges → fix orientation → collapse to 3×3; the 5×5 endgame is planned with **macro-level A\*** |
-| **Zero-learning input** | Tap the net to paint colors; one-tap **Random** scramble and **Validate** legality |
+| **Zero-learning input** | Tap the net to paint colors; one-tap **Random** scramble, **paste a scramble formula**, and **Validate** legality |
 | **Immersive 3D playback** | Real-time OpenGL rendering: drag to rotate, zoom, step through, autoplay — watch it solve move by move |
 | **Built-in tutorials** | Step-by-step Layer-by-Layer / Seven-step / Reduction examples, organized by cube order |
 | **Cross-platform** | Desktop (Windows) + Android (packaged with buildozer), from a single codebase |
@@ -62,11 +62,11 @@ Random scrambles on an ordinary PC for 4×4 / 5×5; numbers from this repo's ben
 ## ✨ Highlights
 
 - **Real algorithmic solving**: 2×2 direct, 3×3 **Kociemba two-phase** (≤ 20 moves), 4×4 **reduction** (with pre-emptive parity avoidance), 5×5 **reduction built from scratch** (conjugated center 3-cycles → free-slice edge pairing → macro-level A\* endgame → GF(2) orientation fix → collapse to 3×3).
-- **Zero-learning input**: tap the net to paint colors; one-tap **Random** to load a scramble and live **Validate** to check legality.
+- **Zero-learning input**: tap the net to paint colors; one-tap **Random** to load a scramble, **paste a scramble formula** (e.g. `R U R' U'`), and live **Validate** to check legality.
 - **Immersive 3D playback**: a real-time OpenGL cube — drag to rotate, zoom, step through, autoplay, adjust speed; the whole solve is crystal clear.
 - **Built-in tutorials**: step-by-step Layer-by-Layer / Seven-step / Reduction cases per cube order, walking you through each state.
 - **Cross-platform**: desktop (Windows) + Android (buildozer packaging), same codebase.
-- **Chinese UI · light/dark themes**: switch between **Dark** and a **soft warm light** theme anytime, or **follow the system** (Windows / Android) for automatic light/dark; multiple accents are independently adjustable, with touch-optimized large buttons, spacing that avoids mis-taps, and confirmations for destructive actions.
+- **Multilingual UI (中文 / English / 日本語) · light/dark themes**: a **Settings** screen switches language and theme (**Dark**, a **soft warm light** theme, or **follow the system** on Windows / Android); touch-optimized large buttons, spacing that avoids mis-taps, and confirmations for destructive actions.
 
 ---
 
@@ -74,12 +74,13 @@ Random scrambles on an ordinary PC for 4×4 / 5×5; numbers from this repo's ben
 
 | Screen | Purpose |
 |------|------|
-| **Home** | Choose 2 / 3 / 4 / 5 (1×4 cards in landscape, 2×2 in portrait), then go to input, demos or help |
-| **Input** | Net of the six faces for the chosen order · 6-color picker · Random / Validate / Solve |
+| **Home** | Choose 2 / 3 / 4 / 5 (1×4 cards in landscape, 2×2 in portrait), then go to input, demos, help or settings |
+| **Input** | Net of the six faces for the chosen order · 6-color picker · Random or paste-a-scramble · Validate / Solve |
 | **Solving** | Multi-stage solve in the background with live progress and stage hints; cancellable |
 | **Playback** | 3D animation of every solving step, with back-to-start / jump-to-end |
 | **Demo index** | Teaching cases (Layer-by-Layer / Seven-step / Reduction) listed by cube order (thumbnail + text) |
 | **Demo screen** | 3D step-by-step teaching of each cube state, with highlighting |
+| **Settings** | Switch language (中文 / English / 日本語), pick theme mode (Auto / Light / Dark), and view version info |
 
 <div align="center">
   <img src="assets/screenshots/home.png" width="180" alt="Home (2/3/4/5)" />
@@ -256,8 +257,8 @@ Push a git tag of the form `v1.x.x` and [GitHub Actions](.github/workflows/relea
 will build a **signed release APK** and publish it to [Releases](https://github.com/coco54-beep/cube-solver/releases):
 
 ```bash
-git tag v1.1.0
-git push origin v1.1.0
+git tag v1.2.0
+git push origin v1.2.0
 ```
 
 - By default it is signed with an **ephemeral key** (the signature changes every build, so uninstall the old version first).

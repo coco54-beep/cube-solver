@@ -6,24 +6,43 @@
 - 中心 setup 表（每个 BFS 约 12144 状态）≈ 1.75s × 常用 4 个 ≈ 7s；
 - ref5 宏缓存 / 朝向掩码库 / 全空间 Dijkstra 均可忽略（< 0.05s）。
 
-这里在守护线程里按依赖顺序预热上述资源，任何异常都吞掉，绝不影响应用。
+策略（启动开销按需分摊）：
+- 通用资源（kociemba 两阶段表 + 各阶求解器导入）在启动后台线程预热；
+- 仅 5 阶用到的重资源（ref5 宏表 / 朝向掩码 / 中心 setup 表）改为**懒加载**：
+  用户进入 5 阶录入页时才在后台线程构建，既能在他填色时完成，又不让只玩
+  2/3/4 阶的用户白白承担约 7s 冷启动开销与内存峰值。
+
+任何异常都吞掉，绝不影响应用。
 """
 
 import threading
 import time
 
-_started = False
-_started_lock = threading.Lock()
+_common_started = False
+_5x5_started = False
+_lock = threading.Lock()
 
 
 def warmup_solvers():
-    """启动后台预热线程（幂等）。返回线程对象，便于测试等待。"""
-    global _started
-    with _started_lock:
-        if _started:
+    """启动通用求解资源后台预热（幂等）。返回线程对象，便于测试等待。"""
+    global _common_started
+    with _lock:
+        if _common_started:
             return None
-        _started = True
-    thread = threading.Thread(target=_run, name="solver-warmup", daemon=True)
+        _common_started = True
+    thread = threading.Thread(target=_run_common, name="solver-warmup", daemon=True)
+    thread.start()
+    return thread
+
+
+def warmup_5x5():
+    """按需预热 5 阶专属资源（幂等）。进入 5 阶录入页时调用。"""
+    global _5x5_started
+    with _lock:
+        if _5x5_started:
+            return None
+        _5x5_started = True
+    thread = threading.Thread(target=_run_5x5, name="solver-warmup-5x5", daemon=True)
     thread.start()
     return thread
 
@@ -37,8 +56,11 @@ def _safe(fn):
     time.sleep(0)
 
 
-def _run():
+def _run_common():
     _safe(_warm_twophase)
+
+
+def _run_5x5():
     _safe(_warm_ref5)
     _safe(_warm_center)
 

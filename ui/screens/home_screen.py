@@ -10,8 +10,7 @@ from kivy.clock import Clock
 from ui.screens.input_screen import PrimaryButton
 
 from app.config import Config
-from app.theme import AUTO, LIGHT, DARK
-from app.i18n import tr, language_name
+from app.i18n import tr
 
 
 def _autofit(lbl, pad=1):
@@ -86,16 +85,11 @@ class HomeScreen(Screen):
                             size_hint=(1.0, None), height=52)
         self.help_btn = UIButton(text=tr("home.help"), font_size="17sp")
         self.help_btn.bind(on_release=lambda *a: self.show_help())
-        self.theme_btn = UIButton(text=tr("home.theme.auto"), font_size="15sp")
-        self.theme_btn.bind(on_release=lambda *a: self.cycle_theme())
-        self.lang_btn = UIButton(text=tr("home.lang", name=language_name(_app().lang)),
-                                 font_size="15sp")
-        self.lang_btn.bind(on_release=lambda *a: self.cycle_language())
+        self.settings_btn = UIButton(text=tr("home.settings"), font_size="17sp")
+        self.settings_btn.bind(on_release=lambda *a: self.open_settings())
         actions.add_widget(self.help_btn)
-        actions.add_widget(self.theme_btn)
-        actions.add_widget(self.lang_btn)
+        actions.add_widget(self.settings_btn)
         root.add_widget(actions)
-        self._update_theme_btn()
 
         # 弹性空白
         root.add_widget(BoxLayout(size_hint_y=1))
@@ -117,9 +111,8 @@ class HomeScreen(Screen):
         self.title.text = tr("app.name")
         self.subtitle.text = tr("home.subtitle")
         self.help_btn.text = tr("home.help")
-        self.lang_btn.text = tr("home.lang", name=language_name(_app().lang))
+        self.settings_btn.text = tr("home.settings")
         self._ver_label.text = tr("home.version", version=Config.app_version)
-        self._update_theme_btn()
         for n, card in getattr(self, "_cards", {}).items():
             try:
                 _big, title_label, desc_label = card._labels
@@ -128,9 +121,8 @@ class HomeScreen(Screen):
             except Exception:
                 pass
 
-    def cycle_language(self):
-        _app().cycle_language()
-        self.retranslate()
+    def open_settings(self):
+        self.manager.current = "SettingsScreen"
 
     def _card_height(self, h=None):
         """卡片区高度，随屏幕尺寸微调（基准高屏 240，小屏略降）。"""
@@ -247,23 +239,11 @@ class HomeScreen(Screen):
         self._card_draw(card)
         return card
 
-    def _update_theme_btn(self):
-        keys = {AUTO: "home.theme.auto", LIGHT: "home.theme.light", DARK: "home.theme.dark"}
-        self.theme_btn.text = tr(keys.get(_app().theme_mode, "home.theme.auto"))
-
-    def cycle_theme(self):
-        app = _app()
-        order = (AUTO, LIGHT, DARK)
-        idx = order.index(app.theme_mode)
-        app.set_theme_mode(order[(idx + 1) % len(order)])
-        self.refresh_theme()
-
     def refresh_theme(self):
         """主题切换后刷新 Python 端硬编码的颜色。"""
         theme = _app().theme
         self.subtitle.color = theme.text_muted
         self._ver_label.color = theme.text_faint
-        self._update_theme_btn()
         # 强调色装饰条
         bar = getattr(self, "_accent_bar", None)
         if bar is not None and getattr(bar, "_draw", None) is not None:

@@ -117,7 +117,7 @@ class BaseCube:
             for cubie in self.cubies.values():
                 if cubie.pos[axis] == sign * maxc:
                     col = cubie.stickers.get(normal)
-                    if col is not None:
+                    if col:
                         colors_on_face.add(col)
                         count += 1
             # 每面应有 n*n 个 sticker，且只有一种颜色

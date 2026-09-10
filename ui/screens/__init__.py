@@ -7,3 +7,4 @@ from ui.screens.playback_screen import PlaybackScreen  # noqa: F401
 from ui.screens.demo_screen import DemoScreen  # noqa: F401
 from ui.screens.demo_menu import DemoMenuScreen  # noqa: F401
 from ui.screens.twist_screen import TwistScreen  # noqa: F401
+from ui.screens.settings_screen import SettingsScreen  # noqa: F401

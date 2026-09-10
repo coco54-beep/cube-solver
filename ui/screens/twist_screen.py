@@ -133,6 +133,9 @@ class TwistScreen(Screen):
         self._work = None
         self._busy = False
         self._wide = False
+        self._history = []
+        self._future = []
+        self._was_solved = False
         self.build_ui()
 
     def build_ui(self):
@@ -157,18 +160,28 @@ class TwistScreen(Screen):
         self.view._wide = False
         root.add_widget(self.view)
 
-        # 控制区
-        ctl = BoxLayout(size_hint_y=None, height=52, spacing=8)
+        # 控制区（两行：撤销/重做 + 视角与开关）
+        control = BoxLayout(orientation="vertical", size_hint_y=None, height=110, spacing=8)
+        hist_row = BoxLayout(spacing=8)
+        self.btn_undo = UIButton(text=tr("input.undo"), font_size="15sp")
+        self.btn_undo.bind(on_release=lambda *a: self.undo())
+        self.btn_redo = UIButton(text=tr("input.redo"), font_size="15sp")
+        self.btn_redo.bind(on_release=lambda *a: self.redo())
+        hist_row.add_widget(self.btn_undo)
+        hist_row.add_widget(self.btn_redo)
+        control.add_widget(hist_row)
+        toggle_row = BoxLayout(spacing=8)
         self.btn_lock = UIButton(text=tr("twist.lock_on"), font_size="15sp", size_hint_x=0.3)
         self.btn_lock.bind(on_release=lambda *a: self.toggle_lock())
         self.btn_wide = UIButton(text=tr("twist.wide_off"), font_size="15sp", size_hint_x=0.3)
         self.btn_wide.bind(on_release=lambda *a: self.toggle_wide())
         self.btn_reset = UIButton(text=tr("playback.reset_view"), font_size="15sp", size_hint_x=0.4)
         self.btn_reset.bind(on_release=lambda *a: self.view.reset_camera())
-        ctl.add_widget(self.btn_lock)
-        ctl.add_widget(self.btn_wide)
-        ctl.add_widget(self.btn_reset)
-        root.add_widget(ctl)
+        toggle_row.add_widget(self.btn_lock)
+        toggle_row.add_widget(self.btn_wide)
+        toggle_row.add_widget(self.btn_reset)
+        control.add_widget(toggle_row)
+        root.add_widget(control)
 
         # 提示
         self.msg = Label(text="", size_hint_y=None, height=34,
@@ -182,6 +195,8 @@ class TwistScreen(Screen):
         if not hasattr(self, "title"):
             return
         self.title.text = tr("input.twist")
+        self.btn_undo.text = tr("input.undo")
+        self.btn_redo.text = tr("input.redo")
         self.btn_reset.text = tr("playback.reset_view")
         self._update_toggle_texts()
         self.msg.text = tr("twist.hint_lock_on") if self.view.lock_view else tr("twist.hint_lock_off")
@@ -199,8 +214,12 @@ class TwistScreen(Screen):
         if cube is None:
             cube = _solved_for(n)
         self._work = cube
+        self._history = []
+        self._future = []
+        self._was_solved = cube.is_solved()
         self.view.lock_view = True
         self._update_toggle_texts()
+        self._update_history_buttons()
         self.view.reset_camera()
         self._refresh_view()
         self.msg.text = tr("twist.hint_lock_on")
@@ -229,28 +248,78 @@ class TwistScreen(Screen):
         self._update_toggle_texts()
         self.msg.text = tr("twist.hint_wide")
 
+    def _update_history_buttons(self):
+        if not hasattr(self, "btn_undo"):
+            return
+        self.btn_undo.disabled = not self._history
+        self.btn_redo.disabled = not self._future
+
     def _twist(self, spec):
         if self._busy:
             return
+        self._history.append((spec.axis, tuple(spec.layer_positions), spec.sign))
+        self._future.clear()
+        self._update_history_buttons()
+        self._animate(spec.axis, spec.layer_positions, spec.sign)
+
+    def undo(self):
+        """撤销上一次拧动。"""
+        if self._busy or not self._history:
+            return
+        axis, layers, sign = self._history.pop()
+        self._future.append((axis, layers, sign))
+        self._update_history_buttons()
+        self._animate(axis, layers, -sign)
+
+    def redo(self):
+        """重做被撤销的拧动。"""
+        if self._busy or not self._future:
+            return
+        axis, layers, sign = self._future.pop()
+        self._history.append((axis, layers, sign))
+        self._update_history_buttons()
+        self._animate(axis, layers, sign)
+
+    def _animate(self, axis, layers, sign):
         self._busy = True
-        angle = 90 * spec.sign
+        angle = 90 * sign
         dur = 0.4 * abs(angle) / 90.0
         self.view.start_turn(
-            spec.axis,
-            spec.layer_positions[0],
+            axis,
+            layers[0],
             angle,
             dur,
-            on_done=lambda: self._after_twist(spec),
-            layer_positions=spec.layer_positions,
+            on_done=lambda: self._after_twist(axis, layers, sign),
+            layer_positions=list(layers),
             include_fixed_centers=True,
         )
 
-    def _after_twist(self, spec):
-        apply_layer_turn(self._work.cubies, spec.axis,
-                         spec.layer_positions, spec.sign)
+    def _after_twist(self, axis, layers, sign):
+        apply_layer_turn(self._work.cubies, axis, list(layers), sign)
         self.view.set_cube(self._work)
         self._write_back()
         self._busy = False
+        self._check_solved()
+
+    def _check_solved(self):
+        """拧动后若由未还原变为还原，弹出恭喜界面。"""
+        now = self._work is not None and self._work.is_solved()
+        if now and not self._was_solved:
+            self._show_congrats()
+        self._was_solved = now
+
+    def _show_congrats(self):
+        from kivy.uix.popup import Popup
+        content = BoxLayout(orientation="vertical", spacing=12, padding=16)
+        label = Label(text=tr("twist.congrats_body"), halign="center",
+                      font_size="20sp", size_hint_y=1)
+        ok = UIButton(text=tr("twist.congrats_ok"), size_hint_y=None, height=52)
+        ok.bind(on_release=lambda *a: popup.dismiss())
+        content.add_widget(label)
+        content.add_widget(ok)
+        popup = Popup(title=tr("twist.congrats_title"), content=content,
+                      size_hint=(0.86, 0.34))
+        popup.open()
 
     def _write_back(self):
         input_screen = self._input_screen()
@@ -265,7 +334,12 @@ class TwistScreen(Screen):
         input_screen.set_facelets(clean)
         # 同步刷新应用记录的布局，避免回到录入页时 on_enter
         # 用拧动前的旧 facelets_input 覆盖刚拧好的分布。
-        _app().facelets_input = clean
+        app = _app()
+        app.facelets_input = clean
+        # 状态已改变，必须作废上一次求解结果：否则回录入页按“求解”时，
+        # start_solve 会因 facelets_input == 当前布局而误判为“状态未变”，
+        # 直接复用拧动前的旧解法，导致无法正确还原。
+        app.solve_result = None
 
     def go_back(self):
         self._write_back()

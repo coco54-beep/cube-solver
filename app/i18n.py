@@ -8,7 +8,7 @@
 用法：
     from app.i18n import tr
     label.text = tr("home.help")
-    label.text = tr("home.version", version="1.1.0")
+    label.text = tr("home.version", version="1.2.0")
 """
 
 import os
@@ -55,11 +55,18 @@ CATALOG = {
         "home.card.5.title": "5 阶魔方",
         "home.card.5.desc": "还原 Professor's Cube",
         "home.help": "使用说明",
-        "home.theme.auto": "主题：自动",
-        "home.theme.light": "主题：浅色",
-        "home.theme.dark": "主题：深色",
-        "home.lang": "语言：{name}",
         "home.version": "版本 {version}",
+        "home.settings": "设置",
+
+        "theme.auto": "自动",
+        "theme.light": "浅色",
+        "theme.dark": "深色",
+
+        "settings.title": "设置",
+        "settings.theme": "主题",
+        "settings.language": "语言",
+        "settings.about": "关于",
+        "settings.about_tagline": "2 阶 / 3 阶 / 4 阶 / 5 阶魔方 · 智能还原",
 
         "help.title": "使用说明",
         "help.close": "关闭",
@@ -87,7 +94,7 @@ CATALOG = {
             "中心是 3×3（有固定中心点）、每条棱由中棱 + 2 翼三块组成。",
         "help.theme.title": "主题切换",
         "help.theme.body":
-            "首页「主题」按钮可在 自动 / 浅色 / 深色 之间循环切换；\n"
+            "在首页进入「设置」页，可选择 自动 / 浅色 / 深色 主题；\n"
             "自动模式会跟随系统（Windows / Android）的浅深色设置。",
         "help.notation.title": "颜色与记号",
         "help.notation.body":
@@ -113,6 +120,12 @@ CATALOG = {
         "input.next": "{arrow}下一步",
         "input.twist": "拧魔方",
         "input.random": "随机",
+        "input.scramble": "粘贴打乱公式",
+        "input.scramble.hint": "如 R U R' U' 或 R,U,R',U'",
+        "input.scramble.ok": "应用",
+        "input.scramble.loaded": "已按公式打乱（{k} 步）",
+        "input.scramble.empty": "请输入打乱公式",
+        "input.scramble.error": "无法识别的动作：{tok}",
         "input.clear": "清空",
         "input.check": "校验",
         "input.solve": "开始求解",
@@ -176,6 +189,9 @@ CATALOG = {
         "twist.hint_lock_on": "卡视角开：拖动魔方拧层；滚轮缩放已锁定",
         "twist.hint_lock_off": "卡视角关：拖动转视角，滚轮缩放",
         "twist.hint_wide": "（宽层开：拧最外层时连同内层一起转）",
+        "twist.congrats_title": "恭喜还原！",
+        "twist.congrats_body": "你已成功还原魔方！",
+        "twist.congrats_ok": "继续",
     },
 
     LANG_EN: {
@@ -200,11 +216,18 @@ CATALOG = {
         "home.card.5.title": "5×5 Cube",
         "home.card.5.desc": "Solve the Professor's Cube",
         "home.help": "Help",
-        "home.theme.auto": "Theme: Auto",
-        "home.theme.light": "Theme: Light",
-        "home.theme.dark": "Theme: Dark",
-        "home.lang": "Language: {name}",
         "home.version": "Version {version}",
+        "home.settings": "Settings",
+
+        "theme.auto": "Auto",
+        "theme.light": "Light",
+        "theme.dark": "Dark",
+
+        "settings.title": "Settings",
+        "settings.theme": "Theme",
+        "settings.language": "Language",
+        "settings.about": "About",
+        "settings.about_tagline": "Smart solving for 2×2 / 3×3 / 4×4 / 5×5 cubes",
 
         "help.title": "Help",
         "help.close": "Close",
@@ -236,7 +259,7 @@ CATALOG = {
             "edge has a middle edge plus 2 wings.",
         "help.theme.title": "Theme",
         "help.theme.body":
-            "The Theme button on the home screen cycles Auto / Light / Dark.\n"
+            "Open Settings from the home screen to choose Auto / Light / Dark.\n"
             "Auto follows your system (Windows / Android) light or dark setting.",
         "help.notation.title": "Colors & notation",
         "help.notation.body":
@@ -265,6 +288,12 @@ CATALOG = {
         "input.next": "{arrow} Next",
         "input.twist": "Twist",
         "input.random": "Random",
+        "input.scramble": "Paste scramble",
+        "input.scramble.hint": "e.g. R U R' U' or R,U,R',U'",
+        "input.scramble.ok": "Apply",
+        "input.scramble.loaded": "Scrambled from formula ({k} moves)",
+        "input.scramble.empty": "Enter a scramble first",
+        "input.scramble.error": "Unrecognized move: {tok}",
         "input.clear": "Clear",
         "input.check": "Validate",
         "input.solve": "Solve",
@@ -328,6 +357,9 @@ CATALOG = {
         "twist.hint_lock_on": "View locked: drag the cube to turn layers; zoom is locked",
         "twist.hint_lock_off": "View free: drag to rotate the view, scroll to zoom",
         "twist.hint_wide": "(Wide on: turning the outer layer also turns the inner layer)",
+        "twist.congrats_title": "Congratulations!",
+        "twist.congrats_body": "You solved the cube!",
+        "twist.congrats_ok": "Continue",
     },
 
     LANG_JA: {
@@ -352,11 +384,18 @@ CATALOG = {
         "home.card.5.title": "5×5 キューブ",
         "home.card.5.desc": "プロフェッサーキューブを解く",
         "home.help": "使い方",
-        "home.theme.auto": "テーマ：自動",
-        "home.theme.light": "テーマ：ライト",
-        "home.theme.dark": "テーマ：ダーク",
-        "home.lang": "言語：{name}",
         "home.version": "バージョン {version}",
+        "home.settings": "設定",
+
+        "theme.auto": "自動",
+        "theme.light": "ライト",
+        "theme.dark": "ダーク",
+
+        "settings.title": "設定",
+        "settings.theme": "テーマ",
+        "settings.language": "言語",
+        "settings.about": "アプリについて",
+        "settings.about_tagline": "2×2 / 3×3 / 4×4 / 5×5 キューブのスマートソルバー",
 
         "help.title": "使い方",
         "help.close": "閉じる",
@@ -388,7 +427,7 @@ CATALOG = {
             "各エッジは中エッジ + 2 ウィングの3つで構成されます。",
         "help.theme.title": "テーマ",
         "help.theme.body":
-            "ホーム画面の「テーマ」ボタンで 自動 / ライト / ダーク を切り替えられます。\n"
+            "ホーム画面から「設定」を開き、自動 / ライト / ダーク を選べます。\n"
             "自動はシステム（Windows / Android）の明暗設定に従います。",
         "help.notation.title": "色と記号",
         "help.notation.body":
@@ -417,6 +456,12 @@ CATALOG = {
         "input.next": "{arrow} 次へ",
         "input.twist": "回す",
         "input.random": "ランダム",
+        "input.scramble": "スクランブルを貼り付け",
+        "input.scramble.hint": "例: R U R' U' または R,U,R',U'",
+        "input.scramble.ok": "適用",
+        "input.scramble.loaded": "スクランブルを適用しました（{k} 手）",
+        "input.scramble.empty": "スクランブルを入力してください",
+        "input.scramble.error": "認識できない手順: {tok}",
         "input.clear": "クリア",
         "input.check": "検証",
         "input.solve": "解く",
@@ -480,6 +525,9 @@ CATALOG = {
         "twist.hint_lock_on": "視点固定オン：キューブをドラッグして層を回します。ズームはロック",
         "twist.hint_lock_off": "視点固定オフ：ドラッグで視点回転、スクロールでズーム",
         "twist.hint_wide": "（ワイドオン：外層を回すと内層も一緒に回ります）",
+        "twist.congrats_title": "おめでとうございます！",
+        "twist.congrats_body": "キューブを完成させました！",
+        "twist.congrats_ok": "続ける",
     },
 }
 

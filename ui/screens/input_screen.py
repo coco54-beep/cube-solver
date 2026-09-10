@@ -93,6 +93,17 @@ def _build_partial_cube(facelets, n):
     return Cube3(cubies)
 
 
+def _new_solved_cube(n):
+    """按阶数创建已还原魔方（用于随机/公式打乱）。"""
+    if n == 2:
+        return Cube2.solved()
+    if n == 4:
+        return Cube4.solved()
+    if n == 5:
+        return Cube5.solved()
+    return Cube3.solved()
+
+
 class _InputCubeView(CubeView):
     """3D 输入视图：允许缩放，但禁用拖拽旋转；单击回调 on_pick(x, y)，拖动回调 on_drag(x, y)。"""
 
@@ -218,6 +229,13 @@ class InputScreen(Screen):
             edit_row.add_widget(b)
         root.add_widget(edit_row)
 
+        # ---- 打乱公式 ----
+        scramble_row = BoxLayout(size_hint_y=None, height=42, spacing=8)
+        self.btn_scramble = UIButton(text=tr("input.scramble"), font_size="15sp")
+        self.btn_scramble.bind(on_release=lambda *a: self.open_scramble())
+        scramble_row.add_widget(self.btn_scramble)
+        root.add_widget(scramble_row)
+
         # ---- 翻转导航 ----
         turn_row = BoxLayout(size_hint_y=None, height=48, spacing=8)
         self.btn_prev = UIButton(text=tr("input.prev", arrow=""), font_size="16sp")
@@ -265,6 +283,7 @@ class InputScreen(Screen):
         self.btn_redo.text = tr("input.redo")
         self.btn_twist.text = tr("input.twist")
         self.btn_random.text = tr("input.random")
+        self.btn_scramble.text = tr("input.scramble")
         self.btn_clear.text = tr("input.clear")
         self.btn_check.text = tr("input.check")
         self.btn_solve.text = tr("input.solve")
@@ -492,35 +511,64 @@ class InputScreen(Screen):
         self._fill_cell(face, r, c, col)
 
     def random_load(self):
-        import random
-        from cube.cube2 import Cube2
-        from cube.cube4 import Cube4
-        from cube.cube3 import Cube3
-        from cube.cube5 import Cube5
         from cube.conversion import cubies_to_facelets
+        from cube.scramble import random_scramble
         n = self._n()
-        if n == 2:
-            cube = Cube2.solved()
-        elif n == 4:
-            cube = Cube4.solved()
-        elif n == 5:
-            cube = Cube5.solved()
-        else:
-            cube = Cube3.solved()
-        if n == 4:
-            faces = ["U", "D", "F", "B", "R", "L", "u", "d", "f", "b", "r", "l"]
-        elif n == 5:
-            faces = ["U", "D", "F", "B", "R", "L", "u", "d", "f", "b", "r", "l",
-                     "2U", "2D", "2F", "2B", "2R", "2L"]
-        else:
-            faces = ["U", "D", "F", "B", "R", "L"]
-        suff = ["", "'", "2"]
-        moves = [random.choice(faces) + random.choice(suff)
-                 for _ in range(random.randint(12, 25))]
+        moves = random_scramble(n)
+        cube = _new_solved_cube(n)
         cube.apply_moves(moves)
         facelets = cubies_to_facelets(cube.cubies, n)
         self.set_facelets(facelets)
         self.msg.text = tr("input.random_loaded", k=len(moves))
+
+    def open_scramble(self):
+        """弹出输入框，让用户粘贴打乱公式（如 "R U R' U'"）。"""
+        from kivy.uix.popup import Popup
+        from kivy.uix.textinput import TextInput
+        content = BoxLayout(orientation="vertical", spacing=12, padding=16)
+        ti = TextInput(text="", multiline=False, size_hint_y=None, height=48,
+                       hint_text=tr("input.scramble.hint"),
+                       font_size="18sp")
+        btns = BoxLayout(orientation="horizontal", spacing=8,
+                         size_hint_y=None, height=52)
+        cancel = UIButton(text=tr("input.cancel"))
+        cancel.bind(on_release=lambda *a: popup.dismiss())
+        ok = PrimaryButton(text=tr("input.scramble.ok"))
+        ok.bind(on_release=lambda *a: (self._apply_scramble_popup(ti.text),
+                                       popup.dismiss()))
+        btns.add_widget(cancel)
+        btns.add_widget(ok)
+        content.add_widget(ti)
+        content.add_widget(btns)
+        popup = Popup(title=tr("input.scramble"), content=content,
+                      size_hint=(0.9, 0.34))
+        popup.open()
+
+    def _apply_scramble_popup(self, text):
+        self.load_scramble(text)
+
+    def load_scramble(self, text):
+        """解析打乱公式并载入对应状态；失败时在状态栏提示。返回是否成功。"""
+        from cube.conversion import cubies_to_facelets
+        from cube.scramble import text_to_moves
+        n = self._n()
+        try:
+            moves, _skipped = text_to_moves(text, n)
+        except ValueError as exc:
+            self.msg.text = tr("input.scramble.error", tok=str(exc))
+            return False
+        if not moves:
+            self.msg.text = tr("input.scramble.empty")
+            return False
+        cube = _new_solved_cube(n)
+        try:
+            cube.apply_moves(moves)
+        except Exception:
+            self.msg.text = tr("input.scramble.error", tok="?")
+            return False
+        self.set_facelets(cubies_to_facelets(cube.cubies, n))
+        self.msg.text = tr("input.scramble.loaded", k=len(moves))
+        return True
 
     def confirm_clear(self):
         from kivy.uix.popup import Popup
@@ -561,6 +609,13 @@ class InputScreen(Screen):
             self._init_for_n()
             self._n_for_screen = n
             self._initialized = True
+        # 5 阶专属重资源在用户填色期间后台预热，避免启动时无谓开销。
+        if n == 5:
+            try:
+                from app.warmup import warmup_5x5
+                warmup_5x5()
+            except Exception:
+                pass
         app = _app()
         if app.facelets_input is not None:
             self.set_facelets(app.facelets_input)

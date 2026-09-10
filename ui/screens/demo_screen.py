@@ -109,21 +109,26 @@ class DemoScreen(Screen):
         sv.add_widget(info)
         root.add_widget(sv)
 
-        # 控制区
-        ctl = BoxLayout(size_hint_y=None, height=52, spacing=6)
-        self.btn_prev = UIButton(text=tr("playback.prev"), size_hint_x=0.3)
+        # 控制区（两行：播放步进 + 视角）
+        control = BoxLayout(orientation="vertical", size_hint_y=None, height=110, spacing=6)
+        play_row = BoxLayout(spacing=6)
+        self.btn_start = UIButton(text=tr("playback.start"), size_hint_x=0.25)
+        self.btn_start.bind(on_release=lambda *a: self.to_start())
+        self.btn_prev = UIButton(text=tr("playback.prev"), size_hint_x=0.25)
         self.btn_prev.bind(on_release=lambda *a: self.prev_case())
-        self.btn_play = UIButton(text=tr("playback.play"), size_hint_x=0.2)
+        self.btn_play = UIButton(text=tr("playback.play"), size_hint_x=0.25)
         self.btn_play.bind(on_release=lambda *a: self.play())
-        self.btn_next = UIButton(text=tr("playback.next"), size_hint_x=0.3)
+        self.btn_next = UIButton(text=tr("playback.next"), size_hint_x=0.25)
         self.btn_next.bind(on_release=lambda *a: self.next_case())
-        self.btn_reset = UIButton(text=tr("playback.reset_view"), size_hint_x=0.2)
+        for b in (self.btn_start, self.btn_prev, self.btn_play, self.btn_next):
+            play_row.add_widget(b)
+        control.add_widget(play_row)
+        util_row = BoxLayout(spacing=6)
+        self.btn_reset = UIButton(text=tr("playback.reset_view"))
         self.btn_reset.bind(on_release=lambda *a: self.view.reset_camera())
-        ctl.add_widget(self.btn_prev)
-        ctl.add_widget(self.btn_play)
-        ctl.add_widget(self.btn_next)
-        ctl.add_widget(self.btn_reset)
-        root.add_widget(ctl)
+        util_row.add_widget(self.btn_reset)
+        control.add_widget(util_row)
+        root.add_widget(control)
 
         self.add_widget(root)
 
@@ -132,6 +137,7 @@ class DemoScreen(Screen):
             return
         self.btn_back.text = tr("demo.back_to_menu")
         self.btn_switch.text = tr("demo.switch")
+        self.btn_start.text = tr("playback.start")
         self.btn_prev.text = tr("playback.prev")
         self.btn_next.text = tr("playback.next")
         self.btn_reset.text = tr("playback.reset_view")
@@ -211,6 +217,10 @@ class DemoScreen(Screen):
         self.lbl_tip.text = localized(case["tip"])
 
     # ---- 播放动画 ----
+    def to_start(self):
+        """回到该案例的初始状态（停止播放并复位魔方），便于反复播放。"""
+        self._show_case()
+
     def play(self):
         if self._busy:
             return

@@ -44,8 +44,11 @@ def _run():
 
 
 def _warm_twophase():
-    """导入即加载 kociemba 两阶段表（3x3/4x4/5x5 降阶 3x3 共用）。"""
+    """导入即加载 kociemba 两阶段表，并预加载各阶求解器（供后续惰性导入复用）。"""
     import solver.solver3  # noqa: F401
+    import solver.solver2  # noqa: F401
+    import solver.solver4  # noqa: F401
+    import solver.solver5  # noqa: F401
 
 
 def _warm_ref5():

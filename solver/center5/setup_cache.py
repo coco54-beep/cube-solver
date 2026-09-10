@@ -9,8 +9,11 @@
     基元支撑三元组（expected_cycle）
     生成元列表（合法动作）
     置换复合方向约定（正向 3-cycle）
-任一项改变即应失效（见 cache_key_of）。第一版为内存缓存；若启动明显变慢，
-再引入版本化磁盘缓存（solver/center5/data/）。
+任一项改变即应失效（见 cache_key_of）。
+
+查表加载顺序：内存 lru → 随包预建表（solver/center5/data/，由
+tools/research/5x5/build_setup_tables.py 离线生成并提交）→ 运行时磁盘缓存
+（可写目录）→ BFS 构建。随包预建表让设备首次启动也无需跑 BFS。
 """
 
 from collections import deque
@@ -38,8 +41,10 @@ _LEGAL: Tuple[str, ...] = tuple(
     m for m in LEGAL_5X5_CENTER_MOVES if is_legal_5x5_solver_move(m)
 )
 
-# 版本化磁盘缓存：首次 BFS 后落盘，之后启动直接反序列化（每个 ~0.4MB）。
+# 运行时版本化磁盘缓存：首次 BFS 后落盘，之后启动直接反序列化（每个 ~0.4MB）。
 _CACHE_SUBDIR = "center5_setup"
+# 随包预建表目录（相对本文件）：离线生成并提交，随 APK 发布，设备首启免 BFS。
+_BUNDLED_SUBDIR = "data"
 
 Coord = Tuple[int, int, int]
 TripState = Tuple[Coord, Coord, Coord]  # 三个 marker 的当前坐标
@@ -66,14 +71,16 @@ class SetupCacheStats:
     builds: int
     hits: int
     disk_hits: int = 0
+    bundled_hits: int = 0
 
 
-_STATS: Dict[str, int] = {"builds": 0, "hits": 0, "disk_hits": 0}
+_STATS: Dict[str, int] = {"builds": 0, "hits": 0, "disk_hits": 0, "bundled_hits": 0}
 
 
 def setup_cache_stats() -> SetupCacheStats:
     return SetupCacheStats(builds=_STATS["builds"], hits=_STATS["hits"],
-                           disk_hits=_STATS["disk_hits"])
+                           disk_hits=_STATS["disk_hits"],
+                           bundled_hits=_STATS["bundled_hits"])
 
 
 def clear_setup_cache() -> None:
@@ -81,6 +88,7 @@ def clear_setup_cache() -> None:
     _STATS["builds"] = 0
     _STATS["hits"] = 0
     _STATS["disk_hits"] = 0
+    _STATS["bundled_hits"] = 0
     directory = _disk_cache_dir()
     if directory is not None:
         for name in os.listdir(directory):
@@ -133,6 +141,53 @@ def _disk_path(primitive: CenterPrimitive) -> Optional[str]:
     return os.path.join(directory, cache_key_of(primitive) + ".pkl")
 
 
+def _bundled_dir() -> str:
+    """随包预建表目录（只读，随 APK 发布）。"""
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), _BUNDLED_SUBDIR)
+
+
+def _bundled_path(primitive: CenterPrimitive) -> Optional[str]:
+    path = os.path.join(_bundled_dir(), cache_key_of(primitive) + ".pkl")
+    return path if os.path.isfile(path) else None
+
+
+def _load_table(path: str, key: str) -> Optional[SetupTable]:
+    try:
+        with open(path, "rb") as f:
+            data = pickle.load(f)
+    except Exception:
+        return None
+    if data.get("version") == CACHE_VERSION and data.get("key") == key:
+        return data["table"]
+    return None
+
+
+def _write_table(path: str, key: str, table: SetupTable) -> None:
+    tmp = path + ".tmp"
+    with open(tmp, "wb") as f:
+        pickle.dump({"version": CACHE_VERSION, "key": key, "table": table},
+                    f, protocol=pickle.HIGHEST_PROTOCOL)
+    os.replace(tmp, path)
+
+
+def dump_setup_table(
+    primitive: CenterPrimitive,
+    directory: Optional[str] = None,
+) -> str:
+    """离线生成并写出某基元的 setup 表，返回写入路径。
+
+    directory 默认为随包目录 `solver/center5/data/`。供构建脚本使用。
+    """
+    if directory is None:
+        directory = _bundled_dir()
+    os.makedirs(directory, exist_ok=True)
+    key = cache_key_of(primitive)
+    table = build_setup_table(primitive)
+    path = os.path.join(directory, key + ".pkl")
+    _write_table(path, key, table)
+    return path
+
+
 # ---------------------------------------------------------------------------
 # BFS 构建
 # ---------------------------------------------------------------------------
@@ -163,27 +218,25 @@ def build_setup_table(
 
 @lru_cache(maxsize=None)
 def get_setup_table(primitive: CenterPrimitive) -> SetupTable:
-    """按基元取 setup 表：内存 → 磁盘 → BFS 构建（构建后落盘）。"""
+    """按基元取 setup 表：内存 → 随包预建 → 运行时磁盘 → BFS（构建后落盘）。"""
     key = cache_key_of(primitive)
+    bundled = _bundled_path(primitive)
+    if bundled is not None:
+        table = _load_table(bundled, key)
+        if table is not None:
+            _STATS["bundled_hits"] += 1
+            return table
     path = _disk_path(primitive)
     if path is not None:
-        try:
-            with open(path, "rb") as f:
-                data = pickle.load(f)
-            if data.get("version") == CACHE_VERSION and data.get("key") == key:
-                _STATS["disk_hits"] += 1
-                return data["table"]
-        except Exception:
-            pass
+        table = _load_table(path, key)
+        if table is not None:
+            _STATS["disk_hits"] += 1
+            return table
     _STATS["builds"] += 1
     table = build_setup_table(primitive)
     if path is not None:
         try:
-            tmp = path + ".tmp"
-            with open(tmp, "wb") as f:
-                pickle.dump({"version": CACHE_VERSION, "key": key, "table": table},
-                            f, protocol=pickle.HIGHEST_PROTOCOL)
-            os.replace(tmp, path)
+            _write_table(path, key, table)
         except Exception:
             pass
     return table

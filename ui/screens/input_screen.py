@@ -35,7 +35,6 @@ from cube.cube4 import Cube4
 from cube.cube3 import Cube3
 from cube.cube5 import Cube5
 from ui.widgets.color_picker import ColorSelector
-from solver.solver4 import _rebuild_center_homes
 
 
 def _axis_of(normal):
@@ -591,6 +590,8 @@ class InputScreen(Screen):
         app = _app()
         cubies = facelets_to_cubies(facelets, self._n())
         if self._n() == 4:
+            # 惰性导入：solver4 -> solver3（kociemba 表 ~7s），避免启动首帧前加载。
+            from solver.solver4 import _rebuild_center_homes
             _rebuild_center_homes(cubies)
         app.set_cube(cubies, self._n())
         app.facelets_input = facelets

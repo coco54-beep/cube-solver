@@ -19,6 +19,8 @@ env/
 # 生产 ref5 预计算缓存需随包发布（否则首次求解在设备上重建约 20s）
 !solver/reduction/ref5/macro_cache.pkl
 !solver/reduction/ref5/midflip_cache.pkl
+# 5x5 中心 setup 表：电脑离线预建，随 APK 发布（设备首启免 BFS）
+!solver/center5/data/*.pkl
 
 # --- Logs & misc build artifacts ---
 *.log

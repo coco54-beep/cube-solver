@@ -3,7 +3,7 @@
 覆盖：（1）20 个固定 seed 的随机打乱回归；（2）已解输入返回空；
 （3）动作全部合法；（4）同输入结果确定；（5）固定面心不被扰动；
 （6）validate_5x5 校验通过；（7）整机校验；（8）输入对象不被修改；
-（9）setup 缓存性能（首次 builds==2，二次 hits>0）。
+（9）setup 缓存性能（存在随包预建表时 builds==0，否则首次 builds==2；二次 hits>0）。
 """
 
 import random
@@ -124,9 +124,12 @@ def test_setup_cache_performance():
     cube.apply_moves(make_legal_scramble(seed=0, length=25))
     solve_centers5(cube)
     stats1 = setup_cache_stats()
-    assert stats1.builds == 2, "两轨道应各构建一次 setup 表，实际 %d" % stats1.builds
+    # 有随包预建表时命中 bundled（builds==0）；无预建表时两轨道各 BFS 一次。
+    assert stats1.builds in (0, 2), "首次求解 BFS 次数异常：%d" % stats1.builds
+    assert stats1.builds + stats1.bundled_hits + stats1.disk_hits >= 1, \
+        "首次求解既未构建也未命中预建/磁盘表"
 
     solve_centers5(cube)
     stats2 = setup_cache_stats()
-    assert stats2.builds == 2, "第二次求解不应重复 BFS"
+    assert stats2.builds == stats1.builds, "第二次求解不应重复 BFS"
     assert stats2.hits > stats1.hits, "第二次求解应命中缓存的 setup"

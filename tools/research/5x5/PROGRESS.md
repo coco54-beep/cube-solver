@@ -977,7 +977,38 @@ _build_solve_prev / generators / orient_distance_map   均 < 0.02s
 - 占用与收益（实测）：4 张表共 **1.7MB**（每张 0.4MB）；冷建 7.14s →
   磁盘热载 **0.015s**。整个预热 14.0s → **7.08s**（余下为 kociemba 表加载）。
 - `clear_setup_cache()` 现在一并清空磁盘缓存（测试隔离）。
-- 未做：把预建表随 APK 发布（可让首启也免 BFS，但省的是后台时间，收益有限）。
+
+#### 22.2 预建表随 APK 发布
+
+- 新增 `tools/research/5x5/build_setup_tables.py`：在电脑上离线预建 5 张表
+  （corner_main/backup、edge_main/backup、edge_comm4），写入随包目录
+  `solver/center5/data/`（共 ~2MB，每张 12144 状态）。
+- `get_setup_table` 加载顺序改为：内存 lru → 随包预建 → 运行时磁盘 → BFS。
+  设备首启即命中预建表（实测 `builds==0, bundled_hits==5`），完全免 BFS。
+- 打包（**关键坑**）：buildozer 的 `_copy_application_sources` 在 pattern 匹配后
+  **无条件**执行扩展名过滤，`source.include_patterns` 只能「取消排除」、**不能新增
+  扩展名**。故带路径的 `solver/center5/data/*.pkl` 之类模式对 `.pkl` 无效，必须在
+  `source.include_exts` 里加 `pkl`；`twophase/*` 能生效仅因其文件**无扩展名**、
+  绕过了扩展名过滤。已把 `pkl` 加入 include_exts（同时 ref5 的 `macro_cache.pkl`
+  /`midflip_cache.pkl` 也一并进包）。`.gitignore` 反忽略随包目录（否则被 `*.pkl` 忽略）。
+- 校验打包结果：`unzip -p <apk> assets/private.tar | tar -tvf -`，确认
+  `solver/center5/data/*.pkl` 在列（p4a 把应用打成 `assets/private.tar`，用
+  `unzip -l` 看不到单文件）。
+- 缓存键版本化保证正确性：基元/合法动作/置换约定任一变化，旧预建表自动失效并回退
+  到磁盘/BFS；此时需重跑生成脚本。`test_setup_cache_performance` 已改为兼容
+  「有/无预建表」两种情形。
+
+#### 22.3 启动黑屏修复（首帧前同步 import 求解器）
+
+- 现象：新 APK 启动后黑屏很久、才出现首页。
+- 根因：`ui/screens/input_screen.py` 在**模块顶层** `from solver.solver4 import
+  _rebuild_center_homes`；`build()` 构建屏幕时 `import ui.screens` → `solver4` →
+  `solver.solver3`，同步加载 ~7s 的 kociemba 表，正好发生在首帧渲染之前。
+  预热线程并非主因：GIL 争用实测主线程最大停顿仅 ~30ms。
+- 修复：把该导入下沉到 `_commit_cube` 内（仅 4x4 提交时用）；`warmup._warm_twophase`
+  顺带预加载 solver2/3/4/5，使后续惰性导入即时命中已加载模块。
+- 结果：`services.solve_service` 顶层导入不再带入 solver3/5；`ui/*`、`renderer/*`
+  顶层已无任何 solver/services 导入，`build()` 不再触碰求解器。
 
 
 

@@ -25,7 +25,8 @@ _DIR_ARROW = {
 }
 
 
-from app.constants import FACE_LABEL, FACES
+from app.constants import FACES
+from app.i18n import tr, current_language
 from cube.conversion import facelets_to_cubies
 from cube.cubie_model import Cubie
 from cube.coordinates import FACE_NORMALS, pos_from_rc, get_d_maxc, rc_from_pos, coord_values
@@ -168,15 +169,15 @@ class InputScreen(Screen):
 
         # ---- 顶栏 ----
         top = BoxLayout(size_hint_y=None, height=46, spacing=8)
-        back = UIButton(text="←返回", size_hint_x=0.22)
-        back.bind(on_release=lambda *a: self.go_home())
-        self.title = Label(text="录入 4x4", size_hint_x=0.56, halign="center",
+        self.btn_back = UIButton(text=tr("input.back"), size_hint_x=0.22)
+        self.btn_back.bind(on_release=lambda *a: self.go_home())
+        self.title = Label(text=tr("input.title", n=4), size_hint_x=0.56, halign="center",
                            font_size="20sp", bold=True)
-        demo = UIButton(text="演示", size_hint_x=0.22)
-        demo.bind(on_release=lambda *a: self.open_demo())
-        top.add_widget(back)
+        self.btn_demo = UIButton(text=tr("input.demo"), size_hint_x=0.22)
+        self.btn_demo.bind(on_release=lambda *a: self.open_demo())
+        top.add_widget(self.btn_back)
         top.add_widget(self.title)
-        top.add_widget(demo)
+        top.add_widget(self.btn_demo)
         root.add_widget(top)
 
         # ---- 3D 视图占满主区 ----
@@ -192,8 +193,9 @@ class InputScreen(Screen):
         zoom_in.bind(on_release=lambda *a: self._zoom(1.15))
         zoom_out = UIButton(text="－", size_hint_x=0.12, font_size="20sp")
         zoom_out.bind(on_release=lambda *a: self._zoom(1 / 1.15))
-        self.face_label = Label(text="当前面：前", size_hint_x=0.5,
-                                halign="center", font_size="17sp", bold=True)
+        self.face_label = Label(text=tr("input.face", face=tr("face.F"), code="F"),
+                                size_hint_x=0.5, halign="center",
+                                font_size="17sp", bold=True)
         for w in (zoom_out, self.face_label, zoom_in):
             nav.add_widget(w)
         root.add_widget(nav)
@@ -204,13 +206,13 @@ class InputScreen(Screen):
 
         # ---- 录入辅助工具 ----
         edit_row = BoxLayout(size_hint_y=None, height=44, spacing=8)
-        self.btn_pick = UIButton(text="吸色", font_size="15sp")
+        self.btn_pick = UIButton(text=tr("input.pick"), font_size="15sp")
         self.btn_pick.bind(on_release=lambda *a: self.toggle_pick())
-        self.btn_fill = UIButton(text="整面填充", font_size="15sp")
+        self.btn_fill = UIButton(text=tr("input.fill"), font_size="15sp")
         self.btn_fill.bind(on_release=lambda *a: self.fill_face())
-        self.btn_undo = UIButton(text="撤销", font_size="15sp")
+        self.btn_undo = UIButton(text=tr("input.undo"), font_size="15sp")
         self.btn_undo.bind(on_release=lambda *a: self.undo())
-        self.btn_redo = UIButton(text="重做", font_size="15sp")
+        self.btn_redo = UIButton(text=tr("input.redo"), font_size="15sp")
         self.btn_redo.bind(on_release=lambda *a: self.redo())
         for b in (self.btn_pick, self.btn_fill, self.btn_undo, self.btn_redo):
             edit_row.add_widget(b)
@@ -218,9 +220,9 @@ class InputScreen(Screen):
 
         # ---- 翻转导航 ----
         turn_row = BoxLayout(size_hint_y=None, height=48, spacing=8)
-        self.btn_prev = UIButton(text="上一步", font_size="16sp")
+        self.btn_prev = UIButton(text=tr("input.prev", arrow=""), font_size="16sp")
         self.btn_prev.bind(on_release=lambda *a: self.prev_face())
-        self.btn_next = UIButton(text="下一步", font_size="16sp")
+        self.btn_next = UIButton(text=tr("input.next", arrow=""), font_size="16sp")
         self.btn_next.bind(on_release=lambda *a: self.next_face())
         for b in (self.btn_prev, self.btn_next):
             turn_row.add_widget(b)
@@ -228,17 +230,18 @@ class InputScreen(Screen):
 
         # ---- 操作按钮行 ----
         action_row = BoxLayout(size_hint_y=None, height=52, spacing=8)
-        twist = UIButton(text="拧魔方", font_size="15sp")
-        twist.bind(on_release=lambda *a: self.open_twist())
-        rnd = UIButton(text="随机", font_size="15sp")
-        rnd.bind(on_release=lambda *a: self.random_load())
-        clear = DangerButton(text="清空", font_size="15sp")
-        clear.bind(on_release=lambda *a: self.confirm_clear())
-        check = UIButton(text="校验", font_size="15sp")
-        check.bind(on_release=lambda *a: self.check())
-        solve = PrimaryButton(text="开始求解", font_size="15sp")
-        solve.bind(on_release=lambda *a: self.start_solve())
-        for b in (twist, rnd, clear, check, solve):
+        self.btn_twist = UIButton(text=tr("input.twist"), font_size="15sp")
+        self.btn_twist.bind(on_release=lambda *a: self.open_twist())
+        self.btn_random = UIButton(text=tr("input.random"), font_size="15sp")
+        self.btn_random.bind(on_release=lambda *a: self.random_load())
+        self.btn_clear = DangerButton(text=tr("input.clear"), font_size="15sp")
+        self.btn_clear.bind(on_release=lambda *a: self.confirm_clear())
+        self.btn_check = UIButton(text=tr("input.check"), font_size="15sp")
+        self.btn_check.bind(on_release=lambda *a: self.check())
+        self.btn_solve = PrimaryButton(text=tr("input.solve"), font_size="15sp")
+        self.btn_solve.bind(on_release=lambda *a: self.start_solve())
+        for b in (self.btn_twist, self.btn_random, self.btn_clear,
+                  self.btn_check, self.btn_solve):
             action_row.add_widget(b)
         root.add_widget(action_row)
 
@@ -250,6 +253,26 @@ class InputScreen(Screen):
 
         self.bind(size=self._on_resize)
 
+    def retranslate(self):
+        """语言切换后重设静态文案。"""
+        if not hasattr(self, "title"):
+            return
+        self.btn_back.text = tr("input.back")
+        self.btn_demo.text = tr("input.demo")
+        self.btn_pick.text = tr("input.pick")
+        self.btn_fill.text = tr("input.fill")
+        self.btn_undo.text = tr("input.undo")
+        self.btn_redo.text = tr("input.redo")
+        self.btn_twist.text = tr("input.twist")
+        self.btn_random.text = tr("input.random")
+        self.btn_clear.text = tr("input.clear")
+        self.btn_check.text = tr("input.check")
+        self.btn_solve.text = tr("input.solve")
+        self.title.text = tr("input.title", n=self._n())
+        self._update_turn_hints()
+        self._update_face_label()
+        self.msg.text = ""
+
     def _on_resize(self, *args):
         # 尺寸变化时重新取景（整体旋转与颜色数据保留）。
         Clock.schedule_once(lambda *a: self._refresh_view(keep_anim=False), 0)
@@ -258,7 +281,7 @@ class InputScreen(Screen):
         n = self._n()
         self._data = {f: [[""] * n for _ in range(n)] for f in FACES}
         self._ori = CubeOrientation(n)
-        self.title.text = f"录入 {n}x{n}"
+        self.title.text = tr("input.title", n=n)
         # 录入页相机正对当前面（+Z），不使用演示页的斜视角度。
         self.view.camera.elevation = 0.0
         self.view.camera.azimuth = 0.0
@@ -296,14 +319,14 @@ class InputScreen(Screen):
 
     def _update_face_label(self):
         face = self._ori.current_face()
-        self.face_label.text = f"当前面：{FACE_LABEL.get(face, face)} ({face})"
+        self.face_label.text = tr("input.face", face=tr(f"face.{face}"), code=face)
 
     def _update_turn_hints(self):
         """在"上一步/下一步"按钮上显示本次转向的方位箭头。"""
         left = _DIR_ARROW.get(self._ori.prev_dir(), "◀")
         right = _DIR_ARROW.get(self._ori.next_dir(), "▶")
-        self.btn_prev.text = f"{left}上一步"
-        self.btn_next.text = f"{right}下一步"
+        self.btn_prev.text = tr("input.prev", arrow=left)
+        self.btn_next.text = tr("input.next", arrow=right)
 
     def _zoom(self, factor):
         self.view._display_zoom *= factor
@@ -323,7 +346,7 @@ class InputScreen(Screen):
             if col:
                 self.picker.select(col)
                 self.toggle_pick()
-                self.msg.text = f"已吸色 {col}，可继续填色"
+                self.msg.text = tr("input.picked", col=col)
             return
         self.on_cell(r, c, face)
 
@@ -384,9 +407,9 @@ class InputScreen(Screen):
                     self._data[face][r][c] = col
         if edits:
             self._commit_action(edits)
-            self.msg.text = f"已将 {face} 面填充为 {col}"
+            self.msg.text = tr("input.filled", face=face, col=col)
         else:
-            self.msg.text = f"{face} 面已是 {col}"
+            self.msg.text = tr("input.already", face=face, col=col)
         self._refresh_view()
 
     def toggle_pick(self):
@@ -402,7 +425,7 @@ class InputScreen(Screen):
         for face, r, c, old, _new in reversed(action):
             self._data[face][r][c] = old
         self._redo.append(action)
-        self.msg.text = "已撤销"
+        self.msg.text = tr("input.undone")
         self._refresh_view()
         self._update_edit_buttons()
 
@@ -413,7 +436,7 @@ class InputScreen(Screen):
         for face, r, c, _old, new in action:
             self._data[face][r][c] = new
         self._history.append(action)
-        self.msg.text = "已重做"
+        self.msg.text = tr("input.redone")
         self._refresh_view()
         self._update_edit_buttons()
 
@@ -497,23 +520,23 @@ class InputScreen(Screen):
         cube.apply_moves(moves)
         facelets = cubies_to_facelets(cube.cubies, n)
         self.set_facelets(facelets)
-        self.msg.text = f"已加载随机布局（{len(moves)} 步打乱）"
+        self.msg.text = tr("input.random_loaded", k=len(moves))
 
     def confirm_clear(self):
         from kivy.uix.popup import Popup
         content = BoxLayout(orientation="vertical", spacing=12, padding=16)
-        label = Label(text="确定要清空全部已录入的颜色吗？", halign="center",
+        label = Label(text=tr("input.clear.msg"), halign="center",
                       font_size="18sp", size_hint_y=1)
         btns = BoxLayout(orientation="horizontal", spacing=8, size_hint_y=None, height=52)
-        cancel = UIButton(text="取消")
+        cancel = UIButton(text=tr("input.cancel"))
         cancel.bind(on_release=lambda *a: popup.dismiss())
-        ok = DangerButton(text="确定清空")
+        ok = DangerButton(text=tr("input.clear.ok"))
         ok.bind(on_release=lambda *a: (self.clear_all(), popup.dismiss()))
         btns.add_widget(cancel)
         btns.add_widget(ok)
         content.add_widget(label)
         content.add_widget(btns)
-        popup = Popup(title="确认清空", content=content, size_hint=(0.86, 0.34))
+        popup = Popup(title=tr("input.clear.title"), content=content, size_hint=(0.86, 0.34))
         popup.bind(on_dismiss=lambda *a: None)
         popup.open()
 
@@ -526,14 +549,14 @@ class InputScreen(Screen):
         self._pending_dir = None
         self._reset_edits()
         self._refresh_view()
-        self.msg.text = "已清空"
+        self.msg.text = tr("input.cleared")
 
     def reset_all(self):
         self._init_for_n()
 
     def on_enter(self):
         n = self._n()
-        self.title.text = f"录入 {n}x{n}"
+        self.title.text = tr("input.title", n=n)
         if not self._initialized or getattr(self, "_n_for_screen", None) != n:
             self._init_for_n()
             self._n_for_screen = n
@@ -541,7 +564,7 @@ class InputScreen(Screen):
         app = _app()
         if app.facelets_input is not None:
             self.set_facelets(app.facelets_input)
-            self.msg.text = "已加载上次布局，直接点「开始求解」可沿用上次方案"
+            self.msg.text = tr("input.resumed")
 
     # ---- 校验 ----
     def check(self):
@@ -552,27 +575,31 @@ class InputScreen(Screen):
             for r in range(n):
                 for c in range(n):
                     if not facelets[face][r][c]:
-                        empty.append(f"{FACE_LABEL[face]}{r+1}{c+1}")
+                        empty.append(f"{tr('face.' + face)}{r + 1}{c + 1}")
         if empty:
-            self.msg.text = f"未填写: {','.join(empty[:8])}"
+            self.msg.text = tr("input.missing", list=",".join(empty[:8]))
+            self._valid = False
             return
+        lang = current_language()
         if n == 2:
-            errs = validate_2x2(facelets)
+            errs = validate_2x2(facelets, lang=lang)
         elif n == 3:
-            errs = validate_3x3(facelets)
+            errs = validate_3x3(facelets, lang=lang)
         elif n == 5:
-            errs = validate_5x5(facelets)
+            errs = validate_5x5(facelets, lang=lang)
         else:
-            errs = validate_4x4(facelets)
+            errs = validate_4x4(facelets, lang=lang)
         if errs:
             self.msg.text = errs[0]
+            self._valid = False
         else:
-            self.msg.text = "状态合法 ✓"
+            self.msg.text = tr("input.valid")
+            self._valid = True
 
     # ---- 求解 ----
     def start_solve(self):
         self.check()
-        if self.msg.text != "状态合法 ✓":
+        if not getattr(self, "_valid", False):
             return
         app = _app()
         facelets = self.collect_facelets()

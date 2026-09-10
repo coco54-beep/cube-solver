@@ -8,6 +8,7 @@ from kivy.uix.screenmanager import Screen
 from kivy.uix.progressbar import ProgressBar
 
 from app.constants import STAGE_LABEL
+from app.i18n import tr
 from services.solve_service import SolveService, CancelToken
 
 
@@ -19,10 +20,10 @@ class SolvingScreen(Screen):
 
     def build_ui(self):
         root = BoxLayout(orientation="vertical", padding=24, spacing=12)
-        self.title = Label(text="正在求解…", font_size="24sp", size_hint_y=0.2)
+        self.title = Label(text=tr("solving.title"), font_size="24sp", size_hint_y=0.2)
         self.progress = ProgressBar(max=100, value=0, size_hint_y=0.15)
-        self.detail = Label(text="准备中", font_size="17sp", size_hint_y=0.15)
-        self.cancel = UIButton(text="取消", font_size="20sp", size_hint_y=0.15)
+        self.detail = Label(text=tr("solving.preparing"), font_size="17sp", size_hint_y=0.15)
+        self.cancel = UIButton(text=tr("solving.cancel"), font_size="20sp", size_hint_y=0.15)
         self.cancel.bind(on_release=lambda *a: self.on_cancel())
         root.add_widget(self.title)
         root.add_widget(self.progress)
@@ -30,13 +31,19 @@ class SolvingScreen(Screen):
         root.add_widget(self.cancel)
         self.add_widget(root)
 
+    def retranslate(self):
+        if not hasattr(self, "title"):
+            return
+        self.title.text = tr("solving.title")
+        self.cancel.text = tr("solving.cancel")
+
     def on_enter(self):
         if not hasattr(self, "title"):
             self.build_ui()
         self._finished = False
-        self.title.text = "正在求解…"
+        self.title.text = tr("solving.title")
         self.progress.value = 0
-        self.detail.text = "准备中"
+        self.detail.text = tr("solving.preparing")
         app = _app()
         self.service.start(
             app.cube,
@@ -52,13 +59,13 @@ class SolvingScreen(Screen):
         stage = payload.get("stage")
         label = payload.get("label")
         if label:
-            self.detail.text = label
+            self.detail.text = tr(label)
         elif stage in STAGE_LABEL:
-            self.detail.text = STAGE_LABEL[stage]
+            self.detail.text = tr(STAGE_LABEL[stage])
         elif "paired" in payload:
-            self.detail.text = f"棱块配对 {payload['paired']}/12"
+            self.detail.text = tr("solving.pairing", done=payload["paired"])
         elif "depth" in payload:
-            self.detail.text = f"中心求解深度 {payload['depth']}"
+            self.detail.text = tr("solving.depth", depth=payload["depth"])
         progress = payload.get("progress")
         if progress is not None:
             self.progress.value = max(0, min(100, int(progress * 100)))
@@ -80,7 +87,7 @@ class SolvingScreen(Screen):
 
     def on_cancel(self):
         self.service.cancel()
-        self.detail.text = "正在取消…"
+        self.detail.text = tr("solving.cancelling")
 
     def on_leave(self):
         pass

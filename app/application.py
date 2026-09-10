@@ -17,6 +17,7 @@ from kivy.uix.screenmanager import ScreenManager
 
 from app.constants import APP_NAME
 from app.fonts import setup_cjk_font
+from app import i18n
 from cube.cube2 import Cube2
 from cube.cube3 import Cube3
 from cube.cube4 import Cube4
@@ -32,6 +33,9 @@ class CubeApp(App):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         setup_cjk_font()
+        # ---- 语言（须在构建屏幕前确定，屏幕文案按当前语言生成）----
+        self.lang = i18n.init()
+        self.title = i18n.tr("app.name")
         self.n = 4
         self.cube = Cube4.solved()
         self.solve_result = None
@@ -107,6 +111,34 @@ class CubeApp(App):
         self.theme_mode = mode
         save_mode(mode)
         self._apply_theme_mode()
+
+    # ---- 语言 ----
+    def set_language(self, lang: str):
+        """切换界面语言，持久化并让所有屏幕重新取词。"""
+        if lang not in i18n.LANGUAGES:
+            return
+        self.lang = lang
+        i18n.set_language(lang)
+        i18n.save_language(lang)
+        self.title = i18n.tr("app.name")
+        self._retranslate_screens()
+
+    def cycle_language(self):
+        self.set_language(i18n.cycle_language(self.lang))
+
+    def _retranslate_screens(self):
+        """通知所有已构建的屏幕按新语言重设文案。"""
+        sm = getattr(self, "root", None)
+        if sm is None:
+            return
+        screens = list(getattr(sm, "screens", [])) or list(sm.children)
+        for scr in screens:
+            fn = getattr(scr, "retranslate", None)
+            if fn:
+                try:
+                    fn()
+                except Exception:
+                    pass
 
     def _refresh_screens(self):
         """通知所有已构建的屏幕刷新其 Python 端颜色。"""

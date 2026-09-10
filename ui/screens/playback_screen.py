@@ -7,6 +7,7 @@ from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 from kivy.uix.slider import Slider
 
+from app.i18n import tr
 from renderer.cube_view import CubeView
 from renderer.turn import decompose_move
 
@@ -39,23 +40,23 @@ class PlaybackScreen(Screen):
         # 播放控制（两行：播放步进 + 视角/返回）
         control = BoxLayout(orientation="vertical", size_hint_y=0.22, spacing=6)
         play_row = BoxLayout(spacing=6)
-        self.btn_start = UIButton(text="回到初始", font_size="15sp")
+        self.btn_start = UIButton(text=tr("playback.start"), font_size="15sp")
         self.btn_start.bind(on_release=lambda *a: self.to_start())
-        self.btn_prev = UIButton(text="上一步", font_size="15sp")
+        self.btn_prev = UIButton(text=tr("playback.prev"), font_size="15sp")
         self.btn_prev.bind(on_release=lambda *a: self.prev())
-        self.btn_play = UIButton(text="播放", font_size="15sp")
+        self.btn_play = UIButton(text=tr("playback.play"), font_size="15sp")
         self.btn_play.bind(on_release=lambda *a: self.toggle_play())
-        self.btn_next = UIButton(text="下一步", font_size="15sp")
+        self.btn_next = UIButton(text=tr("playback.next"), font_size="15sp")
         self.btn_next.bind(on_release=lambda *a: self.next())
-        self.btn_end = UIButton(text="跳结尾", font_size="15sp")
+        self.btn_end = UIButton(text=tr("playback.end"), font_size="15sp")
         self.btn_end.bind(on_release=lambda *a: self.to_end())
         for b in (self.btn_start, self.btn_prev, self.btn_play, self.btn_next, self.btn_end):
             play_row.add_widget(b)
         control.add_widget(play_row)
         util_row = BoxLayout(spacing=6)
-        self.btn_view = UIButton(text="还原视角", font_size="15sp")
+        self.btn_view = UIButton(text=tr("playback.reset_view"), font_size="15sp")
         self.btn_view.bind(on_release=lambda *a: self.reset_view())
-        self.btn_back = UIButton(text="返回录入", font_size="15sp")
+        self.btn_back = UIButton(text=tr("playback.back"), font_size="15sp")
         self.btn_back.bind(on_release=lambda *a: self.go_back())
         for b in (self.btn_view, self.btn_back):
             util_row.add_widget(b)
@@ -63,11 +64,13 @@ class PlaybackScreen(Screen):
         root.add_widget(control)
 
         speed_row = BoxLayout(size_hint_y=0.08, spacing=6)
-        speed_row.add_widget(Label(text="速度", font_size="15sp", size_hint_x=0.14))
+        self.lbl_speed = Label(text=tr("playback.speed"), font_size="15sp", size_hint_x=0.14)
+        speed_row.add_widget(self.lbl_speed)
         self.slider = Slider(min=0.25, max=2.0, value=1.0, step=0.25, size_hint_x=0.36)
         self.slider.bind(value=self._on_speed)
         speed_row.add_widget(self.slider)
-        speed_row.add_widget(Label(text="停留", font_size="15sp", size_hint_x=0.14))
+        self.lbl_hold = Label(text=tr("playback.hold"), font_size="15sp", size_hint_x=0.14)
+        speed_row.add_widget(self.lbl_hold)
         self.hold_slider = Slider(min=0.0, max=2.0, value=self._hold, step=0.1,
                                   size_hint_x=0.36)
         self.hold_slider.bind(value=self._on_hold)
@@ -75,6 +78,19 @@ class PlaybackScreen(Screen):
         root.add_widget(speed_row)
 
         self.add_widget(root)
+
+    def retranslate(self):
+        if not hasattr(self, "view"):
+            return
+        self.btn_start.text = tr("playback.start")
+        self.btn_prev.text = tr("playback.prev")
+        self.btn_next.text = tr("playback.next")
+        self.btn_end.text = tr("playback.end")
+        self.btn_view.text = tr("playback.reset_view")
+        self.btn_back.text = tr("playback.back")
+        self.lbl_speed.text = tr("playback.speed")
+        self.lbl_hold.text = tr("playback.hold")
+        self._update_buttons()
 
     def on_enter(self):
         if not hasattr(self, "view"):
@@ -88,7 +104,7 @@ class PlaybackScreen(Screen):
         self._idx = -1
         self._queue = []
         self._busy = False
-        self.lbl_move.text = f"共 {len(self._moves)} 步"
+        self.lbl_move.text = tr("playback.total", k=len(self._moves))
         self.lbl_stage.text = ""
         self._update_buttons()
 
@@ -230,11 +246,12 @@ class PlaybackScreen(Screen):
         self._update_buttons()
 
     def _update_buttons(self):
-        self.lbl_move.text = f"第 {max(0,self._idx+1)}/{len(self._moves)} 步"
+        self.lbl_move.text = tr("playback.step", i=max(0, self._idx + 1),
+                                t=len(self._moves))
         self.btn_start.disabled = self._idx < 0
         self.btn_prev.disabled = self._idx < 0
         self.btn_next.disabled = self._idx + 1 >= len(self._moves)
-        self.btn_play.text = "暂停" if self._playing else "播放"
+        self.btn_play.text = tr("playback.pause") if self._playing else tr("playback.play")
 
     def reset_view(self):
         """把 3D 视角还原到默认。"""

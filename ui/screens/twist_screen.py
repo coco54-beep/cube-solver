@@ -18,6 +18,7 @@ from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 
 from app.constants import FACES
+from app.i18n import tr
 from renderer.cube_view import CubeView
 from renderer.twist import resolve_twist, apply_layer_turn
 from cube.conversion import cubies_to_facelets
@@ -139,11 +140,11 @@ class TwistScreen(Screen):
 
         # 顶栏
         top = BoxLayout(size_hint_y=None, height=46, spacing=8)
-        back = UIButton(text="←返回", size_hint_x=0.22)
+        back = UIButton(text=tr("input.back"), size_hint_x=0.22)
         back.bind(on_release=lambda *a: self.go_back())
-        self.title = Label(text="拧魔方", size_hint_x=0.56, halign="center",
+        self.title = Label(text=tr("input.twist"), size_hint_x=0.56, halign="center",
                            font_size="20sp", bold=True)
-        done = PrimaryButton(text="完成", size_hint_x=0.22)
+        done = PrimaryButton(text=tr("twist.done"), size_hint_x=0.22)
         done.bind(on_release=lambda *a: self.go_back())
         top.add_widget(back)
         top.add_widget(self.title)
@@ -158,15 +159,15 @@ class TwistScreen(Screen):
 
         # 控制区
         ctl = BoxLayout(size_hint_y=None, height=52, spacing=8)
-        self.btn_lock = UIButton(text="卡视角：开", font_size="15sp", size_hint_x=0.3)
+        self.btn_lock = UIButton(text=tr("twist.lock_on"), font_size="15sp", size_hint_x=0.3)
         self.btn_lock.bind(on_release=lambda *a: self.toggle_lock())
-        self.btn_wide = UIButton(text="宽层：关", font_size="15sp", size_hint_x=0.3)
+        self.btn_wide = UIButton(text=tr("twist.wide_off"), font_size="15sp", size_hint_x=0.3)
         self.btn_wide.bind(on_release=lambda *a: self.toggle_wide())
-        reset = UIButton(text="还原视角", font_size="15sp", size_hint_x=0.4)
-        reset.bind(on_release=lambda *a: self.view.reset_camera())
+        self.btn_reset = UIButton(text=tr("playback.reset_view"), font_size="15sp", size_hint_x=0.4)
+        self.btn_reset.bind(on_release=lambda *a: self.view.reset_camera())
         ctl.add_widget(self.btn_lock)
         ctl.add_widget(self.btn_wide)
-        ctl.add_widget(reset)
+        ctl.add_widget(self.btn_reset)
         root.add_widget(ctl)
 
         # 提示
@@ -176,6 +177,18 @@ class TwistScreen(Screen):
         root.add_widget(self.msg)
 
         self.add_widget(root)
+
+    def retranslate(self):
+        if not hasattr(self, "title"):
+            return
+        self.title.text = tr("input.twist")
+        self.btn_reset.text = tr("playback.reset_view")
+        self._update_toggle_texts()
+        self.msg.text = tr("twist.hint_lock_on") if self.view.lock_view else tr("twist.hint_lock_off")
+
+    def _update_toggle_texts(self):
+        self.btn_lock.text = tr("twist.lock_on") if self.view.lock_view else tr("twist.lock_off")
+        self.btn_wide.text = tr("twist.wide_on") if self._wide else tr("twist.wide_off")
 
     # ---- 进入 / 初始化 ----
     def on_enter(self):
@@ -187,10 +200,10 @@ class TwistScreen(Screen):
             cube = _solved_for(n)
         self._work = cube
         self.view.lock_view = True
-        self.btn_lock.text = "卡视角：开"
+        self._update_toggle_texts()
         self.view.reset_camera()
         self._refresh_view()
-        self.msg.text = "卡视角开：拖动魔方拧层；滚轮缩放已锁定"
+        self.msg.text = tr("twist.hint_lock_on")
 
     def _input_screen(self):
         try:
@@ -204,17 +217,17 @@ class TwistScreen(Screen):
     # ---- 交互 ----
     def toggle_lock(self):
         self.view.lock_view = not self.view.lock_view
-        self.btn_lock.text = "卡视角：开" if self.view.lock_view else "卡视角：关"
+        self._update_toggle_texts()
         if self.view.lock_view:
-            self.msg.text = "卡视角开：拖动魔方拧层；滚轮缩放已锁定"
+            self.msg.text = tr("twist.hint_lock_on")
         else:
-            self.msg.text = "卡视角关：拖动转视角，滚轮缩放"
+            self.msg.text = tr("twist.hint_lock_off")
 
     def toggle_wide(self):
         self._wide = not self._wide
         self.view._wide = self._wide
-        self.btn_wide.text = "宽层：开" if self._wide else "宽层：关"
-        self.msg.text = "（宽层开：拧最外层时连同内层一起转）"
+        self._update_toggle_texts()
+        self.msg.text = tr("twist.hint_wide")
 
     def _twist(self, spec):
         if self._busy:

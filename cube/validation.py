@@ -39,6 +39,88 @@ AXIS_SIGN_TO_FACE = {
     (2, -1): "B",
 }
 
+# 校验消息的多语言表：以中文原文（含格式占位符）为键。
+# 默认语言为 zh，保证旧测试断言的中文子串不变。
+_MESSAGES = {
+    "缺少面 {face}": {
+        "en": "Missing face {face}", "ja": "面 {face} がありません"},
+    "面 {face} 行数错误": {
+        "en": "Face {face} has the wrong number of rows",
+        "ja": "面 {face} の行数が正しくありません"},
+    "面 {face} 存在非3列行": {
+        "en": "Face {face} has a row that is not 3 columns wide",
+        "ja": "面 {face} に3列でない行があります"},
+    "面 {face} 存在非2列行": {
+        "en": "Face {face} has a row that is not 2 columns wide",
+        "ja": "面 {face} に2列でない行があります"},
+    "面 {face} 存在非4列行": {
+        "en": "Face {face} has a row that is not 4 columns wide",
+        "ja": "面 {face} に4列でない行があります"},
+    "面 {face} 存在非5列行": {
+        "en": "Face {face} has a row that is not 5 columns wide",
+        "ja": "面 {face} に5列でない行があります"},
+    "面 {face} 存在非法颜色 {cell}": {
+        "en": "Face {face} contains an invalid color {cell}",
+        "ja": "面 {face} に不正な色 {cell} があります"},
+    "颜色 {c} 出现 {n} 次（应为9）": {
+        "en": "Color {c} appears {n} times (expected 9)",
+        "ja": "色 {c} が {n} 回（9 回のはず）"},
+    "颜色 {c} 出现 {n} 次（应为4）": {
+        "en": "Color {c} appears {n} times (expected 4)",
+        "ja": "色 {c} が {n} 回（4 回のはず）"},
+    "颜色 {c} 出现 {n} 次（应为16）": {
+        "en": "Color {c} appears {n} times (expected 16)",
+        "ja": "色 {c} が {n} 回（16 回のはず）"},
+    "颜色 {c} 出现 {n} 次（应为25）": {
+        "en": "Color {c} appears {n} times (expected 25)",
+        "ja": "色 {c} が {n} 回（25 回のはず）"},
+    "6个中心块颜色必须互不相同": {
+        "en": "The 6 center colors must all be different",
+        "ja": "6つのセンターの色はすべて異なる必要があります"},
+    "角块颜色组合与槽位不匹配": {
+        "en": "Corner color combinations do not match the slots",
+        "ja": "コーナーの色の組み合わせがスロットと一致しません"},
+    "棱块颜色组合与槽位不匹配": {
+        "en": "Edge color combinations do not match the slots",
+        "ja": "エッジの色の組み合わせがスロットと一致しません"},
+    "角块扭转和 {s} 不≡0 (mod 3)": {
+        "en": "Corner twist sum {s} is not ≡ 0 (mod 3)",
+        "ja": "コーナーねじれ和 {s} が ≡0 (mod 3) ではありません"},
+    "棱块翻转和 {s} 不≡0 (mod 2)": {
+        "en": "Edge flip sum {s} is not ≡ 0 (mod 2)",
+        "ja": "エッジ反転和 {s} が ≡0 (mod 2) ではありません"},
+    "置换奇偶性错误（角+棱置换必须为偶）": {
+        "en": "Permutation parity error (corner + edge permutation must be even)",
+        "ja": "置換の偶奇エラー（コーナー＋エッジの置換は偶でなければなりません）"},
+    "2x2 不应存在棱块": {
+        "en": "A 2×2 must not have edges", "ja": "2×2 にエッジは存在しません"},
+    "2x2 不应存在中心块": {
+        "en": "A 2×2 must not have centers", "ja": "2×2 にセンターは存在しません"},
+    "角块数 {n} 应为8": {
+        "en": "Corner count {n} should be 8", "ja": "コーナー数 {n} は 8 のはずです"},
+    "棱翼数 {n} 应为24": {
+        "en": "Edge-wing count {n} should be 24",
+        "ja": "エッジウィング数 {n} は 24 のはずです"},
+    "中心色 {c} 出现 {n} 次（应为4）": {
+        "en": "Center color {c} appears {n} times (expected 4)",
+        "ja": "センター色 {c} が {n} 回（4 回のはず）"},
+    "中心色 {c} 出现 {n} 次（应为9）": {
+        "en": "Center color {c} appears {n} times (expected 9)",
+        "ja": "センター色 {c} が {n} 回（9 回のはず）"},
+    "棱块数 {n} 应为36": {
+        "en": "Edge count {n} should be 36", "ja": "エッジ数 {n} は 36 のはずです"},
+    "中心块数 {n} 应为54": {
+        "en": "Center count {n} should be 54",
+        "ja": "センター数 {n} は 54 のはずです"},
+}
+
+
+def _msg(lang: str, template: str, **kw) -> str:
+    """按语言翻译校验消息模板并填充参数（默认 zh）。"""
+    if lang and lang != "zh":
+        template = _MESSAGES.get(template, {}).get(lang, template)
+    return template.format(**kw)
+
 # 全局颜色排序（用于棱块翻转约定的确定性比较）已弃用：翻转约定改为与
 # hkociemba 的 edgeFacelet 一致（见 _edge_flip）。
 
@@ -170,7 +252,7 @@ def _edge_flip(pos: Tuple[int, int, int], colors: List[str],
     return 0 if col_at_f1 == home_first_color else 1
 
 
-def validate_3x3(facelets: Dict[str, List[List[str]]]) -> List[str]:
+def validate_3x3(facelets: Dict[str, List[List[str]]], lang: str = "zh") -> List[str]:
     """校验 3x3 facelet 是否可达。返回错误列表（空=合法）。"""
     errors: List[str] = []
 
@@ -178,20 +260,21 @@ def validate_3x3(facelets: Dict[str, List[List[str]]]) -> List[str]:
     n = 3
     for face in ("U", "D", "F", "B", "R", "L"):
         if face not in facelets:
-            errors.append(f"缺少面 {face}")
+            errors.append(_msg(lang, "缺少面 {face}", face=face))
             continue
         grid = facelets[face]
         if len(grid) != 3:
-            errors.append(f"面 {face} 行数错误")
+            errors.append(_msg(lang, "面 {face} 行数错误", face=face))
             continue
         for row in grid:
             if len(row) != 3:
-                errors.append(f"面 {face} 存在非3列行")
+                errors.append(_msg(lang, "面 {face} 存在非3列行", face=face))
                 break
         for row in grid:
             for cell in row:
                 if not is_valid_color(cell):
-                    errors.append(f"面 {face} 存在非法颜色 {cell}")
+                    errors.append(_msg(lang, "面 {face} 存在非法颜色 {cell}",
+                                       face=face, cell=cell))
                     break
 
     if errors:
@@ -205,7 +288,8 @@ def validate_3x3(facelets: Dict[str, List[List[str]]]) -> List[str]:
                 total[cell] += 1
     for c in VALID_COLORS:
         if total[c] != 9:
-            errors.append(f"颜色 {c} 出现 {total[c]} 次（应为9）")
+            errors.append(_msg(lang, "颜色 {c} 出现 {n} 次（应为9）",
+                               c=c, n=total[c]))
 
     if errors:
         return errors
@@ -214,7 +298,7 @@ def validate_3x3(facelets: Dict[str, List[List[str]]]) -> List[str]:
     center_of, corners, edges, centers_blocks = _extract_pieces(facelets, n)
     center_colors = list(center_of.values())
     if len(set(center_colors)) != 6:
-        errors.append("6个中心块颜色必须互不相同")
+        errors.append(_msg(lang, "6个中心块颜色必须互不相同"))
         return errors
 
     # color -> face（中心色唯一，故映射确定）
@@ -231,7 +315,7 @@ def validate_3x3(facelets: Dict[str, List[List[str]]]) -> List[str]:
     for pos, colors in corners:
         piece_corner_triples.append(tuple(sorted(colors)))
     if sorted(corner_slots) != sorted(piece_corner_triples):
-        errors.append("角块颜色组合与槽位不匹配")
+        errors.append(_msg(lang, "角块颜色组合与槽位不匹配"))
 
     edge_slots = []
     for pos, _ in edges:
@@ -242,7 +326,7 @@ def validate_3x3(facelets: Dict[str, List[List[str]]]) -> List[str]:
     for pos, colors in edges:
         piece_edge_pairs.append(tuple(sorted(colors)))
     if sorted(edge_slots) != sorted(piece_edge_pairs):
-        errors.append("棱块颜色组合与槽位不匹配")
+        errors.append(_msg(lang, "棱块颜色组合与槽位不匹配"))
 
     if errors:
         return errors
@@ -260,14 +344,14 @@ def validate_3x3(facelets: Dict[str, List[List[str]]]) -> List[str]:
             continue
         twist_sum += _corner_twist(pos, ud, colors)
     if twist_sum % 3 != 0:
-        errors.append(f"角块扭转和 {twist_sum} 不≡0 (mod 3)")
+        errors.append(_msg(lang, "角块扭转和 {s} 不≡0 (mod 3)", s=twist_sum))
 
     # 7. 棱块翻转
     flip_sum = 0
     for pos, colors in edges:
         flip_sum += _edge_flip(pos, colors, face_by_color)
     if flip_sum % 2 != 0:
-        errors.append(f"棱块翻转和 {flip_sum} 不≡0 (mod 2)")
+        errors.append(_msg(lang, "棱块翻转和 {s} 不≡0 (mod 2)", s=flip_sum))
 
     # 8. 置换奇偶
     def perm_parity(pieces):
@@ -311,12 +395,12 @@ def validate_3x3(facelets: Dict[str, List[List[str]]]) -> List[str]:
     corner_par = perm_parity(corners)
     edge_par = perm_parity(edges)
     if (corner_par + edge_par) % 2 != 0:
-        errors.append("置换奇偶性错误（角+棱置换必须为偶）")
+        errors.append(_msg(lang, "置换奇偶性错误（角+棱置换必须为偶）"))
 
     return errors
 
 
-def validate_2x2(facelets: Dict[str, List[List[str]]]) -> List[str]:
+def validate_2x2(facelets: Dict[str, List[List[str]]], lang: str = "zh") -> List[str]:
     """校验 2x2 facelet 是否可达。返回错误列表（空=合法）。
 
     2 阶无棱块、无中心块，只有 8 个角块。可达性条件（2x2 的置换奇偶不受限，
@@ -332,20 +416,21 @@ def validate_2x2(facelets: Dict[str, List[List[str]]]) -> List[str]:
     # 1. 结构
     for face in ("U", "D", "F", "B", "R", "L"):
         if face not in facelets:
-            errors.append(f"缺少面 {face}")
+            errors.append(_msg(lang, "缺少面 {face}", face=face))
             continue
         grid = facelets[face]
         if len(grid) != 2:
-            errors.append(f"面 {face} 行数错误")
+            errors.append(_msg(lang, "面 {face} 行数错误", face=face))
             continue
         for row in grid:
             if len(row) != 2:
-                errors.append(f"面 {face} 存在非2列行")
+                errors.append(_msg(lang, "面 {face} 存在非2列行", face=face))
                 break
         for row in grid:
             for cell in row:
                 if not is_valid_color(cell):
-                    errors.append(f"面 {face} 存在非法颜色 {cell}")
+                    errors.append(_msg(lang, "面 {face} 存在非法颜色 {cell}",
+                                       face=face, cell=cell))
                     break
 
     if errors:
@@ -359,7 +444,8 @@ def validate_2x2(facelets: Dict[str, List[List[str]]]) -> List[str]:
                 total[cell] += 1
     for c in VALID_COLORS:
         if total[c] != 4:
-            errors.append(f"颜色 {c} 出现 {total[c]} 次（应为4）")
+            errors.append(_msg(lang, "颜色 {c} 出现 {n} 次（应为4）",
+                               c=c, n=total[c]))
 
     if errors:
         return errors
@@ -367,11 +453,11 @@ def validate_2x2(facelets: Dict[str, List[List[str]]]) -> List[str]:
     # 3/4/5. 角块检查
     center_of, corners, edges, centers_blocks = _extract_pieces(facelets, n)
     if edges:
-        errors.append("2x2 不应存在棱块")
+        errors.append(_msg(lang, "2x2 不应存在棱块"))
     if centers_blocks:
-        errors.append("2x2 不应存在中心块")
+        errors.append(_msg(lang, "2x2 不应存在中心块"))
     if len(corners) != 8:
-        errors.append(f"角块数 {len(corners)} 应为8")
+        errors.append(_msg(lang, "角块数 {n} 应为8", n=len(corners)))
 
     if errors:
         return errors
@@ -386,7 +472,7 @@ def validate_2x2(facelets: Dict[str, List[List[str]]]) -> List[str]:
     for pos, colors in corners:
         piece_corner_triples.append(tuple(sorted(colors)))
     if sorted(corner_slots) != sorted(piece_corner_triples):
-        errors.append("角块颜色组合与槽位不匹配")
+        errors.append(_msg(lang, "角块颜色组合与槽位不匹配"))
         return errors
 
     # 4. 角块扭转（用命名面 U/D 作为 ud 轴）
@@ -396,12 +482,12 @@ def validate_2x2(facelets: Dict[str, List[List[str]]]) -> List[str]:
         ud = colors[1]  # y 轴面颜色，必须是 U 或 D 之一
         twist_sum += _corner_twist(pos, ud, colors)
     if twist_sum % 3 != 0:
-        errors.append(f"角块扭转和 {twist_sum} 不≡0 (mod 3)")
+        errors.append(_msg(lang, "角块扭转和 {s} 不≡0 (mod 3)", s=twist_sum))
 
     return errors
 
 
-def validate_4x4(facelets: Dict[str, List[List[str]]]) -> List[str]:
+def validate_4x4(facelets: Dict[str, List[List[str]]], lang: str = "zh") -> List[str]:
     """校验 4x4 facelet 结构性合法性。返回错误列表（空=合法）。"""
     errors: List[str] = []
     n = 4
@@ -409,20 +495,21 @@ def validate_4x4(facelets: Dict[str, List[List[str]]]) -> List[str]:
     # 1. 结构
     for face in ("U", "D", "F", "B", "R", "L"):
         if face not in facelets:
-            errors.append(f"缺少面 {face}")
+            errors.append(_msg(lang, "缺少面 {face}", face=face))
             continue
         grid = facelets[face]
         if len(grid) != 4:
-            errors.append(f"面 {face} 行数错误")
+            errors.append(_msg(lang, "面 {face} 行数错误", face=face))
             continue
         for row in grid:
             if len(row) != 4:
-                errors.append(f"面 {face} 存在非4列行")
+                errors.append(_msg(lang, "面 {face} 存在非4列行", face=face))
                 break
         for row in grid:
             for cell in row:
                 if not is_valid_color(cell):
-                    errors.append(f"面 {face} 存在非法颜色 {cell}")
+                    errors.append(_msg(lang, "面 {face} 存在非法颜色 {cell}",
+                                       face=face, cell=cell))
                     break
 
     if errors:
@@ -436,7 +523,8 @@ def validate_4x4(facelets: Dict[str, List[List[str]]]) -> List[str]:
                 total[cell] += 1
     for c in VALID_COLORS:
         if total[c] != 16:
-            errors.append(f"颜色 {c} 出现 {total[c]} 次（应为16）")
+            errors.append(_msg(lang, "颜色 {c} 出现 {n} 次（应为16）",
+                               c=c, n=total[c]))
 
     if errors:
         return errors
@@ -464,17 +552,18 @@ def validate_4x4(facelets: Dict[str, List[List[str]]]) -> List[str]:
                         center_colors[facelets[f][r][c]] += 1
 
     if corner_count != 8:
-        errors.append(f"角块数 {corner_count} 应为8")
+        errors.append(_msg(lang, "角块数 {n} 应为8", n=corner_count))
     if edge_count != 24:
-        errors.append(f"棱翼数 {edge_count} 应为24")
+        errors.append(_msg(lang, "棱翼数 {n} 应为24", n=edge_count))
     for c in VALID_COLORS:
         if center_colors[c] != 4:
-            errors.append(f"中心色 {c} 出现 {center_colors[c]} 次（应为4）")
+            errors.append(_msg(lang, "中心色 {c} 出现 {n} 次（应为4）",
+                               c=c, n=center_colors[c]))
 
     return errors
 
 
-def validate_5x5(facelets: Dict[str, List[List[str]]]) -> List[str]:
+def validate_5x5(facelets: Dict[str, List[List[str]]], lang: str = "zh") -> List[str]:
     """校验 5x5 facelet 结构性合法性。返回错误列表（空=合法）。
 
     5x5 为奇数阶，中心块固定（每面 9 个单色中心，其中 1 个真中心固定），
@@ -492,20 +581,21 @@ def validate_5x5(facelets: Dict[str, List[List[str]]]) -> List[str]:
     # 1. 结构
     for face in ("U", "D", "F", "B", "R", "L"):
         if face not in facelets:
-            errors.append(f"缺少面 {face}")
+            errors.append(_msg(lang, "缺少面 {face}", face=face))
             continue
         grid = facelets[face]
         if len(grid) != 5:
-            errors.append(f"面 {face} 行数错误")
+            errors.append(_msg(lang, "面 {face} 行数错误", face=face))
             continue
         for row in grid:
             if len(row) != 5:
-                errors.append(f"面 {face} 存在非5列行")
+                errors.append(_msg(lang, "面 {face} 存在非5列行", face=face))
                 break
         for row in grid:
             for cell in row:
                 if not is_valid_color(cell):
-                    errors.append(f"面 {face} 存在非法颜色 {cell}")
+                    errors.append(_msg(lang, "面 {face} 存在非法颜色 {cell}",
+                                       face=face, cell=cell))
                     break
 
     if errors:
@@ -519,7 +609,8 @@ def validate_5x5(facelets: Dict[str, List[List[str]]]) -> List[str]:
                 total[cell] += 1
     for c in VALID_COLORS:
         if total[c] != 25:
-            errors.append(f"颜色 {c} 出现 {total[c]} 次（应为25）")
+            errors.append(_msg(lang, "颜色 {c} 出现 {n} 次（应为25）",
+                               c=c, n=total[c]))
 
     if errors:
         return errors
@@ -528,7 +619,7 @@ def validate_5x5(facelets: Dict[str, List[List[str]]]) -> List[str]:
 
     # 3. 角块: 8 个，颜色组合与角槽匹配
     if len(corners) != 8:
-        errors.append(f"角块数 {len(corners)} 应为8")
+        errors.append(_msg(lang, "角块数 {n} 应为8", n=len(corners)))
     else:
         corner_slots = []
         for pos, _ in corners:
@@ -536,11 +627,11 @@ def validate_5x5(facelets: Dict[str, List[List[str]]]) -> List[str]:
             corner_slots.append(tuple(sorted(center_of[f] for f in faces)))
         piece_corner_triples = [tuple(sorted(colors)) for _, colors in corners]
         if sorted(corner_slots) != sorted(piece_corner_triples):
-            errors.append("角块颜色组合与槽位不匹配")
+            errors.append(_msg(lang, "角块颜色组合与槽位不匹配"))
 
     # 4. 棱块: 36 个，全局颜色组合多重集 == 12 槽 x 3 块的组合
     if len(edges) != 36:
-        errors.append(f"棱块数 {len(edges)} 应为36")
+        errors.append(_msg(lang, "棱块数 {n} 应为36", n=len(edges)))
     else:
         piece_edge_pairs = Counter()
         for pos, colors in edges:
@@ -551,15 +642,16 @@ def validate_5x5(facelets: Dict[str, List[List[str]]]) -> List[str]:
             f1, f2 = slot
             slot_edge_pairs[tuple(sorted((center_of[f1], center_of[f2])))] += 3
         if dict(piece_edge_pairs) != dict(slot_edge_pairs):
-            errors.append("棱块颜色组合与槽位不匹配")
+            errors.append(_msg(lang, "棱块颜色组合与槽位不匹配"))
 
     # 5. 中心块: 54 个单色，每种颜色 9 个
     if len(centers_blocks) != 54:
-        errors.append(f"中心块数 {len(centers_blocks)} 应为54")
+        errors.append(_msg(lang, "中心块数 {n} 应为54", n=len(centers_blocks)))
     else:
         center_colors = Counter(cs[0] for _, cs in centers_blocks)
         for c in VALID_COLORS:
             if center_colors[c] != 9:
-                errors.append(f"中心色 {c} 出现 {center_colors[c]} 次（应为9）")
+                errors.append(_msg(lang, "中心色 {c} 出现 {n} 次（应为9）",
+                                   c=c, n=center_colors[c]))
 
     return errors

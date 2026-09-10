@@ -8,8 +8,6 @@
 
 import os
 import sys
-import json
-import platform
 
 from kivy.event import EventDispatcher
 from kivy.properties import BooleanProperty, ColorProperty
@@ -151,15 +149,11 @@ def resolve_dark(mode: str, default_dark: bool = True):
 
 
 # ===== 用户主题模式持久化 =====
-_PREFS_FILE = os.path.join(os.path.expanduser("~"), ".cubesolver_prefs.json")
-
-
 def load_saved_mode() -> str:
     """读取上次保存的主题模式；无效或不存在时返回 AUTO。"""
     try:
-        with open(_PREFS_FILE, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        mode = data.get("theme_mode")
+        from app.prefs import get
+        mode = get("theme_mode")
         return mode if mode in MODES else AUTO
     except Exception:
         return AUTO
@@ -167,8 +161,8 @@ def load_saved_mode() -> str:
 
 def save_mode(mode: str):
     try:
-        with open(_PREFS_FILE, "w", encoding="utf-8") as f:
-            json.dump({"theme_mode": mode}, f)
+        from app.prefs import set as _set
+        _set("theme_mode", mode)
     except Exception:
         pass
 

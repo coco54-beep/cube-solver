@@ -11,6 +11,7 @@ from ui.screens.input_screen import PrimaryButton
 
 from app.config import Config
 from app.theme import AUTO, LIGHT, DARK
+from app.i18n import tr, language_name
 
 
 def _autofit(lbl, pad=1):
@@ -25,38 +26,13 @@ def _autofit(lbl, pad=1):
     lbl.bind(texture_size=_h)
 
 
-# 「使用说明」章节内容（标题 + 正文），与 README 产品描述一致
-_HELP_SECTIONS = [
-    ("选择魔方",
-     "首页用卡片选择 2 / 3 / 4 / 5 阶魔方（横屏 1×4、竖屏 2×2）。\n"
-     "点卡片进入对应的录入页；下方「使用说明」随时回到本页。"),
-    ("录入布局",
-     "展开图逐格点色即可录入每个面的颜色：先用六色选择器选中颜色，\n"
-     "再逐个点格子。也可以点「随机」一键载入一套随机的打乱布局来测试破解；\n"
-     "录入完成后可点「校验」检查布局是否合法。"),
-    ("一键求解",
-     "录入完成后点「开始求解」，程序在后台计算还原步骤，\n"
-     "实时显示当前阶段与进度，可随时取消。"),
-    ("3D 回放",
-     "求解结果用 3D 视图逐步演示：拖动旋转视角，滚轮 / 双指缩放；\n"
-     "支持上一步 / 下一步 / 自动播放 / 跳到结尾，也可调节播放速度。"),
-    ("教学演示",
-     "演示目录按阶数收录了标准案例：2 阶分层法、3 阶七步法、\n"
-     "4 阶与 5 阶降阶法。其中 5 阶只聚焦它与 4 阶不同的地方——\n"
-     "中心是 3×3（有固定中心点）、每条棱由中棱 + 2 翼三块组成。"),
-    ("主题切换",
-     "首页「主题」按钮可在 自动 / 浅色 / 深色 之间循环切换；\n"
-     "自动模式会跟随系统（Windows / Android）的浅深色设置。"),
-    ("颜色与记号",
-     "魔方六色固定：上黄、下白、前蓝、后绿、左橙、右红。\n"
-     "常用记号：R L U D F B 转最外层，加 ' 表示逆时针，加 2 表示转 180°；\n"
-     "小写（如 r u）表示宽层（一次多转一层），4/5 阶降阶法常用。"),
-    ("求解原理（进阶）",
-     "2 阶与 3 阶按两阶段算法（Kociemba）求解，保证步数很少；\n"
-     "4 阶与 5 阶用降阶法：先还原中心块，再配对棱块，最后当作 3 阶还原。\n"
-     "注：5 阶对很深的随机打乱，配棱阶段可能无法保证完整还原，\n"
-     "此时会提示失败而非给出错误解法。"),
-]
+# 「使用说明」章节（标题 + 正文），文本取自 app.i18n
+_HELP_KEYS = ("select", "input", "solve", "playback",
+              "demo", "theme", "notation", "algo")
+
+
+def _help_sections():
+    return [(tr(f"help.{k}.title"), tr(f"help.{k}.body")) for k in _HELP_KEYS]
 
 
 class HomeScreen(Screen):
@@ -69,9 +45,9 @@ class HomeScreen(Screen):
 
         # ---- 标题区（顶部）----
         head = BoxLayout(orientation="vertical", size_hint_y=None, height=160, spacing=8)
-        self.title = Label(text=Config.app_name, font_size="36sp", bold=True,
+        self.title = Label(text=tr("app.name"), font_size="36sp", bold=True,
                            halign="center", valign="middle", size_hint_y=None, height=88)
-        self.subtitle = Label(text="2 阶 / 3 阶 / 4 阶 / 5 阶魔方 · 智能还原", font_size="15sp",
+        self.subtitle = Label(text=tr("home.subtitle"), font_size="15sp",
                               color=_app().theme.text_muted, halign="center",
                               valign="middle", size_hint_y=None, height=40)
         # 强调色渐变装饰条，置于标题下方
@@ -88,12 +64,13 @@ class HomeScreen(Screen):
         from kivy.uix.gridlayout import GridLayout
         self.cards = GridLayout(cols=4, spacing=20, size_hint=(1.0, None),
                                 padding=0, height=self._card_height())
-        b2 = self._card("2", "2 阶魔方", "还原 Pocket Cube", onClick=lambda *a: self.pick(2))
-        b3 = self._card("3", "3 阶魔方", "还原 Rubik's Cube", onClick=lambda *a: self.pick(3))
-        b4 = self._card("4", "4 阶魔方", "还原 Rubik's Revenge", onClick=lambda *a: self.pick(4))
-        b5 = self._card("5", "5 阶魔方", "还原 Professor's Cube", onClick=lambda *a: self.pick(5))
+        b2 = self._card("2", tr("home.card.2.title"), tr("home.card.2.desc"), onClick=lambda *a: self.pick(2))
+        b3 = self._card("3", tr("home.card.3.title"), tr("home.card.3.desc"), onClick=lambda *a: self.pick(3))
+        b4 = self._card("4", tr("home.card.4.title"), tr("home.card.4.desc"), onClick=lambda *a: self.pick(4))
+        b5 = self._card("5", tr("home.card.5.title"), tr("home.card.5.desc"), onClick=lambda *a: self.pick(5))
         for b in (b2, b3, b4, b5):
             self.cards.add_widget(b)
+        self._cards = {2: b2, 3: b3, 4: b4, 5: b5}
         root.add_widget(self.cards)
         # 横屏 1×4，竖屏 2×2；监听窗口尺寸变化重排。
         from kivy.core.window import Window
@@ -107,12 +84,16 @@ class HomeScreen(Screen):
         # ---- 操作区 ----
         actions = BoxLayout(orientation="horizontal", spacing=10,
                             size_hint=(1.0, None), height=52)
-        help_btn = UIButton(text="使用说明", font_size="17sp")
-        help_btn.bind(on_release=lambda *a: self.show_help())
-        self.theme_btn = UIButton(text="主题：自动", font_size="15sp")
+        self.help_btn = UIButton(text=tr("home.help"), font_size="17sp")
+        self.help_btn.bind(on_release=lambda *a: self.show_help())
+        self.theme_btn = UIButton(text=tr("home.theme.auto"), font_size="15sp")
         self.theme_btn.bind(on_release=lambda *a: self.cycle_theme())
-        actions.add_widget(help_btn)
+        self.lang_btn = UIButton(text=tr("home.lang", name=language_name(_app().lang)),
+                                 font_size="15sp")
+        self.lang_btn.bind(on_release=lambda *a: self.cycle_language())
+        actions.add_widget(self.help_btn)
         actions.add_widget(self.theme_btn)
+        actions.add_widget(self.lang_btn)
         root.add_widget(actions)
         self._update_theme_btn()
 
@@ -121,12 +102,35 @@ class HomeScreen(Screen):
 
         # ---- 底部版本 ----
         bottom = AnchorLayout(size_hint_y=None, height=40)
-        self._ver_label = Label(text=f"版本 {Config.app_version}", font_size="13sp",
+        self._ver_label = Label(text=tr("home.version", version=Config.app_version),
+                                font_size="13sp",
                                 color=_app().theme.text_faint, halign="center", valign="middle")
         bottom.add_widget(self._ver_label)
         root.add_widget(bottom)
 
         self.add_widget(root)
+
+    def retranslate(self):
+        """语言切换后刷新文案。"""
+        if not hasattr(self, "title"):
+            return
+        self.title.text = tr("app.name")
+        self.subtitle.text = tr("home.subtitle")
+        self.help_btn.text = tr("home.help")
+        self.lang_btn.text = tr("home.lang", name=language_name(_app().lang))
+        self._ver_label.text = tr("home.version", version=Config.app_version)
+        self._update_theme_btn()
+        for n, card in getattr(self, "_cards", {}).items():
+            try:
+                _big, title_label, desc_label = card._labels
+                title_label.text = tr(f"home.card.{n}.title")
+                desc_label.text = tr(f"home.card.{n}.desc")
+            except Exception:
+                pass
+
+    def cycle_language(self):
+        _app().cycle_language()
+        self.retranslate()
 
     def _card_height(self, h=None):
         """卡片区高度，随屏幕尺寸微调（基准高屏 240，小屏略降）。"""
@@ -244,8 +248,8 @@ class HomeScreen(Screen):
         return card
 
     def _update_theme_btn(self):
-        labels = {AUTO: "主题：自动", LIGHT: "主题：浅色", DARK: "主题：深色"}
-        self.theme_btn.text = labels.get(_app().theme_mode, "主题：自动")
+        keys = {AUTO: "home.theme.auto", LIGHT: "home.theme.light", DARK: "home.theme.dark"}
+        self.theme_btn.text = tr(keys.get(_app().theme_mode, "home.theme.auto"))
 
     def cycle_theme(self):
         app = _app()
@@ -345,7 +349,7 @@ class HomeScreen(Screen):
         # 标题栏：标题 + 强调色横条
         header = BoxLayout(orientation="vertical", size_hint_y=None,
                            height=62, padding=[22, 14, 22, 6])
-        t = Label(text="使用说明", font_size="22sp", bold=True, halign="left",
+        t = Label(text=tr("help.title"), font_size="22sp", bold=True, halign="left",
                   valign="middle", color=theme.text, size_hint_y=1)
         header.add_widget(t)
 
@@ -368,7 +372,7 @@ class HomeScreen(Screen):
         inner = BoxLayout(orientation="vertical", spacing=6,
                           size_hint_y=None, padding=[22, 8, 22, 8])
         inner.bind(minimum_height=inner.setter("height"))
-        for sec_title, body in _HELP_SECTIONS:
+        for sec_title, body in _help_sections():
             card = BoxLayout(orientation="vertical", size_hint_y=None,
                              spacing=2, padding=[14, 10, 14, 10])
             ct = Label(text=sec_title, font_size="18sp", bold=True, halign="left",
@@ -404,7 +408,7 @@ class HomeScreen(Screen):
 
         # 底部：关闭按钮
         foot = BoxLayout(size_hint_y=None, height=62, padding=[22, 10, 22, 14])
-        close = PrimaryButton(text="关闭", font_size="17sp")
+        close = PrimaryButton(text=tr("help.close"), font_size="17sp")
         foot.add_widget(close)
         panel.add_widget(foot)
 

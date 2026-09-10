@@ -20,11 +20,11 @@ COLOR_ORDER = ("W", "Y", "R", "O", "B", "G")
 APP_NAME = "3D魔方智能还原"
 APP_VERSION = "1.1.0"
 
-# 求解器阶段中文名
+# 求解器阶段 -> i18n key（由 app.i18n.tr 翻译）
 STAGE_LABEL = {
-    "centers": "整理中心",
-    "edge_pairing": "棱块配对",
-    "orient": "中棱朝向修正",
-    "parity": "特殊翻棱处理",
-    "reduced_3x3": "按3阶方式还原",
+    "centers": "stage.centers",
+    "edge_pairing": "stage.edge_pairing",
+    "orient": "stage.orient",
+    "parity": "stage.parity",
+    "reduced_3x3": "stage.reduced_3x3",
 }

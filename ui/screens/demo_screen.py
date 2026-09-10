@@ -16,7 +16,8 @@ from cube.cube2 import Cube2
 from cube.cube3 import Cube3
 from cube.cube4 import Cube4
 from cube.cube5 import Cube5
-from demo.cases import CASE_2X2, CASE_3X3, CASE_4X4, CASE_5X5, build_before
+from demo.cases import CASE_2X2, CASE_3X3, CASE_4X4, CASE_5X5, build_before, localized
+from app.i18n import tr
 from renderer.cube_view import CubeView
 from renderer.turn import decompose_move
 
@@ -27,8 +28,7 @@ def _theme():
 
 
 def _mode_title(n):
-    return {2: "二阶 · 分层法", 3: "三阶 · 七步法", 4: "四阶 · 降阶法",
-            5: "五阶 · 降阶法"}[n]
+    return tr(f"demo.mode.title.{n}")
 
 
 def _steps_for(n):
@@ -72,15 +72,15 @@ class DemoScreen(Screen):
 
         # 顶栏：返回目录 + 标题 + 播放
         top = BoxLayout(size_hint_y=None, height=46, spacing=6)
-        back = UIButton(text="←目录", size_hint_x=0.2)
-        back.bind(on_release=lambda *a: self.go_menu())
+        self.btn_back = UIButton(text=tr("demo.back_to_menu"), size_hint_x=0.2)
+        self.btn_back.bind(on_release=lambda *a: self.go_menu())
         self.lbl_mode = Label(text=_mode_title(3), size_hint_x=0.45, halign="center",
                               bold=True, font_size="18sp")
-        btn = UIButton(text="切换阶数", size_hint_x=0.35)
-        btn.bind(on_release=lambda *a: self.toggle_mode())
-        top.add_widget(back)
+        self.btn_switch = UIButton(text=tr("demo.switch"), size_hint_x=0.35)
+        self.btn_switch.bind(on_release=lambda *a: self.toggle_mode())
+        top.add_widget(self.btn_back)
         top.add_widget(self.lbl_mode)
-        top.add_widget(btn)
+        top.add_widget(self.btn_switch)
         root.add_widget(top)
 
         # 3D 视图
@@ -111,21 +111,32 @@ class DemoScreen(Screen):
 
         # 控制区
         ctl = BoxLayout(size_hint_y=None, height=52, spacing=6)
-        prev = UIButton(text="上一步", size_hint_x=0.3)
-        prev.bind(on_release=lambda *a: self.prev_case())
-        self.btn_play = UIButton(text="播放", size_hint_x=0.2)
+        self.btn_prev = UIButton(text=tr("playback.prev"), size_hint_x=0.3)
+        self.btn_prev.bind(on_release=lambda *a: self.prev_case())
+        self.btn_play = UIButton(text=tr("playback.play"), size_hint_x=0.2)
         self.btn_play.bind(on_release=lambda *a: self.play())
-        nxt = UIButton(text="下一步", size_hint_x=0.3)
-        nxt.bind(on_release=lambda *a: self.next_case())
-        reset = UIButton(text="还原视角", size_hint_x=0.2)
-        reset.bind(on_release=lambda *a: self.view.reset_camera())
-        ctl.add_widget(prev)
+        self.btn_next = UIButton(text=tr("playback.next"), size_hint_x=0.3)
+        self.btn_next.bind(on_release=lambda *a: self.next_case())
+        self.btn_reset = UIButton(text=tr("playback.reset_view"), size_hint_x=0.2)
+        self.btn_reset.bind(on_release=lambda *a: self.view.reset_camera())
+        ctl.add_widget(self.btn_prev)
         ctl.add_widget(self.btn_play)
-        ctl.add_widget(nxt)
-        ctl.add_widget(reset)
+        ctl.add_widget(self.btn_next)
+        ctl.add_widget(self.btn_reset)
         root.add_widget(ctl)
 
         self.add_widget(root)
+
+    def retranslate(self):
+        if not hasattr(self, "lbl_mode"):
+            return
+        self.btn_back.text = tr("demo.back_to_menu")
+        self.btn_switch.text = tr("demo.switch")
+        self.btn_prev.text = tr("playback.prev")
+        self.btn_next.text = tr("playback.next")
+        self.btn_reset.text = tr("playback.reset_view")
+        self.lbl_mode.text = _mode_title(self.mode)
+        self._show_case()
 
     def refresh_theme(self):
         """主题切换后刷新信息区文字颜色。"""
@@ -190,11 +201,14 @@ class DemoScreen(Screen):
         # 聚焦：只给被移动/参与公式的块上色，其余灰色
         self._highlight = _changed_homes(cube)
         self.view.set_cube(cube, highlight=self._highlight)
-        self.lbl_title.text = f"第{g(self._si + 1)}步 · {step['title']}（{self._si + 1}/{len(self._steps)}）"
-        self.lbl_desc.text = step["desc"]
-        self.lbl_case.text = f"案例：{case['name']}"
-        self.lbl_text.text = case["text"]
-        self.lbl_tip.text = case["tip"]
+        self.lbl_title.text = tr("demo.title_step", cn=g(self._si),
+                                 n=self._si + 1,
+                                 title=localized(step['title']),
+                                 i=self._si + 1, total=len(self._steps))
+        self.lbl_desc.text = localized(step["desc"])
+        self.lbl_case.text = tr("demo.case", name=localized(case['name']))
+        self.lbl_text.text = localized(case["text"])
+        self.lbl_tip.text = localized(case["tip"])
 
     # ---- 播放动画 ----
     def play(self):
@@ -211,7 +225,7 @@ class DemoScreen(Screen):
         for m in case["moves"]:
             self._queue.extend(decompose_move(m, self.mode))
         self._busy = True
-        self.btn_play.text = "播放中…"
+        self.btn_play.text = tr("demo.playing")
         self._step_queue()
 
     def _step_queue(self):
@@ -220,7 +234,7 @@ class DemoScreen(Screen):
             self._animate_step(step)
         else:
             self._busy = False
-            self.btn_play.text = "播放"
+            self.btn_play.text = tr("playback.play")
 
     def _animate_step(self, step):
         dur = 0.5 * abs(step.angle) / 90.0
@@ -245,7 +259,7 @@ class DemoScreen(Screen):
         self._queue = []
         if hasattr(self.view, "_cancel_animation"):
             self.view._cancel_animation()
-        self.btn_play.text = "播放"
+        self.btn_play.text = tr("playback.play")
 
     def go_menu(self):
         self._stop()

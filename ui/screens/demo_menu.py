@@ -17,7 +17,8 @@ from cube.cube2 import Cube2
 from cube.cube3 import Cube3
 from cube.cube4 import Cube4
 from cube.cube5 import Cube5
-from demo.cases import CASE_2X2, CASE_3X3, CASE_4X4, CASE_5X5, build_before
+from demo.cases import CASE_2X2, CASE_3X3, CASE_4X4, CASE_5X5, build_before, localized
+from app.i18n import tr
 from renderer.cube_view import CubeView
 from ui.screens.demo_screen import _changed_homes
 
@@ -26,10 +27,12 @@ def _num(n):
     return ["一", "二", "三", "四", "五", "六", "七", "八", "九"][n]
 
 
-_MODE_TITLE = {2: "二阶 · 教学目录", 3: "三阶 · 教学目录", 4: "四阶 · 教学目录",
-               5: "五阶 · 教学目录"}
-_MODE_STEP_TITLE = {2: "二阶 · 分层法", 3: "三阶 · 七步法", 4: "四阶 · 降阶法",
-                    5: "五阶 · 降阶法"}
+def _mode_menu_title(n):
+    return tr(f"demo.mode.menu.{n}")
+
+
+_MODE_TITLE = {2: "demo.mode.menu.2", 3: "demo.mode.menu.3",
+               4: "demo.mode.menu.4", 5: "demo.mode.menu.5"}
 _MODE_STEPS = {2: CASE_2X2, 3: CASE_3X3, 4: CASE_4X4, 5: CASE_5X5}
 
 
@@ -60,7 +63,7 @@ def _slug(name):
 
 def render_thumb(case, n, size=140):
     """渲染案例初始态为 PNG，缓存后返回路径；失败返回 None。"""
-    path = os.path.join(_thumbs_dir(), f"{n}_{_slug(case['name'])}.png")
+    path = os.path.join(_thumbs_dir(), f"{n}_{_slug(localized(case['name'], 'zh'))}.png")
     if os.path.exists(path):
         return path
     cls = {2: Cube2, 3: Cube3, 4: Cube4, 5: Cube5}[n]
@@ -86,11 +89,11 @@ class DemoMenuScreen(Screen):
         root = BoxLayout(orientation="vertical", spacing=4, padding=[8, 6, 8, 8])
 
         top = BoxLayout(size_hint_y=None, height=46, spacing=6)
-        back = UIButton(text="←返回", size_hint_x=0.22)
-        back.bind(on_release=lambda *a: self.go_home())
-        self.lbl_title = Label(text="三阶 · 教学目录", size_hint_x=0.78, halign="center",
+        self.btn_back = UIButton(text=tr("input.back"), size_hint_x=0.22)
+        self.btn_back.bind(on_release=lambda *a: self.go_home())
+        self.lbl_title = Label(text=tr(_MODE_TITLE[3]), size_hint_x=0.78, halign="center",
                                bold=True, font_size="20sp")
-        top.add_widget(back)
+        top.add_widget(self.btn_back)
         top.add_widget(self.lbl_title)
         root.add_widget(top)
 
@@ -104,14 +107,22 @@ class DemoMenuScreen(Screen):
 
     def set_mode(self, n):
         self.mode = n
-        self.lbl_title.text = _MODE_TITLE[n]
+        self.lbl_title.text = tr(_MODE_TITLE[n])
+        self._rebuild()
+
+    def retranslate(self):
+        if not hasattr(self, "lbl_title"):
+            return
+        self.lbl_title.text = tr(_MODE_TITLE[self.mode])
         self._rebuild()
 
     def _rebuild(self):
         self.list.clear_widgets()
         steps = _MODE_STEPS[self.mode]
         for si, step in enumerate(steps):
-            head = Label(text=f"第{_num(si)}步 · {step['title']}", font_size="16sp",
+            head = Label(text=tr("demo.menu_step", cn=_num(si), n=si + 1,
+                                 title=localized(step['title'])),
+                         font_size="16sp",
                          bold=True, halign="left", valign="middle",
                          color=_app().theme.text)
             _autofit(head)
@@ -127,15 +138,15 @@ class DemoMenuScreen(Screen):
             img = Image(source=thumb_png, size_hint=(None, None),
                         size=(120, 120), keep_ratio=True)
         else:
-            img = Label(text="无图", size_hint=(None, None), size=(120, 120))
+            img = Label(text=tr("demo.no_image"), size_hint=(None, None), size=(120, 120))
         row.add_widget(img)
         # 文字列：自动换行 + 自动增高，行高随内容联动，杜绝重叠
         info = BoxLayout(orientation="vertical", spacing=2)
-        name = Label(text=case["name"], font_size="16sp", bold=True,
+        name = Label(text=localized(case["name"]), font_size="16sp", bold=True,
                      halign="left", valign="middle")
-        formula = Label(text=case["text"], font_size="13sp", halign="left",
+        formula = Label(text=localized(case["text"]), font_size="13sp", halign="left",
                         valign="middle", color=_app().theme.text_muted)
-        tip = Label(text=case["tip"], font_size="13sp", halign="left",
+        tip = Label(text=localized(case["tip"]), font_size="13sp", halign="left",
                     valign="middle", color=_app().theme.text_faint)
         for w in (name, formula, tip):
             _autofit(w)

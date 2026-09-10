@@ -18,6 +18,8 @@
 from __future__ import annotations
 
 import itertools
+import os
+import pickle
 from typing import Dict, List, Set, Tuple
 
 from .macro_effect import compute_effect
@@ -133,9 +135,6 @@ def _build_base():
     return found
 
 
-BASE_MIDDLE_3CYCLES: List[Tuple[List[str], Tuple[str, ...]]] = _build_base()
-
-
 def _outer_setups(max_len=2):
     out = []
     seen = {tuple()}
@@ -154,13 +153,13 @@ def _outer_setups(max_len=2):
     return out
 
 
-def build_reachable_3cycles():
+def build_reachable_3cycles(base):
     """返回 {frozenset(三槽) : [(压缩宏串, 中棱循环元组, is_reverse)]}。
 
     覆盖全部 12 槽、完全对称。仅含可达组合（实测 116/220，全双向）。
     """
     lib: Dict[frozenset, List[Tuple[List[str], Tuple[str, ...], bool]]] = {}
-    for seq, cycle in BASE_MIDDLE_3CYCLES:
+    for seq, cycle in base:
         key = frozenset(cycle)
         lib.setdefault(key, []).append((list(seq), tuple(cycle), False))
         # 反向
@@ -168,7 +167,7 @@ def build_reachable_3cycles():
         rev_cyc = _middle_cycle_of(rev_seq)[0]
         lib.setdefault(key, []).append((list(rev_seq), tuple(rev_cyc), True))
     for setup in _outer_setups():
-        for seq, cycle in BASE_MIDDLE_3CYCLES:
+        for seq, cycle in base:
             conj = _compress(setup + list(seq) + [_inv(t) for t in reversed(setup)])
             if not _is_pure_middle(conj):
                 continue
@@ -181,7 +180,57 @@ def build_reachable_3cycles():
     return lib
 
 
-REACHABLE = build_reachable_3cycles()
+# 构造这两个库需约 10 万次 compute_effect 模拟（桌面约 6.8s），因此在可写目录
+# 做版本化落盘缓存：首次构建后，后续导入仅需反序列化（<0.1s）。逻辑变更时
+# 递增 _CACHE_KEY 使旧缓存自动失效。
+_CACHE_KEY = "macro_lib_v1"
+
+
+def _cache_path():
+    """返回可写缓存文件路径；无处可写返回 None。"""
+    bases = []
+    for var in ("ANDROID_PRIVATE", "ANDROID_APP_PATH"):
+        value = os.environ.get(var)
+        if value:
+            bases.append(value)
+    bases.append(os.path.expanduser("~"))
+    for base in bases:
+        try:
+            if not base or not os.path.isdir(base):
+                continue
+            directory = os.path.join(base, ".cubesolver_cache", "ref5")
+            os.makedirs(directory, exist_ok=True)
+            return os.path.join(directory, _CACHE_KEY + ".pkl")
+        except OSError:
+            continue
+    return None
+
+
+def _load_or_build():
+    path = _cache_path()
+    if path and os.path.isfile(path):
+        try:
+            with open(path, "rb") as f:
+                data = pickle.load(f)
+            if data.get("key") == _CACHE_KEY and data.get("base") and data.get("reachable"):
+                return data["base"], data["reachable"]
+        except Exception:
+            pass
+    base = _build_base()
+    reachable = build_reachable_3cycles(base)
+    if path:
+        try:
+            tmp = path + ".tmp"
+            with open(tmp, "wb") as f:
+                pickle.dump({"key": _CACHE_KEY, "base": base, "reachable": reachable},
+                            f, protocol=pickle.HIGHEST_PROTOCOL)
+            os.replace(tmp, path)
+        except OSError:
+            pass
+    return base, reachable
+
+
+BASE_MIDDLE_3CYCLES, REACHABLE = _load_or_build()
 
 
 def monkey_setup_for(seq: List[str]) -> List[str]:

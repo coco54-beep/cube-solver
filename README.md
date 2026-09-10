@@ -257,8 +257,8 @@ Push a git tag of the form `v1.x.x` and [GitHub Actions](.github/workflows/relea
 will build a **signed release APK** and publish it to [Releases](https://github.com/coco54-beep/cube-solver/releases):
 
 ```bash
-git tag v1.2.0
-git push origin v1.2.0
+git tag v1.2.1
+git push origin v1.2.1
 ```
 
 - By default it is signed with an **ephemeral key** (the signature changes every build, so uninstall the old version first).

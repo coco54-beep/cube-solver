@@ -18,7 +18,7 @@ COLOR_ORDER = ("W", "Y", "R", "O", "B", "G")
 
 # 应用名称与版本
 APP_NAME = "3D魔方智能还原"
-APP_VERSION = "1.2.0"
+APP_VERSION = "1.2.1"
 
 # 求解器阶段 -> i18n key（由 app.i18n.tr 翻译）
 STAGE_LABEL = {

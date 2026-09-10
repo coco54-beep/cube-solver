@@ -269,8 +269,8 @@ python -m pytest
 会自动构建 **已签名的 release APK** 并发布到 [Releases](https://github.com/coco54-beep/cube-solver/releases)：
 
 ```bash
-git tag v1.2.0
-git push origin v1.2.0
+git tag v1.2.1
+git push origin v1.2.1
 ```
 
 - 默认使用**临时密钥**签名（每次构建签名都会变化，旧版需先卸载）。

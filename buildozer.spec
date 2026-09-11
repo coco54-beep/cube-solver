@@ -6,7 +6,7 @@
 title = 3D魔方智能还原
 package.name = cubesolver
 package.domain = com.example
-version = 1.2.3
+version = 1.2.4
 
 # 工程源码目录（buildozer 会把它拷贝进打包环境）
 source.dir = .
@@ -46,7 +46,10 @@ android.permissions = INTERNET
 android.accept_sdk_license = True
 
 # python 打包选项
-android.entrypoint = main.py
+# android.entrypoint 是「Android Activity 类名」，不是 Python 入口脚本！默认
+# 即 org.kivy.android.PythonActivity。曾误填 main.py，导致 manifest 启动 Activity
+# 变成 main.py，安装后一启动就 ClassNotFoundException 闪退。
+android.entrypoint = org.kivy.android.PythonActivity
 android.allow_backup = True
 
 # ----------------------------------------------------------------------------

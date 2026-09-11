@@ -8,7 +8,7 @@
 用法：
     from app.i18n import tr
     label.text = tr("home.help")
-    label.text = tr("home.version", version="1.2.4")
+    label.text = tr("home.version", version="1.2.5")
 """
 
 import os
@@ -34,26 +34,26 @@ _PREFS_KEY = "language"
 # ===== 界面文案 =====
 CATALOG = {
     LANG_ZH: {
-        "app.name": "3D魔方智能还原",
+        "app.name": "3D 魔方智能还原",
         "face.U": "上", "face.D": "下", "face.F": "前",
         "face.B": "后", "face.R": "右", "face.L": "左",
 
-        "stage.centers": "整理中心",
-        "stage.edge_pairing": "棱块配对",
-        "stage.orient": "中棱朝向修正",
-        "stage.parity": "特殊翻棱处理",
-        "stage.reduced_3x3": "按3阶方式还原",
+        "stage.centers": "还原中心块",
+        "stage.edge_pairing": "配对棱块",
+        "stage.orient": "修正中棱朝向",
+        "stage.parity": "处理特殊情况",
+        "stage.reduced_3x3": "按三阶还原",
         "stage.done": "完成",
 
         "home.subtitle": "2 阶 / 3 阶 / 4 阶 / 5 阶魔方 · 智能还原",
         "home.card.2.title": "2 阶魔方",
-        "home.card.2.desc": "还原 Pocket Cube",
+        "home.card.2.desc": "还原口袋魔方（Pocket Cube）",
         "home.card.3.title": "3 阶魔方",
-        "home.card.3.desc": "还原 Rubik's Cube",
+        "home.card.3.desc": "还原经典鲁比克魔方",
         "home.card.4.title": "4 阶魔方",
-        "home.card.4.desc": "还原 Rubik's Revenge",
+        "home.card.4.desc": "还原复仇魔方（Rubik's Revenge）",
         "home.card.5.title": "5 阶魔方",
-        "home.card.5.desc": "还原 Professor's Cube",
+        "home.card.5.desc": "还原教授魔方（Professor's Cube）",
         "home.help": "使用说明",
         "home.version": "版本 {version}",
         "home.settings": "设置",
@@ -73,53 +73,53 @@ CATALOG = {
         "help.select.title": "选择魔方",
         "help.select.body":
             "首页用卡片选择 2 / 3 / 4 / 5 阶魔方（横屏 1×4、竖屏 2×2）。\n"
-            "点卡片进入对应的录入页；下方「使用说明」随时回到本页。",
+            "点卡片进入对应录入页；随时点下方「使用说明」可回到本页。",
         "help.input.title": "录入布局",
         "help.input.body":
-            "展开图逐格点色即可录入每个面的颜色：先用六色选择器选中颜色，\n"
-            "再逐个点格子。也可以点「随机」一键载入一套随机的打乱布局来测试破解；\n"
-            "录入完成后可点「校验」检查布局是否合法。",
+            "在展开图上逐格点色即可录入每个面的颜色：先从六色选择器选好颜色，\n"
+            "再逐个点格子。也可点「随机」载入一个随机打乱来试解；\n"
+            "录入完成后点「校验」可检查布局是否合法。",
         "help.solve.title": "一键求解",
         "help.solve.body":
-            "录入完成后点「开始求解」，程序在后台计算还原步骤，\n"
-            "实时显示当前阶段与进度，可随时取消。",
+            "录入完成后点「开始求解」，程序会在后台计算还原步骤，\n"
+            "实时显示当前阶段与进度，随时可以取消。",
         "help.playback.title": "3D 回放",
         "help.playback.body":
-            "求解结果用 3D 视图逐步演示：拖动旋转视角，滚轮 / 双指缩放；\n"
-            "支持上一步 / 下一步 / 自动播放 / 跳到结尾，也可调节播放速度。",
+            "求解结果会用 3D 视图逐步演示：拖动可旋转视角，滚轮 / 双指可缩放；\n"
+            "支持上一步 / 下一步 / 自动播放 / 跳到结尾，还能调节播放速度。",
         "help.demo.title": "教学演示",
         "help.demo.body":
-            "演示目录按阶数收录了标准案例：2 阶分层法、3 阶七步法、\n"
-            "4 阶与 5 阶降阶法。其中 5 阶只聚焦它与 4 阶不同的地方——\n"
-            "中心是 3×3（有固定中心点）、每条棱由中棱 + 2 翼三块组成。",
+            "演示目录按阶数收录了标准方法：2 阶分层法、3 阶七步法、\n"
+            "4 阶与 5 阶降阶法。5 阶部分只讲它与 4 阶的不同：\n"
+            "中心是 3×3（带固定中心块），每条棱由中棱加两块翼棱组成。",
         "help.theme.title": "主题切换",
         "help.theme.body":
-            "在首页进入「设置」页，可选择 自动 / 浅色 / 深色 主题；\n"
-            "自动模式会跟随系统（Windows / Android）的浅深色设置。",
+            "在首页进入「设置」，可选择 自动 / 浅色 / 深色 主题；\n"
+            "自动模式会跟随系统（Windows / Android）的深浅色设置。",
         "help.notation.title": "颜色与记号",
         "help.notation.body":
             "魔方六色固定：上黄、下白、前蓝、后绿、左橙、右红。\n"
             "常用记号：R L U D F B 转最外层，加 ' 表示逆时针，加 2 表示转 180°；\n"
-            "小写（如 r u）表示宽层（一次多转一层），4/5 阶降阶法常用。",
+            "小写（如 r u）表示宽层（一次转多层），4/5 阶降阶法常用。",
         "help.algo.title": "求解原理（进阶）",
         "help.algo.body":
-            "2 阶与 3 阶按两阶段算法（Kociemba）求解，保证步数很少；\n"
-            "4 阶与 5 阶用降阶法：先还原中心块，再配对棱块，最后当作 3 阶还原。\n"
-            "注：5 阶对很深的随机打乱，配棱阶段可能无法保证完整还原，\n"
-            "此时会提示失败而非给出错误解法。",
+            "2 阶与 3 阶用两阶段算法（Kociemba）求解，力求步数少；\n"
+            "4 阶与 5 阶用降阶法：先还原中心块，再配对棱块，最后当作三阶还原。\n"
+            "注：5 阶遇到特别复杂的随机打乱时，配棱阶段未必能完整还原，\n"
+            "此时会提示失败，而不会给出错误解法。",
 
         "input.back": "←返回",
         "input.title": "录入 {n}x{n}",
         "input.demo": "演示",
         "input.face": "当前面：{face} ({code})",
-        "input.pick": "吸色",
+        "input.pick": "取色",
         "input.fill": "整面填充",
         "input.undo": "撤销",
         "input.redo": "重做",
         "input.prev": "{arrow}上一步",
         "input.next": "{arrow}下一步",
         "input.twist": "拧魔方",
-        "input.random": "随机",
+        "input.random": "随机打乱",
         "input.scramble": "粘贴打乱公式",
         "input.scramble.hint": "如 R U R' U' 或 R,U,R',U'",
         "input.scramble.ok": "应用",
@@ -129,16 +129,16 @@ CATALOG = {
         "input.clear": "清空",
         "input.check": "校验",
         "input.solve": "开始求解",
-        "input.missing": "未填写: {list}",
+        "input.missing": "未填写：{list}",
         "input.valid": "状态合法 ✓",
-        "input.filled": "已将 {face} 面填充为 {col}",
+        "input.filled": "已将 {face} 面填为 {col}",
         "input.already": "{face} 面已是 {col}",
         "input.undone": "已撤销",
         "input.redone": "已重做",
-        "input.picked": "已吸色 {col}，可继续填色",
-        "input.random_loaded": "已加载随机布局（{k} 步打乱）",
+        "input.picked": "已取色 {col}，可继续填色",
+        "input.random_loaded": "已载入随机布局（{k} 步打乱）",
         "input.cleared": "已清空",
-        "input.resumed": "已加载上次布局，直接点「开始求解」可沿用上次方案",
+        "input.resumed": "已载入上次布局，点「开始求解」即可沿用上次方案",
         "input.clear.title": "确认清空",
         "input.clear.msg": "确定要清空全部已录入的颜色吗？",
         "input.cancel": "取消",
@@ -169,9 +169,9 @@ CATALOG = {
         "demo.switch": "切换阶数",
         "demo.playing": "播放中…",
         "demo.case": "案例：{name}",
-        "demo.step_n": "第{n}步",
-        "demo.title_step": "第{cn}步 · {title}（{i}/{total}）",
-        "demo.menu_step": "第{cn}步 · {title}",
+        "demo.step_n": "第 {n} 步",
+        "demo.title_step": "第 {cn} 步 · {title}（{i}/{total}）",
+        "demo.menu_step": "第 {cn} 步 · {title}",
         "demo.mode.menu.2": "二阶 · 教学目录",
         "demo.mode.menu.3": "三阶 · 教学目录",
         "demo.mode.menu.4": "四阶 · 教学目录",
@@ -182,12 +182,12 @@ CATALOG = {
         "demo.mode.title.5": "五阶 · 降阶法",
 
         "twist.done": "完成",
-        "twist.lock_on": "卡视角：开",
-        "twist.lock_off": "卡视角：关",
+        "twist.lock_on": "锁定视角：开",
+        "twist.lock_off": "锁定视角：关",
         "twist.wide_on": "宽层：开",
         "twist.wide_off": "宽层：关",
-        "twist.hint_lock_on": "卡视角开：拖动魔方拧层；滚轮缩放已锁定",
-        "twist.hint_lock_off": "卡视角关：拖动转视角，滚轮缩放",
+        "twist.hint_lock_on": "已锁定视角：拖动魔方转动层；滚轮缩放已禁用",
+        "twist.hint_lock_off": "视角自由：拖动旋转视角，滚轮缩放",
         "twist.hint_wide": "（宽层开：拧最外层时连同内层一起转）",
         "twist.congrats_title": "恭喜还原！",
         "twist.congrats_body": "你已成功还原魔方！",

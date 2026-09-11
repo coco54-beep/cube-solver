@@ -129,6 +129,25 @@ def _swap_two_center_homes(cube: Cube5) -> bool:
     return False
 
 
+# 一次中层 90° 转会把 6 个固定面心的置换奇偶取反（4-cycle）。3 层转/切片打乱
+# 使固定面心被置换；若为奇置换，降阶出的虚拟 3x3 会出现「棱角置换奇偶不一致」，
+# 而 relabel 只统一颜色、无法消除该奇偶。逐个试这些翻转即可。
+_CENTER_PARITY_FLIPS: List[str] = ["M", "M'", "E", "E'", "S", "S'"]
+
+
+def _with_prefix(prefix: str, result: SolveResult) -> SolveResult:
+    """把一步前缀（如中心奇偶翻转 M）并入结果的动作序列。"""
+    stages = [SolveStage("center_parity", "中心奇偶翻转", [prefix])] + list(result.stages)
+    return SolveResult(
+        result.success,
+        [prefix] + list(result.moves),
+        result.message,
+        result.elapsed_ms,
+        result.move_count + 1,
+        stages,
+    )
+
+
 def solve_5x5(cube: Cube5, cancel_event=None, progress_callback=None) -> SolveResult:
     """求解 5x5。返回 SolveResult（moves 为全部阶段动作的拼接）。
 
@@ -165,6 +184,16 @@ def solve_5x5(cube: Cube5, cancel_event=None, progress_callback=None) -> SolveRe
                               force_center=True, prefer_exact_centers=True)
         if result2.success:
             return result2
+
+    # 中心奇偶回退：3 层转/切片打乱会置换 6 个固定面心；若为奇置换，虚拟 3x3
+    # 会「棱角置换奇偶不一致」，relabel 无法消除。施加一次中层 90° 转翻转中心
+    # 置换奇偶、重解中心后再降阶即可（实测可解出任意合法 5x5 状态）。
+    for flip in _CENTER_PARITY_FLIPS:
+        trial = work.clone()
+        trial.apply_moves([flip])
+        result3 = _solve_once(trial, cancel_event, progress_callback)
+        if result3.success:
+            return _with_prefix(flip, result3)
     return result
 
 

@@ -8,7 +8,7 @@
 用法：
     from app.i18n import tr
     label.text = tr("home.help")
-    label.text = tr("home.version", version="1.2.1")
+    label.text = tr("home.version", version="1.2.2")
 """
 
 import os

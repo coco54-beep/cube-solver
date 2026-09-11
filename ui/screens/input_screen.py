@@ -16,14 +16,6 @@ from ui.widgets.buttons import UIButton, PrimaryButton, DangerButton
 from renderer.cube_view import CubeView
 from renderer.cube_orientation import CubeOrientation
 
-# 屏幕方位 -> 箭头字符（指示该侧的面将转到正面）
-_DIR_ARROW = {
-    "right": "→",
-    "left": "←",
-    "up": "↑",
-    "down": "↓",
-}
-
 
 from app.constants import FACES
 from app.i18n import tr, current_language
@@ -114,12 +106,18 @@ class _InputCubeView(CubeView):
         self.on_drag_end = None
         self._press = None
         self._moved = False
+        # 只处理「本视图按下」的那一个触点；否则从颜色选择器等其它控件冒泡上来的
+        # touch_up 会带着它们的坐标触发 on_pick，误填到当前面的角落。
+        self._active_touch = None
 
     def on_touch_down(self, touch):
         if not self.collide_point(*touch.pos):
             return super().on_touch_down(touch)
         if getattr(touch, "is_mouse_scrolling", False):
             return super().on_touch_down(touch)
+        if self._active_touch is not None:
+            return False
+        self._active_touch = touch
         self._press = touch.pos
         self._moved = False
         try:
@@ -129,11 +127,12 @@ class _InputCubeView(CubeView):
         return True
 
     def on_touch_move(self, touch):
-        if self._press is not None:
-            dx = touch.x - self._press[0]
-            dy = touch.y - self._press[1]
-            if dx * dx + dy * dy > 16 * 16:
-                self._moved = True
+        if touch is not self._active_touch:
+            return False
+        dx = touch.x - self._press[0]
+        dy = touch.y - self._press[1]
+        if dx * dx + dy * dy > 16 * 16:
+            self._moved = True
         # 输入模式禁用拖拽旋转；仅上报拖动位置给连续填色回调。
         if self._moved and self.on_drag is not None:
             self.on_drag(touch.x, touch.y)
@@ -144,20 +143,21 @@ class _InputCubeView(CubeView):
         return CubeView.on_touch_move(self, touch)
 
     def on_touch_up(self, touch):
-        if self._press is not None:
-            was_drag = self._moved
-            try:
-                touch.ungrab(self)
-            except Exception:
-                pass
-            self._press = None
-            if was_drag:
-                if self.on_drag_end is not None:
-                    self.on_drag_end()
-            elif self.on_pick is not None:
-                self.on_pick(touch.x, touch.y)
-            return True
-        return CubeView.on_touch_up(self, touch)
+        if touch is not self._active_touch:
+            return False
+        was_drag = self._moved
+        try:
+            touch.ungrab(self)
+        except Exception:
+            pass
+        self._active_touch = None
+        self._press = None
+        if was_drag:
+            if self.on_drag_end is not None:
+                self.on_drag_end()
+        elif self.on_pick is not None:
+            self.on_pick(touch.x, touch.y)
+        return True
 
 
 class InputScreen(Screen):
@@ -176,19 +176,23 @@ class InputScreen(Screen):
         self._init_for_n()
 
     def build_ui(self):
+        simple = bool(getattr(_app(), "simple_input", False))
+        self._simple = simple
         root = BoxLayout(orientation="vertical", spacing=8, padding=[8, 6, 8, 8])
 
         # ---- 顶栏 ----
         top = BoxLayout(size_hint_y=None, height=46, spacing=8)
         self.btn_back = UIButton(text=tr("input.back"), size_hint_x=0.22)
         self.btn_back.bind(on_release=lambda *a: self.go_home())
-        self.title = Label(text=tr("input.title", n=4), size_hint_x=0.56, halign="center",
-                           font_size="20sp", bold=True)
+        self.title = Label(text=tr("input.title", n=4),
+                           size_hint_x=(0.78 if simple else 0.56),
+                           halign="center", font_size="20sp", bold=True)
         self.btn_demo = UIButton(text=tr("input.demo"), size_hint_x=0.22)
         self.btn_demo.bind(on_release=lambda *a: self.open_demo())
         top.add_widget(self.btn_back)
         top.add_widget(self.title)
-        top.add_widget(self.btn_demo)
+        if not simple:
+            top.add_widget(self.btn_demo)
         root.add_widget(top)
 
         # ---- 3D 视图占满主区 ----
@@ -198,25 +202,28 @@ class InputScreen(Screen):
         self.view.on_drag_end = self._handle_drag_end
         root.add_widget(self.view)
 
-        # ---- 当前面 + 缩放 ----
+        # ---- 当前面 + 缩放（简洁模式只留当前面）----
         nav = BoxLayout(size_hint_y=None, height=44, spacing=8)
-        zoom_in = UIButton(text="＋", size_hint_x=0.12, font_size="20sp")
-        zoom_in.bind(on_release=lambda *a: self._zoom(1.15))
-        zoom_out = UIButton(text="－", size_hint_x=0.12, font_size="20sp")
-        zoom_out.bind(on_release=lambda *a: self._zoom(1 / 1.15))
+        self.btn_zoom_in = UIButton(text="＋", size_hint_x=0.12, font_size="20sp")
+        self.btn_zoom_in.bind(on_release=lambda *a: self._zoom(1.15))
+        self.btn_zoom_out = UIButton(text="－", size_hint_x=0.12, font_size="20sp")
+        self.btn_zoom_out.bind(on_release=lambda *a: self._zoom(1 / 1.15))
         self.face_label = Label(text=tr("input.face", face=tr("face.F"), code="F"),
-                                size_hint_x=0.5, halign="center",
+                                size_hint_x=(1.0 if simple else 0.5), halign="center",
                                 font_size="17sp", bold=True)
-        for w in (zoom_out, self.face_label, zoom_in):
-            nav.add_widget(w)
+        if simple:
+            nav.add_widget(self.face_label)
+        else:
+            for w in (self.btn_zoom_out, self.face_label, self.btn_zoom_in):
+                nav.add_widget(w)
         root.add_widget(nav)
 
         # ---- 颜色选择器 ----
         self.picker = ColorSelector(size_hint_y=None, height=52)
         root.add_widget(self.picker)
 
-        # ---- 录入辅助工具 ----
-        edit_row = BoxLayout(size_hint_y=None, height=44, spacing=8)
+        # ---- 录入辅助工具（简洁模式隐藏）----
+        self.edit_row = BoxLayout(size_hint_y=None, height=44, spacing=8)
         self.btn_pick = UIButton(text=tr("input.pick"), font_size="15sp")
         self.btn_pick.bind(on_release=lambda *a: self.toggle_pick())
         self.btn_fill = UIButton(text=tr("input.fill"), font_size="15sp")
@@ -226,27 +233,29 @@ class InputScreen(Screen):
         self.btn_redo = UIButton(text=tr("input.redo"), font_size="15sp")
         self.btn_redo.bind(on_release=lambda *a: self.redo())
         for b in (self.btn_pick, self.btn_fill, self.btn_undo, self.btn_redo):
-            edit_row.add_widget(b)
-        root.add_widget(edit_row)
+            self.edit_row.add_widget(b)
 
-        # ---- 打乱公式 ----
-        scramble_row = BoxLayout(size_hint_y=None, height=42, spacing=8)
+        # ---- 打乱公式（简洁模式隐藏）----
+        self.scramble_row = BoxLayout(size_hint_y=None, height=42, spacing=8)
         self.btn_scramble = UIButton(text=tr("input.scramble"), font_size="15sp")
         self.btn_scramble.bind(on_release=lambda *a: self.open_scramble())
-        scramble_row.add_widget(self.btn_scramble)
-        root.add_widget(scramble_row)
+        self.scramble_row.add_widget(self.btn_scramble)
+
+        if not simple:
+            root.add_widget(self.edit_row)
+            root.add_widget(self.scramble_row)
 
         # ---- 翻转导航 ----
         turn_row = BoxLayout(size_hint_y=None, height=48, spacing=8)
-        self.btn_prev = UIButton(text=tr("input.prev", arrow=""), font_size="16sp")
+        self.btn_prev = UIButton(text=tr("input.prev"), font_size="16sp")
         self.btn_prev.bind(on_release=lambda *a: self.prev_face())
-        self.btn_next = UIButton(text=tr("input.next", arrow=""), font_size="16sp")
+        self.btn_next = UIButton(text=tr("input.next"), font_size="16sp")
         self.btn_next.bind(on_release=lambda *a: self.next_face())
         for b in (self.btn_prev, self.btn_next):
             turn_row.add_widget(b)
         root.add_widget(turn_row)
 
-        # ---- 操作按钮行 ----
+        # ---- 操作按钮行（简洁模式只留「求解」）----
         action_row = BoxLayout(size_hint_y=None, height=52, spacing=8)
         self.btn_twist = UIButton(text=tr("input.twist"), font_size="15sp")
         self.btn_twist.bind(on_release=lambda *a: self.open_twist())
@@ -258,9 +267,12 @@ class InputScreen(Screen):
         self.btn_check.bind(on_release=lambda *a: self.check())
         self.btn_solve = PrimaryButton(text=tr("input.solve"), font_size="15sp")
         self.btn_solve.bind(on_release=lambda *a: self.start_solve())
-        for b in (self.btn_twist, self.btn_random, self.btn_clear,
-                  self.btn_check, self.btn_solve):
-            action_row.add_widget(b)
+        if simple:
+            action_row.add_widget(self.btn_solve)
+        else:
+            for b in (self.btn_twist, self.btn_random, self.btn_clear,
+                      self.btn_check, self.btn_solve):
+                action_row.add_widget(b)
         root.add_widget(action_row)
 
         # ---- 状态提示 ----
@@ -269,7 +281,25 @@ class InputScreen(Screen):
         root.add_widget(self.msg)
         self.add_widget(root)
 
-        self.bind(size=self._on_resize)
+        if not getattr(self, "_resize_bound", False):
+            self.bind(size=self._on_resize)
+            self._resize_bound = True
+
+    def apply_input_mode(self, simple):
+        """切换高级/简洁输入：重建布局，保留已录入数据与朝向。"""
+        if bool(getattr(self, "_simple", None)) == bool(simple):
+            return
+        self.clear_widgets()
+        self.build_ui()
+        if getattr(self, "_ori", None) is not None:
+            # 重建后是新视图，相机需重设为正对当前面（否则沿用默认斜视角，
+            # 看起来魔方没有正对用户）。
+            self.view.camera.elevation = 0.0
+            self.view.camera.azimuth = 0.0
+            self.view._display_zoom = 1.0
+            self._refresh_view(keep_anim=False)
+            self._update_turn_hints()
+            self._update_face_label()
 
     def retranslate(self):
         """语言切换后重设静态文案。"""
@@ -341,11 +371,9 @@ class InputScreen(Screen):
         self.face_label.text = tr("input.face", face=tr(f"face.{face}"), code=face)
 
     def _update_turn_hints(self):
-        """在"上一步/下一步"按钮上显示本次转向的方位箭头。"""
-        left = _DIR_ARROW.get(self._ori.prev_dir(), "◀")
-        right = _DIR_ARROW.get(self._ori.next_dir(), "▶")
-        self.btn_prev.text = tr("input.prev", arrow=left)
-        self.btn_next.text = tr("input.next", arrow=right)
+        """上一步/下一步按钮文案（< 上一步 / 下一步 >）。"""
+        self.btn_prev.text = tr("input.prev")
+        self.btn_next.text = tr("input.next")
 
     def _zoom(self, factor):
         self.view._display_zoom *= factor
@@ -604,6 +632,9 @@ class InputScreen(Screen):
 
     def on_enter(self):
         n = self._n()
+        cur_simple = bool(getattr(_app(), "simple_input", False))
+        if getattr(self, "_simple", None) != cur_simple:
+            self.apply_input_mode(cur_simple)
         self.title.text = tr("input.title", n=n)
         if not self._initialized or getattr(self, "_n_for_screen", None) != n:
             self._init_for_n()

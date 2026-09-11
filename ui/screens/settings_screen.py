@@ -57,6 +57,12 @@ class SettingsScreen(Screen):
         self.lang_row = BoxLayout(spacing=8, size_hint_y=None, height=52)
         content.add_widget(self.lang_row)
 
+        # 输入方式（高级 / 简洁）
+        self.lbl_input = self._section_label(tr("settings.input_mode"))
+        content.add_widget(self.lbl_input)
+        self.input_row = BoxLayout(spacing=8, size_hint_y=None, height=52)
+        content.add_widget(self.input_row)
+
         # 关于
         self.lbl_about = self._section_label(tr("settings.about"))
         content.add_widget(self.lbl_about)
@@ -75,6 +81,7 @@ class SettingsScreen(Screen):
         self.add_widget(root)
         self._build_theme_row()
         self._build_lang_row()
+        self._build_input_row()
 
     def _section_label(self, text):
         lbl = Label(text=text, font_size="15sp", bold=True, halign="left",
@@ -107,6 +114,21 @@ class SettingsScreen(Screen):
     def pick_language(self, lang):
         _app().set_language(lang)
 
+    # ---- 输入方式 ----
+    def _build_input_row(self):
+        self.input_row.clear_widgets()
+        simple = bool(getattr(_app(), "simple_input", False))
+        self.input_row.add_widget(
+            self._option(tr("inputmode.advanced"), not simple,
+                         lambda: self.pick_input_mode(False)))
+        self.input_row.add_widget(
+            self._option(tr("inputmode.simple"), simple,
+                         lambda: self.pick_input_mode(True)))
+
+    def pick_input_mode(self, simple):
+        _app().set_input_mode(simple)
+        self._build_input_row()
+
     def _option(self, label, selected, on_pick):
         cls = PrimaryButton if selected else UIButton
         btn = cls(text=label)
@@ -121,22 +143,25 @@ class SettingsScreen(Screen):
         self.lbl_title.text = tr("settings.title")
         self.lbl_theme.text = tr("settings.theme")
         self.lbl_lang.text = tr("settings.language")
+        self.lbl_input.text = tr("settings.input_mode")
         self.lbl_about.text = tr("settings.about")
         self.lbl_app.text = tr("app.name")
         self.lbl_ver.text = tr("home.version", version=Config.app_version)
         self.lbl_tagline.text = tr("settings.about_tagline")
         self._build_theme_row()
         self._build_lang_row()
+        self._build_input_row()
 
     def refresh_theme(self):
         if not hasattr(self, "lbl_title"):
             return
         self.lbl_title.color = _app().theme.text
-        for lbl in (self.lbl_theme, self.lbl_lang, self.lbl_about):
+        for lbl in (self.lbl_theme, self.lbl_lang, self.lbl_input, self.lbl_about):
             lbl.color = _app().theme.accent
         self.lbl_ver.color = _app().theme.text_muted
         self._build_theme_row()
         self._build_lang_row()
+        self._build_input_row()
 
     def go_home(self):
         self.manager.current = "HomeScreen"

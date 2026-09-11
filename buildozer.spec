@@ -6,7 +6,7 @@
 title = 3D魔方智能还原
 package.name = cubesolver
 package.domain = com.example
-version = 1.2.5
+version = 1.2.6
 
 # 工程源码目录（buildozer 会把它拷贝进打包环境）
 source.dir = .

@@ -23,6 +23,7 @@ from cube.cube3 import Cube3
 from cube.cube4 import Cube4
 from cube.cube5 import Cube5
 from app.theme import Theme, AUTO, LIGHT, DARK, resolve_dark, load_saved_mode, save_mode
+from app.prefs import get as _pref_get, set as _pref_set
 
 _KV_PATH = os.path.join(os.path.dirname(__file__), "..", "ui", "kv", "app.kv")
 
@@ -40,6 +41,8 @@ class CubeApp(App):
         self.cube = Cube4.solved()
         self.solve_result = None
         self.facelets_input = None  # 用户录入的 facelets
+        # ---- 输入方式（高级 / 简洁，默认简洁）----
+        self.simple_input = bool(_pref_get("simple_input", True))
         self._kv_loaded = False
         # ---- 主题 ----
         self.theme = Theme()
@@ -125,6 +128,22 @@ class CubeApp(App):
 
     def cycle_language(self):
         self.set_language(i18n.cycle_language(self.lang))
+
+    # ---- 输入方式（高级 / 简洁）----
+    def set_input_mode(self, simple: bool):
+        """切换录入页的高级/简洁输入，持久化并即时重建录入页布局。"""
+        self.simple_input = bool(simple)
+        _pref_set("simple_input", self.simple_input)
+        sm = getattr(self, "root", None)
+        if sm is None:
+            return
+        scr = sm.get_screen("InputScreen")
+        fn = getattr(scr, "apply_input_mode", None)
+        if fn:
+            try:
+                fn(self.simple_input)
+            except Exception:
+                pass
 
     def _retranslate_screens(self):
         """通知所有已构建的屏幕按新语言重设文案。"""

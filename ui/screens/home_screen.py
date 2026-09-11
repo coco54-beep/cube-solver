@@ -115,9 +115,8 @@ class HomeScreen(Screen):
         self._ver_label.text = tr("home.version", version=Config.app_version)
         for n, card in getattr(self, "_cards", {}).items():
             try:
-                _big, title_label, desc_label = card._labels
+                _big, title_label = card._labels
                 title_label.text = tr(f"home.card.{n}.title")
-                desc_label.text = tr(f"home.card.{n}.desc")
             except Exception:
                 pass
 
@@ -213,7 +212,7 @@ class HomeScreen(Screen):
         return False
 
     def _card(self, big, title, desc, onClick):
-        """创建一个卡片式按钮（大号强调数字 + 标题 + 描述）。"""
+        """创建一个卡片式按钮（大号强调数字 + 标题）。"""
         from kivy.graphics.instructions import InstructionGroup
         theme = _app().theme
         card = BoxLayout(orientation="vertical", spacing=2, padding=10)
@@ -226,16 +225,13 @@ class HomeScreen(Screen):
         card.bind(on_touch_down=lambda inst, touch, c=card: self._card_press(c, touch, True),
                   on_touch_up=lambda inst, touch, c=card: self._card_press(c, touch, False))
         # 用 size_hint 比例占满卡片，避免固定高度导致文字重叠
-        big_label = Label(text=big, font_size="50sp", bold=True, halign="center",
-                          valign="middle", color=theme.accent, size_hint_y=0.52)
-        title_label = Label(text=title, font_size="19sp", bold=True, halign="center",
-                            valign="middle", color=theme.text, size_hint_y=0.26)
-        desc_label = Label(text=desc, font_size="13sp", halign="center",
-                           valign="middle", color=theme.text_muted, size_hint_y=0.22)
+        big_label = Label(text=big, font_size="54sp", bold=True, halign="center",
+                          valign="middle", color=theme.accent, size_hint_y=0.6)
+        title_label = Label(text=title, font_size="20sp", bold=True, halign="center",
+                            valign="middle", color=theme.text, size_hint_y=0.4)
         card.add_widget(big_label)
         card.add_widget(title_label)
-        card.add_widget(desc_label)
-        card._labels = (big_label, title_label, desc_label)
+        card._labels = (big_label, title_label)
         self._card_draw(card)
         return card
 
@@ -252,10 +248,9 @@ class HomeScreen(Screen):
         if cards:
             for card in cards.children:
                 try:
-                    big, title, desc = card._labels
+                    big, title = card._labels
                     big.color = theme.accent
                     title.color = theme.text
-                    desc.color = theme.text_muted
                     self._card_draw(card)
                 except Exception:
                     pass

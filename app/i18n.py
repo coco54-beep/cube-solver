@@ -8,7 +8,7 @@
 用法：
     from app.i18n import tr
     label.text = tr("home.help")
-    label.text = tr("home.version", version="1.2.5")
+    label.text = tr("home.version", version="1.2.6")
 """
 
 import os
@@ -65,8 +65,12 @@ CATALOG = {
         "settings.title": "设置",
         "settings.theme": "主题",
         "settings.language": "语言",
+        "settings.input_mode": "输入方式",
         "settings.about": "关于",
         "settings.about_tagline": "2 阶 / 3 阶 / 4 阶 / 5 阶魔方 · 智能还原",
+
+        "inputmode.advanced": "高级输入",
+        "inputmode.simple": "简洁输入",
 
         "help.title": "使用说明",
         "help.close": "关闭",
@@ -116,8 +120,8 @@ CATALOG = {
         "input.fill": "整面填充",
         "input.undo": "撤销",
         "input.redo": "重做",
-        "input.prev": "{arrow}上一步",
-        "input.next": "{arrow}下一步",
+        "input.prev": "< 上一步",
+        "input.next": "下一步 >",
         "input.twist": "拧魔方",
         "input.random": "随机打乱",
         "input.scramble": "粘贴打乱公式",
@@ -226,8 +230,12 @@ CATALOG = {
         "settings.title": "Settings",
         "settings.theme": "Theme",
         "settings.language": "Language",
+        "settings.input_mode": "Input mode",
         "settings.about": "About",
         "settings.about_tagline": "Smart solving for 2×2 / 3×3 / 4×4 / 5×5 cubes",
+
+        "inputmode.advanced": "Advanced",
+        "inputmode.simple": "Simple",
 
         "help.title": "Help",
         "help.close": "Close",
@@ -284,8 +292,8 @@ CATALOG = {
         "input.fill": "Fill face",
         "input.undo": "Undo",
         "input.redo": "Redo",
-        "input.prev": "{arrow} Prev",
-        "input.next": "{arrow} Next",
+        "input.prev": "< Prev",
+        "input.next": "Next >",
         "input.twist": "Twist",
         "input.random": "Random",
         "input.scramble": "Paste scramble",
@@ -394,8 +402,12 @@ CATALOG = {
         "settings.title": "設定",
         "settings.theme": "テーマ",
         "settings.language": "言語",
+        "settings.input_mode": "入力方式",
         "settings.about": "アプリについて",
         "settings.about_tagline": "2×2 / 3×3 / 4×4 / 5×5 キューブのスマートソルバー",
+
+        "inputmode.advanced": "詳細入力",
+        "inputmode.simple": "シンプル入力",
 
         "help.title": "使い方",
         "help.close": "閉じる",
@@ -452,8 +464,8 @@ CATALOG = {
         "input.fill": "面を塗る",
         "input.undo": "元に戻す",
         "input.redo": "やり直す",
-        "input.prev": "{arrow} 前へ",
-        "input.next": "{arrow} 次へ",
+        "input.prev": "< 前へ",
+        "input.next": "次へ >",
         "input.twist": "回す",
         "input.random": "ランダム",
         "input.scramble": "スクランブルを貼り付け",
@@ -646,7 +658,7 @@ def save_language(lang: str):
 
 
 def init() -> str:
-    """初始化语言：已保存优先，否则跟随系统。返回最终语言。"""
-    lang = load_saved_language() or system_language()
+    """初始化语言：已保存优先，否则默认简体中文。返回最终语言。"""
+    lang = load_saved_language() or LANG_ZH
     _translator.lang = lang
     return lang

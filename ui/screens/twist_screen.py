@@ -317,8 +317,10 @@ class TwistScreen(Screen):
         ok.bind(on_release=lambda *a: popup.dismiss())
         content.add_widget(label)
         content.add_widget(ok)
+        from ui.widgets.dialogs import theme_popup
         popup = Popup(title=tr("twist.congrats_title"), content=content,
                       size_hint=(0.86, 0.34))
+        theme_popup(popup, _app().theme)
         popup.open()
 
     def _write_back(self):

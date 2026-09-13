@@ -11,7 +11,7 @@ from kivy.uix.label import Label
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.screenmanager import Screen
 
-from ui.widgets.buttons import UIButton, PrimaryButton, DangerButton
+from ui.widgets.buttons import UIButton, PrimaryButton, DangerButton, ArrowButton
 
 from renderer.cube_view import CubeView
 from renderer.cube_orientation import CubeOrientation
@@ -247,9 +247,9 @@ class InputScreen(Screen):
 
         # ---- 翻转导航 ----
         turn_row = BoxLayout(size_hint_y=None, height=48, spacing=8)
-        self.btn_prev = UIButton(text=tr("input.prev"), font_size="16sp")
+        self.btn_prev = ArrowButton(direction="left", font_size="20sp")
         self.btn_prev.bind(on_release=lambda *a: self.prev_face())
-        self.btn_next = UIButton(text=tr("input.next"), font_size="16sp")
+        self.btn_next = ArrowButton(direction="right", font_size="20sp")
         self.btn_next.bind(on_release=lambda *a: self.next_face())
         for b in (self.btn_prev, self.btn_next):
             turn_row.add_widget(b)
@@ -371,9 +371,8 @@ class InputScreen(Screen):
         self.face_label.text = tr("input.face", face=tr(f"face.{face}"), code=face)
 
     def _update_turn_hints(self):
-        """上一步/下一步按钮文案（< 上一步 / 下一步 >）。"""
-        self.btn_prev.text = tr("input.prev")
-        self.btn_next.text = tr("input.next")
+        """上一步/下一步现在是自绘粗箭头（ArrowButton），无需设置文案。"""
+        pass
 
     def _zoom(self, factor):
         self.view._display_zoom *= factor
@@ -541,8 +540,13 @@ class InputScreen(Screen):
     def random_load(self):
         from cube.conversion import cubies_to_facelets
         from cube.scramble import random_scramble
+        import random as _random
         n = self._n()
         moves = random_scramble(n)
+        if n == 3:
+            # 3 阶固定中心在纯面转下不变；追加一次整体翻转，让六面中心色也变化
+            # （解法端会按当前中心色重贴色，仍能解成六面纯色）。
+            moves = moves + [_random.choice(["x", "x'", "y", "y'", "z", "z'"])]
         cube = _new_solved_cube(n)
         cube.apply_moves(moves)
         facelets = cubies_to_facelets(cube.cubies, n)
@@ -568,8 +572,10 @@ class InputScreen(Screen):
         btns.add_widget(ok)
         content.add_widget(ti)
         content.add_widget(btns)
+        from ui.widgets.dialogs import theme_popup
         popup = Popup(title=tr("input.scramble"), content=content,
                       size_hint=(0.9, 0.34))
+        theme_popup(popup, _app().theme)
         popup.open()
 
     def _apply_scramble_popup(self, text):
@@ -612,7 +618,9 @@ class InputScreen(Screen):
         btns.add_widget(ok)
         content.add_widget(label)
         content.add_widget(btns)
+        from ui.widgets.dialogs import theme_popup
         popup = Popup(title=tr("input.clear.title"), content=content, size_hint=(0.86, 0.34))
+        theme_popup(popup, _app().theme)
         popup.bind(on_dismiss=lambda *a: None)
         popup.open()
 

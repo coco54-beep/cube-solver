@@ -2,7 +2,7 @@
 
 from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
-from ui.widgets.buttons import UIButton
+from ui.widgets.buttons import UIButton, PrimaryButton, ArrowButton, PlayPauseButton
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 from kivy.uix.slider import Slider
@@ -26,8 +26,11 @@ class PlaybackScreen(Screen):
         self._hold_ev = None    # 停留计时器
 
     def build_ui(self):
+        simple = bool(getattr(_app(), "simple_input", False))
+        self._simple = simple
         root = BoxLayout(orientation="vertical", spacing=4, padding=6)
         self.view = CubeView(size_hint_y=0.55)
+        self.view.lock_rotation = simple  # 简洁模式：视角固定
         root.add_widget(self.view)
 
         info = BoxLayout(size_hint_y=0.08, spacing=6)
@@ -42,15 +45,18 @@ class PlaybackScreen(Screen):
         play_row = BoxLayout(spacing=6)
         self.btn_start = UIButton(text=tr("playback.start"), font_size="15sp")
         self.btn_start.bind(on_release=lambda *a: self.to_start())
-        self.btn_prev = UIButton(text=tr("playback.prev"), font_size="15sp")
+        self.btn_prev = ArrowButton(direction="left", font_size="17sp")
         self.btn_prev.bind(on_release=lambda *a: self.prev())
-        self.btn_play = UIButton(text=tr("playback.play"), font_size="15sp")
+        self.btn_play = PlayPauseButton(font_size="17sp")
         self.btn_play.bind(on_release=lambda *a: self.toggle_play())
-        self.btn_next = UIButton(text=tr("playback.next"), font_size="15sp")
+        self.btn_next = ArrowButton(direction="right", font_size="17sp")
         self.btn_next.bind(on_release=lambda *a: self.next())
         self.btn_end = UIButton(text=tr("playback.end"), font_size="15sp")
         self.btn_end.bind(on_release=lambda *a: self.to_end())
-        for b in (self.btn_start, self.btn_prev, self.btn_play, self.btn_next, self.btn_end):
+        row_widgets = [self.btn_prev, self.btn_play, self.btn_next]
+        if not simple:
+            row_widgets = [self.btn_start] + row_widgets + [self.btn_end]
+        for b in row_widgets:
             play_row.add_widget(b)
         control.add_widget(play_row)
         util_row = BoxLayout(spacing=6)
@@ -58,8 +64,11 @@ class PlaybackScreen(Screen):
         self.btn_view.bind(on_release=lambda *a: self.reset_view())
         self.btn_back = UIButton(text=tr("playback.back"), font_size="15sp")
         self.btn_back.bind(on_release=lambda *a: self.go_back())
-        for b in (self.btn_view, self.btn_back):
-            util_row.add_widget(b)
+        if simple:
+            util_row.add_widget(self.btn_back)
+        else:
+            util_row.add_widget(self.btn_view)
+            util_row.add_widget(self.btn_back)
         control.add_widget(util_row)
         root.add_widget(control)
 
@@ -71,7 +80,7 @@ class PlaybackScreen(Screen):
         speed_row.add_widget(self.slider)
         self.lbl_hold = Label(text=tr("playback.hold"), font_size="15sp", size_hint_x=0.14)
         speed_row.add_widget(self.lbl_hold)
-        self.hold_slider = Slider(min=0.0, max=2.0, value=self._hold, step=0.1,
+        self.hold_slider = Slider(min=0.0, max=6.0, value=self._hold, step=0.1,
                                   size_hint_x=0.36)
         self.hold_slider.bind(value=self._on_hold)
         speed_row.add_widget(self.hold_slider)
@@ -83,8 +92,6 @@ class PlaybackScreen(Screen):
         if not hasattr(self, "view"):
             return
         self.btn_start.text = tr("playback.start")
-        self.btn_prev.text = tr("playback.prev")
-        self.btn_next.text = tr("playback.next")
         self.btn_end.text = tr("playback.end")
         self.btn_view.text = tr("playback.reset_view")
         self.btn_back.text = tr("playback.back")
@@ -94,6 +101,9 @@ class PlaybackScreen(Screen):
 
     def on_enter(self):
         if not hasattr(self, "view"):
+            self.build_ui()
+        elif getattr(self, "_simple", None) != bool(getattr(_app(), "simple_input", False)):
+            self.clear_widgets()
             self.build_ui()
         app = _app()
         result = app.solve_result
@@ -148,11 +158,17 @@ class PlaybackScreen(Screen):
         self._replay_to(self._idx)
 
     def to_end(self):
+        self._confirm(tr("playback.confirm.end"), self._do_to_end)
+
+    def _do_to_end(self):
         self._playing = False
         self._replay_to(len(self._moves) - 1)
 
     def to_start(self):
         """回到初始状态（跳结尾的对称操作）。"""
+        self._confirm(tr("playback.confirm.start"), self._do_to_start)
+
+    def _do_to_start(self):
         self._playing = False
         self._replay_to(-1)
 
@@ -251,7 +267,7 @@ class PlaybackScreen(Screen):
         self.btn_start.disabled = self._idx < 0
         self.btn_prev.disabled = self._idx < 0
         self.btn_next.disabled = self._idx + 1 >= len(self._moves)
-        self.btn_play.text = tr("playback.pause") if self._playing else tr("playback.play")
+        self.btn_play.set_playing(self._playing)
 
     def reset_view(self):
         """把 3D 视角还原到默认。"""
@@ -263,8 +279,32 @@ class PlaybackScreen(Screen):
 
     def go_back(self):
         """返回录入页：自动恢复上次布局（如布局未变，开始求解时会复用上次方案）。"""
+        self._confirm(tr("playback.confirm.back"), self._do_go_back)
+
+    def _do_go_back(self):
         self._stop_all()
         self.manager.current = "InputScreen"
+
+    def _confirm(self, msg, on_ok):
+        """二次确认弹窗；确定后执行 on_ok。"""
+        from kivy.uix.popup import Popup
+        content = BoxLayout(orientation="vertical", spacing=12, padding=16)
+        label = Label(text=msg, halign="center", font_size="18sp", size_hint_y=1)
+        btns = BoxLayout(orientation="horizontal", spacing=8,
+                         size_hint_y=None, height=52)
+        cancel = UIButton(text=tr("confirm.cancel"))
+        cancel.bind(on_release=lambda *a: popup.dismiss())
+        ok = PrimaryButton(text=tr("confirm.ok"))
+        ok.bind(on_release=lambda *a: (on_ok(), popup.dismiss()))
+        btns.add_widget(cancel)
+        btns.add_widget(ok)
+        content.add_widget(label)
+        content.add_widget(btns)
+        from ui.widgets.dialogs import theme_popup
+        popup = Popup(title=tr("confirm.title"), content=content,
+                      size_hint=(0.86, 0.42))
+        theme_popup(popup, _app().theme)
+        popup.open()
 
 
 def _app():

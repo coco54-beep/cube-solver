@@ -53,7 +53,7 @@ def _build(monkeypatch):
 
 def test_screens_construct_and_retranslate(monkeypatch):
     app, home, settings = _build(monkeypatch)
-    assert home.settings_btn.text
+    assert home.title.text
     assert settings.lbl_title.text
 
     for scr in app.screens:

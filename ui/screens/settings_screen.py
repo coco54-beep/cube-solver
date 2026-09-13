@@ -63,6 +63,15 @@ class SettingsScreen(Screen):
         self.input_row = BoxLayout(spacing=8, size_hint_y=None, height=52)
         content.add_widget(self.input_row)
 
+        # 使用说明（从首页移到这里）
+        self.lbl_help = self._section_label(tr("home.help"))
+        content.add_widget(self.lbl_help)
+        self.help_row = BoxLayout(spacing=8, size_hint_y=None, height=52)
+        self.btn_help = UIButton(text=tr("home.help"))
+        self.btn_help.bind(on_release=lambda *a: self.open_help())
+        self.help_row.add_widget(self.btn_help)
+        content.add_widget(self.help_row)
+
         # 关于
         self.lbl_about = self._section_label(tr("settings.about"))
         content.add_widget(self.lbl_about)
@@ -129,6 +138,10 @@ class SettingsScreen(Screen):
         _app().set_input_mode(simple)
         self._build_input_row()
 
+    def open_help(self):
+        from ui.help_dialog import show_help
+        show_help()
+
     def _option(self, label, selected, on_pick):
         cls = PrimaryButton if selected else UIButton
         btn = cls(text=label)
@@ -144,6 +157,8 @@ class SettingsScreen(Screen):
         self.lbl_theme.text = tr("settings.theme")
         self.lbl_lang.text = tr("settings.language")
         self.lbl_input.text = tr("settings.input_mode")
+        self.lbl_help.text = tr("home.help")
+        self.btn_help.text = tr("home.help")
         self.lbl_about.text = tr("settings.about")
         self.lbl_app.text = tr("app.name")
         self.lbl_ver.text = tr("home.version", version=Config.app_version)
@@ -156,7 +171,8 @@ class SettingsScreen(Screen):
         if not hasattr(self, "lbl_title"):
             return
         self.lbl_title.color = _app().theme.text
-        for lbl in (self.lbl_theme, self.lbl_lang, self.lbl_input, self.lbl_about):
+        for lbl in (self.lbl_theme, self.lbl_lang, self.lbl_input,
+                    self.lbl_help, self.lbl_about):
             lbl.color = _app().theme.accent
         self.lbl_ver.color = _app().theme.text_muted
         self._build_theme_row()

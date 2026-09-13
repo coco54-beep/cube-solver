@@ -62,6 +62,9 @@ class CubeView(Widget):
 		# 不直接依赖 camera.zoom()，避免自适应取景抵消相机缩放。
 		self._display_zoom = 1.0
 
+		# 视角固定：为 True 时忽略拖拽旋转（滚轮/双指缩放仍可用）。
+		self.lock_rotation = False
+
 		# 使用独立指令组，只清除魔方网格，
 		# 不会误删该 Widget 在 KV 中定义的背景等其他 canvas 指令。
 		self._mesh_group = InstructionGroup()
@@ -299,6 +302,19 @@ class CubeView(Widget):
 			highlight=getattr(self, "_highlight", None),
 		)
 
+		# 取景包围盒用「未执行层转动、未施加整体旋转」的模型顶点。否则整体旋转
+		# 动画（输入页切面）期间旋转后的包围盒会变化，导致画面缩放抖动，并误报
+		# 「三轴尺寸不一致」。
+		if self._anim is not None:
+			reference_vertices, _reference_indices, _reference_face_info = scene_mod.build_scene(
+				self.cube,
+				moving_positions=None,
+				rotation=None,
+				highlight=getattr(self, "_highlight", None),
+			)
+		else:
+			reference_vertices = list(vertices)
+
 		# 施加显示整体旋转（输入界面用于把某面转到正对相机）。
 		if self._whole_world is not None and len(vertices) >= 7:
 			w = self._whole_world
@@ -317,22 +333,6 @@ class CubeView(Widget):
 
 		if len(vertices) < 28:
 			return
-
-		# --------------------------------------------------------------
-		# 使用未执行层转动的模型计算包围盒。
-		#
-		# 如果直接使用动画中的顶点计算包围盒，转动过程中模型包围盒
-		# 会发生变化，从而导致相机距离和画面缩放出现轻微抖动。
-		# --------------------------------------------------------------
-		if self._anim is not None:
-			reference_vertices, _reference_indices, _reference_face_info = scene_mod.build_scene(
-				self.cube,
-				moving_positions=None,
-				rotation=None,
-				highlight=getattr(self, "_highlight", None),
-			)
-		else:
-			reference_vertices = vertices
 
 		bounds = _get_vertex_bounds(reference_vertices)
 
@@ -878,6 +878,10 @@ class CubeView(Widget):
 
 			self._draw_mesh()
 			return True
+
+		# 视角固定：不响应拖拽旋转（滚轮缩放已在上方处理）。
+		if getattr(self, "lock_rotation", False):
+			return False
 
 		self._touch0 = touch
 		self._touch0_pos = touch.pos

@@ -22,6 +22,7 @@ import heapq
 import os
 import random
 import sys
+import time
 from operator import eq, ne
 from typing import Dict, List, Optional, Tuple
 
@@ -121,12 +122,16 @@ def solve_all_complete_candidates(
     max_candidates: int = 6,
     iters: int = 60000,
     max_pops: int = 200000,
+    deadline: Optional[float] = None,
 ) -> List[List[ms.Macro]]:
     """A* 收集至多 max_candidates 个 all-complete 宏序列。
 
     搜索排序用「深度 + 错配数」（深度代价，规模可控；实测首个目标 ~11 次弹出）。
     真实展开成本（各宏 `len(seq)` 之和）不用于排序，而由调用方对候选逐一
     评分后取最优——直接在 293 宏空间上按真实成本排序会指数级爆炸。
+
+    `deadline` 为绝对时间（`time.monotonic()` 单位），超过则提前停止并返回
+    已找到的候选，用于保证兜底阶梯不挂死。
     """
     if gens is None:
         gens = generators()
@@ -137,7 +142,11 @@ def solve_all_complete_candidates(
     seen = {state}
     goals: List[List[ms.Macro]] = []
     pops = 0
+    if deadline is not None and time.monotonic() >= deadline:
+        return goals
     while heap and len(seen) < iters and pops < max_pops and len(goals) < max_candidates:
+        if deadline is not None and (pops & 4095) == 0 and time.monotonic() >= deadline:
+            break
         _f, depth, _tie, cur, path = heapq.heappop(heap)
         pops += 1
         if _all_complete(cur):
@@ -194,7 +203,8 @@ def _xor_of(cube: Cube5) -> int:
     return 0 if perm_sign(list(st[:N])) == perm_sign(list(st[N:])) else 1
 
 
-def _best_edge_plan(cube: Cube5, iters: int, max_candidates: int):
+def _best_edge_plan(cube: Cube5, iters: int, max_candidates: int,
+                    deadline: Optional[float] = None):
     """对（已配对且 XOR=0 的）cube 求最优末段宏计划。
 
     返回 (edge+orient 成本, plan, edge_cost, fix_cost) 或 None。
@@ -202,7 +212,7 @@ def _best_edge_plan(cube: Cube5, iters: int, max_candidates: int):
     """
     st = _abstract_of(cube)
     cands = solve_all_complete_candidates(
-        st, max_candidates=max_candidates, iters=iters)
+        st, max_candidates=max_candidates, iters=iters, deadline=deadline)
     if not cands:
         return None
 
@@ -237,7 +247,9 @@ def _best_edge_plan(cube: Cube5, iters: int, max_candidates: int):
 
 def reduce_edges(cube: Cube5, iters: int = 60000, max_candidates: int = 20,
                  pair_variants: int = 10,
-                 progress_callback=None) -> Tuple[Optional[List[str]], Dict]:
+                 progress_callback=None,
+                 seed_offset: int = 0,
+                 deadline: Optional[float] = None) -> Tuple[Optional[List[str]], Dict]:
     """对（中心已归面的）5x5 执行末段棱降阶，返回 (动作序列, 信息)。
 
     生成 `pair_variants` 个配翼变体（首个为确定性贪心，其余为随机贪心）；
@@ -251,6 +263,8 @@ def reduce_edges(cube: Cube5, iters: int = 60000, max_candidates: int = 20,
     best_overall = None  # (total, prefix, plan, edge_cost, fix_cost, pair_len, info)
     variants = max(1, pair_variants) + 1
     for vi in range(variants):
+        if deadline is not None and time.monotonic() >= deadline:
+            break
         if progress_callback is not None:
             try:
                 progress_callback({"variant": vi, "variants": variants})
@@ -259,7 +273,7 @@ def reduce_edges(cube: Cube5, iters: int = 60000, max_candidates: int = 20,
         if vi == pair_variants:
             work, pair_moves = _pair_variant_beam(cube)
         else:
-            rng = None if vi == 0 else random.Random(0xC0FFEE + vi)
+            rng = None if vi == 0 else random.Random(0xC0FFEE + vi + seed_offset)
             work, pair_moves = _pair_variant(cube, rng)
         if not p5.edges_paired(work):
             continue
@@ -295,13 +309,13 @@ def reduce_edges(cube: Cube5, iters: int = 60000, max_candidates: int = 20,
         else:
             info["parity_fix"] = None
 
-        best = _best_edge_plan(work, iters, max_candidates)
+        best = _best_edge_plan(work, iters, max_candidates, deadline=deadline)
         prefix_extra: List[str] = []
         if best is None:
             # 奇 d 掩码：先施加 OLL parity 翻转单条 dedge 奇偶位，再求末段计划。
             work_p = work.clone()
             work_p.apply_moves(list(_OLL_PARITY))
-            best = _best_edge_plan(work_p, iters, max_candidates)
+            best = _best_edge_plan(work_p, iters, max_candidates, deadline=deadline)
             if best is not None:
                 prefix_extra = list(_OLL_PARITY)
         if best is None:

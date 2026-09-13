@@ -15,6 +15,8 @@
 
 from typing import Dict, List
 
+import time
+
 from cube.cube5 import Cube5
 from cube.conversion import cubies_to_facelets, facelets_to_cubies
 from solver.result import SolveResult, SolveStage
@@ -148,6 +150,37 @@ def _with_prefix(prefix: str, result: SolveResult) -> SolveResult:
     )
 
 
+# 末段兜底阶梯：只有当上面整条回退链全部失败时才触发（很罕见），逐级加大
+# 配棱变体数 + 末段 A* 预算，并带硬超时（ensure 不挂死）。正常状态走第一档
+# 即完成，其余档位仅在疑难状态兜底，且超时后立即放弃（仍失败则如实上报）。
+_REDUCE_ESCALATION: List[dict] = [
+    dict(iters=150000, max_candidates=40, pair_variants=25, seed_offset=0),
+    dict(iters=400000, max_candidates=60, pair_variants=50, seed_offset=5000003),
+    dict(iters=900000, max_candidates=90, pair_variants=80, seed_offset=15000019),
+]
+
+# 阶梯总超时（秒）：兜底最多在这个硬上限内尝试，防止低端机/测试挂死。
+_REDUCE_FALLBACK_DEADLINE: float = 45.0
+
+
+def _reduce_edges_escalate(work, cancel_event, progress_callback, deadline: float):
+    """阶梯兜底：逐档加大预算对完整管线重试 `_solve_once`，返回首个成功 SolveResult。
+
+    只在本函数内逐档递增，档间共享 `deadline`（超时立即放弃），确保不挂死。
+    `work` 为已重贴色/重建 center home 的 cube；每次 `_solve_once` 会克隆，故可复用。
+    """
+    for eff in _REDUCE_ESCALATION:
+        if cancel_event is not None and cancel_event.is_set():
+            return None
+        if time.monotonic() >= deadline:
+            break
+        res = _solve_once(work.clone(), cancel_event, progress_callback,
+                          reduce_kwargs=eff, reduce_deadline=deadline)
+        if res.success:
+            return res
+    return None
+
+
 def solve_5x5(cube: Cube5, cancel_event=None, progress_callback=None) -> SolveResult:
     """求解 5x5。返回 SolveResult（moves 为全部阶段动作的拼接）。
 
@@ -194,12 +227,21 @@ def solve_5x5(cube: Cube5, cancel_event=None, progress_callback=None) -> SolveRe
         result3 = _solve_once(trial, cancel_event, progress_callback)
         if result3.success:
             return _with_prefix(flip, result3)
+
+    # 末段兜底阶梯：前面整条链全部失败（很罕见）时，逐级加大配棱变体数与
+    # 末段 A* 预算，并用硬超时兜底，保证不挂死、尽力可解。
+    deadline = time.monotonic() + _REDUCE_FALLBACK_DEADLINE
+    res_esc = _reduce_edges_escalate(work, cancel_event, progress_callback, deadline)
+    if res_esc is not None:
+        return res_esc
     return result
 
 
 def _solve_once(cube: Cube5, cancel_event=None, progress_callback=None,
                 force_center: bool = False,
-                prefer_exact_centers: bool = False) -> SolveResult:
+                prefer_exact_centers: bool = False,
+                reduce_kwargs: dict = None,
+                reduce_deadline: float = None) -> SolveResult:
     work = cube.clone()
     all_moves: List[str] = []
 
@@ -241,7 +283,9 @@ def _solve_once(cube: Cube5, cancel_event=None, progress_callback=None,
         _emit(progress_callback, "edge_pairing", 0.45 + 0.45 * vi / vn,
               "stage.edge_pairing")
 
-    emoves, einfo = ref5_reduce.reduce_edges(work, progress_callback=_reduce_prog)
+    emoves, einfo = ref5_reduce.reduce_edges(
+        work, progress_callback=_reduce_prog,
+        **(reduce_kwargs or {}), deadline=reduce_deadline)
     _emit(progress_callback, "edge_pairing", 0.90, "stage.edge_pairing")
     if emoves is None:
         msg = "棱降阶失败: %s" % einfo.get("note", "未知")

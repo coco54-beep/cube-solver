@@ -8,11 +8,16 @@ from kivy.graphics import Color, Rectangle
 
 
 def theme_popup(popup, theme):
-    """把 Popup 背景替换为 theme.surface（去掉默认深色底图）。返回 popup。"""
+    """把 Popup 背景替换为 theme.surface（去掉默认深色底图）。返回 popup。
+
+    注意：仅把 background 置空会让 Popup 底成一块纯白，深色模式下与浅色文字撞色。
+    必须同时把 background_color 设为主题 surface（空贴图=纯白，乘上 surface 即得主题底色）。
+    """
     try:
         popup.background = ""
     except Exception:
         pass
+    popup.background_color = theme.surface
     with popup.canvas.before:
         popup._theme_bg_color = Color(*theme.surface)
         popup._theme_bg_rect = Rectangle(pos=popup.pos, size=popup.size)
@@ -22,4 +27,10 @@ def theme_popup(popup, theme):
         popup._theme_bg_rect.size = popup.size
 
     popup.bind(pos=_sync, size=_sync)
+
+    def _on_palette(*_a):
+        popup.background_color = theme.surface
+
+    theme.bind(on_palette=_on_palette)
+    popup.bind(on_dismiss=lambda *_a: theme.unbind(on_palette=_on_palette))
     return popup

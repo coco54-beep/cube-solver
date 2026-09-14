@@ -82,7 +82,10 @@ class SettingsScreen(Screen):
                              halign="center", size_hint_y=None)
         self.lbl_tagline = Label(text=tr("settings.about_tagline"), font_size="14sp",
                                  halign="center", size_hint_y=None)
-        for w in (self.lbl_app, self.lbl_ver, self.lbl_tagline):
+        self.lbl_feature = Label(text=tr("settings.about_feature"), font_size="12sp",
+                                 color=_app().theme.text_muted, halign="center",
+                                 size_hint_y=None)
+        for w in (self.lbl_app, self.lbl_ver, self.lbl_tagline, self.lbl_feature):
             w.bind(width=lambda lbl, s: setattr(lbl, "text_size", (s, None)))
             w.bind(texture_size=lambda lbl, ts: setattr(lbl, "height", ts[1] + 2))
             content.add_widget(w)
@@ -163,6 +166,7 @@ class SettingsScreen(Screen):
         self.lbl_app.text = tr("app.name")
         self.lbl_ver.text = tr("home.version", version=Config.app_version)
         self.lbl_tagline.text = tr("settings.about_tagline")
+        self.lbl_feature.text = tr("settings.about_feature")
         self._build_theme_row()
         self._build_lang_row()
         self._build_input_row()
@@ -175,6 +179,7 @@ class SettingsScreen(Screen):
                     self.lbl_help, self.lbl_about):
             lbl.color = _app().theme.accent
         self.lbl_ver.color = _app().theme.text_muted
+        self.lbl_feature.color = _app().theme.text_muted
         self._build_theme_row()
         self._build_lang_row()
         self._build_input_row()

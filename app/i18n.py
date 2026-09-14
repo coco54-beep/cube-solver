@@ -67,7 +67,8 @@ CATALOG = {
         "settings.language": "语言",
         "settings.input_mode": "输入方式",
         "settings.about": "关于",
-        "settings.about_tagline": "2 阶 / 3 阶 / 4 阶 / 5 阶魔方 · 智能还原",
+        "settings.about_tagline": "从 2×2 到 5×5，全阶真实算法求解",
+        "settings.about_feature": "支持 2 / 3 / 4 / 5 阶魔方 · 三阶最优 ≤20 步 · 3D 动画演示还原过程",
 
         "inputmode.advanced": "高级输入",
         "inputmode.simple": "简洁输入",
@@ -239,7 +240,8 @@ CATALOG = {
         "settings.language": "Language",
         "settings.input_mode": "Input mode",
         "settings.about": "About",
-        "settings.about_tagline": "Smart solving for 2×2 / 3×3 / 4×4 / 5×5 cubes",
+        "settings.about_tagline": "Real algorithmic solving for every cube, 2×2 up to 5×5",
+        "settings.about_feature": "Solves 2 / 3 / 4 / 5 order cubes · 3×3 optimal ≤ 20 moves · animated 3D playback",
 
         "inputmode.advanced": "Advanced",
         "inputmode.simple": "Simple",
@@ -418,7 +420,8 @@ CATALOG = {
         "settings.language": "言語",
         "settings.input_mode": "入力方式",
         "settings.about": "アプリについて",
-        "settings.about_tagline": "2×2 / 3×3 / 4×4 / 5×5 キューブのスマートソルバー",
+        "settings.about_tagline": "2×2 から 5×5 まで、全段数の実アルゴリズム解法",
+        "settings.about_feature": "2 / 3 / 4 / 5 段キューブ対応 · 3段は最適 20 手以内 · 3D アニメーション再生",
 
         "inputmode.advanced": "詳細入力",
         "inputmode.simple": "シンプル入力",

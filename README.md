@@ -8,9 +8,17 @@
 
 <div align="center">
 
-### Watch it solve itself 👇
+### Watch it solve itself — in real 3D 👇
 
-<img src="assets/demo.gif" width="300" alt="4x4 cube solve 3D playback animation" />
+<img src="assets/demo.gif" width="300" alt="5x5 cube solve 3D playback rotating animation" />
+
+</div>
+
+<div align="center">
+
+| **2×2 ➜ 5×5** | **Real algorithms** | **3D playback** | **Open source** |
+|:---:|:---:|:---:|:---:|
+| One app for every cube | Kociemba ≤ 20 moves | Rotate · zoom · auto-play | GPL-3.0, Windows + Android |
 
 </div>
 
@@ -25,15 +33,16 @@
 
 ## 🎯 What it is
 
-An app that solves cubes with **real algorithms** — not memorized formulas, not brute-force table lookups:
+An app that solves cubes with **real algorithms** — not memorized formulas, not brute-force table lookups.
+From a **2×2 pocket cube to a 5×5 professor's cube**, it runs a genuine solver engine under the hood and plays the whole solution back in an interactive 3D scene.
 
 | What you can do | How it works |
 |---------|---------------|
-| **2×2** instant solve | Maps directly onto a subset of 3×3 cubies and runs Kociemba |
-| **3×3** optimal solve | A real **Kociemba two-phase algorithm**, **guaranteed ≤ 20 moves** |
-| **4×4 / 5×5** smart solve | **Reduction method**: solve centers → pair edges → fix orientation → collapse to 3×3; the 5×5 endgame is planned with **macro-level A\*** |
+| **2×2 instant solve** | Maps directly onto a subset of 3×3 cubies and runs Kociemba |
+| **3×3 optimal solve** | A real **Kociemba two-phase algorithm**, **guaranteed ≤ 20 moves** |
+| **4×4 / 5×5 smart solve** | **Reduction method**: solve centers → pair edges → fix orientation → collapse to 3×3; the 5×5 endgame is planned with **macro-level A\*** |
 | **Zero-learning input** | Tap the net to paint colors; one-tap **Random** scramble, **paste a scramble formula**, and **Validate** legality |
-| **Immersive 3D playback** | Real-time OpenGL rendering: drag to rotate, zoom, step through, autoplay — watch it solve move by move |
+| **Immersive 3D playback** | Real-time OpenGL rendering: **drag to rotate, zoom, step through, autoplay** — watch it solve move by move from any angle |
 | **Built-in tutorials** | Step-by-step Layer-by-Layer / Seven-step / Reduction examples, organized by cube order |
 | **Cross-platform** | Desktop (Windows) + Android (packaged with buildozer), from a single codebase |
 

@@ -10,6 +10,7 @@ from kivy.uix.slider import Slider
 from app.i18n import tr
 from renderer.cube_view import CubeView
 from renderer.turn import decompose_move
+from ui.widgets import metrics as m
 
 
 class PlaybackScreen(Screen):
@@ -291,7 +292,7 @@ class PlaybackScreen(Screen):
         content = BoxLayout(orientation="vertical", spacing=12, padding=16)
         label = Label(text=msg, halign="center", font_size="18sp", size_hint_y=1)
         btns = BoxLayout(orientation="horizontal", spacing=8,
-                         size_hint_y=None, height=52)
+                         size_hint_y=None, height=m.h(52))
         cancel = UIButton(text=tr("confirm.cancel"))
         cancel.bind(on_release=lambda *a: popup.dismiss())
         ok = PrimaryButton(text=tr("confirm.ok"))

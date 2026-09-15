@@ -35,6 +35,7 @@ def show_help():
     from app.i18n import tr
     from ui.screens.input_screen import PrimaryButton
     from ui.widgets import fx
+    from ui.widgets import metrics as m
     from kivy.uix.label import Label
     from kivy.uix.floatlayout import FloatLayout
     from kivy.uix.boxlayout import BoxLayout
@@ -85,7 +86,7 @@ def show_help():
 
     # 标题栏：标题 + 强调色横条
     header = BoxLayout(orientation="vertical", size_hint_y=None,
-                       height=62, padding=[22, 14, 22, 6])
+                       height=m.h(62), padding=[22, 14, 22, 6])
     t = Label(text=tr("help.title"), font_size="22sp", bold=True, halign="left",
               valign="middle", color=theme.text, size_hint_y=1)
     header.add_widget(t)
@@ -144,7 +145,7 @@ def show_help():
     panel.add_widget(scroll)
 
     # 底部：关闭按钮
-    foot = BoxLayout(size_hint_y=None, height=62, padding=[22, 10, 22, 14])
+    foot = BoxLayout(size_hint_y=None, height=m.h(62), padding=[22, 10, 22, 14])
     close = PrimaryButton(text=tr("help.close"), font_size="17sp")
     foot.add_widget(close)
     panel.add_widget(foot)

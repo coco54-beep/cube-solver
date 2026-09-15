@@ -9,6 +9,7 @@ from kivy.clock import Clock
 
 from app.config import Config
 from app.i18n import tr
+from ui.widgets import metrics as m
 
 
 class HomeScreen(Screen):
@@ -20,9 +21,9 @@ class HomeScreen(Screen):
         root = BoxLayout(orientation="vertical", spacing=12, padding=[24, 14, 24, 14])
 
         # ---- 顶栏：设置齿轮（右上角）----
-        topbar = BoxLayout(orientation="horizontal", size_hint_y=None, height=52)
+        topbar = BoxLayout(orientation="horizontal", size_hint_y=None, height=m.h(52))
         topbar.add_widget(BoxLayout(size_hint_x=1))
-        self.settings_btn = GearButton(size_hint_x=None, width=52)
+        self.settings_btn = GearButton(size_hint_x=None, width=m.h(52))
         self.settings_btn.bind(on_release=lambda *a: self.open_settings())
         topbar.add_widget(self.settings_btn)
         root.add_widget(topbar)

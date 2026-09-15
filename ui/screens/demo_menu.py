@@ -21,6 +21,7 @@ from demo.cases import CASE_2X2, CASE_3X3, CASE_4X4, CASE_5X5, build_before, loc
 from app.i18n import tr
 from renderer.cube_view import CubeView
 from ui.screens.demo_screen import _changed_homes
+from ui.widgets import metrics as m
 
 
 def _num(n):
@@ -88,7 +89,7 @@ class DemoMenuScreen(Screen):
     def build_ui(self):
         root = BoxLayout(orientation="vertical", spacing=4, padding=[8, 6, 8, 8])
 
-        top = BoxLayout(size_hint_y=None, height=46, spacing=6)
+        top = BoxLayout(size_hint_y=None, height=m.h(46), spacing=6)
         self.btn_back = UIButton(text=tr("input.back"), size_hint_x=0.22)
         self.btn_back.bind(on_release=lambda *a: self.go_home())
         self.lbl_title = Label(text=tr(_MODE_TITLE[3]), size_hint_x=0.78, halign="center",
@@ -131,7 +132,7 @@ class DemoMenuScreen(Screen):
                 self.list.add_widget(self._row(si, ci, case))
 
     def _row(self, si, ci, case):
-        row = BoxLayout(size_hint_y=None, height=120, spacing=8, padding=[0, 4, 0, 4])
+        row = BoxLayout(size_hint_y=None, height=m.h(120), spacing=8, padding=[0, 4, 0, 4])
         # 缩略图
         thumb_png = render_thumb(case, self.mode)
         if thumb_png:
@@ -154,7 +155,7 @@ class DemoMenuScreen(Screen):
 
         def _sync(*_a):
             info.height = name.height + formula.height + tip.height + 2 * 2
-            row.height = max(120, info.height + 8)
+            row.height = max(m.h(120), info.height + 8)
 
         for w in (name, formula, tip):
             w.bind(texture_size=_sync)

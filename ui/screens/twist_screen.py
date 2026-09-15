@@ -29,6 +29,7 @@ from cube.cube5 import Cube5
 from ui.screens.input_screen import (
     PrimaryButton, _build_partial_cube,
 )
+from ui.widgets import metrics as m
 
 
 def _app():
@@ -142,7 +143,7 @@ class TwistScreen(Screen):
         root = BoxLayout(orientation="vertical", spacing=8, padding=[8, 6, 8, 8])
 
         # 顶栏
-        top = BoxLayout(size_hint_y=None, height=46, spacing=8)
+        top = BoxLayout(size_hint_y=None, height=m.h(46), spacing=8)
         back = UIButton(text=tr("input.back"), size_hint_x=0.22)
         back.bind(on_release=lambda *a: self.go_back())
         self.title = Label(text=tr("input.twist"), size_hint_x=0.56, halign="center",
@@ -161,7 +162,7 @@ class TwistScreen(Screen):
         root.add_widget(self.view)
 
         # 控制区（两行：撤销/重做 + 视角与开关）
-        control = BoxLayout(orientation="vertical", size_hint_y=None, height=110, spacing=8)
+        control = BoxLayout(orientation="vertical", size_hint_y=None, height=m.h(110), spacing=8)
         hist_row = BoxLayout(spacing=8)
         self.btn_undo = UIButton(text=tr("input.undo"), font_size="15sp")
         self.btn_undo.bind(on_release=lambda *a: self.undo())
@@ -184,7 +185,7 @@ class TwistScreen(Screen):
         root.add_widget(control)
 
         # 提示
-        self.msg = Label(text="", size_hint_y=None, height=34,
+        self.msg = Label(text="", size_hint_y=None, height=m.h(34),
                          color=(0.7, 0.85, 0.7, 1), halign="center",
                          font_size="14sp")
         root.add_widget(self.msg)
@@ -313,7 +314,7 @@ class TwistScreen(Screen):
         content = BoxLayout(orientation="vertical", spacing=12, padding=16)
         label = Label(text=tr("twist.congrats_body"), halign="center",
                       font_size="20sp", size_hint_y=1)
-        ok = UIButton(text=tr("twist.congrats_ok"), size_hint_y=None, height=52)
+        ok = UIButton(text=tr("twist.congrats_ok"), size_hint_y=None, height=m.h(52))
         ok.bind(on_release=lambda *a: popup.dismiss())
         content.add_widget(label)
         content.add_widget(ok)

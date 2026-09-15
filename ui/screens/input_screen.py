@@ -28,6 +28,7 @@ from cube.cube4 import Cube4
 from cube.cube3 import Cube3
 from cube.cube5 import Cube5
 from ui.widgets.color_picker import ColorSelector
+from ui.widgets import metrics as m
 
 
 def _axis_of(normal):
@@ -181,7 +182,7 @@ class InputScreen(Screen):
         root = BoxLayout(orientation="vertical", spacing=8, padding=[8, 6, 8, 8])
 
         # ---- 顶栏 ----
-        top = BoxLayout(size_hint_y=None, height=46, spacing=8)
+        top = BoxLayout(size_hint_y=None, height=m.h(46), spacing=8)
         self.btn_back = UIButton(text=tr("input.back"), size_hint_x=0.22)
         self.btn_back.bind(on_release=lambda *a: self.go_home())
         self.title = Label(text=tr("input.title", n=4),
@@ -203,7 +204,7 @@ class InputScreen(Screen):
         root.add_widget(self.view)
 
         # ---- 当前面 + 缩放（简洁模式只留当前面）----
-        nav = BoxLayout(size_hint_y=None, height=44, spacing=8)
+        nav = BoxLayout(size_hint_y=None, height=m.h(44), spacing=8)
         self.btn_zoom_in = UIButton(text="＋", size_hint_x=0.12, font_size="20sp")
         self.btn_zoom_in.bind(on_release=lambda *a: self._zoom(1.15))
         self.btn_zoom_out = UIButton(text="－", size_hint_x=0.12, font_size="20sp")
@@ -219,11 +220,11 @@ class InputScreen(Screen):
         root.add_widget(nav)
 
         # ---- 颜色选择器 ----
-        self.picker = ColorSelector(size_hint_y=None, height=52)
+        self.picker = ColorSelector(size_hint_y=None, height=m.h(52))
         root.add_widget(self.picker)
 
         # ---- 录入辅助工具（简洁模式隐藏）----
-        self.edit_row = BoxLayout(size_hint_y=None, height=44, spacing=8)
+        self.edit_row = BoxLayout(size_hint_y=None, height=m.h(44), spacing=8)
         self.btn_pick = UIButton(text=tr("input.pick"), font_size="15sp")
         self.btn_pick.bind(on_release=lambda *a: self.toggle_pick())
         self.btn_fill = UIButton(text=tr("input.fill"), font_size="15sp")
@@ -236,7 +237,7 @@ class InputScreen(Screen):
             self.edit_row.add_widget(b)
 
         # ---- 打乱公式（简洁模式隐藏）----
-        self.scramble_row = BoxLayout(size_hint_y=None, height=42, spacing=8)
+        self.scramble_row = BoxLayout(size_hint_y=None, height=m.h(42), spacing=8)
         self.btn_scramble = UIButton(text=tr("input.scramble"), font_size="15sp")
         self.btn_scramble.bind(on_release=lambda *a: self.open_scramble())
         self.scramble_row.add_widget(self.btn_scramble)
@@ -246,7 +247,7 @@ class InputScreen(Screen):
             root.add_widget(self.scramble_row)
 
         # ---- 翻转导航 ----
-        turn_row = BoxLayout(size_hint_y=None, height=48, spacing=8)
+        turn_row = BoxLayout(size_hint_y=None, height=m.h(48), spacing=8)
         self.btn_prev = ArrowButton(direction="left", font_size="20sp")
         self.btn_prev.bind(on_release=lambda *a: self.prev_face())
         self.btn_next = ArrowButton(direction="right", font_size="20sp")
@@ -256,7 +257,7 @@ class InputScreen(Screen):
         root.add_widget(turn_row)
 
         # ---- 操作按钮行（简洁模式只留「求解」）----
-        action_row = BoxLayout(size_hint_y=None, height=52, spacing=8)
+        action_row = BoxLayout(size_hint_y=None, height=m.h(52), spacing=8)
         self.btn_twist = UIButton(text=tr("input.twist"), font_size="15sp")
         self.btn_twist.bind(on_release=lambda *a: self.open_twist())
         self.btn_random = UIButton(text=tr("input.random"), font_size="15sp")
@@ -276,7 +277,7 @@ class InputScreen(Screen):
         root.add_widget(action_row)
 
         # ---- 状态提示 ----
-        self.msg = Label(text="", size_hint_y=None, height=34,
+        self.msg = Label(text="", size_hint_y=None, height=m.h(34),
                          color=(1, 0.55, 0.55, 1), halign="center")
         root.add_widget(self.msg)
         self.add_widget(root)
@@ -558,11 +559,11 @@ class InputScreen(Screen):
         from kivy.uix.popup import Popup
         from kivy.uix.textinput import TextInput
         content = BoxLayout(orientation="vertical", spacing=12, padding=16)
-        ti = TextInput(text="", multiline=False, size_hint_y=None, height=48,
+        ti = TextInput(text="", multiline=False, size_hint_y=None, height=m.h(48),
                        hint_text=tr("input.scramble.hint"),
                        font_size="18sp")
         btns = BoxLayout(orientation="horizontal", spacing=8,
-                         size_hint_y=None, height=52)
+                         size_hint_y=None, height=m.h(52))
         cancel = UIButton(text=tr("input.cancel"))
         cancel.bind(on_release=lambda *a: popup.dismiss())
         ok = PrimaryButton(text=tr("input.scramble.ok"))
@@ -609,7 +610,7 @@ class InputScreen(Screen):
         content = BoxLayout(orientation="vertical", spacing=12, padding=16)
         label = Label(text=tr("input.clear.msg"), halign="center",
                       font_size="18sp", size_hint_y=1)
-        btns = BoxLayout(orientation="horizontal", spacing=8, size_hint_y=None, height=52)
+        btns = BoxLayout(orientation="horizontal", spacing=8, size_hint_y=None, height=m.h(52))
         cancel = UIButton(text=tr("input.cancel"))
         cancel.bind(on_release=lambda *a: popup.dismiss())
         ok = DangerButton(text=tr("input.clear.ok"))

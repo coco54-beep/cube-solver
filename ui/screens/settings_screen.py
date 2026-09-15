@@ -16,6 +16,7 @@ from app.config import Config
 from app.i18n import tr
 from app.theme import AUTO, LIGHT, DARK
 from ui.widgets.buttons import PrimaryButton, UIButton
+from ui.widgets import metrics as m
 
 _THEME_ORDER = (AUTO, LIGHT, DARK)
 
@@ -29,7 +30,7 @@ class SettingsScreen(Screen):
     def build_ui(self):
         root = BoxLayout(orientation="vertical", spacing=10, padding=[16, 12, 16, 12])
 
-        top = BoxLayout(size_hint_y=None, height=46, spacing=8)
+        top = BoxLayout(size_hint_y=None, height=m.h(46), spacing=8)
         self.btn_back = UIButton(text=tr("input.back"), size_hint_x=0.24)
         self.btn_back.bind(on_release=lambda *a: self.go_home())
         self.lbl_title = Label(text=tr("settings.title"), size_hint_x=0.76,
@@ -48,25 +49,25 @@ class SettingsScreen(Screen):
         # 主题
         self.lbl_theme = self._section_label(tr("settings.theme"))
         content.add_widget(self.lbl_theme)
-        self.theme_row = BoxLayout(spacing=8, size_hint_y=None, height=52)
+        self.theme_row = BoxLayout(spacing=8, size_hint_y=None, height=m.h(52))
         content.add_widget(self.theme_row)
 
         # 语言
         self.lbl_lang = self._section_label(tr("settings.language"))
         content.add_widget(self.lbl_lang)
-        self.lang_row = BoxLayout(spacing=8, size_hint_y=None, height=52)
+        self.lang_row = BoxLayout(spacing=8, size_hint_y=None, height=m.h(52))
         content.add_widget(self.lang_row)
 
         # 输入方式（高级 / 简洁）
         self.lbl_input = self._section_label(tr("settings.input_mode"))
         content.add_widget(self.lbl_input)
-        self.input_row = BoxLayout(spacing=8, size_hint_y=None, height=52)
+        self.input_row = BoxLayout(spacing=8, size_hint_y=None, height=m.h(52))
         content.add_widget(self.input_row)
 
         # 使用说明（从首页移到这里）
         self.lbl_help = self._section_label(tr("home.help"))
         content.add_widget(self.lbl_help)
-        self.help_row = BoxLayout(spacing=8, size_hint_y=None, height=52)
+        self.help_row = BoxLayout(spacing=8, size_hint_y=None, height=m.h(52))
         self.btn_help = UIButton(text=tr("home.help"))
         self.btn_help.bind(on_release=lambda *a: self.open_help())
         self.help_row.add_widget(self.btn_help)
@@ -97,7 +98,7 @@ class SettingsScreen(Screen):
 
     def _section_label(self, text):
         lbl = Label(text=text, font_size="15sp", bold=True, halign="left",
-                    size_hint_y=None, height=30)
+                    size_hint_y=None, height=m.h(30))
         lbl.color = _app().theme.accent
         return lbl
 

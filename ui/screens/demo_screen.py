@@ -20,6 +20,7 @@ from demo.cases import CASE_2X2, CASE_3X3, CASE_4X4, CASE_5X5, build_before, loc
 from app.i18n import tr
 from renderer.cube_view import CubeView
 from renderer.turn import decompose_move
+from ui.widgets import metrics as m
 
 
 def _theme():
@@ -71,7 +72,7 @@ class DemoScreen(Screen):
         root = BoxLayout(orientation="vertical", spacing=4, padding=[8, 6, 8, 8])
 
         # 顶栏：返回目录 + 标题 + 播放
-        top = BoxLayout(size_hint_y=None, height=46, spacing=6)
+        top = BoxLayout(size_hint_y=None, height=m.h(46), spacing=6)
         self.btn_back = UIButton(text=tr("demo.back_to_menu"), size_hint_x=0.2)
         self.btn_back.bind(on_release=lambda *a: self.go_menu())
         self.lbl_mode = Label(text=_mode_title(3), size_hint_x=0.45, halign="center",
@@ -110,7 +111,7 @@ class DemoScreen(Screen):
         root.add_widget(sv)
 
         # 控制区（两行：播放步进 + 视角）
-        control = BoxLayout(orientation="vertical", size_hint_y=None, height=110, spacing=6)
+        control = BoxLayout(orientation="vertical", size_hint_y=None, height=m.h(110), spacing=6)
         play_row = BoxLayout(spacing=6)
         self.btn_start = UIButton(text=tr("playback.start"), size_hint_x=0.25)
         self.btn_start.bind(on_release=lambda *a: self.to_start())

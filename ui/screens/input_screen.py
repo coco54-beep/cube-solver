@@ -220,7 +220,8 @@ class InputScreen(Screen):
         root.add_widget(nav)
 
         # ---- 颜色选择器 ----
-        self.picker = ColorSelector(size_hint_y=None, height=m.h(52))
+        self.picker = ColorSelector(two_rows=simple, size_hint_y=None,
+                                   height=m.h(96 if simple else 52))
         root.add_widget(self.picker)
 
         # ---- 录入辅助工具（简洁模式隐藏）----

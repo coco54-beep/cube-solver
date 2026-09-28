@@ -6,14 +6,15 @@
 
 from kivy.graphics import Color, Line, RoundedRectangle
 from kivy.properties import StringProperty
-from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 
 from app.constants import COLOR_INFO, COLOR_ORDER
 from cube.colors import is_valid_color
+from ui.widgets import metrics as m
 
 
-class ColorSelector(BoxLayout):
+class ColorSelector(GridLayout):
     """当前颜色 current_color，点击回调。"""
 
     current_color = StringProperty("W")
@@ -21,7 +22,11 @@ class ColorSelector(BoxLayout):
     RING_WIDTH = 3.0
 
     def __init__(self, **kwargs):
-        super().__init__(orientation="horizontal", spacing=6, **kwargs)
+        two_rows = kwargs.pop("two_rows", False)
+        super().__init__(cols=3 if two_rows else 6,
+                         spacing=(m.h(16), m.h(10)),
+                         padding=(m.h(28), m.h(4), m.h(28), m.h(4)),
+                         **kwargs)
         self._buttons = {}
         self._build()
 

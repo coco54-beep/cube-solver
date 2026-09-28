@@ -228,11 +228,11 @@ class HomeScreen(Screen):
         # 圆角实心底
         base = theme.surface_hi if pressed else theme.surface
         bg.add(Color(*base))
-        bg.add(RoundedRectangle(pos=card.pos, size=card.size, radius=[18] * 4))
+        bg.add(RoundedRectangle(pos=card.pos, size=card.size, radius=[14] * 4))
         # 描边
         bg.add(Color(*theme.card_border))
-        bg.add(Line(width=1.4, rounded_rectangle=(
-            card.x + 0.7, card.y + 0.7, card.width - 1.4, card.height - 1.4, 18)))
+        bg.add(Line(width=0.9, rounded_rectangle=(
+            card.x + 0.7, card.y + 0.7, card.width - 1.4, card.height - 1.4, 14)))
 
     def _card_press(self, card, touch, down):
         if not card.collide_point(*touch.pos):

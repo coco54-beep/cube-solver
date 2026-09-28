@@ -66,20 +66,21 @@ class UIButton(Button):
 
         # 柔和投影
         shadow = theme.card_shadow if theme is not None else (0, 0, 0, 0.35)
-        for inst in fx.soft_shadow(self.pos, self.size, 12, shadow,
-                                   layers=2, spread=1.5, blur=2.5):
+        for inst in fx.soft_shadow(self.pos, self.size, 10, shadow,
+                                   layers=2, spread=0.8, blur=1.5):
             ctx.add(inst)
 
         # 圆角实心底
         ctx.add(Color(*fill))
-        ctx.add(RoundedRectangle(pos=self.pos, size=self.size, radius=[12] * 4))
+        ctx.add(RoundedRectangle(pos=self.pos, size=self.size, radius=[10] * 4))
 
         # 描边
-        border = theme.border if theme is not None else (0.5, 0.5, 0.5, 1)
+        border = (theme.accent_dim if type(self).__name__ == "PrimaryButton" else theme.border
+                  ) if theme is not None else (0.5, 0.5, 0.5, 1)
         border_ctx = Color(*border)
-        line = Line(width=0.9,
+        line = Line(width=0.75,
                     rounded_rectangle=(self.x + 0.6, self.y + 0.6,
-                                       self.width - 1.2, self.height - 1.2, 12))
+                                       self.width - 1.2, self.height - 1.2, 10))
         ctx.add(border_ctx)
         ctx.add(line)
 

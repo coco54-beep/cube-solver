@@ -26,78 +26,78 @@ def _hex(v):
 
 # ===== 色板（现代深色 & 清爽浅色，含阴影/强调色/描边） =====
 DARK_PALETTE = {
-    "bg": _hex("0e1521"),
-    "surface": _hex("1a2436"),
-    "surface_hi": _hex("23304a"),
-    "card_shadow": (0.0, 0.0, 0.0, 0.5),
-    "card_border": _hex("2e3e59"),
-    "text": _hex("eef2f8"),
-    "text_muted": _hex("9fb0c5"),
-    "text_faint": _hex("6d7d95"),
-    "button": _hex("24334c"),
-    "button_pressed": _hex("31445f"),
-    "button_text": _hex("eef2f8"),
-    "disabled_text": _hex("5b6779"),
-    "accent": _hex("58b6ff"),
-    "accent_dim": _hex("2c6a99"),
-    "primary": _hex("2f9e63"),
-    "primary_pressed": _hex("37bd77"),
+    "bg": _hex("080D16"),
+    "surface": _hex("101927"),
+    "surface_hi": _hex("172438"),
+    "card_shadow": (0.0, 0.0, 0.0, 0.32),
+    "card_border": _hex("273A50"),
+    "text": _hex("EAF4FC"),
+    "text_muted": _hex("A0B4C7"),
+    "text_faint": _hex("6D849B"),
+    "button": _hex("142236"),
+    "button_pressed": _hex("1B3448"),
+    "button_text": _hex("EAF4FC"),
+    "disabled_text": _hex("61758A"),
+    "accent": _hex("54DDF4"),
+    "accent_dim": _hex("175B70"),
+    "primary": _hex("08A995"),
+    "primary_pressed": _hex("18C7AF"),
     "primary_text": (1, 1, 1, 1),
-    "danger": _hex("d05a5a"),
-    "danger_pressed": _hex("e06565"),
+    "danger": _hex("CF526B"),
+    "danger_pressed": _hex("E3657B"),
     "danger_text": (1, 1, 1, 1),
-    "border": _hex("2e3e59"),
+    "border": _hex("273A50"),
 }
 
 LIGHT_PALETTE = {
-    "bg": _hex("f4f6f9"),
-    "surface": _hex("ffffff"),
-    "surface_hi": _hex("eef1f6"),
-    "card_shadow": (0.35, 0.42, 0.55, 0.30),
-    "card_border": _hex("dfe4ec"),
-    "text": _hex("1c2430"),
-    "text_muted": _hex("5a6675"),
-    "text_faint": _hex("8b95a5"),
-    "button": _hex("eef1f6"),
-    "button_pressed": _hex("e0e6ef"),
-    "button_text": _hex("1c2430"),
-    "disabled_text": _hex("aab3c0"),
-    "accent": _hex("2f7fd6"),
-    "accent_dim": _hex("cfe1f6"),
-    "primary": _hex("2f9e63"),
-    "primary_pressed": _hex("37bd77"),
+    "bg": _hex("EDF4F8"),
+    "surface": _hex("F8FCFF"),
+    "surface_hi": _hex("FFFFFF"),
+    "card_shadow": (0.16, 0.34, 0.42, 0.12),
+    "card_border": _hex("CDDEE7"),
+    "text": _hex("10232F"),
+    "text_muted": _hex("536B7A"),
+    "text_faint": _hex("8296A4"),
+    "button": _hex("E4EEF3"),
+    "button_pressed": _hex("D6E7ED"),
+    "button_text": _hex("10232F"),
+    "disabled_text": _hex("A4B4BD"),
+    "accent": _hex("087F9B"),
+    "accent_dim": _hex("CBEAF0"),
+    "primary": _hex("008F7E"),
+    "primary_pressed": _hex("00A994"),
     "primary_text": (1, 1, 1, 1),
-    "danger": _hex("d05a5a"),
-    "danger_pressed": _hex("e06565"),
+    "danger": _hex("C94D64"),
+    "danger_pressed": _hex("DE5B72"),
     "danger_text": (1, 1, 1, 1),
-    "border": _hex("dfe4ec"),
+    "border": _hex("CDDEE7"),
 }
 
 
 class Theme(EventDispatcher):
     """持有一组主题颜色属性；切换时原地更新各属性以触发重绘。"""
 
-    bg = ColorProperty([0.055, 0.082, 0.129, 1])
-    surface = ColorProperty([0.102, 0.141, 0.212, 1])
-    surface_hi = ColorProperty([0.137, 0.188, 0.290, 1])
-    card_shadow = ColorProperty([0.0, 0.0, 0.0, 0.5])
-    card_border = ColorProperty([0.18, 0.243, 0.349, 1])
-    text = ColorProperty([0.933, 0.949, 0.973, 1])
-    text_muted = ColorProperty([0.624, 0.690, 0.773, 1])
-    text_faint = ColorProperty([0.427, 0.49, 0.584, 1])
-    button = ColorProperty([0.141, 0.2, 0.298, 1])
-    button_pressed = ColorProperty([0.192, 0.267, 0.373, 1])
-    button_text = ColorProperty([0.933, 0.949, 0.973, 1])
-    disabled_text = ColorProperty([0.357, 0.404, 0.475, 1])
-    accent = ColorProperty([0.345, 0.714, 1.0, 1])
-    accent_dim = ColorProperty([0.173, 0.416, 0.6, 1])
-    primary = ColorProperty([0.184, 0.62, 0.388, 1])
-    primary_pressed = ColorProperty([0.216, 0.741, 0.467, 1])
+    bg = ColorProperty([0.031, 0.051, 0.086, 1])
+    surface = ColorProperty([0.063, 0.098, 0.153, 1])
+    surface_hi = ColorProperty([0.09, 0.141, 0.22, 1])
+    card_shadow = ColorProperty([0.0, 0.0, 0.0, 0.32])
+    card_border = ColorProperty([0.153, 0.227, 0.314, 1])
+    text = ColorProperty([0.918, 0.957, 0.988, 1])
+    text_muted = ColorProperty([0.627, 0.706, 0.78, 1])
+    text_faint = ColorProperty([0.427, 0.518, 0.608, 1])
+    button = ColorProperty([0.078, 0.133, 0.212, 1])
+    button_pressed = ColorProperty([0.106, 0.204, 0.282, 1])
+    button_text = ColorProperty([0.918, 0.957, 0.988, 1])
+    disabled_text = ColorProperty([0.38, 0.459, 0.541, 1])
+    accent = ColorProperty([0.329, 0.867, 0.957, 1])
+    accent_dim = ColorProperty([0.09, 0.357, 0.439, 1])
+    primary = ColorProperty([0.031, 0.663, 0.584, 1])
+    primary_pressed = ColorProperty([0.094, 0.78, 0.686, 1])
     primary_text = ColorProperty([1, 1, 1, 1])
-    danger = ColorProperty([0.816, 0.353, 0.353, 1])
-    danger_pressed = ColorProperty([0.878, 0.396, 0.396, 1])
+    danger = ColorProperty([0.812, 0.322, 0.420, 1])
+    danger_pressed = ColorProperty([0.890, 0.396, 0.482, 1])
     danger_text = ColorProperty([1, 1, 1, 1])
-    border = ColorProperty([0.18, 0.243, 0.349, 1])
+    border = ColorProperty([0.153, 0.227, 0.314, 1])
 
     def apply(self, is_dark: bool):
         pal = DARK_PALETTE if is_dark else LIGHT_PALETTE
@@ -154,9 +154,9 @@ def load_saved_mode() -> str:
     try:
         from app.prefs import get
         mode = get("theme_mode")
-        return mode if mode in MODES else AUTO
+        return mode if mode in MODES else DARK
     except Exception:
-        return AUTO
+        return DARK
 
 
 def save_mode(mode: str):

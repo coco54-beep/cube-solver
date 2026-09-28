@@ -18,25 +18,30 @@ class HomeScreen(Screen):
         self.build_ui()
 
     def build_ui(self):
-        root = BoxLayout(orientation="vertical", spacing=12, padding=[24, 14, 24, 14])
+        root = BoxLayout(orientation="vertical", spacing=8, padding=[20, 10, 20, 10])
+        self._root_layout = root
 
         # ---- 顶栏：设置齿轮（右上角）----
-        topbar = BoxLayout(orientation="horizontal", size_hint_y=None, height=m.h(52))
+        topbar = BoxLayout(orientation="horizontal", size_hint_y=None, height=m.h(44))
+        self._topbar = topbar
         topbar.add_widget(BoxLayout(size_hint_x=1))
-        self.settings_btn = GearButton(size_hint_x=None, width=m.h(52))
+        self.settings_btn = GearButton(size_hint_x=None, width=m.h(44))
         self.settings_btn.bind(on_release=lambda *a: self.open_settings())
         topbar.add_widget(self.settings_btn)
         root.add_widget(topbar)
 
         # ---- 标题区（顶部）----
-        head = BoxLayout(orientation="vertical", size_hint_y=None, height=160, spacing=8)
-        self.title = Label(text=tr("app.name"), font_size="36sp", bold=True,
-                           halign="center", valign="middle", size_hint_y=None, height=88)
-        self.subtitle = Label(text=tr("home.subtitle"), font_size="15sp",
+        head = BoxLayout(orientation="vertical", size_hint_y=None, height=132, spacing=3)
+        self._head = head
+        self._logo = self._logo_widget()
+        self.title = Label(text=tr("app.name"), font_size="29sp", bold=True,
+                           halign="center", valign="middle", size_hint_y=None, height=50)
+        self.subtitle = Label(text=tr("home.subtitle"), font_size="13sp",
                               color=_app().theme.text_muted, halign="center",
-                              valign="middle", size_hint_y=None, height=40)
+                              valign="middle", size_hint_y=None, height=30)
         # 强调色渐变装饰条，置于标题下方
         self._accent_bar = self._accent_bar_widget()
+        head.add_widget(self._logo)
         head.add_widget(self.title)
         head.add_widget(self._accent_bar)
         head.add_widget(self.subtitle)
@@ -47,12 +52,12 @@ class HomeScreen(Screen):
 
         # ---- 主选择区：2 阶 / 3 阶 / 4 阶（大卡片按钮）----
         from kivy.uix.gridlayout import GridLayout
-        self.cards = GridLayout(cols=4, spacing=20, size_hint=(1.0, None),
-                                padding=0, height=self._card_height())
-        b2 = self._card("2", tr("home.card.2.title"), tr("home.card.2.desc"), onClick=lambda *a: self.pick(2))
-        b3 = self._card("3", tr("home.card.3.title"), tr("home.card.3.desc"), onClick=lambda *a: self.pick(3))
-        b4 = self._card("4", tr("home.card.4.title"), tr("home.card.4.desc"), onClick=lambda *a: self.pick(4))
-        b5 = self._card("5", tr("home.card.5.title"), tr("home.card.5.desc"), onClick=lambda *a: self.pick(5))
+        self.cards = GridLayout(cols=4, spacing=(14, 12), size_hint=(1.0, None),
+                                padding=0, height=1)
+        b2 = self._card("2", tr("home.card.2.title"), onClick=lambda *a: self.pick(2))
+        b3 = self._card("3", tr("home.card.3.title"), onClick=lambda *a: self.pick(3))
+        b4 = self._card("4", tr("home.card.4.title"), onClick=lambda *a: self.pick(4))
+        b5 = self._card("5", tr("home.card.5.title"), onClick=lambda *a: self.pick(5))
         for b in (b2, b3, b4, b5):
             self.cards.add_widget(b)
         self._cards = {2: b2, 3: b3, 4: b4, 5: b5}
@@ -70,7 +75,8 @@ class HomeScreen(Screen):
         root.add_widget(BoxLayout(size_hint_y=1))
 
         # ---- 底部版本 ----
-        bottom = AnchorLayout(size_hint_y=None, height=40)
+        bottom = AnchorLayout(size_hint_y=None, height=28)
+        self._bottom = bottom
         self._ver_label = Label(text=tr("home.version", version=Config.app_version),
                                 font_size="13sp",
                                 color=_app().theme.text_faint, halign="center", valign="middle")
@@ -124,13 +130,33 @@ class HomeScreen(Screen):
     def _apply_layout(self, w, h):
         """横屏：4 列 1 行（1×4）；竖屏：2 列 2 行（2×2）。"""
         self._last_win_size = (w, h)
+        if not w or not h:
+            return
+        self._head.height = max(96, min(156, h * 0.21))
+        self._head.spacing = max(2, self._head.height * 0.02)
+        self._logo.height = self._head.height * 0.24
+        self.title.height = self._head.height * 0.34
+        self._accent_bar.height = max(3, self._head.height * 0.025)
+        self.subtitle.height = self._head.height * 0.24
+        self.title.font_size = f"{max(20, min(29, w / 15))}sp"
+        self.subtitle.font_size = f"{max(10, min(13, w / 30))}sp"
+        vertical_fixed = (self._root_layout.padding[1] + self._root_layout.padding[3]
+                          + self._root_layout.spacing * 5 + self._topbar.height
+                          + self._bottom.height + self._head.height)
         if w > h:
             self.cards.cols = 4
-            self.cards.height = self._card_height(h)
+            self.cards.spacing = (12, 12)
+            cell_w = max(64, (w - 40 - 36) / 4)
+            self.cards.height = min(cell_w, max(64, h - vertical_fixed))
         else:
             self.cards.cols = 2
-            side = self._card_size(w)
-            self.cards.height = side * 2 + self.cards.spacing[0]
+            self.cards.spacing = (14, 12)
+            cell_w = max(72, (w - 40 - self.cards.spacing[0]) / 2)
+            cell_h = max(64, (h - vertical_fixed - self.cards.spacing[1]) / 2)
+            cell = min(cell_w, cell_h)
+            self.cards.height = cell * 2 + self.cards.spacing[1]
+        for card in self.cards.children:
+            self._style_card(card)
 
     def _accent_bar_widget(self):
         """标题下的强调色渐变装饰条。"""
@@ -152,6 +178,39 @@ class HomeScreen(Screen):
         _draw()
         return bar
 
+    def _logo_widget(self):
+        """A compact, language-neutral mark built from familiar cube colors."""
+        from kivy.graphics import Color, Line, RoundedRectangle
+        from kivy.uix.widget import Widget
+
+        logo = Widget(size_hint_y=None, height=42)
+        tiles = (
+            (0.94, 0.96, 0.98, 1), (0.97, 0.80, 0.12, 1), (0.88, 0.20, 0.20, 1),
+            (0.98, 0.98, 0.98, 1), (0.20, 0.67, 0.42, 1), (0.18, 0.43, 0.86, 1),
+            (0.96, 0.96, 0.95, 1), (0.98, 0.55, 0.16, 1), (0.21, 0.65, 0.39, 1),
+        )
+
+        def draw(*_args):
+            logo.canvas.clear()
+            tile = min(logo.height / 3.0, 12)
+            gap = max(2, tile * 0.11)
+            side = tile * 3 + gap * 2
+            left = logo.center_x - side / 2
+            bottom = logo.center_y - side / 2
+            with logo.canvas:
+                for row in range(3):
+                    for col in range(3):
+                        x = left + col * (tile + gap)
+                        y = bottom + (2 - row) * (tile + gap)
+                        Color(*tiles[row * 3 + col])
+                        RoundedRectangle(pos=(x, y), size=(tile, tile), radius=[tile * 0.18] * 4)
+                        Color(0.12, 0.17, 0.24, 0.12)
+                        Line(rounded_rectangle=(x, y, tile, tile, tile * 0.18), width=0.8)
+
+        logo.bind(pos=draw, size=draw)
+        draw()
+        return logo
+
     def _card_draw(self, card):
         """绘制卡片背景：柔和投影 + 渐变填充 + 描边 + 顶部高光。"""
         from kivy.graphics import Color, Line, RoundedRectangle
@@ -163,17 +222,17 @@ class HomeScreen(Screen):
         bg.clear()
         pressed = getattr(card, "_pressed", False)
         # 柔和投影
-        for inst in fx.soft_shadow(card.pos, card.size, 16, theme.card_shadow,
-                                   layers=3, spread=4.0, blur=7.0):
+        for inst in fx.soft_shadow(card.pos, card.size, 18, theme.card_shadow,
+                                   layers=2, spread=2.0, blur=3.0):
             bg.add(inst)
         # 圆角实心底
         base = theme.surface_hi if pressed else theme.surface
         bg.add(Color(*base))
-        bg.add(RoundedRectangle(pos=card.pos, size=card.size, radius=[16] * 4))
+        bg.add(RoundedRectangle(pos=card.pos, size=card.size, radius=[18] * 4))
         # 描边
         bg.add(Color(*theme.card_border))
         bg.add(Line(width=1.4, rounded_rectangle=(
-            card.x + 0.7, card.y + 0.7, card.width - 1.4, card.height - 1.4, 16)))
+            card.x + 0.7, card.y + 0.7, card.width - 1.4, card.height - 1.4, 18)))
 
     def _card_press(self, card, touch, down):
         if not card.collide_point(*touch.pos):
@@ -184,7 +243,7 @@ class HomeScreen(Screen):
             card._on_click()
         return False
 
-    def _card(self, big, title, desc, onClick):
+    def _card(self, big, title, onClick):
         """创建一个卡片式按钮（大号强调数字 + 标题）。"""
         from kivy.graphics.instructions import InstructionGroup
         theme = _app().theme
@@ -198,15 +257,25 @@ class HomeScreen(Screen):
         card.bind(on_touch_down=lambda inst, touch, c=card: self._card_press(c, touch, True),
                   on_touch_up=lambda inst, touch, c=card: self._card_press(c, touch, False))
         # 用 size_hint 比例占满卡片，避免固定高度导致文字重叠
-        big_label = Label(text=big, font_size="54sp", bold=True, halign="center",
-                          valign="middle", color=theme.accent, size_hint_y=0.6)
-        title_label = Label(text=title, font_size="20sp", bold=True, halign="center",
-                            valign="middle", color=theme.text, size_hint_y=0.4)
+        big_label = Label(text=big, font_size="46sp", bold=True, halign="center",
+                          valign="middle", color=theme.accent, size_hint_y=0.62)
+        title_label = Label(text=title, font_size="18sp", bold=True, halign="center",
+                            valign="middle", color=theme.text, size_hint_y=0.38)
         card.add_widget(big_label)
         card.add_widget(title_label)
         card._labels = (big_label, title_label)
+        card.bind(size=lambda *_args, c=card: self._style_card(c))
         self._card_draw(card)
         return card
+
+    def _style_card(self, card):
+        labels = getattr(card, "_labels", None)
+        if not labels:
+            return
+        big, title = labels
+        big.font_size = f"{max(28, min(46, card.height * 0.32))}sp"
+        title.font_size = f"{max(14, min(18, card.height * 0.13))}sp"
+        card.padding = max(6, min(10, card.height * 0.055))
 
     def refresh_theme(self):
         """主题切换后刷新 Python 端硬编码的颜色。"""

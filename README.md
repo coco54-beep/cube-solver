@@ -1,125 +1,59 @@
-# 🧩 3D Cube Solver
-
-**English** | [中文](README.zh-CN.md)
-
-> **Scramble it however you like — leave the rest to the algorithm.** A cross-platform cube solver written in Python + Kivy:
-> enter the cube's faces and the solver takes over — from **2×2 up to 5×5** (including a **5×5 reduction method built from scratch**),
-> all the way to an **interactive 3D animated playback**. Everything works out of the box.
-
 <div align="center">
 
-### Watch it solve itself — in real 3D 👇
+# 3D Cube Solver
 
-<img src="assets/demo.gif" width="300" alt="5x5 cube solve 3D playback rotating animation" />
+**Paint a cube. Find a solution. Watch every turn in 3D.**
 
-</div>
+Solve 2×2, 3×3, 4×4 and 5×5 cubes on Android or desktop.
 
-<div align="center">
+[Download Android APK](https://github.com/coco54-beep/cube-solver/releases/tag/v1.2.12) · [中文说明](README.zh-CN.md) · [Explore the code](#how-the-solvers-work)
 
-| **2×2 ➜ 5×5** | **Real algorithms** | **3D playback** | **Open source** |
-|:---:|:---:|:---:|:---:|
-| One app for every cube | Kociemba ≤ 20 moves | Rotate · zoom · auto-play | GPL-3.0, Windows + Android |
+[![Latest release](https://img.shields.io/github/v/release/coco54-beep/cube-solver?label=Release&style=flat-square)](https://github.com/coco54-beep/cube-solver/releases/latest)
+[![Build](https://github.com/coco54-beep/cube-solver/actions/workflows/ci.yml/badge.svg)](https://github.com/coco54-beep/cube-solver/actions/workflows/ci.yml)
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-7c8fa1?style=flat-square)](LICENSE)
 
-</div>
-
-[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white&style=flat-square)](https://www.python.org/)
-[![Kivy](https://img.shields.io/badge/Kivy-2.3.1-7D66BC?logo=kivy&logoColor=white&style=flat-square)](https://kivy.org/)
-[![License](https://img.shields.io/badge/License-GPL--3.0-brightgreen?style=flat-square)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Android-blueviolet?style=flat-square)](https://github.com/coco54-beep/cube-solver)
-[![CI](https://github.com/coco54-beep/cube-solver/actions/workflows/ci.yml/badge.svg)](https://github.com/coco54-beep/cube-solver/actions/workflows/ci.yml)
-[![Download APK](https://img.shields.io/github/v/release/coco54-beep/cube-solver?label=Download%20APK&logo=android&color=3DDC84)](https://github.com/coco54-beep/cube-solver/releases/latest)
-
----
-
-## 🎯 What it is
-
-An app that solves cubes with **real algorithms** — not memorized formulas, not brute-force table lookups.
-From a **2×2 pocket cube to a 5×5 professor's cube**, it runs a genuine solver engine under the hood and plays the whole solution back in an interactive 3D scene.
-
-| What you can do | How it works |
-|---------|---------------|
-| **2×2 instant solve** | Maps directly onto a subset of 3×3 cubies and runs Kociemba |
-| **3×3 optimal solve** | A real **Kociemba two-phase algorithm**, **guaranteed ≤ 20 moves** |
-| **4×4 / 5×5 smart solve** | **Reduction method**: solve centers → pair edges → fix orientation → collapse to 3×3; the 5×5 endgame is planned with **macro-level A\*** |
-| **Zero-learning input** | Tap the net to paint colors; one-tap **Random** scramble, **paste a scramble formula**, and **Validate** legality |
-| **Immersive 3D playback** | Real-time OpenGL rendering: **drag to rotate, zoom, step through, autoplay** — watch it solve move by move from any angle |
-| **Built-in tutorials** | Step-by-step Layer-by-Layer / Seven-step / Reduction examples, organized by cube order |
-| **Cross-platform** | Desktop (Windows) + Android (packaged with buildozer), from a single codebase |
-
-> Just three steps: **enter the cube → tap solve → watch the 3D solve** 🎬
-
----
-
-## ⚡ Measured results
-
-Random scrambles on an ordinary PC for 4×4 / 5×5; numbers from this repo's benchmarks:
-
-| Metric | Value |
-|------|------|
-| 3×3 solution length | **Guaranteed ≤ 20 moves** (Kociemba two-phase optimal bound) |
-| 4×4 average length | **≈ 100 moves**, average time **≈ 1.0 s** (with OLL / PLL parity avoidance) |
-| 5×5 average length | **≈ 420 moves** (holdout mean 422 / worst 453, **-41%** vs. the first version) |
-| 5×5 average time | **≈ 2 s** (steady state, after pure-Python hot-path optimization) |
-| Test coverage | **813 unit tests** (809 passed / 4 skipped, covering 2 / 3 / 4 / 5) |
-
-> 4×4 isn't just about "being able to solve it" — it turns **OLL parity from a post-hoc fix into pre-emptive avoidance**: after edge pairing the cube is naturally solvable, saving ~**15 moves**. See the algorithm notes below.
->
-> 5×5 is a **reduction method built from scratch**: centers via conjugated 3-cycles + setup tables, edge pairing via a free-slice macro library + macro-level A\* endgame, orientation fixing via GF(2) linear algebra — pushing the mean from **~711 moves down to ~420**. See the "5×5 reduction research notes" below.
-
----
-
-## ✨ Highlights
-
-- **Real algorithmic solving**: 2×2 direct, 3×3 **Kociemba two-phase** (≤ 20 moves), 4×4 **reduction** (with pre-emptive parity avoidance), 5×5 **reduction built from scratch** (conjugated center 3-cycles → free-slice edge pairing → macro-level A\* endgame → GF(2) orientation fix → collapse to 3×3).
-- **Zero-learning input**: tap the net to paint colors; one-tap **Random** to load a scramble, **paste a scramble formula** (e.g. `R U R' U'`), and live **Validate** to check legality.
-- **Immersive 3D playback**: a real-time OpenGL cube — drag to rotate, zoom, step through, autoplay, adjust speed; the whole solve is crystal clear.
-- **Built-in tutorials**: step-by-step Layer-by-Layer / Seven-step / Reduction cases per cube order, walking you through each state.
-- **Cross-platform**: desktop (Windows) + Android (buildozer packaging), same codebase.
-- **Multilingual UI (中文 / English / 日本語) · light/dark themes**: a **Settings** screen switches language and theme (**Dark**, a **soft warm light** theme, or **follow the system** on Windows / Android); touch-optimized large buttons, spacing that avoids mis-taps, and confirmations for destructive actions.
-
----
-
-## 🎬 Screens
-
-| Screen | Purpose |
-|------|------|
-| **Home** | Choose 2 / 3 / 4 / 5 (1×4 cards in landscape, 2×2 in portrait), then go to input, demos, help or settings |
-| **Input** | Net of the six faces for the chosen order · 6-color picker · Random or paste-a-scramble · Validate / Solve |
-| **Solving** | Multi-stage solve in the background with live progress and stage hints; cancellable |
-| **Playback** | 3D animation of every solving step, with back-to-start / jump-to-end |
-| **Demo index** | Teaching cases (Layer-by-Layer / Seven-step / Reduction) listed by cube order (thumbnail + text) |
-| **Demo screen** | 3D step-by-step teaching of each cube state, with highlighting |
-| **Settings** | Switch language (中文 / English / 日本語), pick theme mode (Auto / Light / Dark), and view version info |
-
-<div align="center">
-  <img src="assets/screenshots/home.png" width="180" alt="Home (2/3/4/5)" />
-  &nbsp;&nbsp;<img src="assets/screenshots/input_4x4.png" width="180" alt="4x4 input" />
-  &nbsp;&nbsp;<img src="assets/screenshots/input_5x5.png" width="180" alt="5x5 input" />
-  &nbsp;&nbsp;<img src="assets/screenshots/playback.png" width="180" alt="3D playback" />
-  &nbsp;&nbsp;<img src="assets/screenshots/demo_menu.png" width="180" alt="Demo index" />
-  &nbsp;&nbsp;<img src="assets/screenshots/demo_screen.png" width="180" alt="Demo screen" />
 </div>
 
 ---
 
-## 🚀 Quick start
+## Make the cube yours
 
-### Desktop (Windows)
+| 01 · Enter | 02 · Solve | 03 · Replay |
+|:---|:---|:---|
+| Choose a size and paint the stickers, generate a scramble, or paste move notation. | Check the cube and run the solver. Larger cubes are reduced to a 3×3 state. | Follow the solution move by move in an interactive 3D view. |
+
+- **2×2 to 5×5** — four cube sizes in one app.
+- **Two input layouts** — a compact layout for quick entry and an advanced layout with editing tools.
+- **Interactive playback** — rotate, zoom, step through moves, and control playback.
+- **Built-in guidance** — demonstrations, theme and language settings, and an icon guide in Settings.
+- **Android and desktop** — one Python/Kivy codebase.
+
+## Download and run
+
+### Android
+
+Get the signed **v1.2.12 APK** from the [release page](https://github.com/coco54-beep/cube-solver/releases/tag/v1.2.12), or [download the APK directly](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.12/cubesolver-1.2.12-arm64-v8a-release.apk). This build targets **arm64-v8a** devices.
+
+> The release workflow uses a new signing key for each build unless a persistent keystore is configured. When updating from a build signed with another key, uninstall the old app first.
+
+### Desktop
+
+Requires Python 3.10+.
 
 ```bash
 pip install -r requirements.txt
 python run_desktop.py
 ```
 
-The first launch loads the solver's precomputed tables (`twophase/`); give it a moment.
+The first solver run may take a moment while it loads its tables.
 
-### Build for Android
-
-Using [buildozer](https://buildozer.readthedocs.io/) (see `buildozer.spec`):
+### Build an Android debug APK
 
 ```bash
 buildozer android debug
 ```
+
+See [`buildozer.spec`](buildozer.spec) for the Android configuration.
 
 ---
 
@@ -253,7 +187,7 @@ assets/            Fonts, shaders and demo assets (NotoSansSC.ttf)
 python -m pytest
 ```
 
-Coverage: 2x2 / 3x3 / 4x4 / 5x5 turns, notation parsing, input legality, the 2/3 Kociemba bridge, plus 4×4 reduction, 5×5 centers (conjugation / setup tables), 5×5 edge pairing and endgame pipeline, orientation fixing, and solve progress callbacks. Currently **813 tests** (809 passed / 4 skipped).
+Coverage includes 2×2 through 5×5 turns, notation parsing, input legality, the 2×2/3×3 Kociemba bridge, 4×4 and 5×5 reduction, and solve progress callbacks.
 
 > 4×4 solving needs `p4_table.bin` (~300 MB, managed via **Git LFS**; see `.gitattributes` at the repo root).
 > Run `git lfs pull` after cloning; CI and APK builds handle it automatically.
@@ -266,8 +200,8 @@ Push a git tag of the form `v1.x.x` and [GitHub Actions](.github/workflows/relea
 will build a **signed release APK** and publish it to [Releases](https://github.com/coco54-beep/cube-solver/releases):
 
 ```bash
-git tag v1.2.2
-git push origin v1.2.2
+git tag v1.2.13
+git push origin v1.2.13
 ```
 
 - By default it is signed with an **ephemeral key** (the signature changes every build, so uninstall the old version first).
@@ -287,6 +221,7 @@ Released under **[GPL-3.0](LICENSE)**.
 ### Third-party assets
 
 - `assets/fonts/NotoSansSC.ttf`: Google **Noto Sans SC** — [SIL Open Font License 1.1](https://scripts.sil.org/OFL).
+- `assets/icons/lucide/`: **Lucide** icons; see [its license](assets/icons/lucide/LICENSE.txt).
 - `kociemba-src/`: Herbert Kociemba's two-phase solver — **GPL-3.0** (see `kociemba-src/LICENSE`).
 
 ---

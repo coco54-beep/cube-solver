@@ -1,127 +1,62 @@
-# 🧩 3D魔方智能还原
-
-[English](README.md) | **中文**
-
-> **任意打乱，放心交给它。** 一款用 Python + Kivy 写的跨平台魔方还原应用：
-> 把魔方的面输进去，剩下的交给算法——从 **2 阶到 5 阶** 的智能求解（含**从零构建的 5 阶降阶法**），
-> 再到 **可交互动画的 3D 回放**，全流程开箱即用。
-
 <div align="center">
 
-### 看它自己还原 —— 真·3D 立体旋转 👇
+# 3D 魔方智能还原
 
-<img src="assets/demo.gif" width="300" alt="5x5 魔方求解 3D 回放旋转动画演示" />
+**录入颜色，一键求解，在 3D 中看清每一步。**
 
-</div>
+支持 2×2、3×3、4×4、5×5 魔方，适用于 Android 和桌面端。
 
-<div align="center">
+[下载 Android 安装包](https://github.com/coco54-beep/cube-solver/releases/tag/v1.2.12) · [English](README.md) · [了解求解算法](#求解器是如何工作的)
 
-| **2 阶 ➜ 5 阶** | **真实算法** | **3D 回放** | **开源** |
-|:---:|:---:|:---:|:---:|
-| 一个 App 覆盖全部阶数 | Kociemba 最优 ≤ 20 步 | 旋转 · 缩放 · 自动播放 | GPL-3.0，Windows + Android |
+[![最新版本](https://img.shields.io/github/v/release/coco54-beep/cube-solver?label=Release&style=flat-square)](https://github.com/coco54-beep/cube-solver/releases/latest)
+[![构建状态](https://github.com/coco54-beep/cube-solver/actions/workflows/ci.yml/badge.svg)](https://github.com/coco54-beep/cube-solver/actions/workflows/ci.yml)
+[![开源协议 GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-7c8fa1?style=flat-square)](LICENSE)
 
-</div>
-
-[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white&style=flat-square)](https://www.python.org/)
-[![Kivy](https://img.shields.io/badge/Kivy-2.3.1-7D66BC?logo=kivy&logoColor=white&style=flat-square)](https://kivy.org/)
-[![License](https://img.shields.io/badge/License-GPL--3.0-brightgreen?style=flat-square)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Android-blueviolet?style=flat-square)](https://github.com/coco54-beep/cube-solver)
-[![CI](https://github.com/coco54-beep/cube-solver/actions/workflows/ci.yml/badge.svg)](https://github.com/coco54-beep/cube-solver/actions/workflows/ci.yml)
-[![Download APK](https://img.shields.io/github/v/release/coco54-beep/cube-solver?label=Download%20APK&logo=android&color=3DDC84)](https://github.com/coco54-beep/cube-solver/releases/latest)
-
----
-
-## 🎯 它是什么
-
-一个**真正靠算法**还原魔方的应用，不是背公式、不是查表硬解。
-从 **2 阶口袋魔方到 5 阶教授魔方**，背后都是一套真实的求解引擎，并在交互式 3D 场景里完整回放整个还原过程。
-
-| 你能做到 | 它是怎么做到的 |
-|---------|---------------|
-| **2 阶** 秒解 | 直接映射到 3 阶色块子集走 Kociemba |
-| **3 阶** 最优解 | 真实 **Kociemba 两阶段算法**，**保证 ≤ 20 步** |
-| **4 阶 / 5 阶** 智能还原 | **降阶法**：中心还原 → 棱配对 → 朝向修正 → 折叠成 3 阶还原；5 阶末段用**宏级 A\*** 规划 |
-| **零学习成本录入** | 展开图点格子填色，一键「随机」打乱、「校验」合法性 |
-| **沉浸式 3D 回放** | OpenGL 实时渲染，**拖动旋转、缩放、步进、自动播放**，任意角度一步步看它还原 |
-| **内置教学演示** | 按阶数收录分层法 / 七步法 / 降阶法的分步案例 |
-| **跨平台** | 桌面（Windows）＋ Android（buildozer 打包），同一套代码 |
-
-> 过程只有三步：**录入魔方 → 一键求解 → 3D 看它还原** 🎬
-
----
-
-## ⚡ 实测效果
-
-在普通 PC 上对 4 / 5 阶魔方做随机打乱，求解表现如下（数据来自本仓库的基准测试）：
-
-| 指标 | 数值 |
-|------|------|
-| 3 阶求解步数 | **保证 ≤ 20 步**（Kociemba 两阶段最优界） |
-| 4 阶平均步数 | **≈ 100 步**，平均耗时 **≈ 1.0 秒**（含 OLL / PLL parity 规避） |
-| 5 阶平均步数 | **≈ 420 步**（非调参留出集 mean 422 / worst 453，比初版 **-41%**） |
-| 5 阶平均耗时 | **≈ 2 秒**（纯 Python 热路径优化后，稳态） |
-| 测试覆盖 | **813 个单测**（809 passed / 4 skipped，覆盖 2 / 3 / 4 / 5 阶） |
-
-> 4 阶的意义不只是「能还原」，而是**把 OLL parity 从「事后修复」变成「事前规避」**——配棱完成后魔方天然处于可解态，直接省掉约 **15 步**。细节见下文算法研究。
->
-> 5 阶则是**从零搭起来的降阶法**：中心用共轭 3-cycle + setup 查表、配棱用 free-slice 宏库 + 末段宏级 A\*、朝向修正用 GF(2) 线性代数，步数从初版 **~711 步压到 ~420 步**。细节见下文「5 阶降阶法研究笔记」。
-
----
-
-## ✨ 核心亮点
-
-- **真·算法求解**：2 阶直接解，3 阶走 **Kociemba 两阶段算法**（≤ 20 步），4 阶走**降阶法**（含 parity 事前规避），5 阶走**从零构建的降阶法**（中心共轭 3-cycle → free-slice 配棱 → 宏级 A\* 末段 → GF(2) 朝向修正 → 折叠 3 阶）。
-- **零学习成本录入**：展开图点格子填色，支持「随机」一键载入打乱布局、**粘贴打乱公式**（如 `R U R' U'`）、「校验」实时检查状态合法性。
-- **沉浸式 3D 回放**：实时渲染的 OpenGL 魔方，拖动旋转、缩放、步进、自动播放、调速度，还原过程看得清清楚楚。
-- **内置教学演示**：按阶数收录分层法 / 七步法 / 降阶法的分步案例，逐个魔方状态带你去学。
-- **跨平台**：桌面（Windows）＋ Android（buildozer 打包），同一套代码。
-- **多语言界面（中文 / English / 日本語）· 浅/深主题**：**设置页**可切换语言与主题（**深色**、**柔和暖浅色**，或**跟随系统** Windows / Android 自动深浅）；为触屏优化的大按钮、避免误触的行间距、危险操作二次确认。
-
----
-
-## 🎬 界面一览
-
-| 页面 | 作用 |
-|------|------|
-| **首页** | 选择 2 / 3 / 4 / 5 阶（横屏 1×4、竖屏 2×2 卡片），进入录入、演示、帮助或设置 |
-| **录入页** | 对应阶数的六个面展开图 · 6 色选择器 · 随机或粘贴打乱公式 / 校验 / 求解 |
-| **求解页** | 后台多阶段求解，实时进度与阶段提示，可取消 |
-| **回放页** | 3D 动画演示每一步还原，支持回到初始 / 跳结尾 |
-| **演示目录** | 按阶数列出分层法 / 七步法 / 降阶法的教学案例（缩略图 + 文字） |
-| **演示屏** | 逐个魔方状态的 3D 分步教学与高亮 |
-| **设置页** | 切换语言（中文 / English / 日本語）与主题模式（自动 / 浅色 / 深色），查看版本信息 |
-
-<div align="center">
-  <img src="assets/screenshots/home.png" width="180" alt="首页（2/3/4/5 阶）" />
-  &nbsp;&nbsp;<img src="assets/screenshots/input_4x4.png" width="180" alt="4x4 录入" />
-  &nbsp;&nbsp;<img src="assets/screenshots/input_5x5.png" width="180" alt="5x5 录入" />
-  &nbsp;&nbsp;<img src="assets/screenshots/playback.png" width="180" alt="3D 回放" />
-  &nbsp;&nbsp;<img src="assets/screenshots/demo_menu.png" width="180" alt="演示目录" />
-  &nbsp;&nbsp;<img src="assets/screenshots/demo_screen.png" width="180" alt="演示屏" />
 </div>
 
 ---
 
-## 🚀 快速开始
+## 从录入到还原
 
-### 桌面（Windows）
+| 01 · 录入 | 02 · 求解 | 03 · 演示 |
+|:---|:---|:---|
+| 选择阶数并填写颜色，也可以随机打乱或粘贴公式。 | 校验魔方状态并运行求解器；高阶魔方逐步降阶求解。 | 在可交互的 3D 魔方上逐步查看还原过程。 |
+
+- **支持 2～5 阶**：一个应用覆盖四种常见阶数。
+- **简洁与高级输入**：快速录入或使用更多编辑工具。
+- **3D 步骤回放**：旋转视角、缩放、逐步查看和控制播放。
+- **内置指引**：演示内容、主题和语言设置，以及设置页中的图标说明。
+- **Android 与桌面端**：基于同一套 Python/Kivy 代码。
+
+## 下载与运行
+
+### Android
+
+前往 [v1.2.12 发布页](https://github.com/coco54-beep/cube-solver/releases/tag/v1.2.12)获取已签名 APK，或[直接下载安装包](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.12/cubesolver-1.2.12-arm64-v8a-release.apk)。此安装包适用于 **arm64-v8a** 设备。
+
+> 如果发布流程未配置固定密钥，每次构建的签名可能不同。更新时如提示签名不一致，请先卸载旧版再安装。
+
+### 桌面端
+
+需要 Python 3.10+。
 
 ```bash
 pip install -r requirements.txt
 python run_desktop.py
 ```
 
-首次启动会加载求解器预计算表（`twophase/`），稍等片刻即可。
+首次求解时，加载预计算表可能需要一点时间。
 
-### 打包 Android
-
-使用 [buildozer](https://buildozer.readthedocs.io/)（见 `buildozer.spec`）：
+### 构建 Android 调试包
 
 ```bash
 buildozer android debug
 ```
 
+Android 构建配置见 [`buildozer.spec`](buildozer.spec)。
+
 ---
+
 
 ## 🧠 求解器是如何工作的
 
@@ -265,7 +200,7 @@ assets/            字体、着色器与演示素材（NotoSansSC.ttf）
 python -m pytest
 ```
 
-覆盖：2x2 / 3x3 / 4x4 / 5x5 转动、记号解析、输入合法性、2/3 阶 Kociemba 桥接，以及 4 阶降阶、5 阶中心（共轭/setup 表）、5 阶配棱与末段管线、朝向修正、求解进度回调等。当前 **813 个测试**（809 passed / 4 skipped）。
+覆盖：2x2 / 3x3 / 4x4 / 5x5 转动、记号解析、输入合法性、2/3 阶 Kociemba 桥接，以及 4 阶降阶、5 阶中心（共轭/setup 表）、5 阶配棱与末段管线、朝向修正、求解进度回调等。
 
 > 4 阶求解需要 `p4_table.bin`（约 300 MB，见仓库根目录 `.gitattributes`，通过 **Git LFS** 管理）。
 > 克隆仓库后执行 `git lfs pull` 即可获取；CI 与 APK 构建都已自动处理。
@@ -278,8 +213,8 @@ python -m pytest
 会自动构建 **已签名的 release APK** 并发布到 [Releases](https://github.com/coco54-beep/cube-solver/releases)：
 
 ```bash
-git tag v1.2.2
-git push origin v1.2.2
+git tag v1.2.13
+git push origin v1.2.13
 ```
 
 - 默认使用**临时密钥**签名（每次构建签名都会变化，旧版需先卸载）。
@@ -298,6 +233,7 @@ git push origin v1.2.2
 ### 第三方资源
 
 - `assets/fonts/NotoSansSC.ttf`：Google **Noto Sans SC** — [SIL Open Font License 1.1](https://scripts.sil.org/OFL)。
+- `assets/icons/lucide/`：**Lucide** 图标；许可信息见[许可证文件](assets/icons/lucide/LICENSE.txt)。
 - `kociemba-src/`：Herbert Kociemba 两阶段求解器 — **GPL-3.0**（见 `kociemba-src/LICENSE`）。
 
 ---

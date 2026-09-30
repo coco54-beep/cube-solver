@@ -16,6 +16,20 @@
 
 ---
 
+## 看看实际效果
+
+<div align="center">
+
+<img src="assets/demo.gif" width="320" alt="3D 魔方还原动画演示" />
+
+*3D 动画回放 · 逐步查看每一次转动*
+
+<img src="assets/screenshots/playback_stepping.png" width="280" alt="4 阶魔方逐步回放画面" />
+
+</div>
+
+---
+
 ## 从录入到还原
 
 | 01 · 录入 | 02 · 求解 | 03 · 演示 |

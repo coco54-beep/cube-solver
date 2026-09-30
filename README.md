@@ -16,6 +16,20 @@ Solve 2×2, 3×3, 4×4 and 5×5 cubes on Android or desktop.
 
 ---
 
+## See it in action
+
+<div align="center">
+
+<img src="assets/demo.gif" width="320" alt="Animated 3D cube solution playback" />
+
+*Animated 3D playback · explore the solution one move at a time*
+
+<img src="assets/screenshots/playback_stepping.png" width="280" alt="A 4x4 cube during step-by-step 3D playback" />
+
+</div>
+
+---
+
 ## Make the cube yours
 
 | 01 · Enter | 02 · Solve | 03 · Replay |

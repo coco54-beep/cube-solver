@@ -22,6 +22,7 @@ from app.i18n import tr
 from renderer.cube_view import CubeView
 from ui.screens.demo_screen import _changed_homes
 from ui.widgets import metrics as m
+from ui.widgets.layouts import ResponsiveBoxLayout
 
 
 def _num(n):
@@ -87,10 +88,11 @@ class DemoMenuScreen(Screen):
         self.build_ui()
 
     def build_ui(self):
-        root = BoxLayout(orientation="vertical", spacing=4, padding=[8, 6, 8, 8])
+        root = ResponsiveBoxLayout(orientation="vertical", gap_px=4,
+                                   padding_px=[8, 6, 8, 8])
 
-        top = BoxLayout(size_hint_y=None, height=m.h(46), spacing=6)
-        self.btn_back = UIButton(text=tr("input.back"), size_hint_x=0.22)
+        top = ResponsiveBoxLayout(height_px=48, gap_px=6)
+        self.btn_back = UIButton(text="", icon_name="back", size_hint_x=0.22)
         self.btn_back.bind(on_release=lambda *a: self.go_home())
         self.lbl_title = Label(text=tr(_MODE_TITLE[3]), size_hint_x=0.78, halign="center",
                                bold=True, font_size="20sp")

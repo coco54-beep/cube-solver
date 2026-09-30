@@ -1,7 +1,10 @@
 """回放页：3D 演示还原步骤，支持上一步/下一步/自动播放/暂停/速度。"""
 
 from kivy.clock import Clock
+from kivy.graphics import Color, RoundedRectangle
+from kivy.properties import NumericProperty
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.widget import Widget
 from ui.widgets.buttons import UIButton, PrimaryButton, ArrowButton, PlayPauseButton
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
@@ -11,6 +14,48 @@ from app.i18n import tr
 from renderer.cube_view import CubeView
 from renderer.turn import decompose_move
 from ui.widgets import metrics as m
+from ui.widgets.layouts import ResponsiveBoxLayout
+
+
+class _ProgressTrack(Widget):
+    value = NumericProperty(0)
+    maximum = NumericProperty(1)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        with self.canvas:
+            self._track_color = Color(1, 1, 1, 0.1)
+            self._track = RoundedRectangle(pos=self.pos, size=self.size)
+            self._fill_color = Color(0.3, 0.8, 0.9, 1)
+            self._fill = RoundedRectangle(pos=self.pos, size=(0, self.height))
+        self.bind(pos=self._redraw, size=self._redraw, value=self._redraw,
+                  maximum=self._redraw)
+        app = _app()
+        if app is not None:
+            self._theme = app.theme
+            self._theme_callback = self._apply_theme
+            self._theme.bind(on_palette=self._theme_callback)
+            self.bind(parent=self._on_parent)
+            self._apply_theme()
+
+    def _apply_theme(self, *args):
+        self._track_color.rgba = self._theme.surface_hi
+        self._fill_color.rgba = self._theme.accent
+        self._redraw()
+
+    def _on_parent(self, instance, parent):
+        if parent is None and hasattr(self, "_theme_callback"):
+            self._theme.unbind(on_palette=self._theme_callback)
+
+    def _redraw(self, *args):
+        radius = max(1, self.height / 2)
+        self._track.pos = self.pos
+        self._track.size = self.size
+        self._track.radius = [radius] * 4
+        fraction = max(0.0, min(1.0, self.value / max(1.0, self.maximum)))
+        self._fill.pos = self.pos
+        self._fill.size = (self.width * fraction, self.height)
+        self._fill.radius = [radius] * 4
 
 
 class PlaybackScreen(Screen):
@@ -29,8 +74,8 @@ class PlaybackScreen(Screen):
     def build_ui(self):
         simple = bool(getattr(_app(), "simple_input", False))
         self._simple = simple
-        root = BoxLayout(orientation="vertical", spacing=4, padding=6)
-        self.view = CubeView(size_hint_y=0.55)
+        root = ResponsiveBoxLayout(orientation="vertical", gap_px=6, padding_px=8)
+        self.view = CubeView(size_hint_y=0.52)
         self.view.lock_rotation = simple  # 简洁模式：视角固定
         root.add_widget(self.view)
 
@@ -40,11 +85,14 @@ class PlaybackScreen(Screen):
         info.add_widget(self.lbl_stage)
         info.add_widget(self.lbl_move)
         root.add_widget(info)
+        self.progress_track = _ProgressTrack(size_hint_y=None, height=m.h(6))
+        root.add_widget(self.progress_track)
 
         # 播放控制（两行：播放步进 + 视角/返回）
-        control = BoxLayout(orientation="vertical", size_hint_y=0.22, spacing=6)
-        play_row = BoxLayout(spacing=6)
-        self.btn_start = UIButton(text=tr("playback.start"), font_size="15sp")
+        control = ResponsiveBoxLayout(orientation="vertical", height_px=110,
+                                      gap_px=6, padding_px=[28, 0, 28, 0])
+        play_row = ResponsiveBoxLayout(gap_px=8)
+        self.btn_start = UIButton(text="", icon_name="first")
         self.btn_start.bind(on_release=lambda *a: self.to_start())
         self.btn_prev = ArrowButton(direction="left", font_size="17sp")
         self.btn_prev.bind(on_release=lambda *a: self.prev())
@@ -52,7 +100,7 @@ class PlaybackScreen(Screen):
         self.btn_play.bind(on_release=lambda *a: self.toggle_play())
         self.btn_next = ArrowButton(direction="right", font_size="17sp")
         self.btn_next.bind(on_release=lambda *a: self.next())
-        self.btn_end = UIButton(text=tr("playback.end"), font_size="15sp")
+        self.btn_end = UIButton(text="", icon_name="last")
         self.btn_end.bind(on_release=lambda *a: self.to_end())
         row_widgets = [self.btn_prev, self.btn_play, self.btn_next]
         if not simple:
@@ -60,10 +108,10 @@ class PlaybackScreen(Screen):
         for b in row_widgets:
             play_row.add_widget(b)
         control.add_widget(play_row)
-        util_row = BoxLayout(spacing=6)
-        self.btn_view = UIButton(text=tr("playback.reset_view"), font_size="15sp")
+        util_row = ResponsiveBoxLayout(gap_px=8)
+        self.btn_view = UIButton(text="", icon_name="reset")
         self.btn_view.bind(on_release=lambda *a: self.reset_view())
-        self.btn_back = UIButton(text=tr("playback.back"), font_size="15sp")
+        self.btn_back = UIButton(text="", icon_name="back")
         self.btn_back.bind(on_release=lambda *a: self.go_back())
         if simple:
             util_row.add_widget(self.btn_back)
@@ -73,7 +121,7 @@ class PlaybackScreen(Screen):
         control.add_widget(util_row)
         root.add_widget(control)
 
-        speed_row = BoxLayout(size_hint_y=0.08, spacing=6)
+        speed_row = BoxLayout(size_hint_y=0.07, spacing=m.h(6))
         self.lbl_speed = Label(text=tr("playback.speed"), font_size="15sp", size_hint_x=0.14)
         speed_row.add_widget(self.lbl_speed)
         self.slider = Slider(min=0.25, max=2.0, value=1.0, step=0.25, size_hint_x=0.36)
@@ -92,10 +140,6 @@ class PlaybackScreen(Screen):
     def retranslate(self):
         if not hasattr(self, "view"):
             return
-        self.btn_start.text = tr("playback.start")
-        self.btn_end.text = tr("playback.end")
-        self.btn_view.text = tr("playback.reset_view")
-        self.btn_back.text = tr("playback.back")
         self.lbl_speed.text = tr("playback.speed")
         self.lbl_hold.text = tr("playback.hold")
         self._update_buttons()
@@ -265,6 +309,10 @@ class PlaybackScreen(Screen):
     def _update_buttons(self):
         self.lbl_move.text = tr("playback.step", i=max(0, self._idx + 1),
                                 t=len(self._moves))
+        move = self._moves[self._idx] if 0 <= self._idx < len(self._moves) else tr("playback.ready")
+        self.lbl_stage.text = tr("playback.current", move=move)
+        self.progress_track.maximum = max(1, len(self._moves))
+        self.progress_track.value = max(0, self._idx + 1)
         self.btn_start.disabled = self._idx < 0
         self.btn_prev.disabled = self._idx < 0
         self.btn_next.disabled = self._idx + 1 >= len(self._moves)
@@ -293,9 +341,9 @@ class PlaybackScreen(Screen):
         label = Label(text=msg, halign="center", font_size="18sp", size_hint_y=1)
         btns = BoxLayout(orientation="horizontal", spacing=8,
                          size_hint_y=None, height=m.h(52))
-        cancel = UIButton(text=tr("confirm.cancel"))
+        cancel = UIButton(text="", icon_name="cancel")
         cancel.bind(on_release=lambda *a: popup.dismiss())
-        ok = PrimaryButton(text=tr("confirm.ok"))
+        ok = PrimaryButton(text="", icon_name="done")
         ok.bind(on_release=lambda *a: (on_ok(), popup.dismiss()))
         btns.add_widget(cancel)
         btns.add_widget(ok)

@@ -17,7 +17,7 @@ _BASE_H = 800.0
 # 缩放范围：下限 1.0 保证在普通桌面窗口（可能小于基准高）下按钮绝不比原设计
 # 更小（原设计即 52px 固定值）；上限避免极端高分屏下按钮过大。
 _MIN_S = 1.0
-_MAX_S = 3.2
+_MAX_S = 6.0
 
 _scale_cache = None
 
@@ -45,3 +45,19 @@ def font(px):
 def scale_factor():
     """返回当前缩放因子（供特殊布局按需使用）。"""
     return _scale()
+
+
+def input_grid_metrics(rows, column_gap=8, row_gap=6):
+    """Share exact tile dimensions between input colors and action buttons.
+
+    Scale each component first, then derive the total height so rounding cannot
+    make a color tile and its matching action button differ in height.
+    """
+    tile_height = h(48)
+    horizontal_gap, vertical_gap = h(column_gap), h(row_gap)
+    side_padding, vertical_padding = h(28), h(4)
+    return {
+        "height": rows * tile_height + (rows - 1) * vertical_gap + 2 * vertical_padding,
+        "spacing": (horizontal_gap, vertical_gap),
+        "padding": (side_padding, vertical_padding, side_padding, vertical_padding),
+    }

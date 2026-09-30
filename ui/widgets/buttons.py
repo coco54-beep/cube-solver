@@ -1,10 +1,11 @@
 from kivy.app import App
-from kivy.graphics import (BorderImage, Color, Ellipse, Line, Rectangle,
-                           RoundedRectangle, Triangle)
+from kivy.graphics import BorderImage, Color, Rectangle, RoundedRectangle
 from kivy.graphics.instructions import InstructionGroup
+from kivy.properties import BooleanProperty, StringProperty
 from kivy.uix.button import Button
 
 from ui.widgets import fx
+from ui.widgets.icons import icon_image
 
 
 class UIButton(Button):
@@ -17,7 +18,11 @@ class UIButton(Button):
        并在 state（normal/pressed）、pos/size 与主题切换时刷新，形成精致按键观感。
     """
 
+    icon_name = StringProperty("")
+    active = BooleanProperty(False)
+
     def __init__(self, **kwargs):
+        kwargs["icon_name"] = kwargs.get("icon_name") or ""
         super().__init__(**kwargs)
         for c in list(self.canvas.children):
             if isinstance(c, BorderImage):
@@ -27,6 +32,8 @@ class UIButton(Button):
         self.canvas.before.add(self._bg)
         self.bind(pos=self._rebuild, size=self._rebuild)
         self.bind(state=lambda *a: self._rebuild())
+        self.bind(disabled=lambda *a: self._rebuild())
+        self.bind(icon_name=self._rebuild, active=self._rebuild)
         app = App.get_running_app()
         if app is not None:
             app.theme.bind(on_palette=lambda *a: self._rebuild())
@@ -37,19 +44,21 @@ class UIButton(Button):
         theme = self._theme()
         if theme is None:
             return self.background_color
-        if type(self).__name__ == "PrimaryButton":
+        if isinstance(self, PrimaryButton):
             return theme.primary
-        if type(self).__name__ == "DangerButton":
+        if isinstance(self, DangerButton):
             return theme.danger
+        if self.active:
+            return theme.button_pressed
         return theme.button
 
     def _pressed_color(self):
         theme = self._theme()
         if theme is None:
             return self.background_color
-        if type(self).__name__ == "PrimaryButton":
+        if isinstance(self, PrimaryButton):
             return theme.primary_pressed
-        if type(self).__name__ == "DangerButton":
+        if isinstance(self, DangerButton):
             return theme.danger_pressed
         return theme.button_pressed
 
@@ -71,21 +80,55 @@ class UIButton(Button):
             ctx.add(inst)
 
         # 圆角实心底
-        ctx.add(Color(*fill))
-        ctx.add(RoundedRectangle(pos=self.pos, size=self.size, radius=[10] * 4))
+        # Avoid Line(rounded_rectangle=...): its antialiased stroke can leave
+        # stray pixels beyond the corners on some Android GPUs.
 
         # 描边
-        border = (theme.accent_dim if type(self).__name__ == "PrimaryButton" else theme.border
+        border = (theme.accent if self.active else
+                  theme.accent_dim if isinstance(self, PrimaryButton) else theme.border
                   ) if theme is not None else (0.5, 0.5, 0.5, 1)
-        border_ctx = Color(*border)
-        line = Line(width=0.75,
-                    rounded_rectangle=(self.x + 0.6, self.y + 0.6,
-                                       self.width - 1.2, self.height - 1.2, 10))
-        ctx.add(border_ctx)
-        ctx.add(line)
+        ctx.add(Color(*border))
+        ctx.add(RoundedRectangle(pos=self.pos, size=self.size, radius=[10] * 4))
+
+        inset = min(1.0, self.width / 2, self.height / 2)
+        ctx.add(Color(*fill))
+        ctx.add(RoundedRectangle(
+            pos=(self.x + inset, self.y + inset),
+            size=(max(0, self.width - inset * 2), max(0, self.height - inset * 2)),
+            radius=[max(0, 10 - inset)] * 4,
+        ))
 
     def _rebuild(self, *args):
         self._draw(self._bg)
+        if self.icon_name:
+            self._draw_icon(self._bg)
+
+    def _draw_icon(self, ctx):
+        if self.width <= 1 or self.height <= 1:
+            return
+        theme = self._theme()
+        if theme is None:
+            color = (1, 1, 1, 1)
+        elif self.disabled:
+            color = theme.disabled_text
+        elif isinstance(self, PrimaryButton):
+            color = theme.primary_text
+        elif isinstance(self, DangerButton):
+            color = theme.danger_text
+        elif self.active:
+            color = theme.accent
+        else:
+            color = theme.button_text
+
+        cx, cy = self.center
+        size = min(self.width, self.height) * 0.56
+        img = icon_image(self.icon_name)
+        if img is None:
+            return
+        ctx.add(Color(*color))
+        ctx.add(Rectangle(texture=img.texture,
+                          pos=(cx - size / 2, cy - size / 2),
+                          size=(size, size)))
 
 
 class PrimaryButton(UIButton):
@@ -97,59 +140,12 @@ class DangerButton(UIButton):
 
 
 class GearButton(UIButton):
-    """齿轮图标按钮（用于「设置」）：在按钮底色上自绘一个齿轮，随主题变色。
-
-    中文字体不含 ⚙（U+2699）等齿轮字形，故用 canvas 直接绘制（外圈齿 +
-    中心孔），无需额外字体/图片资源。
-    """
+    """Settings button using the shared icon family."""
 
     def __init__(self, **kwargs):
         kwargs.setdefault("text", "")
+        kwargs.setdefault("icon_name", "gear")
         super().__init__(**kwargs)
-
-    def _rebuild(self, *args):
-        # 先画按钮底色，再把齿轮叠加在同一指令组里（canvas.before 已验证可渲染）。
-        self._draw(self._bg)
-        self._draw_gear(self._bg)
-
-    def _draw_gear(self, ctx):
-        import math
-        if self.width <= 1 or self.height <= 1:
-            return
-        theme = self._theme()
-        icon = theme.button_text if theme is not None else (1, 1, 1, 1)
-        hole = self._pressed_color() if self.state != "normal" else self._button_color()
-        cx, cy = self.center
-        s = min(self.width, self.height)
-        r_root = s * 0.21
-        r_tip = s * 0.31
-        r_hole = s * 0.095
-        n = 8
-        a_base = math.pi / n * 0.60
-        a_tip = math.pi / n * 0.30
-        pts = []
-        for k in range(n):
-            th = 2.0 * math.pi * k / n
-            pts.append((cx + math.cos(th - a_base) * r_root,
-                        cy + math.sin(th - a_base) * r_root))
-            pts.append((cx + math.cos(th - a_tip) * r_tip,
-                        cy + math.sin(th - a_tip) * r_tip))
-            pts.append((cx + math.cos(th + a_tip) * r_tip,
-                        cy + math.sin(th + a_tip) * r_tip))
-            pts.append((cx + math.cos(th + a_base) * r_root,
-                        cy + math.sin(th + a_base) * r_root))
-        verts = []
-        for i in range(len(pts)):
-            p = pts[i]
-            q = pts[(i + 1) % len(pts)]
-            verts.append((cx, cy, p[0], p[1], q[0], q[1]))
-        ctx.add(Color(*icon))
-        for tri in verts:
-            ctx.add(Triangle(points=list(tri)))
-        # 中心孔：用按钮底色挖空。
-        ctx.add(Color(*hole))
-        ctx.add(Ellipse(pos=(cx - r_hole, cy - r_hole),
-                        size=(2 * r_hole, 2 * r_hole)))
 
 
 class ArrowButton(UIButton):
@@ -160,6 +156,7 @@ class ArrowButton(UIButton):
 
     def __init__(self, direction="right", **kwargs):
         kwargs.setdefault("text", "")
+        kwargs.setdefault("icon_name", "prev" if direction == "left" else "next")
         self._direction = direction
         super().__init__(**kwargs)
 
@@ -168,59 +165,18 @@ class ArrowButton(UIButton):
         self._draw_arrow(self._bg)
 
     def _draw_arrow(self, ctx):
-        if self.width <= 1 or self.height <= 1:
-            return
-        theme = self._theme()
-        color = theme.button_text if theme is not None else (1, 1, 1, 1)
-        cx, cy = self.center
-        s = min(self.width, self.height)
-        hw = s * 0.11
-        hh = s * 0.20
-        width = max(1.8, s * 0.067)
-        d = 1.0 if self._direction == "right" else -1.0
-        pts = [cx - d * hw, cy + hh,
-               cx + d * hw, cy,
-               cx - d * hw, cy - hh]
-        ctx.add(Color(*color))
-        ctx.add(Line(points=pts, width=width, cap="round", joint="round"))
+        UIButton._draw_icon(self, ctx)
 
 
-class PlayPauseButton(UIButton):
-    """播放/暂停按钮：自绘实心三角 ▶ 或两根竖条 ▮▮（随状态与主题变化）。"""
+class PlayPauseButton(PrimaryButton):
+    """Playback control with matching play and pause icons."""
 
     def __init__(self, **kwargs):
         kwargs.setdefault("text", "")
+        kwargs.setdefault("icon_name", "solve")
         self.playing = False
         super().__init__(**kwargs)
 
     def set_playing(self, playing):
-        playing = bool(playing)
-        if playing != self.playing:
-            self.playing = playing
-            self._rebuild()
-
-    def _rebuild(self, *args):
-        self._draw(self._bg)
-        self._draw_icon(self._bg)
-
-    def _draw_icon(self, ctx):
-        if self.width <= 1 or self.height <= 1:
-            return
-        theme = self._theme()
-        color = theme.button_text if theme is not None else (1, 1, 1, 1)
-        cx, cy = self.center
-        s = min(self.width, self.height)
-        ctx.add(Color(*color))
-        if self.playing:
-            bw = s * 0.12
-            bh = s * 0.42
-            gap = s * 0.20
-            for dx in (-gap / 2.0, gap / 2.0):
-                ctx.add(Rectangle(pos=(cx + dx - bw / 2.0, cy - bh / 2.0),
-                                  size=(bw, bh)))
-        else:
-            hw = s * 0.15
-            hh = s * 0.21
-            ctx.add(Triangle(points=[cx - hw, cy + hh,
-                                     cx + hw, cy,
-                                     cx - hw, cy - hh]))
+        self.playing = bool(playing)
+        self.icon_name = "pause" if self.playing else "solve"

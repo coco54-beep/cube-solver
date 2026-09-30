@@ -7,7 +7,7 @@
 
 from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
-from ui.widgets.buttons import UIButton
+from ui.widgets.buttons import UIButton, PrimaryButton, ArrowButton
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 from kivy.uix.scrollview import ScrollView
@@ -21,6 +21,7 @@ from app.i18n import tr
 from renderer.cube_view import CubeView
 from renderer.turn import decompose_move
 from ui.widgets import metrics as m
+from ui.widgets.layouts import ResponsiveBoxLayout
 
 
 def _theme():
@@ -69,15 +70,16 @@ class DemoScreen(Screen):
         self.build_ui()
 
     def build_ui(self):
-        root = BoxLayout(orientation="vertical", spacing=4, padding=[8, 6, 8, 8])
+        root = ResponsiveBoxLayout(orientation="vertical", gap_px=4,
+                                   padding_px=[8, 6, 8, 8])
 
         # 顶栏：返回目录 + 标题 + 播放
-        top = BoxLayout(size_hint_y=None, height=m.h(46), spacing=6)
-        self.btn_back = UIButton(text=tr("demo.back_to_menu"), size_hint_x=0.2)
+        top = ResponsiveBoxLayout(height_px=48, gap_px=6)
+        self.btn_back = UIButton(text="", icon_name="back", size_hint_x=0.2)
         self.btn_back.bind(on_release=lambda *a: self.go_menu())
         self.lbl_mode = Label(text=_mode_title(3), size_hint_x=0.45, halign="center",
                               bold=True, font_size="18sp")
-        self.btn_switch = UIButton(text=tr("demo.switch"), size_hint_x=0.35)
+        self.btn_switch = UIButton(text="", icon_name="switch", size_hint_x=0.2)
         self.btn_switch.bind(on_release=lambda *a: self.toggle_mode())
         top.add_widget(self.btn_back)
         top.add_widget(self.lbl_mode)
@@ -111,24 +113,21 @@ class DemoScreen(Screen):
         root.add_widget(sv)
 
         # 控制区（两行：播放步进 + 视角）
-        control = BoxLayout(orientation="vertical", size_hint_y=None, height=m.h(110), spacing=6)
-        play_row = BoxLayout(spacing=6)
-        self.btn_start = UIButton(text=tr("playback.start"), size_hint_x=0.25)
+        control = ResponsiveBoxLayout(height_px=52, gap_px=8,
+                                      padding_px=[28, 0, 28, 0])
+        self.btn_start = UIButton(text="", icon_name="first")
         self.btn_start.bind(on_release=lambda *a: self.to_start())
-        self.btn_prev = UIButton(text=tr("playback.prev"), size_hint_x=0.25)
+        self.btn_prev = ArrowButton(direction="left")
         self.btn_prev.bind(on_release=lambda *a: self.prev_case())
-        self.btn_play = UIButton(text=tr("playback.play"), size_hint_x=0.25)
+        self.btn_play = PrimaryButton(text="", icon_name="solve")
         self.btn_play.bind(on_release=lambda *a: self.play())
-        self.btn_next = UIButton(text=tr("playback.next"), size_hint_x=0.25)
+        self.btn_next = ArrowButton(direction="right")
         self.btn_next.bind(on_release=lambda *a: self.next_case())
-        for b in (self.btn_start, self.btn_prev, self.btn_play, self.btn_next):
-            play_row.add_widget(b)
-        control.add_widget(play_row)
-        util_row = BoxLayout(spacing=6)
-        self.btn_reset = UIButton(text=tr("playback.reset_view"))
+        self.btn_reset = UIButton(text="", icon_name="reset")
         self.btn_reset.bind(on_release=lambda *a: self.view.reset_camera())
-        util_row.add_widget(self.btn_reset)
-        control.add_widget(util_row)
+        for b in (self.btn_start, self.btn_prev, self.btn_play,
+                  self.btn_next, self.btn_reset):
+            control.add_widget(b)
         root.add_widget(control)
 
         self.add_widget(root)
@@ -136,12 +135,6 @@ class DemoScreen(Screen):
     def retranslate(self):
         if not hasattr(self, "lbl_mode"):
             return
-        self.btn_back.text = tr("demo.back_to_menu")
-        self.btn_switch.text = tr("demo.switch")
-        self.btn_start.text = tr("playback.start")
-        self.btn_prev.text = tr("playback.prev")
-        self.btn_next.text = tr("playback.next")
-        self.btn_reset.text = tr("playback.reset_view")
         self.lbl_mode.text = _mode_title(self.mode)
         self._show_case()
 
@@ -224,6 +217,7 @@ class DemoScreen(Screen):
 
     def play(self):
         if self._busy:
+            self._stop()
             return
         case = self._case()
         # 先还原到该案例的初始场景，再开始播放公式。
@@ -236,7 +230,7 @@ class DemoScreen(Screen):
         for m in case["moves"]:
             self._queue.extend(decompose_move(m, self.mode))
         self._busy = True
-        self.btn_play.text = tr("demo.playing")
+        self.btn_play.icon_name = "stop"
         self._step_queue()
 
     def _step_queue(self):
@@ -245,7 +239,7 @@ class DemoScreen(Screen):
             self._animate_step(step)
         else:
             self._busy = False
-            self.btn_play.text = tr("playback.play")
+            self.btn_play.icon_name = "solve"
 
     def _animate_step(self, step):
         dur = 0.5 * abs(step.angle) / 90.0
@@ -270,7 +264,7 @@ class DemoScreen(Screen):
         self._queue = []
         if hasattr(self.view, "_cancel_animation"):
             self.view._cancel_animation()
-        self.btn_play.text = tr("playback.play")
+        self.btn_play.icon_name = "solve"
 
     def go_menu(self):
         self._stop()

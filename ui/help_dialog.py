@@ -16,7 +16,8 @@ def _autofit(lbl, pad=1):
     lbl.bind(texture_size=_h)
 
 
-_HELP_KEYS = ("select", "input", "solve", "playback",
+_HELP_KEYS = ("select", "input", "icons_input", "icons_twist",
+              "icons_playback", "icons_demo", "solve", "playback",
               "demo", "theme", "notation", "algo")
 
 

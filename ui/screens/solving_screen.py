@@ -10,6 +10,7 @@ from kivy.uix.progressbar import ProgressBar
 from app.constants import STAGE_LABEL
 from app.i18n import tr
 from services.solve_service import SolveService, CancelToken
+from ui.widgets.layouts import ResponsiveBoxLayout
 
 
 class SolvingScreen(Screen):
@@ -23,19 +24,20 @@ class SolvingScreen(Screen):
         self.title = Label(text=tr("solving.title"), font_size="24sp", size_hint_y=0.2)
         self.progress = ProgressBar(max=100, value=0, size_hint_y=0.15)
         self.detail = Label(text=tr("solving.preparing"), font_size="17sp", size_hint_y=0.15)
-        self.cancel = UIButton(text=tr("solving.cancel"), font_size="20sp", size_hint_y=0.15)
+        self.cancel = UIButton(text="", icon_name="cancel")
         self.cancel.bind(on_release=lambda *a: self.on_cancel())
         root.add_widget(self.title)
         root.add_widget(self.progress)
         root.add_widget(self.detail)
-        root.add_widget(self.cancel)
+        cancel_row = ResponsiveBoxLayout(height_px=52, padding_px=[28, 0, 28, 0])
+        cancel_row.add_widget(self.cancel)
+        root.add_widget(cancel_row)
         self.add_widget(root)
 
     def retranslate(self):
         if not hasattr(self, "title"):
             return
         self.title.text = tr("solving.title")
-        self.cancel.text = tr("solving.cancel")
 
     def on_enter(self):
         if not hasattr(self, "title"):

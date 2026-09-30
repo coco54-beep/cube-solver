@@ -84,6 +84,75 @@ CATALOG = {
             "在展开图上逐格点色即可录入每个面的颜色：先从六色选择器选好颜色，\n"
             "再逐个点格子。也可点「随机」载入一个随机打乱来试解；\n"
             "录入完成后点「校验」可检查布局是否合法。",
+        "help.icons_input.title": "录入页图标",
+        "help.icons_input.body":
+            "返回箭头：回到主页；书本：打开教学演示目录；− / +：缩小或放大棋盘。\n"
+            "滴管：开启或关闭取色，开启后点击棋盘格即可吸取该格颜色；油漆桶：用当前选中的颜色填满这一面。\n"
+            "左弯箭头 / 右弯箭头：撤销 / 重做上一次颜色修改；左右尖括号：切换当前显示的魔方面。\n"
+            "立方体：进入手动拧动；交叉箭头：载入随机打乱状态；垃圾桶：清空已录入颜色。\n"
+            "播放三角形：开始求解；圆圈勾号：校验当前布局；剪贴板：粘贴或输入打乱公式。\n"
+            "W / Y / R / O / B / G 色块：选择后续填色使用的白 / 黄 / 红 / 橙 / 蓝 / 绿。齿轮：打开设置。",
+        "help.icons_twist.title": "拧魔方页图标",
+        "help.icons_twist.body":
+            "返回箭头：返回录入页；勾号：完成手动拧动并返回录入页，当前转动会保存。\n"
+            "左弯箭头 / 右弯箭头：撤销 / 重做一次转动；锁 / 开锁：切换拖动模式。锁定时拖动棋盘会拧动选中的层，解锁时拖动会旋转视角。\n"
+            "单层 / 宽层图标：切换只拧外层或同时拧动多层；环形箭头：将 3D 视角恢复到默认方向。",
+        "help.icons_playback.title": "还原回放页图标",
+        "help.icons_playback.body":
+            "双左箭头：跳到还原开始；左箭头：后退一步；右箭头：前进一步；双右箭头：跳到还原完成。\n"
+            "播放三角形：自动播放步骤；暂停图标：暂停播放。环形箭头：恢复 3D 视角；返回箭头：回到录入页。\n"
+            "播放速度和步骤停留时间通过旁边的滑杆调整。",
+        "help.icons_demo.title": "演示页图标",
+        "help.icons_demo.body":
+            "返回箭头：回到演示目录；循环箭头：切换演示魔方阶数；双左箭头：将当前案例重置到开头。\n"
+            "左 / 右箭头：切换上一个 / 下一个案例；播放三角形：播放案例步骤，播放中会变成停止图标，再按可停止播放。\n"
+            "环形箭头：恢复 3D 视角。求解过程中的叉号：取消当前求解或关闭提示。",
+        "help.icons_input.title": "Input screen icons",
+        "help.icons_input.body":
+            "Back arrow: return home; book: open the demo catalog; − / +: zoom the grid out or in.\n"
+            "Eyedropper: turn color picking on or off; when on, tap a cell to sample its color. Paint bucket: fill the current face with the selected color.\n"
+            "Curved left / right arrows: undo / redo the last color edit; angle arrows: switch the displayed cube face.\n"
+            "Cube: open manual turning; shuffle arrows: load a random scramble; trash: clear entered colors.\n"
+            "Play triangle: solve; circled check: validate the layout; clipboard: paste or enter scramble notation.\n"
+            "W / Y / R / O / B / G swatches: choose white / yellow / red / orange / blue / green for the next fill. Gear: open Settings.",
+        "help.icons_twist.title": "Manual turning icons",
+        "help.icons_twist.body":
+            "Back arrow: return to input; check: finish manual turning and return, saving the current turns.\n"
+            "Curved left / right arrows: undo / redo a turn; lock / unlock: change drag mode. Locked: drag to turn the selected layer. Unlocked: drag to rotate the view.\n"
+            "Single / wide layer: switch between turning one outer layer or multiple layers; circular arrow: restore the default 3D view.",
+        "help.icons_playback.title": "Solution playback icons",
+        "help.icons_playback.body":
+            "Double-left: jump to the beginning; left: step back; right: step forward; double-right: jump to the solved state.\n"
+            "Play triangle: play steps automatically; pause: pause playback. Circular arrow: reset the 3D view; back arrow: return to input.\n"
+            "Use the nearby sliders to adjust playback speed and how long each step stays on screen.",
+        "help.icons_demo.title": "Demo screen icons",
+        "help.icons_demo.body":
+            "Back arrow: return to the demo catalog; cycle arrows: change cube size; double-left: restart the current case.\n"
+            "Left / right arrows: move to the previous / next case; play triangle: play the case, then becomes Stop while running. Press again to stop.\n"
+            "Circular arrow: reset the 3D view. The X during solving cancels the solve or closes a prompt.",
+        "help.icons_input.title": "入力画面のアイコン",
+        "help.icons_input.body":
+            "戻る矢印：ホームへ戻る；本：デモ一覧を開く；− / ＋：盤面を縮小 / 拡大します。\n"
+            "スポイト：色取得のオン / オフ。オンにしてマスをタップすると、その色を取得します。バケツ：選択中の色で面を塗ります。\n"
+            "左 / 右の曲がった矢印：色変更を元に戻す / やり直す；左右の山形：表示する面を切り替えます。\n"
+            "キューブ：手動回転画面を開く；シャッフル：ランダム状態を読み込む；ゴミ箱：入力色を消去します。\n"
+            "再生：解き始める；丸付きチェック：配置を検証；クリップボード：スクランブル記法を貼り付け / 入力します。\n"
+            "W / Y / R / O / B / G：次に塗る白 / 黄 / 赤 / 橙 / 青 / 緑を選択；歯車：設定を開きます。",
+        "help.icons_twist.title": "手動回転画面のアイコン",
+        "help.icons_twist.body":
+            "戻る矢印：入力画面へ戻る；チェック：回転を保存して入力画面へ戻ります。\n"
+            "左 / 右の曲がった矢印：回転を元に戻す / やり直す；ロック / 解除：ドラッグ方法を切り替えます。ロック中は層を回し、解除中は視点を動かします。\n"
+            "単層 / ワイド：外側1層または複数層を回転；円形矢印：3D視点を初期状態に戻します。",
+        "help.icons_playback.title": "解答再生画面のアイコン",
+        "help.icons_playback.body":
+            "二重左矢印：最初へ；左矢印：1手戻る；右矢印：1手進む；二重右矢印：完成状態へ移動します。\n"
+            "再生：自動再生；一時停止：再生を止めます。円形矢印：3D視点を戻す；戻る矢印：入力画面へ戻ります。\n"
+            "近くのスライダーで再生速度と各手の表示時間を調整できます。",
+        "help.icons_demo.title": "デモ画面のアイコン",
+        "help.icons_demo.body":
+            "戻る矢印：デモ一覧へ；循環矢印：キューブのサイズを切り替え；二重左矢印：現在の例を最初に戻します。\n"
+            "左右の矢印：前 / 次の例へ；再生：手順を再生し、再生中は停止アイコンに変わります。もう一度押すと停止します。\n"
+            "円形矢印：3D視点を戻します。解答中の X：解答をキャンセル、または確認表示を閉じます。",
         "help.solve.title": "一键求解",
         "help.solve.body":
             "录入完成后点「开始求解」，程序会在后台计算还原步骤，\n"
@@ -117,6 +186,8 @@ CATALOG = {
         "input.title": "录入 {n}x{n}",
         "input.demo": "演示",
         "input.face": "当前面：{face} ({code})",
+        "input.face_progress": "{face}({code}) {face_done}/{face_total}",
+        "input.progress": "录入进度 {done}/{total}",
         "input.pick": "取色",
         "input.fill": "整面填充",
         "input.undo": "撤销",
@@ -158,6 +229,8 @@ CATALOG = {
 
         "playback.total": "共 {k} 步",
         "playback.step": "第 {i}/{t} 步",
+        "playback.current": "当前动作：{move}",
+        "playback.ready": "准备播放",
         "playback.start": "回到初始",
         "playback.prev": "<",
         "playback.play": "▶",
@@ -297,6 +370,8 @@ CATALOG = {
         "input.title": "Enter {n}×{n}",
         "input.demo": "Demos",
         "input.face": "Face: {face} ({code})",
+        "input.face_progress": "{face} ({code}) {face_done}/{face_total}",
+        "input.progress": "Progress {done}/{total}",
         "input.pick": "Eyedropper",
         "input.fill": "Fill face",
         "input.undo": "Undo",
@@ -338,6 +413,8 @@ CATALOG = {
 
         "playback.total": "{k} moves",
         "playback.step": "Move {i}/{t}",
+        "playback.current": "Move: {move}",
+        "playback.ready": "Ready",
         "playback.start": "Start",
         "playback.prev": "<",
         "playback.play": "▶",
@@ -477,6 +554,8 @@ CATALOG = {
         "input.title": "入力 {n}×{n}",
         "input.demo": "デモ",
         "input.face": "面：{face} ({code})",
+        "input.face_progress": "{face}({code}) {face_done}/{face_total}",
+        "input.progress": "入力進捗 {done}/{total}",
         "input.pick": "スポイト",
         "input.fill": "面を塗る",
         "input.undo": "元に戻す",
@@ -518,6 +597,8 @@ CATALOG = {
 
         "playback.total": "全 {k} 手",
         "playback.step": "{i}/{t} 手目",
+        "playback.current": "現在の手順：{move}",
+        "playback.ready": "再生待ち",
         "playback.start": "最初へ",
         "playback.prev": "<",
         "playback.play": "▶",

@@ -7,6 +7,7 @@
 
 from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.screenmanager import Screen
@@ -27,6 +28,7 @@ from cube.cube2 import Cube2
 from cube.cube4 import Cube4
 from cube.cube3 import Cube3
 from cube.cube5 import Cube5
+from cube.colors import DEFAULT_COLORS
 from ui.widgets.color_picker import ColorSelector
 from ui.widgets import metrics as m
 
@@ -173,6 +175,7 @@ class InputScreen(Screen):
         self._history = []        # 撤销栈：每个动作为 [(face, r, c, old, new), ...]
         self._redo = []           # 重做栈
         self._drag_edits = {}     # 当前拖动手法累积的编辑 {(r,c): old}
+        self._error_cells = set()
         self.build_ui()
         self._init_for_n()
 
@@ -182,13 +185,13 @@ class InputScreen(Screen):
         root = BoxLayout(orientation="vertical", spacing=8, padding=[8, 6, 8, 8])
 
         # ---- 顶栏 ----
-        top = BoxLayout(size_hint_y=None, height=m.h(46), spacing=8)
-        self.btn_back = UIButton(text=tr("input.back"), size_hint_x=0.22)
+        top = BoxLayout(size_hint_y=None, height=m.h(48), spacing=8)
+        self.btn_back = UIButton(text="", icon_name="back", size_hint_x=0.22)
         self.btn_back.bind(on_release=lambda *a: self.go_home())
-        self.title = Label(text=tr("input.title", n=4),
+        self.title = Label(text=tr("input.title", n=self._n()),
                            size_hint_x=(0.78 if simple else 0.56),
                            halign="center", font_size="20sp", bold=True)
-        self.btn_demo = UIButton(text=tr("input.demo"), size_hint_x=0.22)
+        self.btn_demo = UIButton(text="", icon_name="demo", size_hint_x=0.22)
         self.btn_demo.bind(on_release=lambda *a: self.open_demo())
         top.add_widget(self.btn_back)
         top.add_widget(self.title)
@@ -204,14 +207,14 @@ class InputScreen(Screen):
         root.add_widget(self.view)
 
         # ---- 当前面 + 缩放（简洁模式只留当前面）----
-        nav = BoxLayout(size_hint_y=None, height=m.h(44), spacing=8)
-        self.btn_zoom_in = UIButton(text="＋", size_hint_x=0.12, font_size="20sp")
+        nav = BoxLayout(size_hint_y=None, height=m.h(48), spacing=8)
+        self.btn_zoom_in = UIButton(text="", icon_name="zoom_in", size_hint_x=0.12)
         self.btn_zoom_in.bind(on_release=lambda *a: self._zoom(1.15))
-        self.btn_zoom_out = UIButton(text="－", size_hint_x=0.12, font_size="20sp")
+        self.btn_zoom_out = UIButton(text="", icon_name="zoom_out", size_hint_x=0.12)
         self.btn_zoom_out.bind(on_release=lambda *a: self._zoom(1 / 1.15))
         self.face_label = Label(text=tr("input.face", face=tr("face.F"), code="F"),
                                 size_hint_x=(1.0 if simple else 0.5), halign="center",
-                                font_size="17sp", bold=True)
+                                font_size=("14sp" if simple else "17sp"), bold=True)
         if simple:
             nav.add_widget(self.face_label)
         else:
@@ -220,68 +223,88 @@ class InputScreen(Screen):
         root.add_widget(nav)
 
         # ---- 颜色选择器 ----
-        self.picker = ColorSelector(two_rows=simple, size_hint_y=None,
-                                   height=m.h(96 if simple else 52))
-        root.add_widget(self.picker)
+        self.picker = ColorSelector(two_rows=simple, size_hint_y=None)
+        self.input_panel = None
+        if simple:
+            root.add_widget(self.picker)
+        else:
+            panel_metrics = m.input_grid_metrics(3)
+            self.input_panel = BoxLayout(
+                orientation="vertical", size_hint_y=None,
+                height=panel_metrics["height"], spacing=panel_metrics["spacing"][1])
+            self.input_panel.add_widget(self.picker)
 
         # ---- 录入辅助工具（简洁模式隐藏）----
-        self.edit_row = BoxLayout(size_hint_y=None, height=m.h(44), spacing=8)
-        self.btn_pick = UIButton(text=tr("input.pick"), font_size="15sp")
+        self.controls_grid = GridLayout(
+            cols=6, rows=2, size_hint_y=None, **m.input_grid_metrics(2))
+        self.btn_pick = UIButton(text="" if not simple else tr("input.pick"),
+                                 icon_name=None if simple else "pick")
         self.btn_pick.bind(on_release=lambda *a: self.toggle_pick())
-        self.btn_fill = UIButton(text=tr("input.fill"), font_size="15sp")
+        self.btn_fill = UIButton(text="" if not simple else tr("input.fill"),
+                                 icon_name=None if simple else "fill")
         self.btn_fill.bind(on_release=lambda *a: self.fill_face())
-        self.btn_undo = UIButton(text=tr("input.undo"), font_size="15sp")
+        self.btn_undo = UIButton(text="" if not simple else tr("input.undo"),
+                                 icon_name=None if simple else "undo")
         self.btn_undo.bind(on_release=lambda *a: self.undo())
-        self.btn_redo = UIButton(text=tr("input.redo"), font_size="15sp")
+        self.btn_redo = UIButton(text="" if not simple else tr("input.redo"),
+                                 icon_name=None if simple else "redo")
         self.btn_redo.bind(on_release=lambda *a: self.redo())
-        for b in (self.btn_pick, self.btn_fill, self.btn_undo, self.btn_redo):
-            self.edit_row.add_widget(b)
-
         # ---- 打乱公式（简洁模式隐藏）----
-        self.scramble_row = BoxLayout(size_hint_y=None, height=m.h(42), spacing=8)
-        self.btn_scramble = UIButton(text=tr("input.scramble"), font_size="15sp")
+        self.btn_scramble = UIButton(text="" if not simple else tr("input.scramble"),
+                                     icon_name=None if simple else "scramble")
         self.btn_scramble.bind(on_release=lambda *a: self.open_scramble())
-        self.scramble_row.add_widget(self.btn_scramble)
 
-        if not simple:
-            root.add_widget(self.edit_row)
-            root.add_widget(self.scramble_row)
 
         # ---- 翻转导航 ----
-        turn_row = BoxLayout(size_hint_y=None, height=m.h(48), spacing=8)
         self.btn_prev = ArrowButton(direction="left", font_size="20sp")
         self.btn_prev.bind(on_release=lambda *a: self.prev_face())
         self.btn_next = ArrowButton(direction="right", font_size="20sp")
         self.btn_next.bind(on_release=lambda *a: self.next_face())
-        for b in (self.btn_prev, self.btn_next):
-            turn_row.add_widget(b)
-        root.add_widget(turn_row)
 
-        # ---- 操作按钮行（简洁模式只留「求解」）----
-        action_row = BoxLayout(size_hint_y=None, height=m.h(52), spacing=8)
-        self.btn_twist = UIButton(text=tr("input.twist"), font_size="15sp")
+        # ---- Action buttons ----
+        self.btn_twist = UIButton(text="" if not simple else tr("input.twist"),
+                                  icon_name=None if simple else "twist")
         self.btn_twist.bind(on_release=lambda *a: self.open_twist())
-        self.btn_random = UIButton(text=tr("input.random"), font_size="15sp")
+        self.btn_random = UIButton(text="" if not simple else tr("input.random"),
+                                   icon_name=None if simple else "random")
         self.btn_random.bind(on_release=lambda *a: self.random_load())
-        self.btn_clear = DangerButton(text=tr("input.clear"), font_size="15sp")
+        self.btn_clear = DangerButton(text="" if not simple else tr("input.clear"),
+                                      icon_name=None if simple else "clear")
         self.btn_clear.bind(on_release=lambda *a: self.confirm_clear())
-        self.btn_check = UIButton(text=tr("input.check"), font_size="15sp")
+        self.btn_check = UIButton(text="" if not simple else tr("input.check"),
+                                  icon_name=None if simple else "check")
         self.btn_check.bind(on_release=lambda *a: self.check())
-        self.btn_solve = PrimaryButton(text=tr("input.solve"), font_size="15sp")
+        self.btn_solve = PrimaryButton(text="", icon_name="solve")
         self.btn_solve.bind(on_release=lambda *a: self.start_solve())
+        self.simple_turn_row = BoxLayout(
+            size_hint_y=None, height=m.h(48), spacing=m.h(16),
+            padding=[m.h(28), 0, m.h(28), 0])
         if simple:
-            action_row.add_widget(self.btn_solve)
+            for b in (self.btn_prev, self.btn_solve, self.btn_next):
+                self.simple_turn_row.add_widget(b)
+            root.add_widget(self.simple_turn_row)
         else:
-            for b in (self.btn_twist, self.btn_random, self.btn_clear,
-                      self.btn_check, self.btn_solve):
-                action_row.add_widget(b)
-        root.add_widget(action_row)
+            for b in (
+                self.btn_pick, self.btn_fill, self.btn_undo, self.btn_redo,
+                self.btn_prev, self.btn_next,
+                self.btn_twist, self.btn_random, self.btn_clear,
+                self.btn_solve, self.btn_check, self.btn_scramble,
+            ):
+                self.controls_grid.add_widget(b)
+            self.input_panel.add_widget(self.controls_grid)
+            root.add_widget(self.input_panel)
 
-        # ---- 状态提示 ----
         self.msg = Label(text="", size_hint_y=None, height=m.h(34),
                          color=(1, 0.55, 0.55, 1), halign="center")
         root.add_widget(self.msg)
+        self._root_layout = root
+        self._responsive_height_specs = [
+            (top, 48), (nav, 48), (self.simple_turn_row, 48),
+            (self.msg, 34),
+        ]
         self.add_widget(root)
+        # Refresh once the native window reports its final pixel height.
+        Clock.schedule_once(lambda *_: self._apply_responsive_heights(), 0)
 
         if not getattr(self, "_resize_bound", False):
             self.bind(size=self._on_resize)
@@ -307,25 +330,39 @@ class InputScreen(Screen):
         """语言切换后重设静态文案。"""
         if not hasattr(self, "title"):
             return
-        self.btn_back.text = tr("input.back")
-        self.btn_demo.text = tr("input.demo")
-        self.btn_pick.text = tr("input.pick")
-        self.btn_fill.text = tr("input.fill")
-        self.btn_undo.text = tr("input.undo")
-        self.btn_redo.text = tr("input.redo")
-        self.btn_twist.text = tr("input.twist")
-        self.btn_random.text = tr("input.random")
-        self.btn_scramble.text = tr("input.scramble")
-        self.btn_clear.text = tr("input.clear")
-        self.btn_check.text = tr("input.check")
-        self.btn_solve.text = tr("input.solve")
         self.title.text = tr("input.title", n=self._n())
         self._update_turn_hints()
-        self._update_face_label()
-        self.msg.text = ""
+        self._update_progress()
+
+    def _apply_responsive_heights(self):
+        for widget, design_height in getattr(self, "_responsive_height_specs", ()):
+            widget.height = m.h(design_height)
+        if hasattr(self, "_root_layout"):
+            pad = m.h(8)
+            self._root_layout.padding = [pad, m.h(6), pad, pad]
+            self._root_layout.spacing = m.h(8)
+        if hasattr(self, "picker"):
+            self.picker.update_metrics()
+        if hasattr(self, "controls_grid"):
+            for name, value in m.input_grid_metrics(2).items():
+                setattr(self.controls_grid, name, value)
+        if getattr(self, "input_panel", None) is not None:
+            # Share one outer gutter and equal gaps across all three advanced rows.
+            panel_metrics = m.input_grid_metrics(3)
+            self.input_panel.height = panel_metrics["height"]
+            self.input_panel.spacing = panel_metrics["spacing"][1]
+            left, top, right, bottom = self.picker.padding
+            self.picker.height -= bottom
+            self.picker.padding = (left, top, right, 0)
+            left, top, right, bottom = self.controls_grid.padding
+            self.controls_grid.height -= top
+            self.controls_grid.padding = (left, 0, right, bottom)
+        if hasattr(self, "simple_turn_row"):
+            self.simple_turn_row.padding = [m.h(28), 0, m.h(28), 0]
+            self.simple_turn_row.spacing = m.h(16)
 
     def _on_resize(self, *args):
-        # 尺寸变化时重新取景（整体旋转与颜色数据保留）。
+        self._apply_responsive_heights()
         Clock.schedule_once(lambda *a: self._refresh_view(keep_anim=False), 0)
 
     def _init_for_n(self):
@@ -338,7 +375,9 @@ class InputScreen(Screen):
         self.view.camera.azimuth = 0.0
         self.view._display_zoom = 1.0
         self._reset_edits()
+        self._error_cells.clear()
         self._refresh_view()
+        self._update_progress()
         self._update_turn_hints()
 
     def _reset_edits(self):
@@ -346,7 +385,7 @@ class InputScreen(Screen):
         self._redo = []
         self._drag_edits = {}
         self._pick_mode = False
-        self.btn_pick.background_color = [0.5, 0.5, 0.5, 1]
+        self.btn_pick.active = False
         self._update_edit_buttons()
 
     def _n(self):
@@ -364,13 +403,84 @@ class InputScreen(Screen):
             return
         if not keep_anim:
             self.view._cancel_whole_anim()
-        self.view.set_cube(cube)
+        highlighted = {
+            pos_from_rc(self._n(), face, r, c)
+            for face, r, c in self._error_cells
+        }
+        self.view.set_cube(cube, highlight=highlighted or None)
         self.view.set_whole_world(self._ori.world)
         self._update_face_label()
 
     def _update_face_label(self):
         face = self._ori.current_face()
-        self.face_label.text = tr("input.face", face=tr(f"face.{face}"), code=face)
+        grid = self._data.get(face, [])
+        face_done = sum(bool(col) for row in grid for col in row)
+        filled = sum(bool(col) for cells in self._data.values()
+                     for row in cells for col in row)
+        if self._simple:
+            self.face_label.text = tr(
+                "input.face_progress", face=tr(f"face.{face}"), code=face,
+                face_done=face_done, face_total=self._n() ** 2,
+                done=filled, total=6 * self._n() ** 2)
+        else:
+            self.face_label.text = tr("input.face", face=tr(f"face.{face}"), code=face)
+
+    def _update_progress(self):
+        filled = sum(bool(col) for cells in self._data.values()
+                     for row in cells for col in row)
+        self.msg.text = tr("input.progress", done=filled, total=6 * self._n() ** 2)
+        self.msg.color = _app().theme.text_muted
+        self._update_face_label()
+
+    def _find_piece_error_cells(self, facelets, n):
+        if n not in (2, 3):
+            return set()
+        _d, maxc = get_d_maxc(n)
+        centers = ({face: facelets[face][1][1] for face in FACES}
+                   if n == 3 else DEFAULT_COLORS)
+        cells = set()
+        if n == 3:
+            center_values = [centers[face] for face in FACES]
+            if len(set(center_values)) != len(FACES):
+                duplicates = {color for color in center_values
+                              if center_values.count(color) > 1}
+                return {(face, 1, 1) for face in FACES
+                        if centers[face] in duplicates}
+        values = coord_values(n)
+        for x in values:
+            for y in values:
+                for z in values:
+                    pos = (x, y, z)
+                    outer_faces = []
+                    for face in FACES:
+                        normal = FACE_NORMALS[face]
+                        axis = _axis_of(normal)
+                        if pos[axis] == _sign(normal) * maxc:
+                            outer_faces.append(face)
+                    if len(outer_faces) != 3:
+                        continue
+                    actual = []
+                    expected = []
+                    for face in outer_faces:
+                        r, c = rc_from_pos(n, face, pos)
+                        actual.append(facelets[face][r][c])
+                        expected.append(centers[face])
+                    if sorted(actual) != sorted(expected):
+                        for face in outer_faces:
+                            r, c = rc_from_pos(n, face, pos)
+                            cells.add((face, r, c))
+        return cells
+
+    def _focus_error_face(self):
+        if not self._error_cells:
+            return
+        target = next(face for face in FACES
+                      if any(error_face == face for error_face, _r, _c in self._error_cells))
+        for _ in range(6):
+            if self._ori.current_face() == target:
+                break
+            self._ori.turn_next()
+        self._update_face_label()
 
     def _update_turn_hints(self):
         """上一步/下一步现在是自绘粗箭头（ArrowButton），无需设置文案。"""
@@ -425,10 +535,12 @@ class InputScreen(Screen):
             if (r, c) not in action:
                 action[(r, c)] = old
         self._data[face][r][c] = col
-        self.msg.text = ""
+        self._error_cells.clear()
+        self._valid = None
         if action is None:
             self._commit_action({(r, c): old})
         self._refresh_view()
+        self._update_progress()
 
     def _commit_action(self, edits):
         """把一次编辑（多为 dict {(r,c): old}）压入撤销栈，并清空重做栈。"""
@@ -455,15 +567,17 @@ class InputScreen(Screen):
                     self._data[face][r][c] = col
         if edits:
             self._commit_action(edits)
+            self._error_cells.clear()
+            self._valid = None
             self.msg.text = tr("input.filled", face=face, col=col)
         else:
             self.msg.text = tr("input.already", face=face, col=col)
         self._refresh_view()
+        self._update_progress()
 
     def toggle_pick(self):
         self._pick_mode = not self._pick_mode
-        self.btn_pick.background_color = (
-            [0.25, 0.55, 0.95, 1] if self._pick_mode else [0.5, 0.5, 0.5, 1])
+        self.btn_pick.active = self._pick_mode
 
     # ---- 撤销 / 重做 ----
     def undo(self):
@@ -474,8 +588,11 @@ class InputScreen(Screen):
             self._data[face][r][c] = old
         self._redo.append(action)
         self.msg.text = tr("input.undone")
+        self._error_cells.clear()
+        self._valid = None
         self._refresh_view()
         self._update_edit_buttons()
+        self._update_progress()
 
     def redo(self):
         if not self._redo:
@@ -485,8 +602,11 @@ class InputScreen(Screen):
             self._data[face][r][c] = new
         self._history.append(action)
         self.msg.text = tr("input.redone")
+        self._error_cells.clear()
+        self._valid = None
         self._refresh_view()
         self._update_edit_buttons()
+        self._update_progress()
 
     def _update_edit_buttons(self):
         self.btn_undo.disabled = not self._history
@@ -533,7 +653,9 @@ class InputScreen(Screen):
                 self._data[f] = [[grid[r][c] for c in range(n)]
                                  for r in range(n)]
         self._reset_edits()
+        self._error_cells.clear()
         self._refresh_view()
+        self._update_progress()
 
     def on_cell(self, r, c, face):
         col = self.picker.current_color
@@ -565,9 +687,9 @@ class InputScreen(Screen):
                        font_size="18sp")
         btns = BoxLayout(orientation="horizontal", spacing=8,
                          size_hint_y=None, height=m.h(52))
-        cancel = UIButton(text=tr("input.cancel"))
+        cancel = UIButton(text="", icon_name="cancel")
         cancel.bind(on_release=lambda *a: popup.dismiss())
-        ok = PrimaryButton(text=tr("input.scramble.ok"))
+        ok = PrimaryButton(text="", icon_name="done")
         ok.bind(on_release=lambda *a: (self._apply_scramble_popup(ti.text),
                                        popup.dismiss()))
         btns.add_widget(cancel)
@@ -612,9 +734,9 @@ class InputScreen(Screen):
         label = Label(text=tr("input.clear.msg"), halign="center",
                       font_size="18sp", size_hint_y=1)
         btns = BoxLayout(orientation="horizontal", spacing=8, size_hint_y=None, height=m.h(52))
-        cancel = UIButton(text=tr("input.cancel"))
+        cancel = UIButton(text="", icon_name="cancel")
         cancel.bind(on_release=lambda *a: popup.dismiss())
-        ok = DangerButton(text=tr("input.clear.ok"))
+        ok = DangerButton(text="", icon_name="clear")
         ok.bind(on_release=lambda *a: (self.clear_all(), popup.dismiss()))
         btns.add_widget(cancel)
         btns.add_widget(ok)
@@ -634,6 +756,8 @@ class InputScreen(Screen):
         self._busy_turn = False
         self._pending_dir = None
         self._reset_edits()
+        self._error_cells.clear()
+        self._valid = None
         self._refresh_view()
         self.msg.text = tr("input.cleared")
 
@@ -666,15 +790,20 @@ class InputScreen(Screen):
     def check(self):
         facelets = self.collect_facelets()
         n = self._n()
+        self._error_cells.clear()
         empty = []
         for face in FACES:
             for r in range(n):
                 for c in range(n):
                     if not facelets[face][r][c]:
-                        empty.append(f"{tr('face.' + face)}{r + 1}{c + 1}")
+                        empty.append(f"{tr('face.' + face)} {r + 1},{c + 1}")
+                        self._error_cells.add((face, r, c))
         if empty:
-            self.msg.text = tr("input.missing", list=",".join(empty[:8]))
+            self.msg.text = tr("input.missing", list=", ".join(empty[:8]))
+            self.msg.color = _app().theme.danger
             self._valid = False
+            self._focus_error_face()
+            self._refresh_view(keep_anim=False)
             return
         lang = current_language()
         if n == 2:
@@ -686,13 +815,32 @@ class InputScreen(Screen):
         else:
             errs = validate_4x4(facelets, lang=lang)
         if errs:
+            counts = {}
+            self._error_cells.update(self._find_piece_error_cells(facelets, n))
+            for face in FACES:
+                for row in facelets[face]:
+                    for col in row:
+                        counts[col] = counts.get(col, 0) + 1
+            overrepresented = {
+                col for col, count in counts.items() if count > n * n
+            }
+            for face in FACES:
+                for r, row in enumerate(facelets[face]):
+                    for c, col in enumerate(row):
+                        if col in overrepresented:
+                            self._error_cells.add((face, r, c))
             self.msg.text = errs[0]
+            self.msg.color = _app().theme.danger
             self._valid = False
-        else:
-            self.msg.text = tr("input.valid")
-            self._valid = True
+            if self._error_cells:
+                self._focus_error_face()
+                self._refresh_view(keep_anim=False)
+            return
+        self.msg.text = tr("input.valid")
+        self.msg.color = _app().theme.accent
+        self._valid = True
+        self._refresh_view(keep_anim=False)
 
-    # ---- 求解 ----
     def start_solve(self):
         self.check()
         if not getattr(self, "_valid", False):

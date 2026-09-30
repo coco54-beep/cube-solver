@@ -30,6 +30,7 @@ from ui.screens.input_screen import (
     PrimaryButton, _build_partial_cube,
 )
 from ui.widgets import metrics as m
+from ui.widgets.layouts import ResponsiveBoxLayout
 
 
 def _app():
@@ -140,15 +141,16 @@ class TwistScreen(Screen):
         self.build_ui()
 
     def build_ui(self):
-        root = BoxLayout(orientation="vertical", spacing=8, padding=[8, 6, 8, 8])
+        root = ResponsiveBoxLayout(orientation="vertical", gap_px=8,
+                                   padding_px=[8, 6, 8, 8])
 
         # 顶栏
-        top = BoxLayout(size_hint_y=None, height=m.h(46), spacing=8)
-        back = UIButton(text=tr("input.back"), size_hint_x=0.22)
+        top = ResponsiveBoxLayout(height_px=48, gap_px=8)
+        back = UIButton(text="", icon_name="back", size_hint_x=0.22)
         back.bind(on_release=lambda *a: self.go_back())
         self.title = Label(text=tr("input.twist"), size_hint_x=0.56, halign="center",
                            font_size="20sp", bold=True)
-        done = PrimaryButton(text=tr("twist.done"), size_hint_x=0.22)
+        done = PrimaryButton(text="", icon_name="done", size_hint_x=0.22)
         done.bind(on_release=lambda *a: self.go_back())
         top.add_widget(back)
         top.add_widget(self.title)
@@ -162,21 +164,22 @@ class TwistScreen(Screen):
         root.add_widget(self.view)
 
         # 控制区（两行：撤销/重做 + 视角与开关）
-        control = BoxLayout(orientation="vertical", size_hint_y=None, height=m.h(110), spacing=8)
-        hist_row = BoxLayout(spacing=8)
-        self.btn_undo = UIButton(text=tr("input.undo"), font_size="15sp")
+        control = ResponsiveBoxLayout(orientation="vertical", height_px=110,
+                                      gap_px=6, padding_px=[28, 0, 28, 0])
+        hist_row = ResponsiveBoxLayout(gap_px=8)
+        self.btn_undo = UIButton(text="", icon_name="undo")
         self.btn_undo.bind(on_release=lambda *a: self.undo())
-        self.btn_redo = UIButton(text=tr("input.redo"), font_size="15sp")
+        self.btn_redo = UIButton(text="", icon_name="redo")
         self.btn_redo.bind(on_release=lambda *a: self.redo())
         hist_row.add_widget(self.btn_undo)
         hist_row.add_widget(self.btn_redo)
         control.add_widget(hist_row)
-        toggle_row = BoxLayout(spacing=8)
-        self.btn_lock = UIButton(text=tr("twist.lock_on"), font_size="15sp", size_hint_x=0.3)
+        toggle_row = ResponsiveBoxLayout(gap_px=8)
+        self.btn_lock = UIButton(text="", icon_name="lock", size_hint_x=1)
         self.btn_lock.bind(on_release=lambda *a: self.toggle_lock())
-        self.btn_wide = UIButton(text=tr("twist.wide_off"), font_size="15sp", size_hint_x=0.3)
+        self.btn_wide = UIButton(text="", icon_name="single", size_hint_x=1)
         self.btn_wide.bind(on_release=lambda *a: self.toggle_wide())
-        self.btn_reset = UIButton(text=tr("playback.reset_view"), font_size="15sp", size_hint_x=0.4)
+        self.btn_reset = UIButton(text="", icon_name="reset", size_hint_x=1)
         self.btn_reset.bind(on_release=lambda *a: self.view.reset_camera())
         toggle_row.add_widget(self.btn_lock)
         toggle_row.add_widget(self.btn_wide)
@@ -196,15 +199,14 @@ class TwistScreen(Screen):
         if not hasattr(self, "title"):
             return
         self.title.text = tr("input.twist")
-        self.btn_undo.text = tr("input.undo")
-        self.btn_redo.text = tr("input.redo")
-        self.btn_reset.text = tr("playback.reset_view")
         self._update_toggle_texts()
         self.msg.text = tr("twist.hint_lock_on") if self.view.lock_view else tr("twist.hint_lock_off")
 
     def _update_toggle_texts(self):
-        self.btn_lock.text = tr("twist.lock_on") if self.view.lock_view else tr("twist.lock_off")
-        self.btn_wide.text = tr("twist.wide_on") if self._wide else tr("twist.wide_off")
+        self.btn_lock.icon_name = "lock" if self.view.lock_view else "unlock"
+        self.btn_lock.active = self.view.lock_view
+        self.btn_wide.icon_name = "wide" if self._wide else "single"
+        self.btn_wide.active = self._wide
 
     # ---- 进入 / 初始化 ----
     def on_enter(self):
@@ -314,7 +316,7 @@ class TwistScreen(Screen):
         content = BoxLayout(orientation="vertical", spacing=12, padding=16)
         label = Label(text=tr("twist.congrats_body"), halign="center",
                       font_size="20sp", size_hint_y=1)
-        ok = UIButton(text=tr("twist.congrats_ok"), size_hint_y=None, height=m.h(52))
+        ok = UIButton(text="", icon_name="done", size_hint_y=None, height=m.h(52))
         ok.bind(on_release=lambda *a: popup.dismiss())
         content.add_widget(label)
         content.add_widget(ok)

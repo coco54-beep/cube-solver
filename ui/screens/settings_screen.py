@@ -6,6 +6,7 @@
 选中项以绿色 PrimaryButton 高亮，其余为普通 UIButton。
 """
 
+from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
@@ -92,9 +93,21 @@ class SettingsScreen(Screen):
             content.add_widget(w)
 
         self.add_widget(root)
+        self._responsive_height_specs = [
+            (top, 46), (self.theme_row, 52), (self.lang_row, 52),
+            (self.input_row, 52), (self.help_row, 52),
+            (self.lbl_theme, 30), (self.lbl_lang, 30),
+            (self.lbl_input, 30), (self.lbl_help, 30), (self.lbl_about, 30),
+        ]
+        self.bind(size=self._apply_responsive_heights)
+        Clock.schedule_once(lambda *_: self._apply_responsive_heights(), 0)
         self._build_theme_row()
         self._build_lang_row()
         self._build_input_row()
+
+    def _apply_responsive_heights(self, *args):
+        for widget, design_height in getattr(self, "_responsive_height_specs", ()):
+            widget.height = m.h(design_height)
 
     def _section_label(self, text):
         lbl = Label(text=text, font_size="15sp", bold=True, halign="left",

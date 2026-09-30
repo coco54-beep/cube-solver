@@ -39,6 +39,8 @@ class HomeScreen(Screen):
         self.subtitle = Label(text=tr("home.subtitle"), font_size="13sp",
                               color=_app().theme.text_muted, halign="center",
                               valign="middle", size_hint_y=None, height=30)
+        for label in (self.title, self.subtitle):
+            label.bind(size=self._fit_header_label)
         # 强调色渐变装饰条，置于标题下方
         self._accent_bar = self._accent_bar_widget()
         head.add_widget(self._logo)
@@ -132,14 +134,14 @@ class HomeScreen(Screen):
         self._last_win_size = (w, h)
         if not w or not h:
             return
-        self._head.height = max(96, min(156, h * 0.21))
-        self._head.spacing = max(2, self._head.height * 0.02)
-        self._logo.height = self._head.height * 0.24
-        self.title.height = self._head.height * 0.34
+        self._head.height = max(136, min(180, h * 0.22))
+        self._head.spacing = max(4, self._head.height * 0.025)
+        self._logo.height = self._head.height * 0.18
+        self.title.height = max(58, self._head.height * 0.40)
         self._accent_bar.height = max(3, self._head.height * 0.025)
-        self.subtitle.height = self._head.height * 0.24
-        self.title.font_size = f"{max(20, min(29, w / 15))}sp"
-        self.subtitle.font_size = f"{max(10, min(13, w / 30))}sp"
+        self.subtitle.height = max(36, self._head.height * 0.24)
+        self.title.font_size = f"{max(19, min(25, w / 19))}sp"
+        self.subtitle.font_size = f"{max(9, min(12, w / 38))}sp"
         vertical_fixed = (self._root_layout.padding[1] + self._root_layout.padding[3]
                           + self._root_layout.spacing * 5 + self._topbar.height
                           + self._bottom.height + self._head.height)
@@ -157,6 +159,10 @@ class HomeScreen(Screen):
             self.cards.height = cell * 2 + self.cards.spacing[1]
         for card in self.cards.children:
             self._style_card(card)
+
+    @staticmethod
+    def _fit_header_label(label, *_args):
+        label.text_size = label.size
 
     def _accent_bar_widget(self):
         """标题下的强调色渐变装饰条。"""

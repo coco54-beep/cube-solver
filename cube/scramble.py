@@ -38,6 +38,8 @@ def _layers_for(n: int) -> Tuple[int, ...]:
         return (1,)
     if n == 4:
         return (1, 2)
+    if n >= 6:
+        return tuple(range(1, n // 2 + 1))
     return (1, 2, 3)
 
 
@@ -57,7 +59,7 @@ def random_scramble(n: int, rng=None) -> List[str]:
     ``random.Random(seed)`` 以获得确定性结果。
     """
     rng = rng or random
-    lo, hi = _LENGTH.get(n, (20, 25))
+    lo, hi = _LENGTH.get(n, (12 * n, 14 * n))
     layer_choices = _layers_for(n)
     moves: List[str] = []
     prev_axis = None

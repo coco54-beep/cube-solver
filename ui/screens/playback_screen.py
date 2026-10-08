@@ -11,10 +11,10 @@ from kivy.uix.screenmanager import Screen
 from kivy.uix.slider import Slider
 
 from app.i18n import tr
-from renderer.cube_view import CubeView
+from renderer.mastermorphix_view import cube_view_for
 from renderer.turn import decompose_move
 from ui.widgets import metrics as m
-from ui.widgets.layouts import ResponsiveBoxLayout
+from ui.widgets.layouts import ResponsiveBoxLayout, AdaptiveSceneLayout
 
 
 class _ProgressTrack(Widget):
@@ -74,23 +74,29 @@ class PlaybackScreen(Screen):
     def build_ui(self):
         simple = bool(getattr(_app(), "simple_input", False))
         self._simple = simple
-        root = ResponsiveBoxLayout(orientation="vertical", gap_px=6, padding_px=8)
-        self.view = CubeView(size_hint_y=0.52)
+        self._puzzle_kind = getattr(_app().cube, "puzzle_kind", "cube")
+        root = AdaptiveSceneLayout(gap_px=6, padding_px=[28, 8, 28, 8])
+        panel = ResponsiveBoxLayout(orientation="vertical", gap_px=8, size_hint_y=None)
+        self.view = cube_view_for(_app().cube, size_hint_y=0.52)
         self.view.lock_rotation = simple  # 简洁模式：视角固定
-        root.add_widget(self.view)
+        if self._puzzle_kind == "mastermorphix":
+            self.view.lock_rotation = False
 
-        info = BoxLayout(size_hint_y=0.08, spacing=6)
-        self.lbl_stage = Label(text="", font_size="15sp", size_hint_x=0.55)
-        self.lbl_move = Label(text="", font_size="18sp", size_hint_x=0.45)
+        info = ResponsiveBoxLayout(orientation="vertical", height_px=72, gap_px=4)
+        self.lbl_stage = Label(text="", font_size="15sp", halign="center")
+        self.lbl_move = Label(text="", font_size="18sp", halign="center")
+        for label in (self.lbl_stage, self.lbl_move):
+            label.bind(size=lambda widget, *_: setattr(widget, "text_size", widget.size))
         info.add_widget(self.lbl_stage)
         info.add_widget(self.lbl_move)
-        root.add_widget(info)
+        panel.add_widget(info)
         self.progress_track = _ProgressTrack(size_hint_y=None, height=m.h(6))
-        root.add_widget(self.progress_track)
+        panel.add_widget(self.progress_track)
+        panel.bind(height=lambda *_: setattr(self.progress_track, "height", m.h(6)))
 
         # 播放控制（两行：播放步进 + 视角/返回）
         control = ResponsiveBoxLayout(orientation="vertical", height_px=110,
-                                      gap_px=6, padding_px=[28, 0, 28, 0])
+                                      gap_px=6)
         play_row = ResponsiveBoxLayout(gap_px=8)
         self.btn_start = UIButton(text="", icon_name="first")
         self.btn_start.bind(on_release=lambda *a: self.to_start())
@@ -119,21 +125,24 @@ class PlaybackScreen(Screen):
             util_row.add_widget(self.btn_view)
             util_row.add_widget(self.btn_back)
         control.add_widget(util_row)
-        root.add_widget(control)
+        panel.add_widget(control)
 
-        speed_row = BoxLayout(size_hint_y=0.07, spacing=m.h(6))
-        self.lbl_speed = Label(text=tr("playback.speed"), font_size="15sp", size_hint_x=0.14)
+        speed_row = ResponsiveBoxLayout(height_px=44, gap_px=6)
+        self.lbl_speed = Label(text=tr("playback.speed"), font_size="15sp", size_hint_x=0.24)
         speed_row.add_widget(self.lbl_speed)
-        self.slider = Slider(min=0.25, max=2.0, value=1.0, step=0.25, size_hint_x=0.36)
+        self.slider = Slider(min=0.25, max=2.0, value=1.0, step=0.25, size_hint_x=0.76)
         self.slider.bind(value=self._on_speed)
         speed_row.add_widget(self.slider)
-        self.lbl_hold = Label(text=tr("playback.hold"), font_size="15sp", size_hint_x=0.14)
-        speed_row.add_widget(self.lbl_hold)
+        hold_row = ResponsiveBoxLayout(height_px=44, gap_px=6)
+        self.lbl_hold = Label(text=tr("playback.hold"), font_size="15sp", size_hint_x=0.24)
+        hold_row.add_widget(self.lbl_hold)
         self.hold_slider = Slider(min=0.0, max=6.0, value=self._hold, step=0.1,
-                                  size_hint_x=0.36)
+                                  size_hint_x=0.76)
         self.hold_slider.bind(value=self._on_hold)
-        speed_row.add_widget(self.hold_slider)
-        root.add_widget(speed_row)
+        hold_row.add_widget(self.hold_slider)
+        panel.add_widget(speed_row)
+        panel.add_widget(hold_row)
+        root.set_content(self.view, panel)
 
         self.add_widget(root)
 
@@ -147,7 +156,9 @@ class PlaybackScreen(Screen):
     def on_enter(self):
         if not hasattr(self, "view"):
             self.build_ui()
-        elif getattr(self, "_simple", None) != bool(getattr(_app(), "simple_input", False)):
+        elif (getattr(self, "_simple", None) != bool(getattr(_app(), "simple_input", False))
+              or self._puzzle_kind != getattr(_app().cube, "puzzle_kind", "cube")):
+            self._stop_all()
             self.clear_widgets()
             self.build_ui()
         app = _app()
@@ -155,12 +166,14 @@ class PlaybackScreen(Screen):
         self._stop_all()
         self._work = app.cube.clone()
         self.view.set_cube(self._work)
+        if self._puzzle_kind == "mastermorphix":
+            self.view.reset_camera()
         self._moves = list(result.moves) if result else []
         self._idx = -1
         self._queue = []
         self._busy = False
         self.lbl_move.text = tr("playback.total", k=len(self._moves))
-        self.lbl_stage.text = ""
+        self.lbl_stage.text = result.message if result and not result.success else ""
         self._update_buttons()
 
     def _stop_all(self):
@@ -310,13 +323,16 @@ class PlaybackScreen(Screen):
         self.lbl_move.text = tr("playback.step", i=max(0, self._idx + 1),
                                 t=len(self._moves))
         move = self._moves[self._idx] if 0 <= self._idx < len(self._moves) else tr("playback.ready")
-        self.lbl_stage.text = tr("playback.current", move=move)
+        result = getattr(_app(), "solve_result", None)
+        failed = result is not None and not result.success
+        self.lbl_stage.text = result.message if failed else tr("playback.current", move=move)
         self.progress_track.maximum = max(1, len(self._moves))
         self.progress_track.value = max(0, self._idx + 1)
         self.btn_start.disabled = self._idx < 0
         self.btn_prev.disabled = self._idx < 0
         self.btn_next.disabled = self._idx + 1 >= len(self._moves)
         self.btn_play.set_playing(self._playing)
+        self.btn_play.disabled = failed or not self._moves
 
     def reset_view(self):
         """把 3D 视角还原到默认。"""
@@ -332,7 +348,8 @@ class PlaybackScreen(Screen):
 
     def _do_go_back(self):
         self._stop_all()
-        self.manager.current = "InputScreen"
+        self.manager.current = ("MastermorphixScreen" if getattr(_app(), "puzzle_kind", "cube") == "mastermorphix"
+                                else "InputScreen")
 
     def _confirm(self, msg, on_ok):
         """二次确认弹窗；确定后执行 on_ok。"""

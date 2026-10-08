@@ -70,7 +70,10 @@ class SolveService:
                     pass
 
         try:
-            if isinstance(cube, Cube2):
+            if getattr(cube, "puzzle_kind", None) == "mastermorphix":
+                from solver.mastermorphix import solve_mastermorphix
+                result = solve_mastermorphix(cube, cancel_event=cancel, progress_callback=cb)
+            elif isinstance(cube, Cube2):
                 result = solve_2x2(cube, cancel_event=cancel)
             elif isinstance(cube, Cube3):
                 # 3x3: 用 facelets 路径，复用 solver3
@@ -79,6 +82,9 @@ class SolveService:
                 result = solve_3x3(facelets)
             elif isinstance(cube, Cube5):
                 result = solve_5x5(cube, cancel_event=cancel, progress_callback=cb)
+            elif cube.n >= 6:
+                from solver.solver_n import solve_nxn
+                result = solve_nxn(cube, cancel_event=cancel, progress_callback=cb)
             else:
                 result = solve_4x4(
                     cube,

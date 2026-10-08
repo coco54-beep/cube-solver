@@ -14,11 +14,13 @@ from cube.notation import parse_move_str, suffix_for_count
 
 def localized(value, lang=None):
     """把案例文本按当前（或指定）语言翻译；moves 等非文本原样返回。"""
-    if not isinstance(value, str):
-        return value
     if lang is None:
         from app.i18n import current_language
         lang = current_language()
+    if isinstance(value, dict):
+        return value.get(lang, value.get("en", value.get("zh", "")))
+    if not isinstance(value, str):
+        return value
     if lang == "zh":
         return value
     from demo.case_i18n import translate

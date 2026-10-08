@@ -22,8 +22,11 @@ from cube.cube2 import Cube2
 from cube.cube3 import Cube3
 from cube.cube4 import Cube4
 from cube.cube5 import Cube5
+from cube.cube_n import CubeN
 from app.theme import Theme, AUTO, LIGHT, DARK, resolve_dark, load_saved_mode, save_mode
 from app.prefs import get as _pref_get, set as _pref_set
+from app.mastermorphix_palette import load_palette
+from cube.mastermorphix import MastermorphixCube
 
 _KV_PATH = os.path.join(os.path.dirname(__file__), "..", "ui", "kv", "app.kv")
 
@@ -39,6 +42,8 @@ class CubeApp(App):
         self.title = i18n.tr("app.name")
         self.n = 4
         self.cube = Cube4.solved()
+        self.puzzle_kind = "cube"
+        self.mastermorphix_palette = load_palette()
         self.solve_result = None
         self.facelets_input = None  # 用户录入的 facelets
         # ---- 输入方式（高级 / 简洁，默认简洁）----
@@ -57,7 +62,7 @@ class CubeApp(App):
             Builder.load_file(_KV_PATH)
             self._kv_loaded = True
         sm = ScreenManager()
-        for name in ("HomeScreen", "InputScreen", "SolvingScreen", "PlaybackScreen",
+        for name in ("HomeScreen", "InputScreen", "MastermorphixScreen", "SolvingScreen", "PlaybackScreen",
                      "DemoScreen", "DemoMenuScreen", "TwistScreen", "SettingsScreen"):
             scr = _screen(name)
             scr.name = name
@@ -73,29 +78,56 @@ class CubeApp(App):
             pass
 
     # ---- 共享操作 ----
+    def _reset_input_interaction(self):
+        sm = getattr(self, "root", None)
+        if sm is not None:
+            for name in ("InputScreen", "MastermorphixScreen"):
+                if sm.has_screen(name):
+                    sm.get_screen(name).reset_interaction()
+
+    def on_pause(self):
+        self._reset_input_interaction()
+        return True
+
+    def on_resume(self):
+        self._reset_input_interaction()
+
     def new_cube(self, n: int):
         """新建一个已还原的 n 阶魔方，重置求解结果。"""
         self.n = n
+        self.puzzle_kind = "cube"
         if n == 2:
             self.cube = Cube2.solved()
         elif n == 4:
             self.cube = Cube4.solved()
         elif n == 5:
             self.cube = Cube5.solved()
+        elif n >= 6:
+            self.cube = CubeN.solved(n)
         else:
             self.cube = Cube3.solved()
+        self.solve_result = None
+        self.facelets_input = None
+
+    def new_mastermorphix(self):
+        self.n = 3
+        self.puzzle_kind = "mastermorphix"
+        self.cube = MastermorphixCube.solved(self.mastermorphix_palette)
         self.solve_result = None
         self.facelets_input = None
 
     def set_cube(self, cubies, n: int):
         """设置逻辑状态（用于从录入恢复）。"""
         self.n = n
+        self.puzzle_kind = "cube"
         if n == 2:
             self.cube = Cube2(cubies)
         elif n == 4:
             self.cube = Cube4(cubies)
         elif n == 5:
             self.cube = Cube5(cubies)
+        elif n >= 6:
+            self.cube = CubeN(cubies, n)
         else:
             self.cube = Cube3(cubies)
         self.solve_result = None

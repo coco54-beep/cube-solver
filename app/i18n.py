@@ -102,11 +102,6 @@ CATALOG = {
             "双左箭头：跳到还原开始；左箭头：后退一步；右箭头：前进一步；双右箭头：跳到还原完成。\n"
             "播放三角形：自动播放步骤；暂停图标：暂停播放。环形箭头：恢复 3D 视角；返回箭头：回到录入页。\n"
             "播放速度和步骤停留时间通过旁边的滑杆调整。",
-        "help.icons_demo.title": "演示页图标",
-        "help.icons_demo.body":
-            "返回箭头：回到演示目录；循环箭头：切换演示魔方阶数；双左箭头：将当前案例重置到开头。\n"
-            "左 / 右箭头：切换上一个 / 下一个案例；播放三角形：播放案例步骤，播放中会变成停止图标，再按可停止播放。\n"
-            "环形箭头：恢复 3D 视角。求解过程中的叉号：取消当前求解或关闭提示。",
         "help.icons_input.title": "Input screen icons",
         "help.icons_input.body":
             "Back arrow: return home; book: open the demo catalog; − / +: zoom the grid out or in.\n"
@@ -125,11 +120,6 @@ CATALOG = {
             "Double-left: jump to the beginning; left: step back; right: step forward; double-right: jump to the solved state.\n"
             "Play triangle: play steps automatically; pause: pause playback. Circular arrow: reset the 3D view; back arrow: return to input.\n"
             "Use the nearby sliders to adjust playback speed and how long each step stays on screen.",
-        "help.icons_demo.title": "Demo screen icons",
-        "help.icons_demo.body":
-            "Back arrow: return to the demo catalog; cycle arrows: change cube size; double-left: restart the current case.\n"
-            "Left / right arrows: move to the previous / next case; play triangle: play the case, then becomes Stop while running. Press again to stop.\n"
-            "Circular arrow: reset the 3D view. The X during solving cancels the solve or closes a prompt.",
         "help.icons_input.title": "入力画面のアイコン",
         "help.icons_input.body":
             "戻る矢印：ホームへ戻る；本：デモ一覧を開く；− / ＋：盤面を縮小 / 拡大します。\n"
@@ -148,11 +138,6 @@ CATALOG = {
             "二重左矢印：最初へ；左矢印：1手戻る；右矢印：1手進む；二重右矢印：完成状態へ移動します。\n"
             "再生：自動再生；一時停止：再生を止めます。円形矢印：3D視点を戻す；戻る矢印：入力画面へ戻ります。\n"
             "近くのスライダーで再生速度と各手の表示時間を調整できます。",
-        "help.icons_demo.title": "デモ画面のアイコン",
-        "help.icons_demo.body":
-            "戻る矢印：デモ一覧へ；循環矢印：キューブのサイズを切り替え；二重左矢印：現在の例を最初に戻します。\n"
-            "左右の矢印：前 / 次の例へ；再生：手順を再生し、再生中は停止アイコンに変わります。もう一度押すと停止します。\n"
-            "円形矢印：3D視点を戻します。解答中の X：解答をキャンセル、または確認表示を閉じます。",
         "help.solve.title": "一键求解",
         "help.solve.body":
             "录入完成后点「开始求解」，程序会在后台计算还原步骤，\n"
@@ -253,6 +238,13 @@ CATALOG = {
         "demo.no_image": "无图",
         "demo.switch": "切换阶数",
         "demo.playing": "播放中…",
+        "demo.progress": "动作 {i}/{total} · {move}",
+        "help.icons_demo.title": "演示页图标",
+        "help.icons_demo.body":
+            "返回箭头：回到演示目录选择案例；循环箭头：切换魔方阶数；起点图标：将当前案例重置到开头。\n"
+            "左箭头：以动画撤回上一个公式动作；右箭头：以动画执行下一个公式动作。界面会显示已完成的动作数。\n"
+            "播放三角形：从当前进度继续自动播放，完成后再次点击可从头播放；播放中变成停止图标，点击后停在最后完成的动作。\n"
+            "环形箭头：恢复 3D 视角。",
         "demo.case": "案例：{name}",
         "demo.step_n": "第 {n} 步",
         "demo.title_step": "第 {cn} 步 · {title}（{i}/{total}）",
@@ -437,6 +429,13 @@ CATALOG = {
         "demo.no_image": "No image",
         "demo.switch": "Switch order",
         "demo.playing": "Playing…",
+        "demo.progress": "Move {i}/{total} · {move}",
+        "help.icons_demo.title": "Demo screen icons",
+        "help.icons_demo.body":
+            "Back arrow: choose a case in the demo catalog; cycle arrows: change cube size; start icon: restart the current case.\n"
+            "Left arrow: animate undoing the previous formula move; right arrow: animate the next formula move. The counter shows completed moves.\n"
+            "Play triangle: continue automatically from the current position, or replay from the beginning after completion. While playing, Stop returns to the last completed move.\n"
+            "Circular arrow: reset the 3D view.",
         "demo.case": "Case: {name}",
         "demo.step_n": "Step {n}",
         "demo.title_step": "Step {n} · {title} ({i}/{total})",
@@ -621,6 +620,13 @@ CATALOG = {
         "demo.no_image": "画像なし",
         "demo.switch": "階数を切り替え",
         "demo.playing": "再生中…",
+        "demo.progress": "動作 {i}/{total} · {move}",
+        "help.icons_demo.title": "デモ画面のアイコン",
+        "help.icons_demo.body":
+            "戻る矢印：デモ一覧で例を選択；循環矢印：キューブのサイズを切り替え；開始アイコン：現在の例を最初に戻します。\n"
+            "左矢印：前の公式動作をアニメーションで戻す；右矢印：次の公式動作をアニメーションで実行。完了した動作数を表示します。\n"
+            "再生：現在の位置から自動再生し、完了後は最初から再生。再生中の停止ボタンで最後に完了した動作に戻ります。\n"
+            "円形矢印：3D視点を初期状態に戻します。",
         "demo.case": "ケース：{name}",
         "demo.step_n": "ステップ{n}",
         "demo.title_step": "ステップ{n} · {title}（{i}/{total}）",
@@ -647,6 +653,16 @@ CATALOG = {
         "twist.congrats_ok": "続ける",
     },
 }
+
+
+from app.mastermorphix_i18n import MESSAGES as _MORPHIX_MESSAGES
+
+for _language, _messages in _MORPHIX_MESSAGES.items():
+    CATALOG[_language].update(_messages)
+
+from app.nxn_i18n import MESSAGES as _NXN_MESSAGES
+for _language, _messages in _NXN_MESSAGES.items():
+    CATALOG[_language].update(_messages)
 
 
 class Translator(EventDispatcher):

@@ -36,7 +36,9 @@ class UIButton(Button):
         self.bind(icon_name=self._rebuild, active=self._rebuild)
         app = App.get_running_app()
         if app is not None:
-            app.theme.bind(on_palette=lambda *a: self._rebuild())
+            # Kivy holds bound methods weakly: rebuilt shape galleries should
+            # not stay alive through a theme callback after they are removed.
+            app.theme.bind(on_palette=self._rebuild)
         self._rebuild()
 
     # ---- 配色 ----
@@ -120,7 +122,9 @@ class UIButton(Button):
         else:
             color = theme.button_text
 
-        cx, cy = self.center
+        # Derive from the current coordinates during size/position callbacks;
+        # a cached center alias can still reflect the preceding layout pass.
+        cx, cy = self.x + self.width / 2, self.y + self.height / 2
         size = min(self.width, self.height) * 0.56
         img = icon_image(self.icon_name)
         if img is None:

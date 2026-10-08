@@ -6,7 +6,7 @@
 title = 3D魔方智能还原
 package.name = cubesolver
 package.domain = com.example
-version = 1.2.12
+version = 1.2.13
 
 # 工程源码目录（buildozer 会把它拷贝进打包环境）
 source.dir = .
@@ -26,8 +26,8 @@ source.exclude_patterns = table_gen*.log,pytest.ini,*.log,count_by_dir.py,count_
 # ----------------------------------------------------------------------------
 requirements = python3,kivy==2.3.1
 
-# 竖屏
-orientation = portrait
+# 竖屏与左右横屏，跟随手机方向
+orientation = portrait, landscape, landscape-reverse
 fullscreen = 0
 
 # 架构（arm64 为主；v7a 已放弃，绝大多数新机型都是 64 位）

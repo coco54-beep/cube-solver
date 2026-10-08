@@ -23,9 +23,10 @@ _scale_cache = None
 
 
 def _scale():
-    """当前窗口相对基准高度的缩放因子（带钳制）。"""
+    """按窗口长边缩放，旋转时保持触控尺寸一致（带钳制）。"""
     global _scale_cache
-    h = Window.height if Window.height else _BASE_H
+    # The same phone should retain its touch target size when rotated.
+    h = max(Window.width, Window.height) if Window.height else _BASE_H
     s = h / _BASE_H
     s = min(max(s, _MIN_S), _MAX_S)
     _scale_cache = s

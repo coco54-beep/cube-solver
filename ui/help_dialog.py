@@ -23,7 +23,8 @@ _HELP_KEYS = ("select", "input", "icons_input", "icons_twist",
 
 def _help_sections():
     from app.i18n import tr
-    return [(tr(f"help.{k}.title"), tr(f"help.{k}.body")) for k in _HELP_KEYS]
+    return ([(tr(f"help.{k}.title"), tr(f"help.{k}.body")) for k in _HELP_KEYS]
+            + [(tr("morphix.title"), tr("morphix.help"))])
 
 
 def _app():

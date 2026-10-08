@@ -5,6 +5,7 @@
 """
 
 import os
+import hashlib
 
 from kivy.uix.boxlayout import BoxLayout
 from ui.widgets.buttons import UIButton
@@ -13,14 +14,12 @@ from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 from kivy.uix.scrollview import ScrollView
 
-from cube.cube2 import Cube2
-from cube.cube3 import Cube3
-from cube.cube4 import Cube4
-from cube.cube5 import Cube5
-from demo.cases import CASE_2X2, CASE_3X3, CASE_4X4, CASE_5X5, build_before, localized
+from demo.cases import localized
 from app.i18n import tr
-from renderer.cube_view import CubeView
-from ui.screens.demo_screen import _changed_homes
+from renderer.mastermorphix_view import cube_view_for
+from renderer.mastermorphix_mesh import STYLE_VERSION
+from app.constants import COLOR_INFO
+from ui.screens.demo_screen import _changed_homes, _build_case_cube, _steps_for
 from ui.widgets import metrics as m
 from ui.widgets.layouts import ResponsiveBoxLayout
 
@@ -34,8 +33,8 @@ def _mode_menu_title(n):
 
 
 _MODE_TITLE = {2: "demo.mode.menu.2", 3: "demo.mode.menu.3",
-               4: "demo.mode.menu.4", 5: "demo.mode.menu.5"}
-_MODE_STEPS = {2: CASE_2X2, 3: CASE_3X3, 4: CASE_4X4, 5: CASE_5X5}
+               4: "demo.mode.menu.4", 5: "demo.mode.menu.5",
+               "mastermorphix": "demo.mode.menu.mastermorphix"}
 
 
 def _autofit(lbl, pad=1):
@@ -65,14 +64,17 @@ def _slug(name):
 
 def render_thumb(case, n, size=140):
     """渲染案例初始态为 PNG，缓存后返回路径；失败返回 None。"""
-    path = os.path.join(_thumbs_dir(), f"{n}_{_slug(localized(case['name'], 'zh'))}.png")
+    cube = _build_case_cube(n, case)
+    palette_key = ""
+    if n == "mastermorphix":
+        colors = repr(tuple(COLOR_INFO[c][1] for c in cube.palette))
+        palette_key = "_" + STYLE_VERSION + "_" + hashlib.sha256(colors.encode("utf-8")).hexdigest()[:16]
+    path = os.path.join(_thumbs_dir(), f"{n}{palette_key}_{_slug(localized(case['name'], 'zh'))}.png")
     if os.path.exists(path):
         return path
-    cls = {2: Cube2, 3: Cube3, 4: Cube4, 5: Cube5}[n]
-    cube = build_before(cls.solved, case["moves"])
-    hl = _changed_homes(cube)
+    hl = None if n == "mastermorphix" else _changed_homes(cube)
     try:
-        v = CubeView(size=(size, size))
+        v = cube_view_for(cube, size=(size, size))
         v.set_cube(cube, highlight=hl)
         v._draw_mesh()
         v.export_to_png(path)
@@ -121,7 +123,7 @@ class DemoMenuScreen(Screen):
 
     def _rebuild(self):
         self.list.clear_widgets()
-        steps = _MODE_STEPS[self.mode]
+        steps = _steps_for(self.mode)
         for si, step in enumerate(steps):
             head = Label(text=tr("demo.menu_step", cn=_num(si), n=si + 1,
                                  title=localized(step['title'])),
@@ -186,7 +188,8 @@ class DemoMenuScreen(Screen):
         self.manager.current = "DemoScreen"
 
     def go_home(self):
-        self.manager.current = "InputScreen"
+        self.manager.current = ("MastermorphixScreen" if self.mode == "mastermorphix"
+                                else "InputScreen")
 
 
 def _app():

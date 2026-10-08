@@ -83,7 +83,9 @@ Random scrambles on an ordinary PC for 4×4 / 5×5; numbers from this repo's ben
 
 | Screen | Purpose |
 |------|------|
-| **Home** | Choose 2 / 3 / 4 / 5 (1×4 cards in landscape, 2×2 in portrait), then go to input, demos, help or settings |
+| **Portrait / landscape** | 2–5 cube input (simple and advanced), solving progress, playback, teaching and twist pages adapt automatically; landscape puts the model on the left and controls on the right. Mastermorphix solving and playback use the same layout. |
+| **Home** | Six cards: 2 / 3 / 4 / 5, Mastermorphix and N×N. Landscape uses 3 columns × 2 rows; portrait uses 2 columns × 3 rows. N×N opens the 6–17 order selector. |
+| **Higher orders** | Variable order input, scrambling, solving and animated playback. The new orbit solver is described in [docs/nxn.md](docs/nxn.md); performance and reliability are not yet benchmarked on Android. |
 | **Input** | Net of the six faces for the chosen order · 6-color picker · Random or paste-a-scramble · Validate / Solve |
 | **Solving** | Multi-stage solve in the background with live progress and stage hints; cancellable |
 | **Playback** | 3D animation of every solving step, with back-to-start / jump-to-end |

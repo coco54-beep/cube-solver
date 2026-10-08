@@ -10,7 +10,8 @@ from kivy.uix.progressbar import ProgressBar
 from app.constants import STAGE_LABEL
 from app.i18n import tr
 from services.solve_service import SolveService, CancelToken
-from ui.widgets.layouts import ResponsiveBoxLayout
+from ui.widgets.layouts import ResponsiveBoxLayout, AdaptiveSceneLayout
+from renderer.mastermorphix_view import cube_view_for
 
 
 class SolvingScreen(Screen):
@@ -20,18 +21,31 @@ class SolvingScreen(Screen):
         self._finished = False
 
     def build_ui(self):
-        root = BoxLayout(orientation="vertical", padding=24, spacing=12)
-        self.title = Label(text=tr("solving.title"), font_size="24sp", size_hint_y=0.2)
-        self.progress = ProgressBar(max=100, value=0, size_hint_y=0.15)
-        self.detail = Label(text=tr("solving.preparing"), font_size="17sp", size_hint_y=0.15)
+        root = AdaptiveSceneLayout(padding_px=[28, 16, 28, 16])
+        self._scene_layout = root
+        self.view = cube_view_for(_app().cube)
+        self.view.lock_rotation = True
+        self._puzzle_kind = getattr(_app().cube, "puzzle_kind", "cube")
+        panel = ResponsiveBoxLayout(orientation="vertical", gap_px=16, size_hint_y=None)
+        title_row = ResponsiveBoxLayout(height_px=64)
+        self.title = Label(text=tr("solving.title"), font_size="24sp", halign="center")
+        title_row.add_widget(self.title)
+        progress_row = ResponsiveBoxLayout(height_px=24)
+        self.progress = ProgressBar(max=100, value=0)
+        progress_row.add_widget(self.progress)
+        detail_row = ResponsiveBoxLayout(height_px=92)
+        self.detail = Label(text=tr("solving.preparing"), font_size="17sp", halign="center")
+        self.detail.bind(size=lambda widget, *_: setattr(widget, "text_size", widget.size))
+        detail_row.add_widget(self.detail)
         self.cancel = UIButton(text="", icon_name="cancel")
         self.cancel.bind(on_release=lambda *a: self.on_cancel())
-        root.add_widget(self.title)
-        root.add_widget(self.progress)
-        root.add_widget(self.detail)
-        cancel_row = ResponsiveBoxLayout(height_px=52, padding_px=[28, 0, 28, 0])
+        panel.add_widget(title_row)
+        panel.add_widget(progress_row)
+        panel.add_widget(detail_row)
+        cancel_row = ResponsiveBoxLayout(height_px=52)
         cancel_row.add_widget(self.cancel)
-        root.add_widget(cancel_row)
+        panel.add_widget(cancel_row)
+        root.set_content(self.view, panel)
         self.add_widget(root)
 
     def retranslate(self):
@@ -47,6 +61,13 @@ class SolvingScreen(Screen):
         self.progress.value = 0
         self.detail.text = tr("solving.preparing")
         app = _app()
+        kind = getattr(app.cube, "puzzle_kind", "cube")
+        if kind != self._puzzle_kind:
+            self.view = cube_view_for(app.cube)
+            self.view.lock_rotation = True
+            self._scene_layout.replace_scene(self.view)
+            self._puzzle_kind = kind
+        self.view.set_cube(app.cube.clone())
         self.service.start(
             app.cube,
             on_done=self._on_done,

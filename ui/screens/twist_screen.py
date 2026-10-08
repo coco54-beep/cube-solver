@@ -26,11 +26,12 @@ from cube.cube2 import Cube2
 from cube.cube3 import Cube3
 from cube.cube4 import Cube4
 from cube.cube5 import Cube5
+from cube.cube_n import CubeN
 from ui.screens.input_screen import (
     PrimaryButton, _build_partial_cube,
 )
 from ui.widgets import metrics as m
-from ui.widgets.layouts import ResponsiveBoxLayout
+from ui.widgets.layouts import ResponsiveBoxLayout, AdaptiveSceneLayout
 
 
 def _app():
@@ -141,7 +142,7 @@ class TwistScreen(Screen):
         self.build_ui()
 
     def build_ui(self):
-        root = ResponsiveBoxLayout(orientation="vertical", gap_px=8,
+        root = AdaptiveSceneLayout(gap_px=8,
                                    padding_px=[8, 6, 8, 8])
 
         # 顶栏
@@ -161,7 +162,7 @@ class TwistScreen(Screen):
         self.view = _TwistCubeView(size_hint=(1.0, 1.0))
         self.view.on_twist = self._twist
         self.view._wide = False
-        root.add_widget(self.view)
+        panel = ResponsiveBoxLayout(orientation="vertical", gap_px=8, size_hint_y=None)
 
         # 控制区（两行：撤销/重做 + 视角与开关）
         control = ResponsiveBoxLayout(orientation="vertical", height_px=110,
@@ -185,13 +186,16 @@ class TwistScreen(Screen):
         toggle_row.add_widget(self.btn_wide)
         toggle_row.add_widget(self.btn_reset)
         control.add_widget(toggle_row)
-        root.add_widget(control)
+        panel.add_widget(control)
 
         # 提示
         self.msg = Label(text="", size_hint_y=None, height=m.h(34),
                          color=(0.7, 0.85, 0.7, 1), halign="center",
                          font_size="14sp")
-        root.add_widget(self.msg)
+        self.msg.bind(size=lambda widget, *_: setattr(widget, "text_size", widget.size))
+        panel.add_widget(self.msg)
+        panel.bind(size=lambda *_: setattr(self.msg, "height", m.h(34)))
+        root.set_content(self.view, panel)
 
         self.add_widget(root)
 
@@ -358,4 +362,6 @@ def _solved_for(n):
         return Cube4.solved()
     if n == 5:
         return Cube5.solved()
+    if n >= 6:
+        return CubeN.solved(n)
     return Cube3.solved()

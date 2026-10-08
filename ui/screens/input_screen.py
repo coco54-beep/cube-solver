@@ -28,9 +28,11 @@ from cube.cube2 import Cube2
 from cube.cube4 import Cube4
 from cube.cube3 import Cube3
 from cube.cube5 import Cube5
+from cube.cube_n import CubeN
 from cube.colors import DEFAULT_COLORS
 from ui.widgets.color_picker import ColorSelector
 from ui.widgets import metrics as m
+from ui.widgets.layouts import AdaptiveSceneLayout, ResponsiveBoxLayout
 
 
 def _axis_of(normal):
@@ -85,6 +87,8 @@ def _build_partial_cube(facelets, n):
         return Cube4(cubies)
     if n == 5:
         return Cube5(cubies)
+    if n >= 6:
+        return CubeN(cubies, n)
     return Cube3(cubies)
 
 
@@ -96,6 +100,8 @@ def _new_solved_cube(n):
         return Cube4.solved()
     if n == 5:
         return Cube5.solved()
+    if n >= 6:
+        return CubeN.solved(n)
     return Cube3.solved()
 
 
@@ -112,6 +118,18 @@ class _InputCubeView(CubeView):
         # 只处理「本视图按下」的那一个触点；否则从颜色选择器等其它控件冒泡上来的
         # touch_up 会带着它们的坐标触发 on_pick，误填到当前面的角落。
         self._active_touch = None
+
+    def cancel_touch(self):
+        """Release a gesture even if the OS never delivered its touch-up."""
+        touch = self._active_touch
+        self._active_touch = None
+        self._press = None
+        self._moved = False
+        if touch is not None:
+            try:
+                touch.ungrab(self)
+            except Exception:
+                pass
 
     def on_touch_down(self, touch):
         if not self.collide_point(*touch.pos):
@@ -149,12 +167,7 @@ class _InputCubeView(CubeView):
         if touch is not self._active_touch:
             return False
         was_drag = self._moved
-        try:
-            touch.ungrab(self)
-        except Exception:
-            pass
-        self._active_touch = None
-        self._press = None
+        self.cancel_touch()
         if was_drag:
             if self.on_drag_end is not None:
                 self.on_drag_end()
@@ -182,7 +195,8 @@ class InputScreen(Screen):
     def build_ui(self):
         simple = bool(getattr(_app(), "simple_input", False))
         self._simple = simple
-        root = BoxLayout(orientation="vertical", spacing=8, padding=[8, 6, 8, 8])
+        root = AdaptiveSceneLayout()
+        panel = ResponsiveBoxLayout(orientation="vertical", gap_px=8, size_hint_y=None)
 
         # ---- 顶栏 ----
         top = BoxLayout(size_hint_y=None, height=m.h(48), spacing=8)
@@ -204,7 +218,6 @@ class InputScreen(Screen):
         self.view.on_pick = self._handle_pick
         self.view.on_drag = self._handle_drag
         self.view.on_drag_end = self._handle_drag_end
-        root.add_widget(self.view)
 
         # ---- 当前面 + 缩放（简洁模式只留当前面）----
         nav = BoxLayout(size_hint_y=None, height=m.h(48), spacing=8)
@@ -220,13 +233,13 @@ class InputScreen(Screen):
         else:
             for w in (self.btn_zoom_out, self.face_label, self.btn_zoom_in):
                 nav.add_widget(w)
-        root.add_widget(nav)
+        panel.add_widget(nav)
 
         # ---- 颜色选择器 ----
         self.picker = ColorSelector(two_rows=simple, size_hint_y=None)
         self.input_panel = None
         if simple:
-            root.add_widget(self.picker)
+            panel.add_widget(self.picker)
         else:
             panel_metrics = m.input_grid_metrics(3)
             self.input_panel = BoxLayout(
@@ -282,7 +295,7 @@ class InputScreen(Screen):
         if simple:
             for b in (self.btn_prev, self.btn_solve, self.btn_next):
                 self.simple_turn_row.add_widget(b)
-            root.add_widget(self.simple_turn_row)
+            panel.add_widget(self.simple_turn_row)
         else:
             for b in (
                 self.btn_pick, self.btn_fill, self.btn_undo, self.btn_redo,
@@ -292,11 +305,13 @@ class InputScreen(Screen):
             ):
                 self.controls_grid.add_widget(b)
             self.input_panel.add_widget(self.controls_grid)
-            root.add_widget(self.input_panel)
+            panel.add_widget(self.input_panel)
 
         self.msg = Label(text="", size_hint_y=None, height=m.h(34),
                          color=(1, 0.55, 0.55, 1), halign="center")
-        root.add_widget(self.msg)
+        self.msg.bind(size=lambda widget, *_: setattr(widget, "text_size", widget.size))
+        panel.add_widget(self.msg)
+        root.set_content(self.view, panel)
         self._root_layout = root
         self._responsive_height_specs = [
             (top, 48), (nav, 48), (self.simple_turn_row, 48),
@@ -314,6 +329,7 @@ class InputScreen(Screen):
         """切换高级/简洁输入：重建布局，保留已录入数据与朝向。"""
         if bool(getattr(self, "_simple", None)) == bool(simple):
             return
+        self.reset_interaction()
         self.clear_widgets()
         self.build_ui()
         if getattr(self, "_ori", None) is not None:
@@ -322,7 +338,7 @@ class InputScreen(Screen):
             self.view.camera.elevation = 0.0
             self.view.camera.azimuth = 0.0
             self.view._display_zoom = 1.0
-            self._refresh_view(keep_anim=False)
+            self._refresh_view()
             self._update_turn_hints()
             self._update_face_label()
 
@@ -363,13 +379,15 @@ class InputScreen(Screen):
 
     def _on_resize(self, *args):
         self._apply_responsive_heights()
-        Clock.schedule_once(lambda *a: self._refresh_view(keep_anim=False), 0)
+        Clock.schedule_once(lambda *a: self._refresh_view(), 0)
 
     def _init_for_n(self):
+        self.reset_interaction()
         n = self._n()
         self._data = {f: [[""] * n for _ in range(n)] for f in FACES}
         self._ori = CubeOrientation(n)
         self.title.text = tr("input.title", n=n)
+        self.btn_demo.disabled = n >= 6
         # 录入页相机正对当前面（+Z），不使用演示页的斜视角度。
         self.view.camera.elevation = 0.0
         self.view.camera.azimuth = 0.0
@@ -392,17 +410,18 @@ class InputScreen(Screen):
         return _app().n
 
     # ---- 3D 视图 ----
-    def _refresh_view(self, keep_anim=True):
+    def _refresh_view(self):
         if not hasattr(self, "view"):
             return
+        # set_cube() cancels the animation without calling its completion
+        # callback. Release the screen lock too and restore the logical face.
+        self._cancel_turn()
         facelets = self.collect_facelets()
         cube = _build_partial_cube(facelets, self._n())
         if cube is None:
             self.view.cube = None
             self.view._redraw()
             return
-        if not keep_anim:
-            self.view._cancel_whole_anim()
         highlighted = {
             pos_from_rc(self._n(), face, r, c)
             for face, r, c in self._error_cells
@@ -631,13 +650,33 @@ class InputScreen(Screen):
             axis, angle, 0.55, on_done=lambda: self._after_turn()
         )
 
+    def _cancel_turn(self):
+        interrupted = self._busy_turn or self.view._whole_anim is not None
+        self.view._cancel_whole_anim()
+        self._pending_dir = None
+        self._busy_turn = False
+        if interrupted and self._ori is not None:
+            self.view.set_whole_world(self._ori.world)
+
+    def reset_interaction(self):
+        """Keep entered colors, but release temporary touch and turn state."""
+        self.view.cancel_touch()
+        self._handle_drag_end()
+        self._cancel_turn()
+        self._pick_mode = False
+        self.btn_pick.active = False
+
     def _after_turn(self):
-        if getattr(self, "_pending_dir", None) == "prev":
+        direction = self._pending_dir
+        if direction not in ("prev", "next"):
+            return
+        if direction == "prev":
             self._ori.turn_prev()
         else:
             self._ori.turn_next()
         self._pending_dir = None
         self._busy_turn = False
+        self.view.set_whole_world(self._ori.world)
         self._update_face_label()
         self._update_turn_hints()
 
@@ -646,6 +685,7 @@ class InputScreen(Screen):
         return {f: [row[:] for row in self._data.get(f, [])] for f in FACES}
 
     def set_facelets(self, facelets):
+        self.reset_interaction()
         n = self._n()
         for f in FACES:
             if f in facelets:
@@ -749,6 +789,7 @@ class InputScreen(Screen):
         popup.open()
 
     def clear_all(self):
+        self.reset_interaction()
         n = self._n()
         for face in FACES:
             self._data[face] = [[""] * n for _ in range(n)]
@@ -765,6 +806,7 @@ class InputScreen(Screen):
         self._init_for_n()
 
     def on_enter(self):
+        self.reset_interaction()
         n = self._n()
         cur_simple = bool(getattr(_app(), "simple_input", False))
         if getattr(self, "_simple", None) != cur_simple:
@@ -774,6 +816,8 @@ class InputScreen(Screen):
             self._init_for_n()
             self._n_for_screen = n
             self._initialized = True
+        self.btn_demo.disabled = n >= 6
+        self.btn_demo.opacity = 0 if n >= 6 else 1
         # 5 阶专属重资源在用户填色期间后台预热，避免启动时无谓开销。
         if n == 5:
             try:
@@ -785,6 +829,11 @@ class InputScreen(Screen):
         if app.facelets_input is not None:
             self.set_facelets(app.facelets_input)
             self.msg.text = tr("input.resumed")
+        else:
+            self._refresh_view()
+
+    def on_pre_leave(self, *args):
+        self.reset_interaction()
 
     # ---- 校验 ----
     def check(self):
@@ -803,7 +852,7 @@ class InputScreen(Screen):
             self.msg.color = _app().theme.danger
             self._valid = False
             self._focus_error_face()
-            self._refresh_view(keep_anim=False)
+            self._refresh_view()
             return
         lang = current_language()
         if n == 2:
@@ -812,6 +861,9 @@ class InputScreen(Screen):
             errs = validate_3x3(facelets, lang=lang)
         elif n == 5:
             errs = validate_5x5(facelets, lang=lang)
+        elif n >= 6:
+            from cube.validation_n import validate_nxn
+            errs = validate_nxn(facelets, n, lang=lang)
         else:
             errs = validate_4x4(facelets, lang=lang)
         if errs:
@@ -834,12 +886,12 @@ class InputScreen(Screen):
             self._valid = False
             if self._error_cells:
                 self._focus_error_face()
-                self._refresh_view(keep_anim=False)
+                self._refresh_view()
             return
         self.msg.text = tr("input.valid")
         self.msg.color = _app().theme.accent
         self._valid = True
-        self._refresh_view(keep_anim=False)
+        self._refresh_view()
 
     def start_solve(self):
         self.check()
@@ -871,6 +923,8 @@ class InputScreen(Screen):
         self.manager.current = "HomeScreen"
 
     def open_demo(self):
+        if self._n() >= 6:
+            return
         app = _app()
         app.facelets_input = self.collect_facelets()
         menu = self.manager.get_screen("DemoMenuScreen")

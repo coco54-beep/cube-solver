@@ -43,6 +43,7 @@ def expand(seq, n):
     return result
 
 
+@lru_cache(maxsize=32)
 def generators(n, positions):
     _, m = get_d_maxc(n)
     inner = sorted({v for p in positions for v in p if abs(v) < m})
@@ -50,7 +51,7 @@ def generators(n, positions):
              for c in (1, 2, 3)]
     atoms.extend((f, v, c) for f in ("R", "U", "F") for v in inner
                  for c in (1, 2, 3))
-    return atoms
+    return tuple(atoms)
 
 
 @lru_cache(maxsize=8)
@@ -234,11 +235,18 @@ def primitive(n, positions, wings, cancel):
     raise RuntimeError("nxn.error.primitive")
 
 
+@lru_cache(maxsize=32)
+def _conjug_maps(n, positions):
+    """Per-generator marker-index mappings (pure function of orbit geometry)."""
+    gen = generators(n, positions)
+    indexes = {p: i for i, p in enumerate(positions)}
+    return tuple(tuple(indexes[move_point(p, atom)] for p in positions) for atom in gen)
+
+
 def conjugates(n, positions, base, start, targets, cancel):
     """BFS on three markers, at most 24×23×22 states per orbit."""
     gen = generators(n, positions)
-    indexes = {p: i for i, p in enumerate(positions)}
-    maps = [tuple(indexes[move_point(p, atom)] for p in positions) for atom in gen]
+    maps = _conjug_maps(n, positions)
     parents, queue = {start: None}, deque([start])
     remaining = set(targets)
     remaining.discard(start)
@@ -249,7 +257,7 @@ def conjugates(n, positions, base, start, targets, cancel):
         if visits % 128 == 0:
             cancel()
         for i, mapping in enumerate(maps):
-            nxt = tuple(mapping[p] for p in state)
+            nxt = tuple(map(mapping.__getitem__, state))
             if nxt not in parents:
                 parents[nxt] = (state, i)
                 queue.append(nxt)

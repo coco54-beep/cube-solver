@@ -42,10 +42,10 @@ def _curved_point(point):
     return tuple(v * scale for v in point)
 
 
-@lru_cache(maxsize=1)
-def _curved_body():
+@lru_cache(maxsize=2)
+def _curved_body(subdivisions=_SUBDIVISIONS):
     output = []
-    steps = _SUBDIVISIONS
+    steps = subdivisions
     for color, normal in enumerate(NORMALS):
         corners = [v for v in VERTICES if abs(dot(normal, v)-2.) < 1e-9]
         a, b, c = corners
@@ -78,10 +78,10 @@ def _clip_patch(points, normal, bound):
     return tuple(output)
 
 
-@lru_cache(maxsize=26)
-def rounded_piece_geometry(home):
+@lru_cache(maxsize=52)
+def rounded_piece_geometry(home, subdivisions=_SUBDIVISIONS):
     """Return curved exterior facets and flat internal caps for one piece."""
-    polygons = _curved_body()
+    polygons = _curved_body(subdivisions)
     bounds = []
     for axis, coord in enumerate(home):
         lo, hi = (-2., -.5) if coord == -1 else ((-.5, .5) if coord == 0 else (.5, 2.))
@@ -91,12 +91,27 @@ def rounded_piece_geometry(home):
             normal = tuple(float(sign) if i == axis else 0. for i in range(3))
             bounds.append((normal, bound-_SEAM))
     output = []
+    exterior_colors = sorted({color for _, color in polygons if color >= 0})
     for points, color in polygons:
         points = tuple(points)
         if plane(points) is None:
             continue
         if color < 0:
-            output.append((points, color, "internal"))
+            # Extend the nearest colored face onto exposed mechanism cuts.
+            # Split multi-color caps at equal-distance face boundaries, so a
+            # two/three-color piece keeps its adjacent colors when deformed.
+            for adjacent_color in exterior_colors:
+                patch = points
+                for other_color in exterior_colors:
+                    if other_color == adjacent_color:
+                        continue
+                    normal = tuple(_NORMALS[other_color][i] -
+                                   _NORMALS[adjacent_color][i] for i in range(3))
+                    patch = _clip_patch(patch, normal, 0.)
+                    if len(patch) < 3:
+                        break
+                if len(patch) >= 3 and plane(patch) is not None:
+                    output.append((patch, adjacent_color, "internal"))
             continue
         output.append((points, color, "shell"))
         sticker = points
@@ -120,13 +135,24 @@ def _edge_key(a, b):
     return tuple(sorted((tuple(round(v, 7) for v in a), tuple(round(v, 7) for v in b))))
 
 
-@lru_cache(maxsize=26)
-def piece_outline_indices(home):
+@lru_cache(maxsize=52)
+def piece_outline_indices(home, subdivisions=_SUBDIVISIONS):
     """Suppress tessellation diagonals when outlining a selected piece."""
-    geometry = rounded_piece_geometry(home)
+    geometry = rounded_piece_geometry(home, subdivisions)
     counts = Counter((finish, color, _edge_key(a, b))
                      for points, color, finish in geometry
                      for a, b in zip(points, points[1:] + points[:1]))
     return tuple(tuple((i, (i+1) % len(points)) for i in range(len(points))
                        if counts[finish, color, _edge_key(points[i], points[(i+1) % len(points)])] == 1)
                  for points, color, finish in geometry)
+
+
+@lru_cache(maxsize=104)
+def oriented_piece_geometry(home, frame, subdivisions=_SUBDIVISIONS):
+    """Reuse discrete orientations with a bounded cache on mobile devices."""
+    from cube.mastermorphix import transform
+    return tuple((tuple(transform(frame, p) for p in points),
+                  transform(frame, plane(points)[0]), color, finish, outline)
+                 for (points, color, finish), outline in
+                 zip(rounded_piece_geometry(home, subdivisions),
+                     piece_outline_indices(home, subdivisions)))

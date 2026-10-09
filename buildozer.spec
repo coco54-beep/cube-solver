@@ -6,7 +6,7 @@
 title = 3D魔方智能还原
 package.name = cubesolver
 package.domain = com.example
-version = 1.2.13
+version = 1.2.17
 
 # 工程源码目录（buildozer 会把它拷贝进打包环境）
 source.dir = .
@@ -60,3 +60,7 @@ android.release_artifact = apk
 [buildozer]
 log_level = 2
 warn_on_root = 0
+
+# Android emulator test build; phone APK keeps arm64-v8a.
+[app@emulator]
+android.archs = x86_64

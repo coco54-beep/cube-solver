@@ -21,6 +21,7 @@ TURNS: 各面顺时针90度转动的坐标旋转公式。
 WHOLE_CUBE: x/y/z 整体转动复用哪一面的旋转公式。
 """
 
+from functools import lru_cache
 from typing import List, Optional, Tuple
 
 Coord = Tuple[int, int, int]
@@ -99,6 +100,7 @@ def rc_from_pos(n: int, face: str, pos: Coord) -> Tuple[int, int]:
     return (r, c)
 
 
+@lru_cache(maxsize=None)
 def layer_values(n: int, face: str, is_wide: bool = False,
                  layers: Optional[int] = None) -> List[int]:
     """返回该面转动所作用层的法线轴坐标值集合。
@@ -113,7 +115,7 @@ def layer_values(n: int, face: str, is_wide: bool = False,
     n_axis, n_sign = FACE_AXIS_SIGN[face]
     vals = sorted(coord_values(n), reverse=True)
     sel = vals[:layers]
-    return [n_sign * v for v in sel]
+    return tuple(n_sign * v for v in sel)
 
 
 def is_in_layer(n: int, face: str, is_wide: bool, pos: Coord,

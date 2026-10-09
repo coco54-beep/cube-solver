@@ -15,14 +15,18 @@ from cube.mastermorphix import (
 )
 from cube.coordinates import FACE_NORMALS, FACE_AXIS_SIGN
 from cube.conversion import cubies_to_facelets
-from cube.notation import parse_move_str, suffix_for_count
+from cube.notation import parse_move_str
 from solver.result import SolveResult, SolveStage
 
 
-@lru_cache(maxsize=32)
+@lru_cache(maxsize=1024)
 def _outer_turn(move):
     face, _, count = parse_move_str(move, allow_wide=False)
     return face, FACE_AXIS_SIGN[face][0], count
+
+
+_FACE_COUNT_MOVE = {(_f, _c): _f + ("" if _c == 1 else ("2" if _c == 2 else "'"))
+                    for _f in "URFDLB" for _c in (1, 2, 3)}
 
 
 def _compact_moves(moves):
@@ -42,7 +46,7 @@ def _compact_moves(moves):
             del counts[face]
         if not counts:
             blocks.pop()
-    return [face + suffix_for_count(count)
+    return [_FACE_COUNT_MOVE[(face, count)]
             for _, counts in blocks for face, count in counts.items()]
 
 
@@ -129,8 +133,8 @@ def center_solution(twists):
 def _join_centers(pieces, twists, deadline, cancelled):
     """Try orders and equivalent spellings of the selected center macros.
 
-    Their effects commute on the fixed centers. A small beam for each subset
-    keeps different formula endings, allowing cancellations at macro joins
+    Their effects commute on the fixed centers. A bounded beam for each subset
+    keeps more distinct formula endings, allowing cancellations at macro joins
     and at the join with the movable-piece solution. Always retain the basic
     weighted path, even if this optional search runs out of time.
     """
@@ -165,7 +169,7 @@ def _join_centers(pieces, twists, deadline, cancelled):
                         continue
                     beam.append((joined, next_suffix))
                     beam.sort(key=lambda entry: (len(entry[0]), entry[0]))
-                    del beam[4:]
+                    del beam[8:]
     return best
 
 
@@ -246,7 +250,10 @@ def solve_mastermorphix(cube, cancel_event=None, progress_callback=None,
         return SolveResult(True, [], "", int((time.perf_counter()-started)*1000), 0, [])
     if progress_callback:
         progress_callback({"label": "morphix.solving.pieces", "progress": .1})
-    result = solve_3x3(cubies_to_facelets(work.cubies, 3))
+    # Start the optional whole-puzzle search from a stronger 3x3 seed. The
+    # two-phase solver first looks for <=18 and <=19 HTM solutions, then falls
+    # back to its normal <=20 search, so the baseline is still always a solve.
+    result = solve_3x3(cubies_to_facelets(work.cubies, 3), minimize=True)
     if not result.success:
         return result
     cancelled()

@@ -7,7 +7,7 @@ replayed on the original input before being returned to the UI.
 import time
 
 from cube.colors import DEFAULT_COLORS
-from cube.coordinates import get_d_maxc, FACE_NORMALS
+from cube.coordinates import get_d_maxc, FACE_NORMALS, FACE_AXIS_SIGN, coord_values, layer_values
 from cube.cubie_model import Cubie
 from cube.cube3 import Cube3
 from cube.conversion import cubies_to_facelets
@@ -71,18 +71,86 @@ def inspect_state(cube):
     return work, wings, centers
 
 
-def _compress(moves):
+def _compress(moves, n):
     from cube.notation import parse_move_full
-    stack = []
+    result = []
+    block_axis = None
+    block = []
+    values = sorted(coord_values(n), reverse=True)
+    value_index = {value: i for i, value in enumerate(values)}
+
+    def flush():
+        nonlocal block_axis, block
+        if not block:
+            return
+        turns = [0] * n
+        for face, layers, count in block:
+            _, sign = FACE_AXIS_SIGN[face]
+            for value in layer_values(n, face, layers=layers):
+                index = value_index[value]
+                turns[index] = (turns[index] + sign * count) % 4
+
+        # Same-axis layers commute. Encode the per-slice turn vector from both
+        # outer faces and keep whichever direction needs fewer visible turns.
+        face = {0: "R", 1: "U", 2: "F"}[block_axis]
+        opposite = {0: "L", 1: "D", 2: "B"}[block_axis]
+        alternatives = []
+
+        prefix_ops = {}
+        for width in range(1, n):
+            count = (turns[width - 1] - turns[width]) % 4
+            if count:
+                prefix_ops[(face, width)] = count
+        whole = turns[-1]
+        if whole:
+            key = (face, n - 1)
+            prefix_ops[key] = (prefix_ops.get(key, 0) + whole) % 4
+            prefix_ops[(opposite, 1)] = (-whole) % 4
+        alternatives.append(prefix_ops)
+
+        suffix_ops = {}
+        for width in range(1, n):
+            count = (turns[n - width] - turns[n - width - 1]) % 4
+            if count:
+                suffix_ops[(opposite, width)] = (-count) % 4
+        whole = turns[0]
+        if whole:
+            key = (opposite, n - 1)
+            suffix_ops[key] = (suffix_ops.get(key, 0) - whole) % 4
+            suffix_ops[(face, 1)] = whole
+        alternatives.append(suffix_ops)
+
+        encoded = []
+        for ops in alternatives:
+            tokens = []
+            for (label, width), count in sorted(ops.items()):
+                if count:
+                    prefix = str(width) if width > 1 else ""
+                    suffix = {1: "", 2: "2", 3: "'"}[count]
+                    tokens.append(prefix + label + suffix)
+            encoded.append(tokens)
+        compact = min(encoded, key=len)
+        if len(compact) < len(block):
+            result.extend(compact)
+        else:
+            result.extend((str(width) if width > 1 else "") + face
+                          + {1: "", 2: "2", 3: "'"}[count]
+                          for face, width, count in block)
+        block_axis, block = None, []
+
     for move in moves:
         face, layers, count = parse_move_full(move)
-        key = face, layers
-        if stack and stack[-1][0] == key:
-            count = (count + stack.pop()[1]) % 4
-        if count:
-            stack.append((key, count))
-    return [(str(k) if k > 1 else "") + f + {1: "", 2: "2", 3: "'"}[c]
-            for (f, k), c in stack]
+        if face not in FACE_AXIS_SIGN:
+            flush()
+            result.append(move)
+            continue
+        axis = FACE_AXIS_SIGN[face][0]
+        if block_axis is not None and axis != block_axis:
+            flush()
+        block_axis = axis
+        block.append((face, layers, count))
+    flush()
+    return result
 
 
 def solve_nxn(cube, cancel_event=None, progress_callback=None):
@@ -100,7 +168,7 @@ def solve_nxn(cube, cancel_event=None, progress_callback=None):
                                "label": tr(key, **values)})
 
     def apply(atoms):
-        moves = _compress(orbit.expand(atoms, work.n))
+        moves = _compress(orbit.expand(atoms, work.n), work.n)
         for move in moves:
             cancel()
             work.apply_move(move)
@@ -152,7 +220,7 @@ def solve_nxn(cube, cancel_event=None, progress_callback=None):
                     apply(atoms)
             stages.append(SolveStage("nxn_centers", "nxn.solving.centers", all_moves[before:]))
         emit("nxn.solving.replay", .98)
-        moves = _compress(all_moves)
+        moves = _compress(all_moves, work.n)
         replay = cube.clone()
         for move in moves:
             cancel()

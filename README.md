@@ -4,9 +4,9 @@
 
 **Paint a cube. Find a solution. Watch every turn in 3D.**
 
-Solve 2×2, 3×3, 4×4 and 5×5 cubes on Android or desktop.
+Solve standard 2×2–5×5 cubes, 6×6–17×17 cubes, and the 3×3 Mastermorphix on Android or desktop.
 
-[Download Android APK](https://github.com/coco54-beep/cube-solver/releases/tag/v1.2.13) · [中文说明](README.zh-CN.md) · [Explore the code](#how-the-solvers-work)
+[Download the latest Android APK](https://github.com/coco54-beep/cube-solver/releases/latest) · [中文说明](README.zh-CN.md) · [Explore the solvers](#how-the-solvers-work)
 
 [![Latest release](https://img.shields.io/github/v/release/coco54-beep/cube-solver?label=Release&style=flat-square)](https://github.com/coco54-beep/cube-solver/releases/latest)
 [![Build](https://github.com/coco54-beep/cube-solver/actions/workflows/ci.yml/badge.svg)](https://github.com/coco54-beep/cube-solver/actions/workflows/ci.yml)
@@ -14,13 +14,15 @@ Solve 2×2, 3×3, 4×4 and 5×5 cubes on Android or desktop.
 
 </div>
 
-## New in 1.2.13
+## What's new in 1.2.17
 
 | Feature | Description |
 |---|---|
-| **Portrait / landscape** | 2–5 cube input (simple and advanced), solving progress, playback, teaching and twist pages adapt automatically; landscape puts the model on the left and controls on the right. Mastermorphix solving and playback use the same layout. |
-| **Home** | Six cards: 2 / 3 / 4 / 5, Mastermorphix and N×N. Landscape uses 3 columns × 2 rows; portrait uses 2 columns × 3 rows. N×N opens the 6–17 order selector. |
-| **Higher orders** | Variable order input, scrambling, solving and animated playback. The new orbit solver is described in [docs/nxn.md](docs/nxn.md); performance and reliability are not yet benchmarked on Android. |
+| **3×3 Mastermorphix** | Dedicated shape-aware entry, color palette, validation, random scramble, solver, step-by-step 3D playback and teaching examples. See the [Mastermorphix guide](docs/mastermorphix.md). |
+| **6×6–17×17 cubes** | Select an order, enter or scramble a state, solve it and replay the result. The solver reports progress and verifies the complete solution before returning it. Runtime depends on the order and scramble; Android performance is not yet comprehensively benchmarked. See [N×N solver notes](docs/nxn.md). |
+| **Responsive layouts** | Input, solving progress, playback, demos and twist controls adapt between portrait and landscape. |
+| **Solver improvements** | Updated high-order and Mastermorphix solving paths, with complete-solution checks before results are returned. |
+| **Guidance** | Settings include an icon guide; the home screen provides demos for supported cube types. |
 
 ---
 
@@ -42,9 +44,9 @@ Solve 2×2, 3×3, 4×4 and 5×5 cubes on Android or desktop.
 
 | 01 · Enter | 02 · Solve | 03 · Replay |
 |:---|:---|:---|
-| Choose a size and paint the stickers, generate a scramble, or paste move notation. | Check the cube and run the solver. Larger cubes are reduced to a 3×3 state. | Follow the solution move by move in an interactive 3D view. |
+| Choose 2×2–5×5, N×N, or Mastermorphix. Enter colors, generate a scramble, or paste move notation. | Validate the state and run the matching solver. Progress is shown while longer solves run. | Step through the solution in 3D; rotate, zoom, pause or resume playback. |
 
-- **2×2 to 5×5** — four cube sizes in one app.
+- **Multiple puzzle types** — 2×2–5×5, N×N from 6×6 through 17×17, and the 3×3 Mastermorphix.
 - **Two input layouts** — a compact layout for quick entry and an advanced layout with editing tools.
 - **Interactive playback** — rotate, zoom, step through moves, and control playback.
 - **Built-in guidance** — demonstrations, theme and language settings, and an icon guide in Settings.
@@ -54,7 +56,7 @@ Solve 2×2, 3×3, 4×4 and 5×5 cubes on Android or desktop.
 
 ### Android
 
-Get the signed **v1.2.13 APK** from the [release page](https://github.com/coco54-beep/cube-solver/releases/tag/v1.2.13), or [download the APK directly](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.13/cubesolver-1.2.13-arm64-v8a-release.apk). This build targets **arm64-v8a** devices.
+Get the latest signed Android APK from [GitHub Releases](https://github.com/coco54-beep/cube-solver/releases/latest). APK builds target **arm64-v8a** devices; check the release notes for the current package and update instructions.
 
 > The release workflow uses a new signing key for each build unless a persistent keystore is configured. When updating from a build signed with another key, uninstall the old app first.
 
@@ -222,8 +224,8 @@ Push a git tag of the form `v1.x.x` and [GitHub Actions](.github/workflows/relea
 will build a **signed release APK** and publish it to [Releases](https://github.com/coco54-beep/cube-solver/releases):
 
 ```bash
-git tag v1.2.13
-git push origin v1.2.13
+git tag vX.Y.Z
+git push origin vX.Y.Z
 ```
 
 - By default it is signed with an **ephemeral key** (the signature changes every build, so uninstall the old version first).

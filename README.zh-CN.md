@@ -4,9 +4,9 @@
 
 **录入颜色，一键求解，在 3D 中看清每一步。**
 
-支持 2×2、3×3、4×4、5×5 魔方，适用于 Android 和桌面端。
+支持 2×2–5×5、6×6–17×17 高阶魔方，以及三阶粽子魔方，适用于 Android 和桌面端。
 
-[下载 Android 安装包](https://github.com/coco54-beep/cube-solver/releases/tag/v1.2.13) · [English](README.md) · [了解求解算法](#求解器是如何工作的)
+[下载最新版 Android 安装包](https://github.com/coco54-beep/cube-solver/releases/latest) · [English](README.md) · [了解求解算法](#求解器是如何工作的)
 
 [![最新版本](https://img.shields.io/github/v/release/coco54-beep/cube-solver?label=Release&style=flat-square)](https://github.com/coco54-beep/cube-solver/releases/latest)
 [![构建状态](https://github.com/coco54-beep/cube-solver/actions/workflows/ci.yml/badge.svg)](https://github.com/coco54-beep/cube-solver/actions/workflows/ci.yml)
@@ -14,14 +14,15 @@
 
 </div>
 
-## 1.2.13 更新
+## 1.2.17 更新
 
 | 功能 | 说明 |
 |---|---|
-| **横竖屏适配** | 2–5 阶简洁／高级录入、求解进度、还原回放、教学与拧魔方页自动适配；横屏左侧显示魔方、右侧显示操作。粽子魔方的求解与回放也使用同一布局。切换方向保留录入与当前步骤，按钮尺寸按屏幕长边缩放。 |
-| **首页** | 六张卡片：2 / 3 / 4 / 5 阶、三阶粽子魔方、N 阶魔方。横屏三列两行，竖屏两列三行；N 阶入口选择 6–17 阶。 |
-| **高阶魔方** | 可变阶数录入、随机打乱、求解及动画回放。新增轨道求解器见 [docs/nxn.md](docs/nxn.md)，尚未完成安卓性能和可靠性验证。 |
-| **录入页** | 对应阶数的六个面展开图 · 6 色选择器 · 随机或粘贴打乱公式 / 校验 / 求解 |
+| **三阶粽子魔方** | 独立的形状录入、配色、状态校验、随机打乱、求解、3D 步骤回放和教学演示。详见[粽子魔方说明](docs/mastermorphix.md)。 |
+| **6–17 阶高阶魔方** | 选择阶数后录入或随机打乱，运行求解并回放步骤；求解过程中显示进度，并在返回结果前校验完整解法。耗时取决于阶数和打乱状态，Android 性能尚未完成全面基准测试。详见 [N 阶求解说明](docs/nxn.md)。 |
+| **横竖屏自适配** | 录入、求解进度、回放、演示和拧魔方操作页会随屏幕方向调整布局。 |
+| **求解优化** | 更新高阶魔方与粽子魔方的求解流程，返回结果前会校验完整解法。 |
+| **使用指引** | 设置页提供图标说明，首页演示入口覆盖支持的魔方类型。 |
 
 ---
 
@@ -43,9 +44,9 @@
 
 | 01 · 录入 | 02 · 求解 | 03 · 演示 |
 |:---|:---|:---|
-| 选择阶数并填写颜色，也可以随机打乱或粘贴公式。 | 校验魔方状态并运行求解器；高阶魔方逐步降阶求解。 | 在可交互的 3D 魔方上逐步查看还原过程。 |
+| 选择 2–5 阶、N 阶或粽子魔方，录入颜色、随机打乱或粘贴公式。 | 校验状态并运行对应求解器；长耗时任务会显示进度。 | 在 3D 视图中逐步回放，可旋转、缩放、暂停和继续。 |
 
-- **支持 2～5 阶**：一个应用覆盖四种常见阶数。
+- **多种魔方类型**：2–5 阶、6–17 阶高阶魔方和三阶粽子魔方。
 - **简洁与高级输入**：快速录入或使用更多编辑工具。
 - **3D 步骤回放**：旋转视角、缩放、逐步查看和控制播放。
 - **内置指引**：演示内容、主题和语言设置，以及设置页中的图标说明。
@@ -55,7 +56,7 @@
 
 ### Android
 
-前往 [v1.2.13 发布页](https://github.com/coco54-beep/cube-solver/releases/tag/v1.2.13)获取已签名 APK，或[直接下载安装包](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.13/cubesolver-1.2.13-arm64-v8a-release.apk)。此安装包适用于 **arm64-v8a** 设备。
+前往 [GitHub Releases](https://github.com/coco54-beep/cube-solver/releases/latest) 获取最新版 Android APK。安装包面向 **arm64-v8a** 设备；更新时请查看对应版本的发布说明。
 
 > 如果发布流程未配置固定密钥，每次构建的签名可能不同。更新时如提示签名不一致，请先卸载旧版再安装。
 
@@ -236,8 +237,8 @@ python -m pytest
 会自动构建 **已签名的 release APK** 并发布到 [Releases](https://github.com/coco54-beep/cube-solver/releases)：
 
 ```bash
-git tag v1.2.13
-git push origin v1.2.13
+git tag vX.Y.Z
+git push origin vX.Y.Z
 ```
 
 - 默认使用**临时密钥**签名（每次构建签名都会变化，旧版需先卸载）。

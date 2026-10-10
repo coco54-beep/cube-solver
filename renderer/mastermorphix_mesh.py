@@ -10,10 +10,10 @@ from functools import lru_cache
 import math
 
 from cube.mastermorphix import (NORMALS, VERTICES, _clip, cross, dot,
-                               cut_boundaries, cut_curved_pieces)
+                               cut_boundaries, positions_for_order)
 from renderer.polygon_visibility import plane
 
-STYLE_VERSION = "curved_planar_cuts_v2"
+STYLE_VERSION = "smooth_morphix_closed_edges_v4"
 _SUBDIVISIONS = 14
 _CURVATURE = 2.8
 _FACE_HEIGHT = 2. / math.sqrt(3.)
@@ -79,19 +79,48 @@ def _clip_patch(points, normal, bound):
     return tuple(output)
 
 
+def _display_boundaries(n):
+    if n <= 3:
+        return cut_boundaries(n)
+    # The smooth 2/3-order shell is smaller than the spherical high-order
+    # shell. Fit its inner mechanism planes while preserving every layer.
+    # Scale inner cuts only. The enclosing bounds must cover the complete
+    # smooth shell; scaling them too truncates its six rounded edges.
+    return (-2.,) + tuple(value*.5 for value in cut_boundaries(n)[1:-1]) + (2.,)
+
+
+@lru_cache(maxsize=12)
+def _display_pieces(n, subdivisions):
+    vals=sorted({p[0] for p in positions_for_order(n)})
+    bounds=_display_boundaries(n)
+    def strip(polygons, axis, index):
+        lo,hi=bounds[index:index+2]
+        return _clip(_clip(polygons,axis,1,hi),axis,-1,-lo)
+    result={}
+    body=_curved_body(subdivisions)
+    for ix,x in enumerate(vals):
+        xs=strip(body,0,ix)
+        for iy,y in enumerate(vals):
+            ys=strip(xs,1,iy)
+            for iz,z in enumerate(vals):
+                if any(i in (0,n-1) for i in (ix,iy,iz)):
+                    result[x,y,z]=strip(ys,2,iz)
+    return result
+
+
 @lru_cache(maxsize=2048)
 def rounded_piece_geometry(home, subdivisions=_SUBDIVISIONS, n=3):
     """Return curved exterior facets and flat internal caps for one piece."""
     # A curved facet is never given its own border. Piece/color boundaries
     # below are the only places where the white backing is exposed.
     polygons = (_curved_body(subdivisions) if n <= 3 else
-                cut_curved_pieces(n, max(12, subdivisions))[home])
+                _display_pieces(n, max(12, subdivisions))[home])
     bounds = []
     from cube.mastermorphix import positions_for_order
     vals = sorted({p[0] for p in positions_for_order(n)})
     # Cut the curved body with flat mechanism planes, rather than bending a
     # subdivided cube grid. This preserves the real eight-piece 2x2 layout.
-    boundaries = cut_boundaries(n)
+    boundaries = _display_boundaries(n)
     for axis, coord in enumerate(home):
         index = vals.index(coord)
         lo, hi = boundaries[index], boundaries[index+1]
@@ -144,7 +173,7 @@ def rounded_piece_geometry(home, subdivisions=_SUBDIVISIONS, n=3):
             # insertion order without depth fighting or raised flat tiles.
             output.append((sticker, color, "sticker"))
     # Match the previous model's visible size after rounding the overall body.
-    display_scale = _DISPLAY_SCALE if n <= 3 else .85
+    display_scale = _DISPLAY_SCALE
     return tuple((tuple(tuple(v*display_scale for v in p) for p in points), color, finish)
                  for points, color, finish in output)
 

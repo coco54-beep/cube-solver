@@ -169,7 +169,7 @@ class MastermorphixScreen(Screen):
         self._refresh()
 
     def go_back(self):
-        self.manager.current = 'HomeScreen'
+        self.manager.current = 'IrregularDirectoryScreen'
 
     def on_enter(self, *args):
         self.view.cancel_touch()
@@ -185,13 +185,8 @@ class MastermorphixScreen(Screen):
         order = getattr(_app(), "n", 3)
         if self._cube is None or self._cube.n != order:
             self._ori = CubeOrientation(order)
-            if order != 3:
-                # Show the rounded tetrahedron's three faces and upright tip;
-                # a straight-on mechanism axis makes it look like a square.
-                self.view.reset_camera()
-            else:
-                self.view.camera.azimuth = 0.0
-                self.view.camera.elevation = 0.0
+            self.view.camera.azimuth = 0.0
+            self.view.camera.elevation = 0.0
         self._cube = MastermorphixCube.solved(palette, order)
         # Fixed center color pairs provide landmarks from the start. Their
         # preset orientations remain editable to match the physical puzzle.
@@ -261,8 +256,8 @@ class MastermorphixScreen(Screen):
         self._cancel_view_turn()
         self._resize()
         self.title.text = f"{tr('directory.order', order=self._cube.n)} · {tr('morphix.title')}"
-        self.demo_button.opacity = 1 if self._cube.n == 3 else 0
-        self.demo_button.disabled = self._cube.n != 3
+        self.demo_button.opacity = 1 if self._cube.n <= 5 else 0
+        self.demo_button.disabled = self._cube.n > 5
         def pair(pos):
             return "/".join(str(self._cube.palette.index(c)+1) for c in piece_colors(pos, self._cube.palette, self._cube.n))
         if self._cube.n == 2:
@@ -409,9 +404,9 @@ class MastermorphixScreen(Screen):
         ok.bind(on_release=lambda *_: (self._blank(self._cube.palette), self._refresh(), popup.dismiss()))
 
     def open_demo(self):
-        if self._busy_turn:
+        if self._busy_turn or self._cube is None or self._cube.n > 5:
             return
-        self.manager.get_screen("DemoMenuScreen").set_mode("mastermorphix")
+        self.manager.get_screen("DemoMenuScreen").set_mode((self._cube.puzzle_kind, self._cube.n))
         self.manager.current = "DemoMenuScreen"
 
     def open_twist(self):

@@ -14,7 +14,9 @@ from kivy.uix.spinner import Spinner
 
 from app.i18n import tr
 from cube.polyhedral import Move
-from renderer.polyhedral_view import PolyhedralView, PolyhedralTwistView
+from renderer.polyhedral_view import PolyhedralView, PolyhedralTwistView, default_palette
+from renderer.cube_orientation import CubeOrientation
+from renderer.mat4 import Mat4
 from ui.screens.mastermorphix_screen import _Swatch
 from ui.widgets.buttons import UIButton,PrimaryButton,DangerButton
 from ui.widgets.dialogs import theme_popup
@@ -38,6 +40,9 @@ class PolyhedralScreen(Screen):
         self._job=None
         self._solve_popup=None
         self._cancel=threading.Event()
+        self._view_busy=False
+        self._view_direction=None
+        self._view_orientation=None
         self._build()
 
     def _build(self):
@@ -48,7 +53,8 @@ class PolyhedralScreen(Screen):
         back.bind(on_release=lambda *_:self.back())
         self.title=Label(font_size='20sp')
         help_button=UIButton(icon_name='demo',size_hint_x=.16)
-        help_button.bind(on_release=lambda *_:self.help())
+        help_button.bind(on_release=lambda *_:self.open_demo())
+        self.demo_button=help_button
         for item in (back,self.title,help_button):
             top.add_widget(item)
         root.add_widget(top)
@@ -96,6 +102,15 @@ class PolyhedralScreen(Screen):
             self._history=[]
             self._axis=self._layer=self._color=self._face=0
             self.view.set_cube(self._cube)
+            self._view_orientation=None
+            if self._cube.puzzle_kind=='skewb':
+                self._view_orientation=CubeOrientation(self._cube.n)
+                self.view.set_whole_world(self._view_orientation.world)
+                self.view.yaw=self.view.pitch=0
+                self._face=2  # F, matching ordinary input's initial face.
+            elif self._cube.puzzle_kind in ('pyraminx','moyu'):
+                self.view.set_whole_world(Mat4())
+                self._set_face_camera(0)
             from app.prefs import get as pref_get
             saved=pref_get('poly_palette_'+self._cube.puzzle_kind,None)
             if isinstance(saved,list) and len(saved)==len(self._cube.geometry.spec.normals) and all(
@@ -134,7 +149,7 @@ class PolyhedralScreen(Screen):
         _app().polyhedral_solution=None
 
     def paint(self,index):
-        if self._job is not None:
+        if self._job is not None or self._view_busy:
             return
         self._remember()
         self._cube.colors[index]=self._color
@@ -144,21 +159,86 @@ class PolyhedralScreen(Screen):
     def _refresh(self):
         if self._cube is None:
             return
+        self.demo_button.disabled=self._cube.n>5
+        self.demo_button.opacity=1 if self._cube.n<=5 else 0
         self.status.text=tr('poly.progress',done=sum(c>=0 for c in self._cube.colors),
                             total=len(self._cube.colors))
         self.view.refresh()
 
+    def open_demo(self):
+        if self._job is not None or self._cube is None or self._cube.n>5:
+            return
+        self.manager.get_screen('DemoMenuScreen').set_mode((self._cube.puzzle_kind,self._cube.n))
+        self.manager.current='DemoMenuScreen'
+
     def change_view(self,direction):
+        if self._view_busy or self._job is not None:
+            return
+        self._view_busy=True
+        self.panel.disabled=True
+        if self._view_orientation is not None:
+            self._view_direction=direction
+            ori=self._view_orientation
+            angle,axis=ori.prev_axis_deg() if direction<0 else ori.next_axis_deg()
+            self.view.animate_whole_turn(axis,angle,.55,on_done=self._finish_cube_view)
+            return
         self._face=(self._face+direction)%len(self._cube.geometry.spec.normals)
-        x,y,z=self._cube.geometry.spec.normals[self._face]
-        yaw=math.degrees(math.atan2(x,z))
+        yaw,pitch=self._face_camera(self._face)
+        roll=self._face_roll(self._face)
         while yaw-self.view.yaw>180:
             yaw-=360
         while yaw-self.view.yaw<-180:
             yaw+=360
+        while roll-self.view.roll>180:
+            roll-=360
+        while roll-self.view.roll<-180:
+            roll+=360
+        Animation.cancel_all(self.view,'yaw','pitch','roll')
+        animation=Animation(yaw=yaw,pitch=pitch,roll=roll,duration=.55,t='in_out_sine')
+        animation.bind(on_complete=lambda *_:self._finish_face_view())
+        animation.start(self.view)
+
+    def _face_camera(self,index):
+        x,y,z=self._cube.geometry.spec.normals[index]
+        yaw=math.degrees(math.atan2(x,z))
         pitch=math.degrees(math.asin(y))
-        Animation.cancel_all(self.view,'yaw','pitch')
-        Animation(yaw=yaw,pitch=pitch,duration=.45,t='in_out_sine').start(self.view)
+        return yaw,pitch
+
+    def _set_face_camera(self,index):
+        self.view.yaw,self.view.pitch=self._face_camera(index)
+        self.view.roll=self._face_roll(index)
+
+    def _face_roll(self,index):
+        # Keep each tetrahedral face upright, with the same convention for
+        # both Pyraminx and the curved Tower model.
+        if self._cube.puzzle_kind in ('pyraminx','moyu'):
+            return 180 if self._cube.geometry.spec.normals[index][1]>0 else 0
+        return 0
+
+    def _finish_cube_view(self):
+        direction=self._view_direction
+        if direction is None:
+            return
+        ori=self._view_orientation
+        ori.turn_prev() if direction<0 else ori.turn_next()
+        self.view.set_whole_world(ori.world)
+        self._face={'U':0,'R':1,'F':2,'D':3,'L':4,'B':5}[ori.current_face()]
+        self._view_direction=None
+        self._finish_face_view()
+
+    def _finish_face_view(self):
+        self._view_busy=False
+        self.panel.disabled=self._job is not None
+
+    def reset_interaction(self):
+        self.view.cancel_touch()
+        self.view.cancel_animation()
+        self._view_direction=None
+        if self._view_orientation is not None:
+            self.view.set_whole_world(self._view_orientation.world)
+        elif self._cube is not None and self._view_busy:
+            self._set_face_camera(self._face)
+        self._finish_face_view()
 
     def _axis_selected(self,widget,text):
         pass
@@ -250,19 +330,30 @@ class PolyhedralScreen(Screen):
         picker=ColorPicker(color=self.view.palette[self._color])
         box=ResponsiveBoxLayout(orientation='vertical',gap_px=8)
         box.add_widget(picker)
-        apply=PrimaryButton(text=tr('poly.apply'),size_hint_y=None,height=m.h(44))
-        box.add_widget(apply)
+        actions=ResponsiveBoxLayout(height_px=44,gap_px=8)
+        restore=UIButton(text=tr('poly.restore_colors'))
+        apply=PrimaryButton(text=tr('poly.apply'))
+        actions.add_widget(restore)
+        actions.add_widget(apply)
+        box.add_widget(actions)
         popup=self._popup(tr('poly.palette'),box,(.9,.85))
         def save(*args):
             palette=list(self.view.palette)
             palette[self._color]=tuple(picker.color[:3])+(1,)
-            self.view.palette=tuple(palette)
-            from app.prefs import set as pref_set
-            pref_set('poly_palette_'+self._cube.puzzle_kind,[list(c) for c in palette])
-            self._build_palette()
-            self.view.refresh()
+            self._save_palette(palette)
             popup.dismiss()
+        def reset(*args):
+            self._save_palette(default_palette(self._cube))
+            picker.color=self.view.palette[self._color]
+        restore.bind(on_release=reset)
         apply.bind(on_release=save)
+
+    def _save_palette(self,palette):
+        self.view.palette=tuple(palette)
+        from app.prefs import set as pref_set
+        pref_set('poly_palette_'+self._cube.puzzle_kind,[list(c) for c in palette])
+        self._build_palette()
+        self.view.refresh()
 
     def _popup(self,title,content,size=(.85,.4),**kwargs):
         popup=Popup(title=title,content=content,size_hint=size,**kwargs)
@@ -294,13 +385,13 @@ class PolyhedralScreen(Screen):
 
     def back(self):
         self._cancel_solve()
-        self.view.cancel_animation()
+        self.reset_interaction()
         self.panel.disabled=False
         self.manager.current='IrregularDirectoryScreen'
 
     def on_leave(self,*args):
         self._cancel_solve()
-        self.view.cancel_animation()
+        self.reset_interaction()
         self.panel.disabled=False
 
     def _cancel_solve(self):

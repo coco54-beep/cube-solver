@@ -14,6 +14,7 @@ from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 
 from cube.polyhedral import dot,cross,unit,mean,add,scale,rotate,key,body,Move
+from renderer.mat4 import Mat4
 
 
 def _magnitude(v):
@@ -27,6 +28,12 @@ PALETTE=((.98,.98,.98,1),(.02,.65,.18,1),(.9,.05,.06,1),(.51,.12,.73,1),
 TETRA_PALETTE=((.91,.04,.04,1),(1,.85,0,1),(.06,.19,.9,1),(.01,.65,.18,1))
 CUBE_PALETTE=((.98,.98,.98,1),(.9,.04,.05,1),(.01,.65,.18,1),
               (1,.85,0,1),(1,.46,.01,1),(.06,.19,.9,1))
+
+
+def default_palette(cube):
+    """Return the same factory face colors used when a model is first opened."""
+    count=len(cube.geometry.spec.normals)
+    return {4:TETRA_PALETTE,6:CUBE_PALETTE}.get(count,PALETTE)
 
 
 def _inside(point,poly,normal):
@@ -76,6 +83,8 @@ def outlines(kind,n):
 class PolyhedralView(Widget):
     yaw=NumericProperty(32)
     pitch=NumericProperty(22)
+    roll=NumericProperty(0)
+    observation_angle=NumericProperty(0)
 
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
@@ -92,10 +101,14 @@ class PolyhedralView(Widget):
         self._event=None
         self._move=None
         self._fraction=0
+        self._whole_world=Mat4()
+        self._observation_axis=None
+        self._observation_animation=None
         self._touch=None
         self._touch_start=None
         self._trigger=Clock.create_trigger(self._draw,0)
-        self.bind(pos=self._trigger,size=self._trigger,yaw=self._trigger,pitch=self._trigger)
+        self.bind(pos=self._trigger,size=self._trigger,yaw=self._trigger,pitch=self._trigger,roll=self._trigger)
+        self.bind(observation_angle=self._trigger)
 
     @staticmethod
     def _depth_on(*args):
@@ -146,9 +159,12 @@ class PolyhedralView(Widget):
 
     def set_cube(self,cube):
         self.cancel_animation()
+        if self.cube is not cube:
+            self._whole_world=Mat4()
+            self.roll=0
         self.cube=cube
         count=len(cube.geometry.spec.normals)
-        self.palette={4:TETRA_PALETTE,6:CUBE_PALETTE}.get(count,PALETTE)
+        self.palette=default_palette(cube)
         if count==4:
             self.yaw=45
             self.pitch=math.degrees(math.atan(1/math.sqrt(2)))
@@ -165,6 +181,47 @@ class PolyhedralView(Widget):
 
     def refresh(self):
         self._trigger()
+
+    def set_whole_world(self,world):
+        self._whole_world=world
+        self._trigger()
+
+    def animate_whole_turn(self,axis,angle,duration,on_done=None):
+        self.cancel_touch()
+        self.cancel_observation()
+        self._observation_axis=axis
+        animation=Animation(observation_angle=angle,duration=duration,t='in_out_sine')
+        self._observation_animation=animation
+        def finish(*_):
+            self._whole_world=Mat4.rotation_axis(angle,axis)*self._whole_world
+            self._observation_axis=None
+            self._observation_animation=None
+            self.observation_angle=0
+            if on_done:
+                on_done()
+            self.refresh()
+        animation.bind(on_complete=finish)
+        animation.start(self)
+
+    def cancel_observation(self):
+        if self._observation_animation is not None:
+            self._observation_animation.cancel(self)
+        self._observation_animation=None
+        self._observation_axis=None
+        self.observation_angle=0
+
+    def observation_world(self):
+        if self._observation_axis is None:
+            return self._whole_world
+        return Mat4.rotation_axis(self.observation_angle,self._observation_axis)*self._whole_world
+
+    def reset_camera(self):
+        Animation.cancel_all(self, 'yaw', 'pitch', 'roll')
+        self.roll=0
+        tetra = self.cube is not None and len(self.cube.geometry.spec.normals) == 4
+        self.yaw = 45 if tetra else 32
+        self.pitch = math.degrees(math.atan(1/math.sqrt(2))) if tetra else 22
+        self.refresh()
 
     def turn_view(self,direction):
         Animation.cancel_all(self,'yaw')
@@ -194,6 +251,7 @@ class PolyhedralView(Widget):
         return True
 
     def cancel_animation(self):
+        self.cancel_observation()
         if self._event:
             self._event.cancel()
         self._event=None
@@ -209,16 +267,25 @@ class PolyhedralView(Widget):
         eye=(math.sin(yaw)*math.cos(pitch),math.sin(pitch),math.cos(yaw)*math.cos(pitch))
         right=unit(cross((0,1,0),eye))
         up=cross(eye,right)
+        if self.roll:
+            angle=math.radians(self.roll)
+            right,up=(add(scale(right,math.cos(angle)),scale(up,math.sin(angle))),
+                      add(scale(up,math.cos(angle)),scale(right,-math.sin(angle))))
         radius=max(math.sqrt(dot(p,p)) for face in body(g.spec.normals) for p in face)
         factor=min(self.width,self.height)*.42/max(radius,1)
         cx,cy=self.width/2,self.height/2
         self._proj=(eye,right,up,factor,cx,cy)
+        observation=self.observation_world()
         vertices=[]
         indices=[]
         chunks=[]
         compatible=[]
         self._polygons=[]
         boundaries=outlines(self.cube.puzzle_kind,self.cube.n)
+        curved=self.cube.puzzle_kind=='moyu'
+        if curved:
+            from renderer.tower_mesh import tower_skin,tower_edge
+            skin=tower_skin(self.cube.n)
         moving=set(g.layers[self._move.axis][self._move.layer]) if self._move else set()
         turn=None
         if self._move:
@@ -229,10 +296,12 @@ class PolyhedralView(Widget):
             turn=tuple(rotate(v,g.spec.axes[self._move.axis],angle)
                        for v in ((1,0,0),(0,1,0),(0,0,1)))
         def transform(p):
+            if turn is None:
+                return observation.transform(*p)
             x,y,z=p
-            return (turn[0][0]*x+turn[1][0]*y+turn[2][0]*z,
-                    turn[0][1]*x+turn[1][1]*y+turn[2][1]*z,
-                    turn[0][2]*x+turn[1][2]*y+turn[2][2]*z)
+            return observation.transform(turn[0][0]*x+turn[1][0]*y+turn[2][0]*z,
+                                         turn[0][1]*x+turn[1][1]*y+turn[2][1]*z,
+                                         turn[0][2]*x+turn[1][2]*y+turn[2][2]*z)
         def project(p):
             return (cx+dot(p,right)*factor,cy+dot(p,up)*factor,-dot(p,eye)*.12)
         def polygon(points,rgba,bias=0):
@@ -258,27 +327,41 @@ class PolyhedralView(Widget):
                      (b[0]-nx,b[1]-ny,b[2]),(b[0]+nx,b[1]+ny,b[2])),rgba,-.0015)
         for i,s in enumerate(g.stickers):
             rotate_piece=s.piece in moving
-            normal=transform(g.spec.normals[s.face]) if rotate_piece else g.spec.normals[s.face]
-            if dot(normal,eye)<=1e-8:
+            normal=transform(g.spec.normals[s.face]) if rotate_piece else observation.transform(*g.spec.normals[s.face])
+            if not curved and dot(normal,eye)<=1e-8:
                 continue
             color=self.cube.colors[i]
             rgba=self.palette[color] if color>=0 else (.37,.43,.5,1)
-            brightness=.85+.15*max(0,dot(normal,unit((-.3,.8,.52))))
-            rgba=tuple(c*brightness for c in rgba[:3])+(1,)
-            for patch in s.patches or (s.polygon,):
-                world=tuple(transform(p) for p in patch) if rotate_piece else patch
+            patches=skin[i] if curved else tuple((patch,g.spec.normals[s.face])
+                                                for patch in s.patches or (s.polygon,))
+            visible=False
+            for patch,patch_normal in patches:
+                patch_normal=transform(patch_normal) if rotate_piece else observation.transform(*patch_normal)
+                if dot(patch_normal,eye)<=1e-8:
+                    continue
+                visible=True
+                brightness=.85+.15*max(0,dot(patch_normal,unit((-.3,.8,.52))))
+                shade=tuple(c*brightness for c in rgba[:3])+(1,)
+                world=tuple(transform(p) if rotate_piece else observation.transform(*p) for p in patch)
                 pts=tuple(project(p) for p in world)
-                polygon(pts,rgba)
+                polygon(pts,shade)
                 self._polygons.append((pts,i))
+            if not visible:
+                continue
             for a,b in boundaries[i]:
+                path=tower_edge(a,b,self.cube.n) if curved else (a,b)
                 if rotate_piece:
-                    a,b=transform(a),transform(b)
-                edge(project(a),project(b),(.12,.16,.2,1),.6)
-                if i==self.selected:
-                    edge(project(a),project(b),(.05,.84,1,1),1.5)
+                    path=tuple(transform(p) for p in path)
+                else:
+                    path=tuple(observation.transform(*p) for p in path)
+                for a,b in zip(path,path[1:]):
+                    edge(project(a),project(b),(.12,.16,.2,1),.6)
+                    if i==self.selected:
+                        edge(project(a),project(b),(.05,.84,1,1),1.5)
         if vertices:
             chunks.append((vertices,indices))
         for normal,label in zip(g.spec.normals,self._face_labels):
+            normal=observation.transform(*normal)
             label.opacity=1 if self._move is None and dot(normal,eye)>.1 else 0
             x,y,_=project(normal)
             label.center=(self.x+x,self.y+y)
@@ -310,6 +393,10 @@ class PolyhedralView(Widget):
         self._fbo.ask_update()
 
     def pick(self,x,y):
+        hit=self.pick_surface(x,y)
+        return hit[0] if hit is not None else None
+
+    def pick_surface(self,x,y):
         x,y=x-self.x,y-self.y
         depth=float('inf')
         picked=None
@@ -326,10 +413,21 @@ class PolyhedralView(Widget):
                     z=u*a[2]+v*b[2]+w*c[2]
                     if z<depth:
                         depth,picked=z,index
-        return picked
+        if picked is None:
+            return None
+        eye,right,up,factor,cx,cy=self._proj
+        point=add(add(scale(right,(x-cx)/factor),scale(up,(y-cy)/factor)),
+                  scale(eye,-depth/.12))
+        return picked,point
+
+    def cancel_touch(self):
+        if self._touch is not None:
+            self._touch.ungrab(self)
+        self._touch=None
+        self._touch_start=None
 
     def on_touch_down(self,touch):
-        if self.collide_point(*touch.pos) and self._move is None:
+        if self.collide_point(*touch.pos) and self._move is None and self._observation_animation is None:
             self._touch=touch
             self._touch_start=touch.pos
             touch.grab(self)
@@ -431,14 +529,11 @@ class PolyhedralTwistView(PolyhedralView):
         if press is None:
             point=mean(sticker.polygon)
         else:
-            # Orthographic ray/face intersection recovers the actual finger hit.
-            q=add(scale(right,(press[0]-self.x-cx)/factor),
-                  scale(up,(press[1]-self.y-cy)/factor))
-            normal=g.spec.normals[sticker.face]
-            denominator=dot(normal,eye)
-            if abs(denominator)<1e-7:
+            hit=self.pick_surface(*press)
+            if hit is not None and hit[0]==sticker_index:
+                point=hit[1]
+            else:
                 return None
-            point=add(q,scale(eye,(1-dot(normal,q))/denominator))
         candidates=[]
         for axis,bands in enumerate(g.layers):
             for layer,band in enumerate(bands):

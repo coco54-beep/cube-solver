@@ -19,7 +19,8 @@ from app.i18n import tr
 from renderer.mastermorphix_view import cube_view_for
 from renderer.mastermorphix_mesh import STYLE_VERSION
 from app.constants import COLOR_INFO
-from ui.screens.demo_screen import _changed_homes, _build_case_cube, _steps_for
+from ui.screens.demo_screen import (_changed_homes, _build_case_cube, _steps_for,
+                                   _mode_title, _demo_view_for, _set_demo_cube)
 from ui.widgets import metrics as m
 from ui.widgets.layouts import ResponsiveBoxLayout
 
@@ -29,6 +30,8 @@ def _num(n):
 
 
 def _mode_menu_title(n):
+    if isinstance(n, tuple):
+        return _mode_title(n)
     return tr(f"demo.mode.menu.{n}")
 
 
@@ -65,6 +68,28 @@ def _slug(name):
 def render_thumb(case, n, size=140):
     """渲染案例初始态为 PNG，缓存后返回路径；失败返回 None。"""
     cube = _build_case_cube(n, case)
+    if isinstance(n, tuple):
+        # Include moves so identically named tip examples do not share an image.
+        from app.prefs import get
+        identity = repr((n, case['moves'], getattr(cube, 'palette', None),
+                         get('poly_palette_' + n[0], None), STYLE_VERSION))
+        key = hashlib.sha256(identity.encode('utf-8')).hexdigest()[:24]
+        path = os.path.join(_thumbs_dir(), 'irregular_demo_' + key + '.png')
+        if os.path.exists(path):
+            return path
+        v = _demo_view_for(cube, size_hint=(None, None), size=(size, size))
+        _set_demo_cube(v, cube)
+        v.reset_camera()
+        if hasattr(v, '_draw'):
+            v._draw()
+            if v._fbo is not None:
+                v._fbo.draw()
+        else:
+            v._draw_mesh()
+            if getattr(v, '_surface_fbo', None) is not None:
+                v._surface_fbo.draw()
+        v.export_to_png(path)
+        return path
     palette_key = ""
     if n == "mastermorphix":
         colors = repr(tuple(COLOR_INFO[c][1] for c in cube.palette))
@@ -112,13 +137,13 @@ class DemoMenuScreen(Screen):
 
     def set_mode(self, n):
         self.mode = n
-        self.lbl_title.text = tr(_MODE_TITLE[n])
+        self.lbl_title.text = _mode_menu_title(n)
         self._rebuild()
 
     def retranslate(self):
         if not hasattr(self, "lbl_title"):
             return
-        self.lbl_title.text = tr(_MODE_TITLE[self.mode])
+        self.lbl_title.text = _mode_menu_title(self.mode)
         self._rebuild()
 
     def _rebuild(self):
@@ -165,13 +190,22 @@ class DemoMenuScreen(Screen):
             w.bind(texture_size=_sync)
         _sync()
         # 整行可点击
-        row.bind(on_touch_down=lambda inst, touch, s=si, c=ci: self._row_touch(
+        row.bind(on_touch_down=self._row_press)
+        row.bind(on_touch_up=lambda inst, touch, s=si, c=ci: self._row_touch(
             inst, touch, s, c))
         row.add_widget(info)
         return row
 
+    def _row_press(self, row, touch):
+        if not getattr(touch, 'is_mouse_scrolling', False) and row.collide_point(*touch.pos):
+            touch.ud[('demo-row', id(self))] = (row, touch.pos)
+        return False
+
     def _row_touch(self, row, touch, si, ci):
-        if row.collide_point(*touch.pos):
+        pressed = touch.ud.get(('demo-row', id(self)))
+        if (pressed and pressed[0] is row and row.collide_point(*touch.pos)
+                and sum((a-b)**2 for a,b in zip(pressed[1],touch.pos)) <= m.h(12)**2):
+            touch.ud.pop(('demo-row', id(self)), None)
             self.open_case(si, ci)
             return True
         return False
@@ -188,6 +222,10 @@ class DemoMenuScreen(Screen):
         self.manager.current = "DemoScreen"
 
     def go_home(self):
+        if isinstance(self.mode, tuple):
+            self.manager.current = {'mastermorphix': 'MastermorphixScreen',
+                                    'mirror': 'MirrorScreen'}.get(self.mode[0], 'PolyhedralScreen')
+            return
         self.manager.current = ("MastermorphixScreen" if self.mode == "mastermorphix"
                                 else "InputScreen")
 

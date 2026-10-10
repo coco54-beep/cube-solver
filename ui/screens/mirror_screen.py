@@ -19,6 +19,8 @@ class MirrorScreen(MastermorphixScreen):
         super().build_ui()
         old=self.view
         self.view=MirrorView()
+        self.view.camera.azimuth=0.0
+        self.view.camera.elevation=0.0
         self.view.lock_rotation=True
         self.view.on_pick_piece=self.select_position
         index=self.main.children.index(old)
@@ -28,8 +30,6 @@ class MirrorScreen(MastermorphixScreen):
         self.palette_row._height_px=0
         self.palette_row.opacity=0
         self.palette_row.disabled=True
-        self.demo_button.disabled=True
-        self.demo_button.opacity=0
 
     def on_pre_enter(self,*args):
         if self._cube is None or self._cube.n!=_app().n:
@@ -49,6 +49,8 @@ class MirrorScreen(MastermorphixScreen):
     def _refresh(self):
         if self._cube is None:
             return
+        self.demo_button.disabled=self._cube.n>5
+        self.demo_button.opacity=1 if self._cube.n<=5 else 0
         self._cancel_view_turn()
         self.title.text=f'{tr("directory.mirror")} · {tr("directory.order",order=self._cube.n)}'
         self.reference_label.text=tr('mirror.input_hint')

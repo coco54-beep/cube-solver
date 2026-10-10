@@ -27,6 +27,10 @@ from app.mastermorphix_palette import load_palette
 from renderer.cube_view import CubeView
 from renderer.mastermorphix_view import MastermorphixView, cube_view_for
 from renderer.turn import decompose_move
+from cube.mirror import MirrorCube
+from cube.polyhedral import PolyhedralPuzzle
+from renderer.polyhedral_view import PolyhedralView
+from demo.irregular_cases import lessons, token
 from ui.widgets import metrics as m
 from ui.widgets.layouts import ResponsiveBoxLayout, AdaptiveSceneLayout
 
@@ -37,6 +41,8 @@ def _theme():
 
 
 def _mode_title(n):
+    if isinstance(n, tuple):
+        return tr('directory.' + n[0]) + ' · ' + tr('directory.order', order=n[1])
     return tr(f"demo.mode.title.{n}")
 
 
@@ -44,6 +50,8 @@ DEMO_MODES = (2, 3, 4, 5, "mastermorphix")
 
 
 def _steps_for(n):
+    if isinstance(n, tuple):
+        return lessons(*n)
     return {2: CASE_2X2, 3: CASE_3X3, 4: CASE_4X4, 5: CASE_5X5,
             "mastermorphix": CASE_MASTERMORPHIX}[n]
 
@@ -53,12 +61,47 @@ def _cls_for(n):
 
 
 def _build_case_cube(mode, case):
+    if isinstance(mode, tuple):
+        kind, n = mode
+        if kind == 'mastermorphix':
+            cube = MastermorphixCube.solved(load_palette(), n=n)
+        elif kind == 'mirror':
+            cube = MirrorCube.solved(n=n)
+        else:
+            cube = PolyhedralPuzzle(kind, n)
+        for move in reversed(case['moves']):
+            cube.apply_move(_inverse_demo_move(move, cube))
+        return cube
     if mode == "mastermorphix":
         palette = load_palette()
         factory = lambda: MastermorphixCube.solved(palette)
     else:
         factory = _cls_for(mode).solved
     return build_before(factory, case["moves"])
+
+
+def _inverse_demo_move(move, cube):
+    return (inverse_move_str(move) if isinstance(move, str)
+            else move.inverse(cube.geometry.spec.turn_order))
+
+
+def _demo_view_for(cube, **kwargs):
+    return (PolyhedralView(**kwargs) if isinstance(cube, PolyhedralPuzzle)
+            else cube_view_for(cube, **kwargs))
+
+
+def _set_demo_cube(view, cube, highlight=None):
+    if isinstance(cube, PolyhedralPuzzle):
+        view.set_cube(cube)
+        from app.prefs import get
+        palette = get('poly_palette_' + cube.puzzle_kind, None)
+        if (isinstance(palette, list) and len(palette) == len(cube.geometry.spec.normals)
+                and all(isinstance(c, list) and len(c) == 4
+                        and all(isinstance(v, (int, float)) and 0 <= v <= 1 for v in c)
+                        for c in palette)):
+            view.palette = tuple(tuple(c) for c in palette)
+    else:
+        view.set_cube(cube, highlight=highlight)
 
 
 def _autofit(lbl, pad=1):
@@ -187,11 +230,12 @@ class DemoScreen(Screen):
         self._si = si
         self._ci = ci
         self._show_case()
-        if self.mode == "mastermorphix":
+        if self.mode == "mastermorphix" or isinstance(self.mode, tuple):
             self.view.reset_camera()
 
     def toggle_mode(self):
-        self.mode = DEMO_MODES[(DEMO_MODES.index(self.mode) + 1) % len(DEMO_MODES)]
+        index = DEMO_MODES.index(self.mode) if self.mode in DEMO_MODES else -1
+        self.mode = DEMO_MODES[(index + 1) % len(DEMO_MODES)]
         self._steps = _steps_for(self.mode)
         self.lbl_mode.text = _mode_title(self.mode)
         self._si = 0
@@ -208,19 +252,22 @@ class DemoScreen(Screen):
         self._stop()
         case = self._case()
         cube = _build_case_cube(self.mode, case)
-        expected_view = MastermorphixView if self.mode == "mastermorphix" else CubeView
+        from renderer.mirror_view import MirrorView
+        expected_view = (PolyhedralView if isinstance(cube, PolyhedralPuzzle) else
+                         MirrorView if isinstance(cube, MirrorCube) else
+                         MastermorphixView if isinstance(cube, MastermorphixCube) else CubeView)
         if type(self.view) is not expected_view:
-            self.view = cube_view_for(cube, size_hint_y=0.5)
+            self.view = _demo_view_for(cube, size_hint_y=0.5)
             self._root_layout.replace_scene(self.view)
-        if self.mode == "mastermorphix":
+        if isinstance(cube, MastermorphixCube):
             self.view.show_axes = True
         self._work = cube
         self._initial = cube.clone()
         self._moves = list(case["moves"])
         self._move_index = 0
         # 聚焦：只给被移动/参与公式的块上色，其余灰色
-        self._highlight = None if self.mode == "mastermorphix" else _changed_homes(cube)
-        self.view.set_cube(cube, highlight=self._highlight)
+        self._highlight = None if self.mode == "mastermorphix" or isinstance(self.mode, tuple) else _changed_homes(cube)
+        _set_demo_cube(self.view, cube, self._highlight)
         self._refresh_case_text()
         self._update_controls()
 
@@ -256,7 +303,7 @@ class DemoScreen(Screen):
         if self._busy or self._move_index <= 0:
             return
         self._playing = False
-        move = inverse_move_str(self._moves[self._move_index - 1])
+        move = _inverse_demo_move(self._moves[self._move_index - 1], self._work)
         self._start_move(move, self._move_index - 1)
 
     def next_move(self):
@@ -275,12 +322,15 @@ class DemoScreen(Screen):
         self._start_move(self._moves[self._move_index], self._move_index + 1)
 
     def _start_move(self, move, target_index):
-        self._queue = list(decompose_move(move, self._work.n))
+        self._queue = list(decompose_move(move, self._work.n)) if isinstance(move, str) else []
         self._busy = True
         self._pending_index = target_index
         self._pending_move = move
         self._update_controls()
-        self._step_queue()
+        if isinstance(move, str):
+            self._step_queue()
+        else:
+            self.view.animate_move(move, on_done=self._step_queue, duration=.5)
 
     def _step_queue(self):
         if self._queue:
@@ -313,7 +363,7 @@ class DemoScreen(Screen):
         if not self._busy or self._pending_index is None:
             return
         self._work.apply_move(step.move_str)
-        self.view.set_cube(self._work, highlight=getattr(self, "_highlight", None))
+        _set_demo_cube(self.view, self._work, getattr(self, "_highlight", None))
         self._step_queue()
 
     def _stop(self):
@@ -325,11 +375,14 @@ class DemoScreen(Screen):
         self._pending_move = None
         if hasattr(self.view, "_cancel_animation"):
             self.view._cancel_animation()
+        elif hasattr(self.view, 'cancel_animation'):
+            self.view.cancel_animation()
         if interrupted and self._initial is not None:
             # Keep the state at the last fully completed formula action.
             self._work = self._initial.clone()
-            self._work.apply_moves(self._moves[:self._move_index])
-            self.view.set_cube(self._work, highlight=self._highlight)
+            for move in self._moves[:self._move_index]:
+                self._work.apply_move(move)
+            _set_demo_cube(self.view, self._work, self._highlight)
         self._update_controls()
 
     def _update_controls(self):
@@ -342,7 +395,7 @@ class DemoScreen(Screen):
             self._moves[self._move_index - 1] if self._move_index else tr("playback.ready")
         )
         self.lbl_progress.text = tr(
-            "demo.progress", i=self._move_index, total=len(self._moves), move=move,
+            "demo.progress", i=self._move_index, total=len(self._moves), move=token(move),
         )
 
     def on_pre_leave(self, *args):

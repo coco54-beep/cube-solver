@@ -1,5 +1,6 @@
 """Labels for polyhedral input, turns and solution playback."""
 ZH={
+ 'poly.restore_colors':'恢复默认颜色',
  'poly.twist_hint_on':'已锁定视角：按住块并拖动，松手拧层；斜拖方向不明确时不转动',
  'poly.twist_hint_off':'已解锁视角：拖动改变观察角度；锁定后拖动拧层',
  'poly.error.incomplete':'还有色块未录入，请先录入全部色块。',
@@ -27,6 +28,7 @@ ZH={
  'poly.help':'色块：点选录入颜色。调色按钮：设置实际配色。\n左右箭头：有动画地切换观察面。转轴和层数：选择转层。\n旋转箭头：正转／反转所选层。随机：生成可还原的打乱。\n垃圾桶：清空录入。撤销：恢复上一次编辑。勾选：检查录入。\n播放：求解并打开还原步骤。播放页左右箭头是上一步／下一步。\n录入不完整时不能求解；高阶求解可取消，解法不追求最短。',
 }
 EN={
+ 'poly.restore_colors':'Restore default colors',
  'poly.twist_hint_on':'View locked: drag a piece and release to turn its layer. Ambiguous drags are ignored.',
  'poly.twist_hint_off':'View unlocked: drag to orbit. Lock the view to turn layers.',
  'poly.error.incomplete':'Please enter every sticker before solving.',

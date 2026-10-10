@@ -60,14 +60,14 @@ class HomeScreen(Screen):
         b3 = self._card("3", tr("home.card.3.title"), onClick=lambda *a: self.pick(3))
         b4 = self._card("4", tr("home.card.4.title"), onClick=lambda *a: self.pick(4))
         b5 = self._card("5", tr("home.card.5.title"), onClick=lambda *a: self.pick(5))
-        self.master_button = self._card("3", tr("home.card.morphix.title"),
-                                        onClick=lambda *_: self.pick_mastermorphix())
         self.n_button = self._card("N", tr("home.card.n.title"),
                                    onClick=lambda *_: self.open_n_cube())
-        for b in (b2, b3, b4, b5, self.master_button, self.n_button):
+        self.irregular_button = self._card("异", tr("home.card.irregular.title"),
+                                           onClick=lambda *_: self.open_irregular())
+        for b in (b2, b3, b4, b5, self.n_button, self.irregular_button):
             self.cards.add_widget(b)
         self._cards = {2: b2, 3: b3, 4: b4, 5: b5,
-                       "morphix": self.master_button, "n": self.n_button}
+                       "n": self.n_button, "irregular": self.irregular_button}
         root.add_widget(self.cards)
         # 横屏三列两行，竖屏两列三行；监听窗口尺寸变化重排。
         from kivy.core.window import Window
@@ -139,12 +139,12 @@ class HomeScreen(Screen):
         self._last_win_size = (w, h)
         if not w or not h:
             return
-        wide = w > h
-        self._root_layout.padding = [m.h(20), m.h(10), m.h(20), m.h(10)]
-        self._root_layout.spacing = m.h(8)
-        self._topbar.height = self.settings_btn.width = m.h(44)
-        self._bottom.height = m.h(28)
-        self._head.height = min(m.h(96 if wide else 132), h * .20)
+        layout = m.menu_grid_metrics(w, h)
+        self._root_layout.padding = layout['padding']
+        self._root_layout.spacing = layout['spacing']
+        self._topbar.height = self.settings_btn.width = layout['top_height']
+        self._bottom.height = layout['bottom_height']
+        self._head.height = layout['head_height']
         self._head.spacing = max(2, self._head.height * 0.025)
         self._logo.height = self._head.height * 0.18
         self.title.height = self._head.height * .40
@@ -153,19 +153,11 @@ class HomeScreen(Screen):
         self.title.font_size = m.font(25)
         self.subtitle.font_size = m.font(12)
         self._ver_label.font_size = m.font(13)
-        vertical_fixed = (self._root_layout.padding[1] + self._root_layout.padding[3]
-                          + self._root_layout.spacing * 5 + self._topbar.height
-                          + self._bottom.height + self._head.height
-                          + self._root_layout.spacing * 2)
-        columns, rows = (3, 2) if wide else (2, 3)
-        self.cards.cols = columns
-        self.cards.spacing = (m.h(12), m.h(12))
-        available_width = w-self._root_layout.padding[0]-self._root_layout.padding[2]
-        cell_w = (available_width-(columns-1)*self.cards.spacing[0]) / columns
-        cell_h = max(1, (h-vertical_fixed-(rows-1)*self.cards.spacing[1]) / rows)
-        self.cards.height = min(cell_w, cell_h)*rows+(rows-1)*self.cards.spacing[1]
+        self.cards.cols = layout['columns']
+        self.cards.spacing = (layout['gap'], layout['gap'])
+        self.cards.height = layout['grid_height']
         for card in self.cards.children:
-            self._style_card(card)
+            card._restyle()
 
     @staticmethod
     def _fit_header_label(label, *_args):
@@ -224,73 +216,9 @@ class HomeScreen(Screen):
         draw()
         return logo
 
-    def _card_draw(self, card):
-        """绘制卡片背景：柔和投影 + 渐变填充 + 描边 + 顶部高光。"""
-        from kivy.graphics import Color, Line, RoundedRectangle
-        from ui.widgets import fx
-        theme = _app().theme
-        bg = getattr(card, "_bg", None)
-        if bg is None:
-            return
-        bg.clear()
-        pressed = getattr(card, "_pressed", False)
-        # 柔和投影
-        for inst in fx.soft_shadow(card.pos, card.size, 18, theme.card_shadow,
-                                   layers=2, spread=2.0, blur=3.0):
-            bg.add(inst)
-        # 圆角实心底
-        base = theme.surface_hi if pressed else theme.surface
-        bg.add(Color(*base))
-        bg.add(RoundedRectangle(pos=card.pos, size=card.size, radius=[14] * 4))
-        # 描边
-        bg.add(Color(*theme.card_border))
-        bg.add(Line(width=0.9, rounded_rectangle=(
-            card.x + 0.7, card.y + 0.7, card.width - 1.4, card.height - 1.4, 14)))
-
-    def _card_press(self, card, touch, down):
-        if not card.collide_point(*touch.pos):
-            return False
-        card._pressed = down
-        self._card_draw(card)
-        if (not down) and getattr(card, "_on_click", None) is not None:
-            card._on_click()
-        return False
-
     def _card(self, big, title, onClick):
-        """创建一个卡片式按钮（大号强调数字 + 标题）。"""
-        from kivy.graphics.instructions import InstructionGroup
-        theme = _app().theme
-        card = BoxLayout(orientation="vertical", spacing=2, padding=10)
-        card._pressed = False
-        card._on_click = onClick
-        card._bg = InstructionGroup()
-        card.canvas.before.add(card._bg)
-        card.bind(pos=lambda *a: self._card_draw(card),
-                  size=lambda *a: self._card_draw(card))
-        card.bind(on_touch_down=lambda inst, touch, c=card: self._card_press(c, touch, True),
-                  on_touch_up=lambda inst, touch, c=card: self._card_press(c, touch, False))
-        # 用 size_hint 比例占满卡片，避免固定高度导致文字重叠
-        big_label = Label(text=big, font_size="46sp", bold=True, halign="center",
-                          valign="middle", color=theme.accent, size_hint_y=0.62)
-        title_label = Label(text=title, font_size="18sp", bold=True, halign="center",
-                            valign="middle", color=theme.text, size_hint_y=0.38)
-        title_label.bind(size=lambda label, *_: setattr(label, "text_size", label.size))
-        card.add_widget(big_label)
-        card.add_widget(title_label)
-        card._labels = (big_label, title_label)
-        card.bind(size=lambda *_args, c=card: self._style_card(c))
-        self._card_draw(card)
-        return card
-
-    def _style_card(self, card):
-        labels = getattr(card, "_labels", None)
-        if not labels:
-            return
-        big, title = labels
-        height = card.height / m.scale_factor()
-        big.font_size = m.font(max(22, min(46, height * .32)))
-        title.font_size = m.font(max(11, min(18, height * .13)))
-        card.padding = m.h(max(4, min(10, height * .055)))
+        from ui.widgets.cards import HomeCard
+        return HomeCard(big, title, on_click=onClick)
 
     def refresh_theme(self):
         """主题切换后刷新 Python 端硬编码的颜色。"""
@@ -304,13 +232,7 @@ class HomeScreen(Screen):
         cards = getattr(self, "cards", None)
         if cards:
             for card in cards.children:
-                try:
-                    big, title = card._labels
-                    big.color = theme.accent
-                    title.color = theme.text
-                    self._card_draw(card)
-                except Exception:
-                    pass
+                card.refresh_theme()
 
     def _on_card_touch(self, card, touch):
         if card.collide_point(*touch.pos):
@@ -323,19 +245,22 @@ class HomeScreen(Screen):
         _app().new_mastermorphix()
         self.manager.current = "MastermorphixScreen"
 
+    def open_irregular(self):
+        self.manager.current = "IrregularDirectoryScreen"
+
     def open_n_cube(self):
         from kivy.uix.popup import Popup
         from kivy.uix.textinput import TextInput
-        from cube.cube_n import MIN_N, MAX_N
+        N_MIN, N_MAX = 6, 14  # 首页 N 阶可选项（内部仍保留 4 阶供异形魔方使用）
         from ui.widgets.dialogs import theme_popup
         content = BoxLayout(orientation="vertical", spacing=m.h(12), padding=m.h(16))
-        message = Label(text=tr("nxn.select.hint", min=MIN_N, max=MAX_N),
+        message = Label(text=tr("nxn.select.hint", min=N_MIN, max=N_MAX),
                         halign="center", valign="middle", color=_app().theme.text)
         message.bind(size=lambda label, *_: setattr(label, "text_size", label.size))
         content.add_widget(message)
         row = BoxLayout(spacing=m.h(8), size_hint_y=None, height=m.h(48))
         previous = UIButton(text="−", size_hint_x=.25)
-        value = TextInput(text=str(getattr(self, "_selected_n", MIN_N)), multiline=False,
+        value = TextInput(text=str(getattr(self, "_selected_n", N_MIN)), multiline=False,
                           input_filter="int", font_size=m.font(22), halign="center",
                           padding=[m.h(12), m.h(10)], background_normal="",
                           background_active="", background_color=_app().theme.surface_hi,
@@ -357,16 +282,16 @@ class HomeScreen(Screen):
             try:
                 number = int(value.text)
             except ValueError:
-                number = MIN_N
-            value.text = str(max(MIN_N, min(MAX_N, number + delta)))
+                number = N_MIN
+            value.text = str(max(N_MIN, min(N_MAX, number + delta)))
 
         def begin(*_):
             try:
                 number = int(value.text)
-                if not MIN_N <= number <= MAX_N:
+                if not N_MIN <= number <= N_MAX:
                     raise ValueError()
             except ValueError:
-                message.text = tr("nxn.select.range", min=MIN_N, max=MAX_N)
+                message.text = tr("nxn.select.range", min=N_MIN, max=N_MAX)
                 return
             self._selected_n = number
             popup.dismiss()

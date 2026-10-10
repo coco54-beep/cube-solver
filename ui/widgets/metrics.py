@@ -48,6 +48,24 @@ def scale_factor():
     return _scale()
 
 
+def menu_grid_metrics(width, height):
+    """Keep the six home and puzzle-directory cards identical in size."""
+    wide = width > height
+    columns, rows = (3, 2) if wide else (2, 3)
+    padding = (h(20), h(10), h(20), h(10))
+    spacing = h(8)
+    gap = h(12)
+    top_height, bottom_height = h(44), h(28)
+    head_height = min(h(96 if wide else 132), height * .20)
+    reserved = (padding[1] + padding[3] + 7 * spacing
+                + top_height + bottom_height + head_height)
+    card_width = (width - padding[0] - padding[2] - (columns-1)*gap) / columns
+    card_height = max(1, min(card_width, (height-reserved-(rows-1)*gap) / rows))
+    return dict(columns=columns, padding=padding, spacing=spacing, gap=gap,
+                top_height=top_height, bottom_height=bottom_height,
+                head_height=head_height, grid_height=rows*card_height+(rows-1)*gap)
+
+
 def input_grid_metrics(rows, column_gap=8, row_gap=6):
     """Share exact tile dimensions between input colors and action buttons.
 

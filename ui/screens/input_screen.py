@@ -826,13 +826,25 @@ class InputScreen(Screen):
             except Exception:
                 pass
         app = _app()
-        if app.facelets_input is not None:
-            self.set_facelets(app.facelets_input)
+        saved = app.facelets_input
+        if saved is None:
+            # 切回某一阶时恢复该阶上次录入的状态（而不是空白）。
+            saved = getattr(app, "facelets_cache", {}).get(n)
+        if saved is not None:
+            self.set_facelets(saved)
             self.msg.text = tr("input.resumed")
         else:
             self._refresh_view()
 
     def on_pre_leave(self, *args):
+        # 记住当前阶数的录入状态，便于在其它阶与本次之间来回切换。
+        try:
+            app = _app()
+            cache = getattr(app, "facelets_cache", None)
+            if cache is not None and getattr(self, "_data", None):
+                cache[app.n] = self.collect_facelets()
+        except Exception:
+            pass
         self.reset_interaction()
 
     # ---- 校验 ----

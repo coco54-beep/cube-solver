@@ -11,7 +11,7 @@ from kivy.uix.colorpicker import ColorPicker
 from app.constants import COLOR_INFO, COLOR_ORDER
 from app.i18n import tr
 from app.mastermorphix_palette import palette_entries, save_palette
-from cube.mastermorphix import (MastermorphixCube, DEFAULT_PALETTE, POSITIONS, AXIS_FACES, position_kind, position_name,
+from cube.mastermorphix import (MastermorphixCube, DEFAULT_PALETTE, POSITIONS, positions_for_order, AXIS_FACES, position_kind, position_name,
                                placements, make_piece, piece_colors, equivalent_placements,
                                normalize_input, MorphixInputError)
 from cube.coordinates import FACE_NORMALS
@@ -60,6 +60,7 @@ class MastermorphixScreen(Screen):
         self._cube = None
         self._recorded = set()
         self._history = []
+        self._gallery_page = 0
         self._group = "center"
         self._pos = (0, 1, 0)
         self._preview = None
@@ -73,10 +74,11 @@ class MastermorphixScreen(Screen):
                                    padding_px=[28, 6, 28, 8])
         top = ResponsiveBoxLayout(height_px=44, gap_px=8)
         back = UIButton(icon_name="back", size_hint_x=.16)
-        back.bind(on_release=lambda *_: setattr(self.manager, "current", "HomeScreen"))
+        back.bind(on_release=lambda *_: self.go_back())
         self.title = Label(text=tr("morphix.title"), font_size="20sp", bold=True)
         demo_button = UIButton(icon_name="demo", size_hint_x=.16)
         demo_button.bind(on_release=lambda *_: self.open_demo())
+        self.demo_button = demo_button
         for widget in (back, self.title, demo_button):
             top.add_widget(widget)
         root.add_widget(top)
@@ -105,6 +107,16 @@ class MastermorphixScreen(Screen):
         controls.add_widget(self.slot)
         self.gallery = GridLayout(cols=4, size_hint_y=None, height=m.h(66), spacing=m.h(6))
         controls.add_widget(self.gallery)
+        self.gallery_pages = ResponsiveBoxLayout(height_px=30, gap_px=6)
+        self.gallery_page_label = Label(font_size="12sp")
+        self.gallery_page_prev = UIButton(icon_name="prev")
+        self.gallery_page_next = UIButton(icon_name="next")
+        self.gallery_page_prev.bind(on_release=lambda *_: self._change_gallery_page(-1))
+        self.gallery_page_next.bind(on_release=lambda *_: self._change_gallery_page(1))
+        self.gallery_pages.add_widget(self.gallery_page_prev)
+        self.gallery_pages.add_widget(self.gallery_page_label)
+        self.gallery_pages.add_widget(self.gallery_page_next)
+        controls.add_widget(self.gallery_pages)
         navigation = ResponsiveBoxLayout(height_px=46, gap_px=8)
         self.btn_prev = UIButton(icon_name="prev")
         self.btn_prev.bind(on_release=lambda *_: self.turn_view(-1))
@@ -120,7 +132,8 @@ class MastermorphixScreen(Screen):
         self.hint.bind(size=lambda label, *_: setattr(label, "text_size", label.size))
         controls.add_widget(self.hint)
         actions = ResponsiveBoxLayout(height_px=48, gap_px=8)
-        for icon, cls, callback in (("random", UIButton, self.random_load),
+        for icon, cls, callback in (("twist", UIButton, self.open_twist),
+                                    ("random", UIButton, self.random_load),
                                     ("clear", DangerButton, self.confirm_clear),
                                     ("undo", UIButton, self.undo),
                                     ("check", UIButton, self.check),
@@ -136,7 +149,7 @@ class MastermorphixScreen(Screen):
         controls.bind(minimum_height=lambda *_: self._resize())
 
     def _resize(self):
-        rows = 2 if self._group == "corner" else 1
+        rows = max(1, (len(self.gallery.children) + self.gallery.cols - 1) // self.gallery.cols)
         self.gallery.height = rows*m.h(66) + (rows-1)*m.h(6)
         self.gallery.spacing = m.h(6)
         self.slot.height, self.hint.height, self.progress.height = m.h(28), m.h(44), m.h(24)
@@ -150,10 +163,13 @@ class MastermorphixScreen(Screen):
 
     def on_pre_enter(self, *args):
         palette = _app().mastermorphix_palette
-        if self._cube is None or self._cube.palette != palette:
+        if self._cube is None or self._cube.palette != palette or self._cube.n != getattr(_app(), "n", 3):
             self._blank(palette)
         self.reset_interaction()
         self._refresh()
+
+    def go_back(self):
+        self.manager.current = 'HomeScreen'
 
     def on_enter(self, *args):
         self.view.cancel_touch()
@@ -166,18 +182,36 @@ class MastermorphixScreen(Screen):
         self._cancel_view_turn()
 
     def _blank(self, palette):
-        self._cube = MastermorphixCube.solved(palette)
+        order = getattr(_app(), "n", 3)
+        if self._cube is None or self._cube.n != order:
+            self._ori = CubeOrientation(order)
+            if order != 3:
+                # Show the rounded tetrahedron's three faces and upright tip;
+                # a straight-on mechanism axis makes it look like a square.
+                self.view.reset_camera()
+            else:
+                self.view.camera.azimuth = 0.0
+                self.view.camera.elevation = 0.0
+        self._cube = MastermorphixCube.solved(palette, order)
         # Fixed center color pairs provide landmarks from the start. Their
         # preset orientations remain editable to match the physical puzzle.
-        self._recorded = {p for p in POSITIONS if position_kind(p) == "center"}
+        self._recorded = ({p for p in self._cube.positions if position_kind(p) == "center"}
+                          if order == 3 else set())
         self._history.clear()
         self._preview = None
-        self._group, self._pos = "center", FACE_NORMALS[self._ori.current_face()]
+        if order == 3:
+            self._group, self._pos = "center", FACE_NORMALS[self._ori.current_face()]
+        else:
+            self._pos = min(self._cube.positions, key=lambda p: (sum(abs(v) != max(abs(x) for x in p) for v in p), p))
+            self._group = position_kind(self._pos)
+
+    def _all_positions(self):
+        return self._cube.positions if self._cube is not None else POSITIONS
 
     def _positions(self):
-        if self._group == "center":
+        if self._group == "center" and self._cube.n == 3:
             return [FACE_NORMALS[f] for f in AXIS_FACES]
-        return sorted((p for p in POSITIONS if position_kind(p) == self._group), key=position_name)
+        return sorted((p for p in self._all_positions() if position_kind(p) == self._group), key=position_name)
 
     def select_position(self, pos):
         if self._busy_turn:
@@ -226,9 +260,18 @@ class MastermorphixScreen(Screen):
         # set_cube cancels animation; clear the matching screen lock as well.
         self._cancel_view_turn()
         self._resize()
+        self.title.text = f"{tr('directory.order', order=self._cube.n)} · {tr('morphix.title')}"
+        self.demo_button.opacity = 1 if self._cube.n == 3 else 0
+        self.demo_button.disabled = self._cube.n != 3
         def pair(pos):
-            return "/".join(str(self._cube.palette.index(c)+1) for c in piece_colors(pos, self._cube.palette))
-        self.reference_label.text = tr("morphix.reference", front=pair((0, 0, 1)), up=pair((0, 1, 0)))
+            return "/".join(str(self._cube.palette.index(c)+1) for c in piece_colors(pos, self._cube.palette, self._cube.n))
+        if self._cube.n == 2:
+            self.reference_label.text = ""
+        else:
+            def face_anchor(face):
+                candidates = [p for p in self._all_positions() if position_name(p) == face and position_kind(p) == "center"]
+                return min(candidates, key=lambda p: sum(v*v for v in p)) if candidates else FACE_NORMALS[face]
+            self.reference_label.text = tr("morphix.reference", front=pair(face_anchor("F")), up=pair(face_anchor("U")))
         self.view.recorded = self._recorded
         self.view.selected_pos = self._pos
         # Keep observation orientation through selection, edits and re-entry.
@@ -244,9 +287,9 @@ class MastermorphixScreen(Screen):
             chip.bind(on_release=lambda _, i=index: self.edit_color(i))
             self.palette_row.add_widget(chip)
         self._build_gallery()
-        self.progress.text = tr("morphix.progress", done=len(self._recorded))
+        self.progress.text = tr("morphix.progress", done=len(self._recorded), total=len(self._all_positions()))
         piece = self._cube.cubies[self._pos]
-        small_triangle = self._group == "corner" and len(piece_colors(piece.home, self._cube.palette)) == 1
+        small_triangle = self._group == "corner" and len(piece_colors(piece.home, self._cube.palette, self._cube.n)) == 1
         self.rotate.disabled = self._pos not in self._recorded or small_triangle
         hint = "hint" if self._pos not in self._recorded else "triangle_hint" if small_triangle else "rotate_hint"
         if self._group == "center" and self._pos in self._recorded:
@@ -255,29 +298,50 @@ class MastermorphixScreen(Screen):
 
     def _build_gallery(self):
         self.gallery.clear_widgets()
-        if self._group == "center":
+        if self._group == "center" and self._cube.n == 3:
             homes = [self._pos]
         else:
-            homes = [p for p in POSITIONS if position_kind(p) == self._group]
+            # High-order centers/wings belong to several distinct orbits.
+            # A card must actually fit this slot; other orbit coordinates
+            # have no proper orientation and used to crash the gallery.
+            homes = [p for p in self._all_positions() if position_kind(p) == self._group
+                     and placements(p, self._pos)]
             if self._group == "corner":
                 # Four single-color triangles above the four three-color tips.
-                homes.sort(key=lambda home: len(piece_colors(home, self._cube.palette)))
+                homes.sort(key=lambda home: len(piece_colors(home, self._cube.palette, self._cube.n)))
+            elif self._cube.n > 3:
+                homes.sort(key=lambda home: (piece_colors(home, self._cube.palette, self._cube.n), home))
             elif self._group == "edge":
                 # Same-color wedges are indistinguishable; the solver assigns
                 # their three internal identities without asking the user.
-                homes = [next(p for p in homes if piece_colors(p, self._cube.palette) == (color,))
+                homes = [next(p for p in homes if piece_colors(p, self._cube.palette, self._cube.n) == (color,))
                          for color in self._cube.palette]
-        choices = [(home, frame) for home in homes for frame in placements(home, self._pos)] if self._group == "center" else [(home, None) for home in homes]
-        for home, chosen_frame in choices:
+        choices = ([(home, frame) for home in homes for frame in placements(home, self._pos)]
+                   if self._group == "center" and self._cube.n == 3 else [(home, None) for home in homes])
+        page_size = 8 if self._cube.n > 3 else len(choices)
+        page_count = max(1, (len(choices) + page_size - 1) // page_size)
+        self._gallery_page = max(0, min(self._gallery_page, page_count - 1))
+        if self._cube.n > 3:
+            start = self._gallery_page * page_size
+            visible_choices = choices[start:start + page_size]
+        else:
+            visible_choices = choices
+        self.gallery_pages.opacity = 1 if self._cube.n > 3 and page_count > 1 else 0
+        self.gallery_pages.disabled = self.gallery_pages.opacity == 0
+        self.gallery_pages.height = m.h(30) if self.gallery_pages.opacity else 0
+        self.gallery_page_label.text = f"{self._gallery_page + 1} / {page_count}"
+        self.gallery_page_prev.disabled = self._gallery_page == 0
+        self.gallery_page_next.disabled = self._gallery_page >= page_count - 1
+        for home, chosen_frame in visible_choices:
             frame = placements(home, self._pos)[0]
             current = self._cube.cubies[self._pos]
             active = self._pos in self._recorded and (current.home == home or
-                      (self._group == "edge" and piece_colors(current.home, self._cube.palette) == piece_colors(home, self._cube.palette)))
+                      (self._cube.n <= 3 and self._group == "edge" and piece_colors(current.home, self._cube.palette, self._cube.n) == piece_colors(home, self._cube.palette, self._cube.n)))
             if active:
                 if current.home == home:
                     frame = current.frame
                 else:
-                    frame = next(c.frame for c in equivalent_placements(current, self._cube.palette) if c.home == home)
+                    frame = next(c.frame for c in equivalent_placements(current, self._cube.palette, self._cube.n) if c.home == home)
             if chosen_frame is not None:
                 frame = chosen_frame
                 active = active and current.frame == frame
@@ -285,13 +349,19 @@ class MastermorphixScreen(Screen):
             preview = MastermorphixView(size_hint=(.9, .9), pos_hint={"center_x": .5, "center_y": .5})
             preview.lock_rotation = True
             preview.fit_piece = True
-            preview.set_cube(MastermorphixCube({self._pos: make_piece(home, self._pos, frame)}, self._cube.palette))
+            preview.set_cube(MastermorphixCube({self._pos: make_piece(home, self._pos, frame, self._cube.n)}, self._cube.palette, self._cube.n))
             _thumbnail_camera_for(preview, self._pos)
             button.add_widget(preview)
             button.bind(pos=lambda b, *_: setattr(b.children[0], "pos", (b.x+b.width*.05, b.y+b.height*.05)),
                         size=lambda b, *_: setattr(b.children[0], "size", (b.width*.9, b.height*.9)))
             button.bind(on_release=lambda _, h=home, f=frame: self.choose_piece(h, f))
             self.gallery.add_widget(button)
+        rows = max(1, (len(self.gallery.children) + self.gallery.cols - 1) // self.gallery.cols)
+        self.gallery.height = rows*m.h(66) + (rows-1)*m.h(6)
+
+    def _change_gallery_page(self, delta):
+        self._gallery_page += delta
+        self._refresh()
 
     def _remember(self):
         self._history.append((self._cube.clone(), set(self._recorded)))
@@ -301,7 +371,7 @@ class MastermorphixScreen(Screen):
     def choose_piece(self, home, frame=None):
         self._remember()
         frame = frame or placements(home, self._pos)[0]
-        self._cube.cubies[self._pos] = make_piece(home, self._pos, frame)
+        self._cube.cubies[self._pos] = make_piece(home, self._pos, frame, self._cube.n)
         self._recorded.add(self._pos)
         self._refresh()
 
@@ -312,7 +382,7 @@ class MastermorphixScreen(Screen):
         piece = self._cube.cubies[self._pos]
         frames = placements(piece.home, self._pos)
         frame = frames[(frames.index(piece.frame)+1) % len(frames)]
-        self._cube.cubies[self._pos] = make_piece(piece.home, self._pos, frame)
+        self._cube.cubies[self._pos] = make_piece(piece.home, self._pos, frame, self._cube.n)
         self._refresh()
 
     def undo(self):
@@ -344,11 +414,19 @@ class MastermorphixScreen(Screen):
         self.manager.get_screen("DemoMenuScreen").set_mode("mastermorphix")
         self.manager.current = "DemoMenuScreen"
 
+    def open_twist(self):
+        """进入专门的粽子/镜面拧动界面（录入页本身不内嵌拧动）。"""
+        if self._busy_turn or self._cube is None:
+            return
+        self.reset_interaction()
+        _app().morphix_twist_source = self.name
+        self.manager.current = "MorphixTwistScreen"
+
     def open_help(self):
         content = ResponsiveBoxLayout(orientation="vertical", gap_px=12, padding_px=16)
         reference = MastermorphixView(size_hint_y=None, height=m.h(180))
         reference.show_axes = True
-        reference.set_cube(MastermorphixCube.solved(self._cube.palette))
+        reference.set_cube(MastermorphixCube.solved(self._cube.palette, self._cube.n))
         content.add_widget(reference)
         scroll = ScrollView()
         text = Label(text=tr("morphix.help"), size_hint_y=None, halign="left", valign="top", font_size="15sp")
@@ -370,13 +448,13 @@ class MastermorphixScreen(Screen):
         if self._busy_turn or self._cube is None:
             return
         from cube.scramble import random_scramble
-        moves = random_scramble(3)
+        moves = random_scramble(self._cube.n, puzzle_kind="mastermorphix")
         self._remember()
-        self._cube = MastermorphixCube.solved(self._cube.palette)
+        self._cube = MastermorphixCube.solved(self._cube.palette, self._cube.n)
         self._cube.apply_moves(moves)
-        self._recorded = set(POSITIONS)
+        self._recorded = set(self._all_positions())
         self._refresh()
-        self.hint.text = tr("morphix.random_loaded", k=len(moves))
+        self.hint.text = tr("morphix.random_loaded", k=len(moves), total=len(self._all_positions()))
 
     def edit_color(self, index):
         """Edit one top swatch directly, keeping the entered pieces and pose."""
@@ -449,14 +527,17 @@ class MastermorphixScreen(Screen):
         self._refresh()
 
     def check(self):
-        if len(self._recorded) != 26:
-            self.hint.text = tr("morphix.error.incomplete")
+        if len(self._recorded) != len(self._all_positions()):
+            self.hint.text = tr("morphix.error.incomplete", total=len(self._all_positions()))
             return None
-        try:
-            cube = normalize_input(self._cube)
-        except MorphixInputError as exc:
-            self.hint.text = tr(f"morphix.error.{exc}")
-            return None
+        if self._cube.n == 3:
+            try:
+                cube = normalize_input(self._cube)
+            except MorphixInputError as exc:
+                self.hint.text = tr(f"morphix.error.{exc}")
+                return None
+        else:
+            cube = self._cube.clone()
         self.hint.text = tr("morphix.valid")
         return cube
 
@@ -466,7 +547,7 @@ class MastermorphixScreen(Screen):
             return
         app = _app()
         app.cube = cube
-        app.n = 3
+        app.n = cube.n
         app.puzzle_kind = "mastermorphix"
         app.solve_result = None
         self.manager.current = "SolvingScreen"

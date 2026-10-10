@@ -162,8 +162,8 @@ def solve_nxn(cube, cancel_event=None, progress_callback=None):
             raise RuntimeError("nxn.cancelled")
 
     def emit(key, progress, **values):
-        from app.i18n import tr
         if progress_callback:
+            from app.i18n import tr
             progress_callback({"stage": "nxn", "progress": progress,
                                "label": tr(key, **values)})
 
@@ -208,17 +208,39 @@ def solve_nxn(cube, cancel_event=None, progress_callback=None):
             if orbit.wing_permutation(work, positions) != list(range(len(positions))):
                 raise RuntimeError("nxn.error.replay")
             stages.append(SolveStage("nxn_wings", "nxn.solving.wings", all_moves[before:]))
-        for k, positions in enumerate(centers):
-            cancel()
-            emit("nxn.solving.centers", .5 + .46 * k / max(1, len(centers)),
-                 i=k + 1, total=len(centers))
-            before = len(all_moves)
-            targets = orbit.three_cycles(orbit.center_permutation(work, positions))
-            if targets:
-                base, start = orbit.primitive(work.n, positions, False, cancel)
-                for atoms in orbit.conjugates(work.n, positions, base, start, targets, cancel):
-                    apply(atoms)
-            stages.append(SolveStage("nxn_centers", "nxn.solving.centers", all_moves[before:]))
+        def solve_center_orbits():
+            for k, positions in enumerate(centers):
+                cancel()
+                emit("nxn.solving.centers", .5 + .46 * k / max(1, len(centers)),
+                     i=k + 1, total=len(centers))
+                before = len(all_moves)
+                targets = orbit.three_cycles(orbit.center_permutation(work, positions))
+                if targets:
+                    base, start = orbit.primitive(work.n, positions, False, cancel)
+                    for atoms in orbit.conjugates(work.n, positions, base, start, targets, cancel):
+                        apply(atoms)
+                stages.append(SolveStage("nxn_centers", "nxn.solving.centers", all_moves[before:]))
+
+        if getattr(work, "puzzle_kind", None) == "mastermorphix" and work.n % 2:
+            # Shape pieces expose the twist of each fixed odd-order center,
+            # even though an ordinary cube solver treats those centers as
+            # unoriented. The proven 3x3 supercenter macros correct those six
+            # arrows and only disturb the movable centre orbits, so orient the
+            # fixed centres first and sort the centre orbits once afterwards.
+            from solver.mastermorphix import center_solution
+            for _ in range(3):
+                cancel()
+                twists = work.center_twists()
+                if not any(twists):
+                    break
+                correction = center_solution(twists)
+                for move in correction:
+                    cancel()
+                    work.apply_move(move)
+                all_moves.extend(correction)
+                stages.append(SolveStage("nxn_center_orientation",
+                                          "morphix.solving.centers", correction))
+        solve_center_orbits()
         emit("nxn.solving.replay", .98)
         moves = _compress(all_moves, work.n)
         replay = cube.clone()
@@ -231,7 +253,14 @@ def solve_nxn(cube, cancel_event=None, progress_callback=None):
         return SolveResult(True, moves, "", int((time.perf_counter() - started) * 1000),
                            len(moves), stages)
     except Exception as exc:
-        from app.i18n import tr
         key = str(exc)
-        message = tr(key) if key.startswith("nxn.") else key
+        message = key
+        if key.startswith("nxn."):
+            try:
+                from app.i18n import tr
+            except ImportError:
+                # A solver-only process has no Kivy UI/translator installed.
+                pass
+            else:
+                message = tr(key)
         return SolveResult(False, [], message, int((time.perf_counter() - started) * 1000), 0, [])

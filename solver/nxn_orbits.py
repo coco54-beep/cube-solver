@@ -131,6 +131,15 @@ def rotations():
 
 def wing_permutation(cube, positions):
     """Wings with identical colors are distinguished by their orientation."""
+    if getattr(cube, "puzzle_kind", None) == "mastermorphix":
+        indexes = {home: i for i, home in enumerate(positions)}
+        try:
+            result = [indexes[cube.cubies[p].home] for p in positions]
+        except KeyError as exc:
+            raise ValueError("nxn.error.wings") from exc
+        if len(set(result)) != len(positions):
+            raise ValueError("nxn.error.wings")
+        return result
     solved = _solved(cube.n)
     identities = {}
     rots = list(rotations())
@@ -155,6 +164,15 @@ def wing_permutation(cube, positions):
 
 
 def center_permutation(cube, positions):
+    if getattr(cube, "puzzle_kind", None) == "mastermorphix":
+        indexes = {home: i for i, home in enumerate(positions)}
+        try:
+            result = [indexes[cube.cubies[p].home] for p in positions]
+        except KeyError as exc:
+            raise ValueError("nxn.error.centers") from exc
+        if len(set(result)) != len(positions):
+            raise ValueError("nxn.error.centers")
+        return result
     solved = _solved(cube.n)
     homes = defaultdict(list)
     for i, p in enumerate(positions):

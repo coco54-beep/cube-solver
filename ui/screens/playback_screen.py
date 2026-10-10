@@ -348,8 +348,8 @@ class PlaybackScreen(Screen):
 
     def _do_go_back(self):
         self._stop_all()
-        self.manager.current = ("MastermorphixScreen" if getattr(_app(), "puzzle_kind", "cube") == "mastermorphix"
-                                else "InputScreen")
+        self.manager.current = {'mastermorphix': 'MastermorphixScreen', 'mirror': 'MirrorScreen'}.get(
+            getattr(_app(), 'puzzle_kind', 'cube'), 'InputScreen')
 
     def _confirm(self, msg, on_ok):
         """二次确认弹窗；确定后执行 on_ok。"""

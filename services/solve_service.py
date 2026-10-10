@@ -70,7 +70,10 @@ class SolveService:
                     pass
 
         try:
-            if getattr(cube, "puzzle_kind", None) == "mastermorphix":
+            if getattr(cube, 'puzzle_kind', None) == 'mirror':
+                from solver.mirror import solve_mirror
+                result = solve_mirror(cube, cancel_event=cancel, progress_callback=cb)
+            elif getattr(cube, "puzzle_kind", None) == "mastermorphix":
                 from solver.mastermorphix import solve_mastermorphix
                 result = solve_mastermorphix(cube, cancel_event=cancel, progress_callback=cb)
             elif isinstance(cube, Cube2):

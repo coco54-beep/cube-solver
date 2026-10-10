@@ -1,8 +1,12 @@
 """UI 屏幕包。"""
 
 from ui.screens.home_screen import HomeScreen  # noqa: F401
+from ui.screens.irregular_directory_screen import IrregularDirectoryScreen  # noqa: F401
+from ui.screens.polyhedral_screen import PolyhedralScreen, PolyhedralPlaybackScreen, PolyhedralTwistScreen
+from ui.screens.mirror_screen import MirrorScreen
 from ui.screens.input_screen import InputScreen  # noqa: F401
 from ui.screens.mastermorphix_screen import MastermorphixScreen  # noqa: F401
+from ui.screens.morphix_twist_screen import MorphixTwistScreen  # noqa: F401
 from ui.screens.solving_screen import SolvingScreen  # noqa: F401
 from ui.screens.playback_screen import PlaybackScreen  # noqa: F401
 from ui.screens.demo_screen import DemoScreen  # noqa: F401

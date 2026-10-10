@@ -1,8 +1,8 @@
 """Higher order entry, progress and validation messages."""
 MESSAGES = {
     "zh": {
-        "home.subtitle": "2–17 阶魔方 · 三阶粽子魔方 · 智能还原",
-        "help.select.body": "首页共六个入口：2、3、4、5 阶、三阶粽子魔方、N 阶魔方。\n横屏三列两行，竖屏两列三行。\nN 阶入口可选择 6–17 阶，录入颜色、随机打乱并生成还原步骤。\n高阶色块较小时，可用录入页的加减按钮调整显示大小。",
+        "home.subtitle": "2 / 3 / 4 / 5 阶魔方 · N 阶魔方 · 异形魔方",
+        "help.select.body": "首页按顺序提供 2、3、4、5 阶魔方、N 阶魔方和异形魔方目录。\nN 阶入口可选 6–17 阶；异形魔方目录可按类型和阶数选择。\n目前三阶粽子魔方已接入录入与求解，其它异形魔方先列入目录。",
         "nxn.select.hint": "选择 {min}–{max} 阶魔方\n支持手动录入、随机打乱和还原步骤播放。\n阶数越高，求解时间和还原步数通常越多。",
         "nxn.select.range": "请输入 {min}–{max} 之间的整数。",
         "nxn.select.enter": "开始录入",
@@ -26,8 +26,8 @@ MESSAGES = {
         "nxn.error.replay": "还原步骤未通过完整检查，未输出不正确的解法。",
     },
     "en": {
-        "home.subtitle": "2–17 Cubes · Mastermorphix · Smart Solver",
-        "help.select.body": "Six entries: 2, 3, 4, 5, Mastermorphix and N×N.\nThree columns in landscape; two columns in portrait.\nChoose an order from 6 to 17 under N×N to enter colors, scramble and solve.\nUse the input zoom buttons for small stickers.",
+        "home.subtitle": "2 / 3 / 4 / 5 Cubes · N×N · Shape Mods",
+        "help.select.body": "The home page lists 2, 3, 4 and 5 cubes, N×N, then the shape-mod catalog.\nChoose an order from 6 to 17 under N×N.\nThe 3-order Mastermorphix is connected; other shape mods are catalog entries for now.",
         "nxn.select.hint": "Choose an order from {min} to {max}\nEnter colors, scramble and play the solution.\nLarger cubes usually take longer and need more moves.",
         "nxn.select.range": "Enter an integer between {min} and {max}.",
         "nxn.select.enter": "Enter colors",
@@ -51,8 +51,8 @@ MESSAGES = {
         "nxn.error.replay": "The complete solution check failed. No incorrect moves were returned.",
     },
     "ja": {
-        "home.subtitle": "2–17 段キューブ · マスターモルフィックス · スマート攻略",
-        "help.select.body": "2・3・4・5 段、マスターモルフィックス、N 段の6項目。\n横向き3列2行、縦向き2列3行です。\nN 段で6–17段を選び、色入力・スクランブル・解法再生ができます。\n小さいマスには入力画面の拡大ボタンを使ってください。",
+        "home.subtitle": "2 / 3 / 4 / 5 キューブ · N×N · 変形キューブ",
+        "help.select.body": "ホームには2、3、4、5段、N×N、変形キューブ一覧の順に表示されます。\nN×Nでは6～17段を選べます。\n三段のマスターモルフィックスは入力と解法に対応し、他の変形キューブは一覧から選択できます。",
         "nxn.select.hint": "{min}–{max} 段を選択\n色の入力・ランダムスクランブル・解法再生に対応。\n段数が大きいほど時間と手数が増えます。",
         "nxn.select.range": "{min}–{max} の整数を入力してください。",
         "nxn.select.enter": "色を入力",

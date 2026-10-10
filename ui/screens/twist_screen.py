@@ -345,6 +345,9 @@ class TwistScreen(Screen):
         # 用拧动前的旧 facelets_input 覆盖刚拧好的分布。
         app = _app()
         app.facelets_input = clean
+        cache = getattr(app, "facelets_cache", None)
+        if cache is not None:
+            cache[app.n] = clean
         # 状态已改变，必须作废上一次求解结果：否则回录入页按“求解”时，
         # start_solve 会因 facelets_input == 当前布局而误判为“状态未变”，
         # 直接复用拧动前的旧解法，导致无法正确还原。

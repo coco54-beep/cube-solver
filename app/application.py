@@ -46,6 +46,7 @@ class CubeApp(App):
         self.mastermorphix_palette = load_palette()
         self.solve_result = None
         self.facelets_input = None  # 用户录入的 facelets
+        self.facelets_cache = {}    # 各阶录入状态的快照（切回该阶时恢复）
         # ---- 输入方式（高级 / 简洁，默认简洁）----
         self.simple_input = bool(_pref_get("simple_input", True))
         self._kv_loaded = False
@@ -62,7 +63,7 @@ class CubeApp(App):
             Builder.load_file(_KV_PATH)
             self._kv_loaded = True
         sm = ScreenManager()
-        for name in ("HomeScreen", "InputScreen", "MastermorphixScreen", "SolvingScreen", "PlaybackScreen",
+        for name in ("HomeScreen", "IrregularDirectoryScreen", "InputScreen", "MastermorphixScreen", "MirrorScreen", "MorphixTwistScreen", "PolyhedralScreen", "PolyhedralTwistScreen", "PolyhedralPlaybackScreen", "SolvingScreen", "PlaybackScreen",
                      "DemoScreen", "DemoMenuScreen", "TwistScreen", "SettingsScreen"):
             scr = _screen(name)
             scr.name = name
@@ -81,7 +82,8 @@ class CubeApp(App):
     def _reset_input_interaction(self):
         sm = getattr(self, "root", None)
         if sm is not None:
-            for name in ("InputScreen", "MastermorphixScreen"):
+            for name in ("InputScreen", "MastermorphixScreen", "MirrorScreen", "PolyhedralScreen",
+                         "MorphixTwistScreen", "PolyhedralTwistScreen"):
                 if sm.has_screen(name):
                     sm.get_screen(name).reset_interaction()
 
@@ -109,10 +111,10 @@ class CubeApp(App):
         self.solve_result = None
         self.facelets_input = None
 
-    def new_mastermorphix(self):
-        self.n = 3
+    def new_mastermorphix(self, n=3):
+        self.n = n
         self.puzzle_kind = "mastermorphix"
-        self.cube = MastermorphixCube.solved(self.mastermorphix_palette)
+        self.cube = MastermorphixCube.solved(self.mastermorphix_palette, n)
         self.solve_result = None
         self.facelets_input = None
 
@@ -130,6 +132,21 @@ class CubeApp(App):
             self.cube = CubeN(cubies, n)
         else:
             self.cube = Cube3(cubies)
+        self.solve_result = None
+
+    def new_polyhedral(self, kind, n):
+        from cube.polyhedral import PolyhedralPuzzle
+        self.n = n
+        self.puzzle_kind = kind
+        self.cube = PolyhedralPuzzle(kind, n)
+        self.cube.colors = [-1] * len(self.cube.colors)
+        self.polyhedral_solution = None
+
+    def new_mirror(self, n=3):
+        from cube.mirror import MirrorCube
+        self.n = n
+        self.puzzle_kind = 'mirror'
+        self.cube = MirrorCube.solved(n=n)
         self.solve_result = None
 
 

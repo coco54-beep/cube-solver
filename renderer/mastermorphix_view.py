@@ -44,6 +44,7 @@ _VERTEX_FORMAT = [(b'surface_position', 3, 'float'), (b'surface_color', 4, 'floa
 
 
 class MastermorphixView(CubeView):
+    _piece_geometry = staticmethod(oriented_piece_geometry)
     def __init__(self, **kwargs):
         self.selected_pos = None
         self.recorded = None
@@ -173,18 +174,23 @@ class MastermorphixView(CubeView):
                                     self.center_y+sy*scale*2.9)
         offset_x = offset_y = 0
         subdivisions = 4 if self._gpu_failed else 14
+        if self.cube.n > 3:
+            subdivisions = max(4, round(subdivisions * 3 / self.cube.n))
         if self.fit_piece:
             points = [p for piece in self.cube.cubies.values()
-                      for vertices, _, _, _, _ in oriented_piece_geometry(piece.home, piece.frame, subdivisions)
+                      for vertices, _, _, _, _ in self._piece_geometry(piece.home, piece.frame, subdivisions, self.cube.n)
                       for p in vertices]
             xs, ys = [dot(p, right) for p in points], [dot(p, up) for p in points]
             offset_x, offset_y = (min(xs)+max(xs))/2, (min(ys)+max(ys))/2
             scale = min(self.width, self.height)*.76/max(max(xs)-min(xs), max(ys)-min(ys), .01)
         use_gpu = self._ensure_surface_buffer()
         subdivisions = 14 if use_gpu else 4
+        if self.cube.n > 3:
+            subdivisions = max(4, round(subdivisions * 3 / self.cube.n))
         vertices, indices = [], []
         compatible_surfaces = []
         borders = []
+        seams = []
         animation = self._anim
         moving = None
         if animation is not None:
@@ -198,6 +204,7 @@ class MastermorphixView(CubeView):
         fx, fy, fz = forward
         center_x = self.center_x-offset_x*scale
         center_y = self.center_y-offset_y*scale
+        self._mm_proj = (right, up, forward, scale, center_x, center_y)
 
         def project(point):
             # Thousands of vertices use this hot path per frame. Avoid three
@@ -220,7 +227,7 @@ class MastermorphixView(CubeView):
 
         for pos, piece in self.cube.cubies.items():
             rotating = moving if moving is not None and pos in animation["positions"] else None
-            for points, normal, color, finish, outline in oriented_piece_geometry(piece.home, piece.frame, subdivisions):
+            for points, normal, color, finish, outline in self._piece_geometry(piece.home, piece.frame, subdivisions, self.cube.n):
                 if rotating is not None:
                     normal = rotating.transform(*normal)
                 if self._whole_world is not None:
@@ -246,20 +253,29 @@ class MastermorphixView(CubeView):
                 # fight with stickers. Leave several depth units of margin.
                 append_polygon(polygon, rgba, -.0005 if finish == "sticker" else 0.)
                 self._polygons.append((polygon, pos, color))
+                if (self.cube.n > 3 or getattr(self.cube,'puzzle_kind',None)=='mirror') and finish == "sticker":
+                    seams.extend((polygon[a], polygon[b]) for a, b in outline)
                 if pos == self.selected_pos and finish in ("sticker", "internal"):
                     borders.extend((polygon[a], polygon[b]) for a, b in outline)
 
-        for a, b in borders:
+        def draw_edge(a, b, width, rgba):
             dx, dy = b[0]-a[0], b[1]-a[1]
             length = math.hypot(dx, dy)
             if length < 1e-6:
-                continue
-            nx, ny = -dy/length*1.6, dx/length*1.6
+                return
+            nx, ny = -dy/length*width, dx/length*width
             append_polygon(((a[0]+nx, a[1]+ny, a[2]),
                             (a[0]-nx, a[1]-ny, a[2]),
                             (b[0]-nx, b[1]-ny, b[2]),
                             (b[0]+nx, b[1]+ny, b[2])),
-                           (.18, .88, 1, 1), -.0015)
+                           rgba, -.0015)
+        for a, b in seams:
+            # Keep the ribbon above one physical pixel. Subpixel ribbons
+            # disappear between pixel centers and make flat seams look dotted.
+            draw_edge(a, b, .75, ((.22,.26,.32,1) if getattr(self.cube,'puzzle_kind',None)=='mirror'
+                                 else (.94, .955, .975, 1)))
+        for a, b in borders:
+            draw_edge(a, b, 1.6, (.18, .88, 1, 1))
         if use_gpu:
             self._surface_mesh.vertices = vertices
             self._surface_mesh.indices = indices
@@ -268,6 +284,10 @@ class MastermorphixView(CubeView):
             self._draw_compatible(compatible_surfaces)
 
     def pick_piece(self, x, y):
+        hit = self.pick_surface(x, y)
+        return hit[0] if hit is not None else None
+
+    def pick_surface(self, x, y):
         # Interpolate depth at the tap instead of rebuilding painter order.
         nearest, picked = float('inf'), None
         for polygon, pos, color in self._polygons:
@@ -283,7 +303,13 @@ class MastermorphixView(CubeView):
                     depth = u*a[2]+v*b[2]+w*c[2]
                     if depth < nearest:
                         nearest, picked = depth, pos
-        return picked
+        if picked is None:
+            return None
+        right, up, forward, scale, cx, cy = self._mm_proj
+        # Reconstruct the contact on a curved/offset surface, not its cubie centre.
+        point = tuple(right[i]*(x-cx)/scale + up[i]*(y-cy)/scale
+                      + forward[i]*nearest/.1 for i in range(3))
+        return picked, point
 
     def cancel_touch(self):
         touch = self._touch0
@@ -336,5 +362,8 @@ class MastermorphixView(CubeView):
 
 
 def cube_view_for(cube=None, **kwargs):
+    if getattr(cube, 'puzzle_kind', None) == 'mirror':
+        from renderer.mirror_view import MirrorView
+        return MirrorView(**kwargs)
     cls = MastermorphixView if getattr(cube, "puzzle_kind", None) == "mastermorphix" else CubeView
     return cls(**kwargs)

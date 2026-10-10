@@ -1,4 +1,4 @@
-"""Curved tetrahedral display body, cut into the existing 26 mechanism pieces.
+"""Curved tetrahedral display body, cut into mechanical pieces.
 
 The four colored patches lie on one smooth convex surface. Curve the complete
 body first and then cut it with the mechanism's planes, keeping those internal
@@ -9,10 +9,11 @@ from collections import Counter
 from functools import lru_cache
 import math
 
-from cube.mastermorphix import NORMALS, VERTICES, _clip, cross, dot
+from cube.mastermorphix import (NORMALS, VERTICES, _clip, cross, dot,
+                               cut_boundaries, cut_curved_pieces)
 from renderer.polygon_visibility import plane
 
-STYLE_VERSION = "curved_v1"
+STYLE_VERSION = "curved_planar_cuts_v2"
 _SUBDIVISIONS = 14
 _CURVATURE = 2.8
 _FACE_HEIGHT = 2. / math.sqrt(3.)
@@ -78,15 +79,25 @@ def _clip_patch(points, normal, bound):
     return tuple(output)
 
 
-@lru_cache(maxsize=52)
-def rounded_piece_geometry(home, subdivisions=_SUBDIVISIONS):
+@lru_cache(maxsize=2048)
+def rounded_piece_geometry(home, subdivisions=_SUBDIVISIONS, n=3):
     """Return curved exterior facets and flat internal caps for one piece."""
-    polygons = _curved_body(subdivisions)
+    # A curved facet is never given its own border. Piece/color boundaries
+    # below are the only places where the white backing is exposed.
+    polygons = (_curved_body(subdivisions) if n <= 3 else
+                cut_curved_pieces(n, max(12, subdivisions))[home])
     bounds = []
+    from cube.mastermorphix import positions_for_order
+    vals = sorted({p[0] for p in positions_for_order(n)})
+    # Cut the curved body with flat mechanism planes, rather than bending a
+    # subdivided cube grid. This preserves the real eight-piece 2x2 layout.
+    boundaries = cut_boundaries(n)
     for axis, coord in enumerate(home):
-        lo, hi = (-2., -.5) if coord == -1 else ((-.5, .5) if coord == 0 else (.5, 2.))
-        polygons = _clip(polygons, axis, 1, hi)
-        polygons = _clip(polygons, axis, -1, -lo)
+        index = vals.index(coord)
+        lo, hi = boundaries[index], boundaries[index+1]
+        if n <= 3:
+            polygons = _clip(polygons, axis, 1, hi)
+            polygons = _clip(polygons, axis, -1, -lo)
         for sign, bound in ((1, hi), (-1, -lo)):
             normal = tuple(float(sign) if i == axis else 0. for i in range(3))
             bounds.append((normal, bound-_SEAM))
@@ -113,6 +124,12 @@ def rounded_piece_geometry(home, subdivisions=_SUBDIVISIONS):
                 if len(patch) >= 3 and plane(patch) is not None:
                     output.append((patch, adjacent_color, "internal"))
             continue
+        if n > 3:
+            # Draw the complete continuous color patch. The renderer traces
+            # its real boundary once, instead of offsetting every tiny facet
+            # against a coplanar white backing (which produces dotted seams).
+            output.append((points, color, "sticker"))
+            continue
         output.append((points, color, "shell"))
         sticker = points
         # Trim only real piece boundaries and colored seams, not tessellation.
@@ -127,7 +144,8 @@ def rounded_piece_geometry(home, subdivisions=_SUBDIVISIONS):
             # insertion order without depth fighting or raised flat tiles.
             output.append((sticker, color, "sticker"))
     # Match the previous model's visible size after rounding the overall body.
-    return tuple((tuple(tuple(v*_DISPLAY_SCALE for v in p) for p in points), color, finish)
+    display_scale = _DISPLAY_SCALE if n <= 3 else .85
+    return tuple((tuple(tuple(v*display_scale for v in p) for p in points), color, finish)
                  for points, color, finish in output)
 
 
@@ -135,10 +153,10 @@ def _edge_key(a, b):
     return tuple(sorted((tuple(round(v, 7) for v in a), tuple(round(v, 7) for v in b))))
 
 
-@lru_cache(maxsize=52)
-def piece_outline_indices(home, subdivisions=_SUBDIVISIONS):
+@lru_cache(maxsize=2048)
+def piece_outline_indices(home, subdivisions=_SUBDIVISIONS, n=3):
     """Suppress tessellation diagonals when outlining a selected piece."""
-    geometry = rounded_piece_geometry(home, subdivisions)
+    geometry = rounded_piece_geometry(home, subdivisions, n)
     counts = Counter((finish, color, _edge_key(a, b))
                      for points, color, finish in geometry
                      for a, b in zip(points, points[1:] + points[:1]))
@@ -147,12 +165,12 @@ def piece_outline_indices(home, subdivisions=_SUBDIVISIONS):
                  for points, color, finish in geometry)
 
 
-@lru_cache(maxsize=104)
-def oriented_piece_geometry(home, frame, subdivisions=_SUBDIVISIONS):
+@lru_cache(maxsize=4096)
+def oriented_piece_geometry(home, frame, subdivisions=_SUBDIVISIONS, n=3):
     """Reuse discrete orientations with a bounded cache on mobile devices."""
     from cube.mastermorphix import transform
     return tuple((tuple(transform(frame, p) for p in points),
                   transform(frame, plane(points)[0]), color, finish, outline)
                  for (points, color, finish), outline in
-                 zip(rounded_piece_geometry(home, subdivisions),
-                     piece_outline_indices(home, subdivisions)))
+                  zip(rounded_piece_geometry(home, subdivisions, n),
+                     piece_outline_indices(home, subdivisions, n)))

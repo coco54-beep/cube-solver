@@ -237,6 +237,30 @@ def solve_mastermorphix(cube, cancel_event=None, progress_callback=None,
     while finding its first solution. Always keep the best completed result.
     This is a bounded improvement search, not a globally optimal solver.
     """
+    if cube.n != 3:
+        def solve_and_check(solver, *args, **kwargs):
+            result = solver(*args, **kwargs)
+            if not result.success:
+                return result
+            replay = cube.clone()
+            replay.apply_moves(result.moves)
+            if replay.is_solved():
+                return result
+            from app.i18n import tr
+            return SolveResult(False, [], tr("morphix.error.orientation"),
+                               result.elapsed_ms, 0, [])
+
+        if cube.n == 2:
+            from cube.cube2 import Cube2
+            from solver.solver2 import solve_2x2
+            return solve_and_check(solve_2x2,
+                                   Cube2({p: c.clone() for p, c in cube.cubies.items()}),
+                                   cancel_event=cancel_event)
+        # Higher-order shapes need exact piece identities; color-only solvers
+        # can leave same-color Mastermorphix pieces in the wrong positions.
+        from solver.solver_n import solve_nxn
+        return solve_nxn(cube, cancel_event=cancel_event, progress_callback=progress_callback)
+
     from solver.solver3 import solve_3x3
     started = time.perf_counter()
 

@@ -30,13 +30,13 @@ _SUFFIX = ("", "'", "2")
 _LENGTH = {2: (9, 11), 3: (20, 25), 4: (40, 45), 5: (60, 70)}
 
 
-def _layers_for(n: int) -> Tuple[int, ...]:
-    # 2/3 阶只用外层；4 阶加宽层；5 阶再加 3 层转（会移动固定中心块）。
-    # 5 阶的 3 层转产生「中心块被置换」的状态，求解器会先按当前各面中心
-    # 重贴配色、把中心面对齐后再降阶，最终解成六面纯色（见 solver.solver5）。
+def _layers_for(n: int, puzzle_kind=None) -> Tuple[int, ...]:
+    # Keep the width within the movable layers so odd-order fixed centers stay fixed.
     if n <= 3:
         return (1,)
     if n == 4:
+        return (1, 2)
+    if n == 5 and puzzle_kind == "mastermorphix":
         return (1, 2)
     if n >= 6:
         return tuple(range(1, n // 2 + 1))
@@ -52,7 +52,7 @@ def _token(face: str, layers: int, suffix: str) -> str:
     return f"{layers}{face}{suffix}"
 
 
-def random_scramble(n: int, rng=None) -> List[str]:
+def random_scramble(n: int, rng=None, puzzle_kind=None) -> List[str]:
     """生成一个较彻底的随机打乱（避免相邻同轴，减少自抵消）。
 
     返回 apply_move 可直接应用的动作字符串列表。``rng`` 可传入
@@ -60,7 +60,7 @@ def random_scramble(n: int, rng=None) -> List[str]:
     """
     rng = rng or random
     lo, hi = _LENGTH.get(n, (12 * n, 14 * n))
-    layer_choices = _layers_for(n)
+    layer_choices = _layers_for(n, puzzle_kind)
     moves: List[str] = []
     prev_axis = None
     for _ in range(rng.randint(lo, hi)):

@@ -6,7 +6,7 @@
 title = 3D魔方智能还原
 package.name = cubesolver
 package.domain = com.example
-version = 1.2.19
+version = 1.2.20
 
 # 工程源码目录（buildozer 会把它拷贝进打包环境）
 source.dir = .
@@ -18,7 +18,7 @@ source.include_exts = py,kv,png,jpg,json,txt,bin,md,ttf,pkl
 source.include_patterns = assets/solver_tables/*,twophase/*,joint_dist.bin,p4_table.bin
 
 # 打包时排除：构建脚本目录、研究/实验脚本、git
-source.exclude_dirs = scripts,tools,experiments,_shots,.git,.buildozer,__pycache__,.pytest_cache,tests
+source.exclude_dirs = scripts,tools,experiments,_shots,video_output,.git,.buildozer,__pycache__,.pytest_cache,tests
 source.exclude_patterns = table_gen*.log,pytest.ini,*.log,count_by_dir.py,count_by_dir_result.txt,count_files.py,count_py_by_dir.py,count_py_result.txt,count_result.txt,count_stats.py,explore_project.py
 
 # ----------------------------------------------------------------------------

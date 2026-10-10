@@ -401,10 +401,6 @@ class PolyhedralScreen(Screen):
             self._solve_popup.dismiss()
             self._solve_popup=None
 
-    def reset_interaction(self):
-        self.view.cancel_animation()
-        self.panel.disabled=self._job is not None
-
     def retranslate(self):
         if self._cube:
             self.title.text=f'{tr("directory."+self._cube.puzzle_kind)} · {tr("directory.order",order=self._cube.n)}'
@@ -424,40 +420,56 @@ class PolyhedralPlaybackScreen(Screen):
         self._work=None
         self._index=0
         self._seek_job=None
-        root=AdaptiveSceneLayout(padding_px=[12,8,12,8])
+        self.build_ui()
+
+    def build_ui(self):
+        from ui.screens.playback_screen import _ProgressTrack
+        self._simple=bool(getattr(_app(),'simple_input',False))
+        root=AdaptiveSceneLayout(padding_px=[28,8,28,8],gap_px=6)
         self.view=PolyhedralView()
         panel=ResponsiveBoxLayout(orientation='vertical',gap_px=8,size_hint_y=None)
-        self.title=Label(size_hint_y=None,height=m.h(42),font_size='18sp')
-        panel.add_widget(self.title)
-        self.status=Label(size_hint_y=None,height=m.h(40),font_size='16sp')
-        panel.add_widget(self.status)
-        self.track=Slider(min=0,max=1,value=0,size_hint_y=None,height=m.h(30))
-        self.track.bind(on_touch_up=self._seek_touch)
+        self.view.lock_rotation=self._simple
+        info=ResponsiveBoxLayout(orientation='vertical',height_px=72,gap_px=4)
+        self.title=Label(font_size='15sp',halign='center')
+        self.status=Label(font_size='18sp',halign='center')
+        for label in (self.title,self.status):
+            label.bind(size=lambda w,*_:setattr(w,'text_size',w.size))
+            info.add_widget(label)
+        panel.add_widget(info)
+        self.track=_ProgressTrack(maximum=1,value=0,size_hint_y=None,height=m.h(6))
+        panel.bind(height=lambda *_:setattr(self.track,'height',m.h(6)))
         panel.add_widget(self.track)
-        row=ResponsiveBoxLayout(height_px=48,gap_px=6)
+        controls=ResponsiveBoxLayout(orientation='vertical',height_px=110,gap_px=6)
+        row=ResponsiveBoxLayout(gap_px=8)
+        self._playback_buttons={}
         for icon,fn in (('first',lambda:self.seek(0)),('prev',self.prev),('solve',self.play),
                         ('next',self.next),('last',lambda:self.seek(len(self._moves)))):
             button=PrimaryButton(icon_name=icon) if icon=='solve' else UIButton(icon_name=icon)
             button.bind(on_release=lambda *_,f=fn:f())
-            row.add_widget(button)
+            self._playback_buttons[icon]=button
+            if not self._simple or icon not in ('first','last'):
+                row.add_widget(button)
             if icon=='solve':
                 self.play_button=button
-        panel.add_widget(row)
-        row=ResponsiveBoxLayout(height_px=44,gap_px=6)
-        for icon,fn in (('reset',lambda:self.seek(0)),('back',self.back)):
+        controls.add_widget(row)
+        row=ResponsiveBoxLayout(gap_px=8)
+        for icon,fn in (('reset',self.view.reset_camera),('back',self.back)):
             b=UIButton(icon_name=icon)
             b.bind(on_release=lambda *_,f=fn:f())
-            row.add_widget(b)
-        panel.add_widget(row)
-        row=ResponsiveBoxLayout(height_px=34,gap_px=6)
-        self.speed_label=Label(text=tr('poly.speed'),size_hint_x=.2)
-        self.speed=Slider(min=.3,max=3,value=1)
+            if not self._simple or icon=='back':
+                row.add_widget(b)
+        controls.add_widget(row)
+        panel.add_widget(controls)
+        row=ResponsiveBoxLayout(height_px=44,gap_px=6)
+        self.speed_label=Label(text=tr('playback.speed'),font_size='15sp',size_hint_x=.24)
+        self.speed=Slider(min=.25,max=2,value=getattr(self,'_speed_value',1),step=.25,size_hint_x=.76)
+        self.speed.bind(value=lambda w,v:setattr(self,'_speed_value',v))
         row.add_widget(self.speed_label)
         row.add_widget(self.speed)
         panel.add_widget(row)
-        row=ResponsiveBoxLayout(height_px=34,gap_px=6)
-        self.hold_label=Label(text=tr('playback.hold'),size_hint_x=.2)
-        self.hold=Slider(min=0.0,max=6.0,value=self._hold_time,step=0.1)
+        row=ResponsiveBoxLayout(height_px=44,gap_px=6)
+        self.hold_label=Label(text=tr('playback.hold'),font_size='15sp',size_hint_x=.24)
+        self.hold=Slider(min=0.0,max=6.0,value=self._hold_time,step=0.1,size_hint_x=.76)
         self.hold.bind(value=lambda inst,val:setattr(self,'_hold_time',max(0.0,val)))
         row.add_widget(self.hold_label)
         row.add_widget(self.hold)
@@ -465,8 +477,22 @@ class PolyhedralPlaybackScreen(Screen):
         root.set_content(self.view,panel)
         self.add_widget(root)
 
+    def retranslate(self):
+        self.speed_label.text=tr('playback.speed')
+        self.hold_label.text=tr('playback.hold')
+        if self._work is not None:
+            self._refresh()
+
+    def refresh_theme(self):
+        if self._work is not None:
+            self._refresh()
+
     def on_pre_enter(self,*args):
         self.stop()
+        if self._simple!=bool(getattr(_app(),'simple_input',False)):
+            self.view.cancel_animation()
+            self.clear_widgets()
+            self.build_ui()
         self._initial,self._moves,palette=_app().polyhedral_solution
         self._work=self._initial.clone()
         self._index=0
@@ -474,14 +500,23 @@ class PolyhedralPlaybackScreen(Screen):
         self.view.set_cube(self._work)
         if len(palette)==len(self._work.geometry.spec.normals):
             self.view.palette=palette
-        self.track.max=max(1,len(self._moves))
+        self.track.maximum=max(1,len(self._moves))
         self.title.text=tr('poly.solution',total=len(self._moves))
         self._refresh()
 
     def _refresh(self):
+        from demo.irregular_cases import token
+        current=(token(self.view._move) if self.view._move is not None else
+                 token(self._moves[self._index-1]) if self._index else tr('playback.ready'))
+        self.title.text=tr('playback.current',move=current)
         self.status.text=tr('poly.step',done=self._index,total=len(self._moves))
         self.track.value=self._index
         self.play_button.icon_name='pause' if self._playing else 'solve'
+        busy=self.view._move is not None or self._seek_job is not None
+        self._playback_buttons['prev'].disabled=busy or self._index<=0
+        self._playback_buttons['next'].disabled=busy or self._index>=len(self._moves)
+        self._playback_buttons['first'].disabled=busy or self._index<=0
+        self._playback_buttons['last'].disabled=busy or self._index>=len(self._moves)
         self.view.refresh()
         for label in (self.title,self.status,self.speed_label,self.hold_label):
             label.color=_app().theme.text
@@ -500,6 +535,7 @@ class PolyhedralPlaybackScreen(Screen):
             if self._playing:
                 self._hold=Clock.schedule_once(self.next,self._hold_time)
         self.view.animate_move(self._moves[self._index],done,duration=.32/self.speed.value)
+        self._refresh()
 
     def prev(self):
         self.stop()
@@ -515,6 +551,7 @@ class PolyhedralPlaybackScreen(Screen):
             self._index-=1
             self._refresh()
         self.view.animate_move(move,done,duration=.32/self.speed.value)
+        self._refresh()
 
     def play(self):
         if self._seek_job is not None:

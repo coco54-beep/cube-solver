@@ -79,8 +79,6 @@ class PlaybackScreen(Screen):
         panel = ResponsiveBoxLayout(orientation="vertical", gap_px=8, size_hint_y=None)
         self.view = cube_view_for(_app().cube, size_hint_y=0.52)
         self.view.lock_rotation = simple  # 简洁模式：视角固定
-        if self._puzzle_kind == "mastermorphix":
-            self.view.lock_rotation = False
 
         info = ResponsiveBoxLayout(orientation="vertical", height_px=72, gap_px=4)
         self.lbl_stage = Label(text="", font_size="15sp", halign="center")

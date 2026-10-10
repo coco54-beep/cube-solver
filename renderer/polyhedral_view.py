@@ -7,7 +7,7 @@ from kivy.clock import Clock
 from kivy.graphics import Callback,ClearBuffers,ClearColor,Color,Fbo,Mesh,Rectangle
 from kivy.graphics.instructions import InstructionGroup
 from kivy.graphics.opengl import GL_DEPTH_TEST,GL_LEQUAL,GL_LESS,glDepthFunc,glEnable,glDisable
-from kivy.properties import NumericProperty
+from kivy.properties import NumericProperty,BooleanProperty
 from kivy.logger import Logger
 from kivy.graphics.texture import Texture
 from kivy.uix.label import Label
@@ -81,6 +81,7 @@ def outlines(kind,n):
 
 
 class PolyhedralView(Widget):
+    lock_rotation=BooleanProperty(True)
     yaw=NumericProperty(32)
     pitch=NumericProperty(22)
     roll=NumericProperty(0)
@@ -428,14 +429,21 @@ class PolyhedralView(Widget):
 
     def on_touch_down(self,touch):
         if self.collide_point(*touch.pos) and self._move is None and self._observation_animation is None:
+            if self._touch is not None:
+                return True
             self._touch=touch
             self._touch_start=touch.pos
+            self._touch_last=touch.pos
             touch.grab(self)
             return True
         return super().on_touch_down(touch)
 
     def on_touch_move(self,touch):
         if touch is self._touch:
+            if not self.lock_rotation:
+                self.yaw-=(touch.x-self._touch_last[0])*.4
+                self.pitch=max(-80,min(80,self.pitch-(touch.y-self._touch_last[1])*.4))
+                self._touch_last=touch.pos
             return True
         return super().on_touch_move(touch)
 

@@ -1,16 +1,16 @@
 # 3D Cube Solver
 
-### A state-based solving system for 2x2-5x5 cubes, higher-order cubes, and the 3x3 Mastermorphix
+### A state-based solver for standard, higher-order, and irregular twisty puzzles
 
 [Latest Android release](https://github.com/coco54-beep/cube-solver/releases/latest) · [中文技术说明](README.zh-CN.md) · [Source code](https://github.com/coco54-beep/cube-solver)
 
 ## Abstract
 
-This project is a cube-state modeling and solving application that turns a user-entered sticker configuration into a move sequence with solver-specific state and replay checks. Its scope covers conventional 2x2-5x5 cubes, an experimental 6x6-17x17 solver, and a shape-modified 3x3 Mastermorphix. Rather than forcing every puzzle through one search procedure, the system uses a puzzle-specific method: bidirectional search for 2x2, a Kociemba two-phase solver for 3x3, reduction pipelines for 4x4 and 5x5, orbit-based permutation repair for higher-order cubes, and a shape- and orientation-aware model for Mastermorphix.
+This project models entered puzzle states and produces move sequences with puzzle-specific validation and replay checks. In addition to conventional 2x2-5x5 cubes and an experimental 6x6-17x17 solver, version 1.2.18 extends the shape-modified Mastermorphix family to orders 2-9 and adds five other irregular families: Pyraminx, Skewb, Megaminx, Tower Cube, and Mirror Cube. Their supported orders range from 2 to 13 depending on the mechanism. Each family uses a geometry-aware state model rather than forcing every shape through a conventional 3x3 representation.
 
 The engineering focus is the complete path from input to replay: geometric cubie representation, state validation, solver orchestration, move normalization, and solution checking. The project integrates established solving methods where appropriate; it does not claim a new general solution to the cube group or globally optimal solutions. Higher-order solving remains experimental and has not been comprehensively benchmarked across random states and Android devices.
 
-**Keywords:** permutation puzzles; cubie model; reduction method; piece orbits; commutators; Mastermorphix; solution verification
+**Keywords:** permutation puzzles; cubie model; reduction method; piece orbits; commutators; Mastermorphix; Pyraminx; Skewb; Megaminx; Mirror Cube; solution verification
 
 <p align="center">
   <img src="assets/screenshots/home.png" width="155" alt="Puzzle selection" />
@@ -19,11 +19,11 @@ The engineering focus is the complete path from input to replay: geometric cubie
   <img src="assets/screenshots/playback_stepping.png" width="155" alt="3D solution playback" />
 </p>
 
-<p align="center"><sub>Figure 1. Puzzle selection, N x N input, shape-aware input, and verified move playback.</sub></p>
+<p align="center"><sub>Figure 1. Puzzle selection, higher-order input, shape-aware input, and 3D playback. Version 1.2.18 also adds a dedicated irregular-puzzle directory and geometry-specific twist and playback screens.</sub></p>
 
 ## 1. Scope and contributions
 
-The application addresses three related but distinct problems:
+The application addresses four related problems: state interpretation from entered colors or piece shapes; puzzle-specific solving instead of treating every order as a 3x3; geometry-aware turning and playback for non-cubic mechanisms; and reliable presentation through staged moves and replay checks. The project contributions include shared geometric piece models, a custom 2x2 search, reduction solvers for 4x4 and 5x5, an orbit-based 6x6-17x17 pipeline, an order-aware Mastermorphix model, and a geometric engine for Pyraminx, Skewb, Megaminx, Tower Cube, and Mirror Cube. The 3x3 two-phase search is provided by the bundled `hkociemba` implementation and is wrapped by this project.
 
 1. **State interpretation.** Convert face colors and shaped-piece orientations into an explicit state that can be checked independently of the scramble history.
 2. **Puzzle-specific solving.** Select a suitable solver architecture for each puzzle family instead of treating all orders as a 3x3 search problem.
@@ -50,20 +50,22 @@ Solver stages are returned as structured data rather than a flat string. This al
 
 ```mermaid
 flowchart LR
-    A[Facelet or shape-aware input] --> B[State reconstruction and legality checks]
+    A[Color or shape input] --> B[Geometry-aware state reconstruction]
     B --> C{Puzzle family}
-    C --> D[2x2: bidirectional BFS]
+    C --> D[2x2: bidirectional search]
     C --> E[3x3: two-phase search]
     C --> F[4x4 / 5x5: reduction]
     C --> G[6x6-17x17: piece orbits]
-    C --> H[Mastermorphix: shape and center orientation]
-    D --> I[Move normalization]
-    E --> I
-    F --> I
-    G --> I
-    H --> I
-    I --> J[Replay check where implemented]
-    J --> K[Staged 3D playback]
+    C --> H[Mastermorphix: shaped cubies]
+    C --> I[Irregular geometries: cores and piece orbits]
+    D --> J[Move normalization]
+    E --> J
+    F --> J
+    G --> J
+    H --> J
+    I --> J
+    J --> K[Replay check where implemented]
+    K --> L[Staged 3D playback]
 ```
 
 <p align="center"><sub>Figure 2. Shared state pipeline with puzzle-specific solver back ends.</sub></p>
@@ -107,23 +109,38 @@ The implementation identifies wing and center orbits, validates their visible pi
 
 This method is implemented for orders 6 through 17. The size range is a software capability, not a claim of comprehensive state-space validation: broad random-state coverage, performance benchmarks, and Android device validation remain incomplete. See [the N x N implementation notes](docs/nxn.md).
 
-### 3.6. 3x3 Mastermorphix: shape and center-orientation model
+### 3.6. Orders 2-9 Mastermorphix: shape and orientation model
 
-The four-color Mastermorphix is modeled as a 3x3 mechanism with shaped pieces: eight corner-class pieces, twelve single-color edge wedges, and six two-color center seams. Input and validation are shape-aware. Internally, virtual six-color labels let the movable-piece configuration be mapped to a conventional 3x3 state; these labels are solver bookkeeping and are not required from the user.
+The Mastermorphix family is supported from orders 2 through 9. The order-three puzzle is modeled as a cube mechanism with shaped pieces: eight corner-class pieces, twelve single-color edge wedges, and six two-color center seams. Input and validation are shape-aware. Internally, virtual six-color labels let the movable-piece configuration be mapped to a conventional 3x3 state; these labels are solver bookkeeping and are not required from the user.
 
 The solver first obtains a 3x3 solution for the movable pieces. Because the Mastermorphix exposes center orientation, it then applies center-only generators whose effects are checked to leave movable pieces unchanged. Proper cube rotations generate equivalent macro orientations, and a shortest-path table over the available center-macro set covers the 2,048 reachable center-orientation states. A bounded, best-effort search compares equivalent piece labelings, setup turns, and macro orderings to reduce the move count. The final sequence is replayed against the shape-aware model and must solve both piece placement and visible orientation.
 
-The bounded optimization is not a proof of minimality. See [the Mastermorphix usage and model notes](docs/mastermorphix.md).
+Orders other than three use their corresponding corner-state or higher-order cubie solver and verify the result against the shape-aware model. The order-three bounded optimization is not a proof of minimality. See [the Mastermorphix usage and model notes](docs/mastermorphix.md).
+
+### 3.7. Irregular puzzle families: geometry-specific state and moves
+
+Version 1.2.18 adds a dedicated irregular-puzzle directory. The order ranges below are the choices exposed by the application; each geometry has its own legal layer-turn model.
+
+| Puzzle family | Orders | State representation and solving path |
+|---|---:|---|
+| Pyraminx | 2-7 | Tetrahedral sticker geometry. The 2-layer variant models its four movable tips separately; higher orders solve a small core and then the remaining piece orbits. |
+| Skewb | 3, 5, 7 | Vertex-turning geometry with sticker-state input; solved through a core and orbit-based reduction. |
+| Megaminx | 2-13 | Twelve-face dodecahedral geometry. Orders 2-3 use precomputed strong generating sequences (SGS); higher orders use a reduced core and three-cycle transports for piece orbits. Even orders follow the corresponding Kilominx mechanism. |
+| Tower Cube | 3-7 | A tetrahedral tower geometry with its own layer-turn permutations and shape-aware replay. |
+| Mirror Cube | 2-9 | Input is based on piece dimensions and orientation rather than color; exact piece identities are solved with the matching 2x2, 3x3, or higher-order engine. |
+| Mastermorphix | 2-9 | Four-color shaped-piece model. Order three tracks center orientation explicitly; other orders use their corresponding cube-state solver. |
+
+The polyhedral engine derives sticker permutations from the puzzle geometry, reconstructs state without a scramble history, and checks generated moves by replay. A separate twist screen lets users select an axis and layer, rotate the puzzle, undo or redo moves, and lock the view. Solution playback keeps the original geometry and provides step navigation, playback speed, and dwell-time control. See [the irregular-puzzle model and usage notes](docs/irregular-puzzles.md) for input conventions, order details, and implementation limits.
 
 ## 4. Validation and verification
 
-The validation layer checks the structure relevant to each puzzle: sticker counts and face dimensions, fixed-center color conventions, corner and edge identities/orientations, higher-order orbit consistency, and Mastermorphix shape and center orientation. A syntactically complete color layout is not automatically assumed to be a physically reachable state.
+The validation layer checks the structure relevant to each puzzle: sticker counts and face dimensions, legal geometry-specific move orbits, fixed-center conventions, corner and edge identities/orientations, higher-order orbit consistency, Mirror Cube piece shapes, and Mastermorphix shape and center orientation. A syntactically complete color layout is not automatically assumed to be a physically reachable state.
 
 The verification gate differs by solver. The 4x4 path checks the full state after applying its solving stages, before compressing the final notation. The 5x5, N x N, and Mastermorphix paths replay the final sequence on a clone of the original input and require a solved state. The 3x3 path checks state legality before search, while the 2x2 path uses its corner-state encoding; neither wrapper currently performs the same full-model replay check. Across all methods, a returned move list is intended for the application's own notation and simulator.
 
 ## 5. Application and reproducibility
 
-The solver is integrated into a Python/Kivy application with color entry, random scrambles, notation paste, validation, undo/redo, cancellation and progress reporting, and staged 3D playback. The application is available as an Android arm64-v8a package and as a desktop Python program.
+The solver is integrated into a Python/Kivy application with color or shape entry, random scrambles, notation paste, validation, undo/redo, cancellation and progress reporting, dedicated twist practice for irregular puzzles, and staged 3D playback. The application is available as an Android arm64-v8a package and as a desktop Python program.
 
 ```bash
 git clone https://github.com/coco54-beep/cube-solver.git
@@ -136,13 +153,13 @@ Python 3.10 or newer is required. If the 4x4 solver table is absent, install Git
 
 ## 6. Limitations and evaluation status
 
-This README describes the implemented algorithms and verification gates; it does not report controlled benchmark results. There is no published cross-device timing study or move-count comparison in this repository. In particular, 6x6-17x17 solving has not received comprehensive random-state validation or Android performance evaluation. The Mastermorphix move-count search is bounded and heuristic. The 3x3 two-phase solver and 2x2 bidirectional search are not presented as globally optimal solvers.
+This README describes the implemented algorithms and verification gates; it does not report controlled benchmark results. There is no published cross-device timing study or move-count comparison in this repository. In particular, 6x6-17x17 solving and the new irregular-puzzle families have not received comprehensive random-state coverage or cross-device Android performance evaluation. The Mastermorphix move-count search is bounded and heuristic. The 3x3 two-phase solver and 2x2 bidirectional search are not presented as globally optimal solvers.
 
 ## References and implementation notes
 
 1. Herbert Kociemba, [The Two-Phase Algorithm](https://kociemba.org/math/twophase.htm). Used through the bundled 3x3 solver.
 2. Chris Hardwick, [Wing-orbit parity](https://www.speedcubing.com/chris/lemma2.html) and [center-orbit three-cycles](https://www.speedcubing.com/chris/lemma3.html). Mathematical background for the higher-order orbit construction; the code implements its own coordinate and move model.
 3. Jaap Scherphuis, [Rubik's Cube variants, including Mastermorphix](https://www.jaapsch.net/puzzles/cubevari.htm), and [Supergroup theory](https://www.jaapsch.net/puzzles/theory.htm). Background for shaped-cube and oriented-center behavior.
-4. [N x N solver notes](docs/nxn.md) · [Mastermorphix notes](docs/mastermorphix.md) · [Source code](https://github.com/coco54-beep/cube-solver)
+4. [N x N solver notes](docs/nxn.md) · [Mastermorphix notes](docs/mastermorphix.md) · [Irregular-puzzle notes](docs/irregular-puzzles.md) · [Source code](https://github.com/coco54-beep/cube-solver)
 
 This project is distributed under the [GNU General Public License v3.0](LICENSE). The bundled two-phase solver is attributed in its source and distributed under its respective license terms.

@@ -349,5 +349,7 @@ JA = dict(EN, **{
     "directory.pandora": "パンドラ 3×3",
     "directory.windmill": "ウィンドミルキューブ",
     "directory.fisher": "フィッシャーキューブ",
+    "directory.pending": "モデル・入力・解法は準備中で、まだ利用できません。",
+    "directory.not_ready": "{puzzle} · {order}段は一覧に追加しました。入力と解法は後から接続します。",
 })
 MESSAGES = {"zh": ZH, "en": EN, "ja": JA}

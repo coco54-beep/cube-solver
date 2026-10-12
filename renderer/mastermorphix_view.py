@@ -277,7 +277,9 @@ class MastermorphixView(CubeView):
         for a, b in seams:
             # Keep the ribbon above one physical pixel. Subpixel ribbons
             # disappear between pixel centers and make flat seams look dotted.
-            draw_edge(a, b, .75, ((.22,.26,.32,1) if getattr(self.cube,'puzzle_kind',None)=='mirror'
+            draw_edge(a, b, .75, ((.22,.26,.32,1)
+                                 if getattr(self.cube,'puzzle_kind',None) in
+                                 ('mirror','axis','pandora','windmill','fisher')
                                  else (.94, .955, .975, 1)))
         for a, b in borders:
             draw_edge(a, b, 1.6, (.18, .88, 1, 1))

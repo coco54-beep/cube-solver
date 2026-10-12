@@ -113,6 +113,14 @@ class ThumbApp(App):
                 except Exception:
                     pass
             view.set_cube(cube)
+            # CubeView-based views (mastermorphix/mirror/shape): use the
+            # standard 3/4 camera and a little zoom-out so nothing is clipped.
+            if hasattr(view, "reset_camera"):
+                view.reset_camera()
+            if hasattr(view, "_display_zoom"):
+                view._display_zoom = 0.75
+                if hasattr(view, "_redraw"):
+                    view._redraw()
             # Strip the input-screen face-number labels; thumbnails want the
             # bare puzzle only.
             for lab in list(getattr(view, "_face_labels", [])):

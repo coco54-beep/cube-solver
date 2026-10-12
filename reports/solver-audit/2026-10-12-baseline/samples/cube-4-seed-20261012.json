@@ -1,0 +1,18 @@
+{
+  "kind": "cube",
+  "name": "普通魔方",
+  "order": 4,
+  "seed": 20261012,
+  "status": "error",
+  "phase": "solve",
+  "steps": null,
+  "scramble_steps": 43,
+  "initial_solved": false,
+  "setup_seconds": 0.012,
+  "error": "RuntimeError: 'B'",
+  "traceback": "Traceback (most recent call last):\n  File \"D:\\coco\\cube-solver\\scripts\\audit_solvers.py\", line 171, in worker\n    raise RuntimeError(result.message)\nRuntimeError: 'B'\n",
+  "solve_seconds": 0.148,
+  "total_seconds": 0.161,
+  "wall_seconds": 0.26,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-baseline\\logs\\cube-4-seed-20261012.log"
+}

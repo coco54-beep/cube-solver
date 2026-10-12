@@ -1,0 +1,28 @@
+{
+  "kind": "mastermorphix",
+  "name": "粽子",
+  "order": 2,
+  "seed": 20261014,
+  "status": "pass",
+  "phase": "complete",
+  "steps": 7,
+  "sample_mode": "random",
+  "scramble_steps": 11,
+  "initial_solved": false,
+  "setup_seconds": 0.013,
+  "solve_seconds": 0.259,
+  "replay_solved": true,
+  "replay_seconds": 0.001,
+  "solution": [
+    "B2",
+    "L'",
+    "F'",
+    "D'",
+    "L2",
+    "U2",
+    "F2"
+  ],
+  "total_seconds": 0.274,
+  "wall_seconds": 0.378,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-full\\logs\\mastermorphix-2-seed-20261014.log"
+}

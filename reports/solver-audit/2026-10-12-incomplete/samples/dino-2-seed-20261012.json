@@ -1,0 +1,19 @@
+{
+  "kind": "dino",
+  "name": "恐龙／格子",
+  "order": 2,
+  "seed": 20261012,
+  "status": "rejected",
+  "phase": "solve",
+  "steps": null,
+  "sample_mode": "incomplete",
+  "scramble_steps": 30,
+  "initial_solved": false,
+  "setup_seconds": 0.094,
+  "error": "RuntimeError: Please enter every sticker",
+  "traceback": "Traceback (most recent call last):\n  File \"D:\\coco\\cube-solver\\scripts\\audit_solvers.py\", line 221, in worker\n    raise RuntimeError(result.message)\nRuntimeError: Please enter every sticker\n",
+  "solve_seconds": 0.055,
+  "total_seconds": 0.15,
+  "wall_seconds": 0.267,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-incomplete\\logs\\dino-2-seed-20261012.log"
+}

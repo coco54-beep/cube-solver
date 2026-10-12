@@ -9,7 +9,7 @@
 """
 
 from cube.notation import parse_move_full
-from cube.coordinates import layer_values, TURNS
+from cube.coordinates import layer_values, coord_values, TURNS
 from cube.middle_slice import SLICE_TOKENS, slice_turns
 
 _AXIS = {"R": 0, "L": 0, "U": 1, "D": 1, "F": 2, "B": 2}
@@ -81,12 +81,13 @@ def decompose_move(move_str, n):
         return [MoveStep(base, axis, (0,), angle, count, False, ccw, move_str)]
 
     label, layers, count = parse_move_full(move_str)
-    base = label
+    whole=label in ('x','y','z')
+    base = _SLICE_FACE[label] if whole else label
     ccw = (count == 3)
     axis = _AXIS[base]
-    positions = tuple(sorted(set(layer_values(n, base, layers=layers)), key=abs))
+    positions = tuple(coord_values(n)) if whole else tuple(sorted(set(layer_values(n, base, layers=layers)), key=abs))
     per = _quarter_angle(base, ccw)
     # 动画一次转的角度：90/180 转实际角度；270 只用一次 90°（逆时针），
     # 与 3 次顺时针 90° 最终的矩阵朝向一致（避免转 -270 的方向错位）。
     angle = per if count == 3 else per * count
-    return [MoveStep(base, axis, positions, angle, count, layers > 1, ccw, move_str)]
+    return [MoveStep(base, axis, positions, angle, count, whole or layers > 1, ccw, move_str)]

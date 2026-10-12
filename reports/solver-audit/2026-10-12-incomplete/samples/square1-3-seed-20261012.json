@@ -1,0 +1,19 @@
+{
+  "kind": "square1",
+  "name": "SQ1",
+  "order": 3,
+  "seed": 20261012,
+  "status": "rejected",
+  "phase": "solve",
+  "steps": null,
+  "sample_mode": "incomplete",
+  "scramble_steps": 60,
+  "initial_solved": false,
+  "setup_seconds": 0.012,
+  "error": "ValueError: square1.error.incomplete",
+  "traceback": "Traceback (most recent call last):\n  File \"D:\\coco\\cube-solver\\scripts\\audit_solvers.py\", line 211, in worker\n    moves = solve_square1(cube, token.is_set, progress)\n  File \"D:\\coco\\cube-solver\\solver\\square1.py\", line 181, in solve_square1\n    cube.validate()\n  File \"D:\\coco\\cube-solver\\cube\\square1.py\", line 96, in validate\n    raise ValueError('square1.error.incomplete')\nValueError: square1.error.incomplete\n",
+  "solve_seconds": 0.079,
+  "total_seconds": 0.092,
+  "wall_seconds": 0.203,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-incomplete\\logs\\square1-3-seed-20261012.log"
+}

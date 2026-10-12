@@ -1,0 +1,19 @@
+{
+  "kind": "pentahedron",
+  "name": "五面体",
+  "order": 5,
+  "seed": 20261012,
+  "status": "rejected",
+  "phase": "solve",
+  "steps": null,
+  "sample_mode": "incomplete",
+  "scramble_steps": 40,
+  "initial_solved": false,
+  "setup_seconds": 0.117,
+  "error": "RuntimeError: Please enter every sticker",
+  "traceback": "Traceback (most recent call last):\n  File \"D:\\coco\\cube-solver\\scripts\\audit_solvers.py\", line 221, in worker\n    raise RuntimeError(result.message)\nRuntimeError: Please enter every sticker\n",
+  "solve_seconds": 0.059,
+  "total_seconds": 0.177,
+  "wall_seconds": 0.288,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-incomplete\\logs\\pentahedron-5-seed-20261012.log"
+}

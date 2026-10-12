@@ -1,0 +1,51 @@
+{
+  "kind": "ivy",
+  "name": "枫叶",
+  "order": 3,
+  "seed": 20261012,
+  "status": "pass",
+  "phase": "complete",
+  "steps": 6,
+  "scramble_steps": 30,
+  "initial_solved": false,
+  "setup_seconds": 0.143,
+  "progress": "({'done': 6, 'total': 6},)",
+  "solve_seconds": 0.046,
+  "replay_solved": true,
+  "replay_seconds": 0.0,
+  "solution": [
+    [
+      3,
+      0,
+      1
+    ],
+    [
+      2,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      2
+    ],
+    [
+      0,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      2
+    ],
+    [
+      0,
+      0,
+      1
+    ]
+  ],
+  "total_seconds": 0.191,
+  "wall_seconds": 0.294,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-full\\logs\\ivy-3-seed-20261012.log"
+}

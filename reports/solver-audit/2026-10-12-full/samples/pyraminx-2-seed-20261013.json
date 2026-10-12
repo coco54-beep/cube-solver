@@ -1,0 +1,31 @@
+{
+  "kind": "pyraminx",
+  "name": "金字塔",
+  "order": 2,
+  "seed": 20261013,
+  "status": "pass",
+  "phase": "complete",
+  "steps": 2,
+  "scramble_steps": 30,
+  "initial_solved": false,
+  "setup_seconds": 0.099,
+  "progress": "({'done': 2, 'total': 22},)",
+  "solve_seconds": 0.047,
+  "replay_solved": true,
+  "replay_seconds": 0.0,
+  "solution": [
+    [
+      1,
+      0,
+      1
+    ],
+    [
+      2,
+      0,
+      1
+    ]
+  ],
+  "total_seconds": 0.148,
+  "wall_seconds": 0.253,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-full\\logs\\pyraminx-2-seed-20261013.log"
+}

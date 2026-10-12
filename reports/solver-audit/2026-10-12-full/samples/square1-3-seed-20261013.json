@@ -1,0 +1,121 @@
+{
+  "kind": "square1",
+  "name": "SQ1",
+  "order": 3,
+  "seed": 20261013,
+  "status": "pass",
+  "phase": "complete",
+  "steps": 25,
+  "scramble_steps": 60,
+  "initial_solved": false,
+  "setup_seconds": 0.011,
+  "progress": "(8, 40)",
+  "solve_seconds": 4.657,
+  "replay_solved": true,
+  "replay_seconds": 0.0,
+  "solution": [
+    [
+      2,
+      1
+    ],
+    [
+      1,
+      2
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      0,
+      3
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      0,
+      3
+    ],
+    [
+      1,
+      3
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      0,
+      5
+    ],
+    [
+      1,
+      3
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      0,
+      6
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      0,
+      4
+    ],
+    [
+      1,
+      7
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      0,
+      3
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      0,
+      3
+    ],
+    [
+      1,
+      9
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      0,
+      11
+    ],
+    [
+      1,
+      2
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      1,
+      10
+    ]
+  ],
+  "total_seconds": 4.67,
+  "wall_seconds": 4.768,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-full\\logs\\square1-3-seed-20261013.log"
+}

@@ -1,0 +1,71 @@
+{
+  "kind": "pentahedron",
+  "name": "五面体",
+  "order": 2,
+  "seed": 20261012,
+  "status": "pass",
+  "phase": "complete",
+  "steps": 10,
+  "scramble_steps": 30,
+  "initial_solved": false,
+  "setup_seconds": 0.092,
+  "progress": "({'done': 1, 'total': 1},)",
+  "solve_seconds": 0.055,
+  "replay_solved": true,
+  "replay_seconds": 0.0,
+  "solution": [
+    [
+      0,
+      0,
+      3
+    ],
+    [
+      2,
+      0,
+      3
+    ],
+    [
+      3,
+      0,
+      4
+    ],
+    [
+      2,
+      0,
+      3
+    ],
+    [
+      4,
+      0,
+      4
+    ],
+    [
+      0,
+      0,
+      3
+    ],
+    [
+      1,
+      0,
+      3
+    ],
+    [
+      4,
+      0,
+      4
+    ],
+    [
+      0,
+      0,
+      3
+    ],
+    [
+      1,
+      0,
+      3
+    ]
+  ],
+  "total_seconds": 0.15,
+  "wall_seconds": 0.258,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-full\\logs\\pentahedron-2-seed-20261012.log"
+}

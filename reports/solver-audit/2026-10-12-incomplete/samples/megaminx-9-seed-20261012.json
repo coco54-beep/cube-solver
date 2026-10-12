@@ -1,0 +1,20 @@
+{
+  "kind": "megaminx",
+  "name": "五魔方",
+  "order": 9,
+  "seed": 20261012,
+  "status": "rejected",
+  "phase": "solve",
+  "steps": null,
+  "sample_mode": "incomplete",
+  "scramble_steps": 48,
+  "initial_solved": false,
+  "setup_seconds": 0.608,
+  "progress": "({'done': 0, 'total': 15},)",
+  "error": "RuntimeError: Please enter every sticker",
+  "traceback": "Traceback (most recent call last):\n  File \"D:\\coco\\cube-solver\\scripts\\audit_solvers.py\", line 221, in worker\n    raise RuntimeError(result.message)\nRuntimeError: Please enter every sticker\n",
+  "solve_seconds": 7.148,
+  "total_seconds": 7.757,
+  "wall_seconds": 7.87,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-incomplete\\logs\\megaminx-9-seed-20261012.log"
+}

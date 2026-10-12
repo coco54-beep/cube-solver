@@ -1,0 +1,19 @@
+{
+  "kind": "windmill",
+  "name": "风火轮",
+  "order": 3,
+  "seed": 20261012,
+  "status": "rejected",
+  "phase": "solve",
+  "steps": null,
+  "sample_mode": "incomplete",
+  "scramble_steps": 23,
+  "initial_solved": false,
+  "setup_seconds": 0.016,
+  "error": "RuntimeError: shape.error.duplicate",
+  "traceback": "Traceback (most recent call last):\n  File \"D:\\coco\\cube-solver\\scripts\\audit_solvers.py\", line 221, in worker\n    raise RuntimeError(result.message)\nRuntimeError: shape.error.duplicate\n",
+  "solve_seconds": 0.127,
+  "total_seconds": 0.144,
+  "wall_seconds": 0.253,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-incomplete\\logs\\windmill-3-seed-20261012.log"
+}

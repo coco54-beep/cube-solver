@@ -1,0 +1,19 @@
+{
+  "kind": "mirror_tower",
+  "name": "镜面魔塔",
+  "order": 3,
+  "seed": 20261012,
+  "status": "rejected",
+  "phase": "solve",
+  "steps": null,
+  "sample_mode": "incomplete",
+  "scramble_steps": 30,
+  "initial_solved": false,
+  "setup_seconds": 0.097,
+  "error": "ValueError: Incomplete mirror piece state",
+  "traceback": "Traceback (most recent call last):\n  File \"D:\\coco\\cube-solver\\scripts\\audit_solvers.py\", line 214, in worker\n    moves = solve_polyhedral(cube, token.is_set, progress)\n  File \"D:\\coco\\cube-solver\\solver\\polyhedral.py\", line 469, in solve_polyhedral\n    solution=_solve_polyhedral_raw(cube,cancel,progress)\n  File \"D:\\coco\\cube-solver\\solver\\polyhedral.py\", line 510, in _solve_polyhedral_raw\n    return solve_mirror_tower(cube,cancel,progress)\n  File \"D:\\coco\\cube-solver\\solver\\mirror_tower_optimal.py\", line 72, in solve_mirror_tower\n    st = tuple(cube.labeled_state())\n  File \"D:\\coco\\cube-solver\\cube\\mirror_tower.py\", line 164, in labeled_state\n    raise ValueError('Incomplete mirror piece state')\nValueError: Incomplete mirror piece state\n",
+  "solve_seconds": 0.063,
+  "total_seconds": 0.161,
+  "wall_seconds": 0.258,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-incomplete\\logs\\mirror_tower-3-seed-20261012.log"
+}

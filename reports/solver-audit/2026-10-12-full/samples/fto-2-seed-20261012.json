@@ -1,0 +1,56 @@
+{
+  "kind": "fto",
+  "name": "转面八面体",
+  "order": 2,
+  "seed": 20261012,
+  "status": "pass",
+  "phase": "complete",
+  "steps": 7,
+  "scramble_steps": 30,
+  "initial_solved": false,
+  "setup_seconds": 0.103,
+  "progress": "({'done': 7, 'total': 22},)",
+  "solve_seconds": 0.314,
+  "replay_solved": true,
+  "replay_seconds": 0.0,
+  "solution": [
+    [
+      3,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      2
+    ],
+    [
+      1,
+      0,
+      2
+    ],
+    [
+      3,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      1
+    ],
+    [
+      3,
+      0,
+      2
+    ],
+    [
+      0,
+      0,
+      1
+    ]
+  ],
+  "total_seconds": 0.418,
+  "wall_seconds": 0.532,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-full\\logs\\fto-2-seed-20261012.log"
+}

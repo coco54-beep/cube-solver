@@ -1,0 +1,11 @@
+﻿name,kind,order,seed,status,scramble_steps,steps,solve_seconds,replay_seconds,wall_seconds,error
+五魔方,megaminx,4,20261012,rejected,38,,0.048,,0.355,RuntimeError: Please enter every sticker
+五魔方,megaminx,5,20261012,rejected,40,,0.052,,0.355,RuntimeError: Please enter every sticker
+五魔方,megaminx,6,20261012,rejected,42,,0.043,,0.504,RuntimeError: Please enter every sticker
+五魔方,megaminx,7,20261012,rejected,44,,0.046,,0.501,RuntimeError: Please enter every sticker
+五魔方,megaminx,8,20261012,rejected,46,,0.045,,0.833,RuntimeError: Please enter every sticker
+五魔方,megaminx,9,20261012,rejected,48,,0.045,,0.808,RuntimeError: Please enter every sticker
+五魔方,megaminx,10,20261012,rejected,50,,0.047,,1.239,RuntimeError: Please enter every sticker
+五魔方,megaminx,11,20261012,rejected,52,,0.046,,1.208,RuntimeError: Please enter every sticker
+五魔方,megaminx,12,20261012,rejected,54,,0.048,,1.856,RuntimeError: Please enter every sticker
+五魔方,megaminx,13,20261012,rejected,56,,0.047,,1.778,RuntimeError: Please enter every sticker

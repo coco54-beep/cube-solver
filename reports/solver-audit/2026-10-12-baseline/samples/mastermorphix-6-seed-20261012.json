@@ -1,0 +1,15 @@
+{
+  "kind": "mastermorphix",
+  "name": "粽子",
+  "order": 6,
+  "seed": 20261012,
+  "status": "crash",
+  "phase": "solve",
+  "steps": null,
+  "scramble_steps": 78,
+  "initial_solved": false,
+  "setup_seconds": 0.108,
+  "error": "worker exit 2",
+  "wall_seconds": 0.348,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-baseline\\logs\\mastermorphix-6-seed-20261012.log"
+}

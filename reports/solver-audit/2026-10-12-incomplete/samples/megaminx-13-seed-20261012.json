@@ -1,0 +1,19 @@
+{
+  "kind": "megaminx",
+  "name": "五魔方",
+  "order": 13,
+  "seed": 20261012,
+  "status": "timeout",
+  "phase": "solve",
+  "steps": null,
+  "sample_mode": "incomplete",
+  "scramble_steps": 56,
+  "initial_solved": false,
+  "setup_seconds": 1.632,
+  "error": "RuntimeError: InterruptedError",
+  "traceback": "Traceback (most recent call last):\n  File \"D:\\coco\\cube-solver\\scripts\\audit_solvers.py\", line 221, in worker\n    raise RuntimeError(result.message)\nRuntimeError: InterruptedError\n",
+  "solve_seconds": 27.636,
+  "total_seconds": 29.269,
+  "wall_seconds": 29.399,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-incomplete\\logs\\megaminx-13-seed-20261012.log"
+}

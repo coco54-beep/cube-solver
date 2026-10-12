@@ -1,0 +1,16 @@
+{"mode": 2, "seed": 54, "status": "pass", "moves": 9, "phases": 1, "seconds": 2.258}
+{"mode": 3, "seed": 54, "status": "pass", "moves": 20, "phases": 1, "seconds": 0.22}
+{"mode": 4, "seed": 54, "status": "pass", "moves": 146, "phases": 3, "seconds": 1.596}
+{"mode": 5, "seed": 54, "status": "pass", "moves": 467, "phases": 4, "seconds": 3.278}
+{"mode": ["mastermorphix", 2], "seed": 54, "status": "pass", "moves": 9, "phases": 1, "seconds": 2.369}
+{"mode": ["mastermorphix", 3], "seed": 54, "status": "pass", "moves": 44, "phases": 2, "seconds": 3.459}
+{"mode": ["mastermorphix", 4], "seed": 54, "status": "pass", "moves": 450, "phases": 3, "seconds": 0.576}
+{"mode": ["mastermorphix", 5], "seed": 54, "status": "pass", "moves": 796, "phases": 5, "seconds": 1.298}
+{"mode": ["mirror", 2], "seed": 54, "status": "pass", "moves": 9, "phases": 1, "seconds": 1.837}
+{"mode": ["mirror", 3], "seed": 54, "status": "pass", "moves": 20, "phases": 1, "seconds": 0.29}
+{"mode": ["mirror", 4], "seed": 54, "status": "pass", "moves": 418, "phases": 3, "seconds": 0.264}
+{"mode": ["mirror", 5], "seed": 54, "status": "pass", "moves": 679, "phases": 4, "seconds": 0.729}
+{"mode": ["axis", 3], "seed": 54, "status": "pass", "moves": 56, "phases": 2, "seconds": 0.241}
+{"mode": ["pandora", 3], "seed": 54, "status": "pass", "moves": 20, "phases": 1, "seconds": 0.222}
+{"mode": ["windmill", 3], "seed": 54, "status": "pass", "moves": 56, "phases": 2, "seconds": 0.204}
+{"mode": ["fisher", 3], "seed": 54, "status": "pass", "moves": 56, "phases": 2, "seconds": 0.31}

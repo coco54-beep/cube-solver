@@ -72,6 +72,17 @@ def inspect_state(cube):
 
 
 def _compress(moves, n):
+    # Removing a zero-turn axis block can bring two earlier blocks together.
+    # Repeat until no further player moves disappear (strictly decreasing).
+    current = list(moves)
+    while True:
+        compact = _compress_pass(current, n)
+        if len(compact) == len(current):
+            return compact
+        current = compact
+
+
+def _compress_pass(moves, n):
     from cube.notation import parse_move_full
     result = []
     block_axis = None
@@ -203,7 +214,12 @@ def solve_nxn(cube, cancel_event=None, progress_callback=None):
             targets = orbit.three_cycles(perm)
             if targets:
                 base, start = orbit.primitive(work.n, positions, True, cancel)
-                for atoms in orbit.conjugates(work.n, positions, base, start, targets, cancel):
+                if getattr(work, "puzzle_kind", None) is None:
+                    from solver.nxn_optimize import wing_atoms
+                    algorithms = wing_atoms(work.n, positions, base, start, targets, cancel)
+                else:
+                    algorithms = orbit.conjugates(work.n, positions, base, start, targets, cancel)
+                for atoms in algorithms:
                     apply(atoms)
             if orbit.wing_permutation(work, positions) != list(range(len(positions))):
                 raise RuntimeError("nxn.error.replay")
@@ -214,11 +230,15 @@ def solve_nxn(cube, cancel_event=None, progress_callback=None):
                 emit("nxn.solving.centers", .5 + .46 * k / max(1, len(centers)),
                      i=k + 1, total=len(centers))
                 before = len(all_moves)
-                targets = orbit.three_cycles(orbit.center_permutation(work, positions))
-                if targets:
-                    base, start = orbit.primitive(work.n, positions, False, cancel)
-                    for atoms in orbit.conjugates(work.n, positions, base, start, targets, cancel):
-                        apply(atoms)
+                if getattr(work, "puzzle_kind", None) is None:
+                    from solver.nxn_optimize import center_atoms
+                    apply(center_atoms(work, positions, cancel))
+                else:
+                    targets = orbit.three_cycles(orbit.center_permutation(work, positions))
+                    if targets:
+                        base, start = orbit.primitive(work.n, positions, False, cancel)
+                        for atoms in orbit.conjugates(work.n, positions, base, start, targets, cancel):
+                            apply(atoms)
                 stages.append(SolveStage("nxn_centers", "nxn.solving.centers", all_moves[before:]))
 
         if getattr(work, "puzzle_kind", None) == "mastermorphix" and work.n % 2:

@@ -1,9 +1,4 @@
-"""演示页：用 3D 动画展示 2 阶分层法 / 3 阶七步法 / 4 阶与 5 阶降阶法的标准案例。
-
-每个案例先摆出「初始状态」（= 还原魔方施加公式的逆），再逐式播放公式，
-动画结束后回到还原态；同时显示步骤、案例名、公式与记忆口诀。
-5 阶只收录与四阶不同的部分（中心 3×3 / 三块棱配对）。
-"""
+"""播放公式教学案例，以及从独立打乱状态求解得到的完整还原和阶段演示。"""
 
 from kivy.uix.boxlayout import BoxLayout
 from ui.widgets.buttons import UIButton, PrimaryButton, ArrowButton
@@ -12,25 +7,24 @@ from kivy.uix.screenmanager import Screen
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.widget import Widget
 
-from cube.cube2 import Cube2
-from cube.cube3 import Cube3
-from cube.cube4 import Cube4
-from cube.cube5 import Cube5
 from cube.mastermorphix import MastermorphixCube
 from demo.cases import (
     CASE_2X2, CASE_3X3, CASE_4X4, CASE_5X5,
-    build_before, inverse_move_str, localized,
+    localized,
 )
 from demo.mastermorphix_cases import CASE_MASTERMORPHIX
 from app.i18n import tr
-from app.mastermorphix_palette import load_palette
 from renderer.cube_view import CubeView
-from renderer.mastermorphix_view import MastermorphixView, cube_view_for
+from renderer.mastermorphix_view import MastermorphixView
 from renderer.turn import decompose_move
 from cube.mirror import MirrorCube
 from cube.polyhedral import PolyhedralPuzzle
 from renderer.polyhedral_view import PolyhedralView
 from demo.irregular_cases import lessons, token
+from demo.solutions import build_example, inverse_demo_move
+from demo.cases import TEACHING_COLORS
+from renderer.camera_follow import follow_turn,layer_target,polyhedral_target,square1_target,cancel_follow
+from ui.widgets.camera_follow import CameraFollowControl
 from ui.widgets import metrics as m
 from ui.widgets.layouts import ResponsiveBoxLayout, AdaptiveSceneLayout
 
@@ -42,6 +36,11 @@ def _theme():
 
 def _mode_title(n):
     if isinstance(n, tuple):
+        if n[0] in ('blossom','ivy'):
+            return tr('directory.'+n[0])
+        if n[0]=='dino':
+            kind='dinosaur' if n[1]==2 else 'lattice'
+            return tr('directory.'+kind)+' · '+tr('directory.order',order=n[1])
         return tr('directory.' + n[0]) + ' · ' + tr('directory.order', order=n[1])
     return tr(f"demo.mode.title.{n}")
 
@@ -56,38 +55,37 @@ def _steps_for(n):
             "mastermorphix": CASE_MASTERMORPHIX}[n]
 
 
-def _cls_for(n):
-    return {2: Cube2, 3: Cube3, 4: Cube4, 5: Cube5}[n]
-
-
 def _build_case_cube(mode, case):
-    if isinstance(mode, tuple):
-        kind, n = mode
-        if kind == 'mastermorphix':
-            cube = MastermorphixCube.solved(load_palette(), n=n)
-        elif kind == 'mirror':
-            cube = MirrorCube.solved(n=n)
-        else:
-            cube = PolyhedralPuzzle(kind, n)
-        for move in reversed(case['moves']):
-            cube.apply_move(_inverse_demo_move(move, cube))
-        return cube
-    if mode == "mastermorphix":
-        palette = load_palette()
-        factory = lambda: MastermorphixCube.solved(palette)
-    else:
-        factory = _cls_for(mode).solved
-    return build_before(factory, case["moves"])
+    return build_example(mode,case)
 
 
 def _inverse_demo_move(move, cube):
-    return (inverse_move_str(move) if isinstance(move, str)
-            else move.inverse(cube.geometry.spec.turn_order))
+    return inverse_demo_move(move,cube)
+
+
+def _demo_view_class(cube):
+    if isinstance(cube,PolyhedralPuzzle):
+        return PolyhedralView
+    from cube.square1 import Square1Cube
+    if isinstance(cube,Square1Cube):
+        from renderer.square1_view import Square1View
+        return Square1View
+    from cube.mirror_tower import MirrorTowerCube
+    if isinstance(cube,MirrorTowerCube):
+        from renderer.mirror_tower_view import MirrorTowerView
+        return MirrorTowerView
+    kind=getattr(cube,'puzzle_kind',None)
+    if kind in ('axis','pandora','windmill','fisher'):
+        from renderer.shape_cube_view import AxisView,PandoraView,WindmillView,FisherView
+        return {'axis':AxisView,'pandora':PandoraView,'windmill':WindmillView,'fisher':FisherView}[kind]
+    if isinstance(cube,MirrorCube):
+        from renderer.mirror_view import MirrorView
+        return MirrorView
+    return MastermorphixView if isinstance(cube,MastermorphixCube) else CubeView
 
 
 def _demo_view_for(cube, **kwargs):
-    return (PolyhedralView(**kwargs) if isinstance(cube, PolyhedralPuzzle)
-            else cube_view_for(cube, **kwargs))
+    return _demo_view_class(cube)(**kwargs)
 
 
 def _set_demo_cube(view, cube, highlight=None):
@@ -100,6 +98,8 @@ def _set_demo_cube(view, cube, highlight=None):
                         and all(isinstance(v, (int, float)) and 0 <= v <= 1 for v in c)
                         for c in palette)):
             view.palette = tuple(tuple(c) for c in palette)
+    elif cube.__class__.__name__ in ('Square1Cube','MirrorTowerCube'):
+        view.set_cube(cube)
     else:
         view.set_cube(cube, highlight=highlight)
 
@@ -194,11 +194,13 @@ class DemoScreen(Screen):
         self.btn_next = ArrowButton(direction="right")
         self.btn_next.bind(on_release=lambda *a: self.next_move())
         self.btn_reset = UIButton(text="", icon_name="reset")
-        self.btn_reset.bind(on_release=lambda *a: self.view.reset_camera())
+        self.btn_reset.bind(on_release=lambda *a: self.view.reset_camera() if not self._busy else None)
         for b in (self.btn_start, self.btn_prev, self.btn_play,
                   self.btn_next, self.btn_reset):
             control.add_widget(b)
         panel.add_widget(control)
+        self.follow_control=CameraFollowControl()
+        panel.add_widget(self.follow_control)
         root.set_content(self.view, panel, portrait_fraction=.5)
 
         self.add_widget(root)
@@ -208,6 +210,7 @@ class DemoScreen(Screen):
         if not hasattr(self, "lbl_mode"):
             return
         self.lbl_mode.text = _mode_title(self.mode)
+        self.follow_control.retranslate()
         self._refresh_case_text()
         self._update_controls()
 
@@ -222,10 +225,10 @@ class DemoScreen(Screen):
         self.lbl_progress.color = t.text_muted
 
     # ---- 模式 / 导航 ----
-    def enter_case(self, mode, si, ci):
+    def enter_case(self, mode, si, ci, steps=None):
         """从目录跳到指定案例。"""
         self.mode = mode
-        self._steps = _steps_for(mode)
+        self._steps = steps if steps is not None else _steps_for(mode)
         self.lbl_mode.text = _mode_title(mode)
         self._si = si
         self._ci = ci
@@ -252,10 +255,7 @@ class DemoScreen(Screen):
         self._stop()
         case = self._case()
         cube = _build_case_cube(self.mode, case)
-        from renderer.mirror_view import MirrorView
-        expected_view = (PolyhedralView if isinstance(cube, PolyhedralPuzzle) else
-                         MirrorView if isinstance(cube, MirrorCube) else
-                         MastermorphixView if isinstance(cube, MastermorphixCube) else CubeView)
+        expected_view=_demo_view_class(cube)
         if type(self.view) is not expected_view:
             self.view = _demo_view_for(cube, size_hint_y=0.5)
             self._root_layout.replace_scene(self.view)
@@ -266,7 +266,7 @@ class DemoScreen(Screen):
         self._moves = list(case["moves"])
         self._move_index = 0
         # 聚焦：只给被移动/参与公式的块上色，其余灰色
-        self._highlight = None if self.mode == "mastermorphix" or isinstance(self.mode, tuple) else _changed_homes(cube)
+        self._highlight = None if "initial" in case or self.mode == "mastermorphix" or isinstance(self.mode, tuple) else _changed_homes(cube)
         _set_demo_cube(self.view, cube, self._highlight)
         self._refresh_case_text()
         self._update_controls()
@@ -274,12 +274,15 @@ class DemoScreen(Screen):
     def _refresh_case_text(self):
         step = self._step()
         case = self._case()
+        self.lbl_mode.text = (tr('demo.complete_mode', order=self.mode)
+                              if isinstance(self.mode, int) and 'initial' in case
+                              else _mode_title(self.mode))
         self.lbl_title.text = tr("demo.title_step", cn=g(self._si),
                                  n=self._si + 1,
-                                 title=localized(step['title']),
+                                 title=tr(localized(step['title'])),
                                  i=self._si + 1, total=len(self._steps))
         self.lbl_desc.text = localized(step["desc"])
-        self.lbl_case.text = tr("demo.case", name=localized(case['name']))
+        self.lbl_case.text = tr("demo.case", name=tr(localized(case['name'])))
         self.lbl_text.text = localized(case["text"])
         self.lbl_tip.text = localized(case["tip"])
 
@@ -330,7 +333,13 @@ class DemoScreen(Screen):
         if isinstance(move, str):
             self._step_queue()
         else:
-            self.view.animate_move(move, on_done=self._step_queue, duration=.5)
+            target=square1_target(move) if getattr(self._work,'puzzle_kind',None)=='square1' else polyhedral_target(self._work,move)
+            def begin():
+                if self._pending_move is not move:
+                    return
+                if self.view.animate_move(move,on_done=self._step_queue,duration=.5) is False:
+                    self._stop()
+            follow_turn(self.view,target,begin)
 
     def _step_queue(self):
         if self._queue:
@@ -350,14 +359,13 @@ class DemoScreen(Screen):
 
     def _animate_step(self, step):
         dur = 0.5 * abs(step.angle) / 90.0
-        self.view.start_turn(
-            step.axis,
-            step.layers[0],
-            step.angle,
-            dur,
-            on_done=lambda: self._after_turn(step),
-            layer_positions=step.layers,
-        )
+        def begin():
+            if not self._busy:
+                return
+            self.view.start_turn(step.axis,step.layers[0],step.angle,dur,
+                                 on_done=lambda:self._after_turn(step),layer_positions=step.layers,
+                                 include_fixed_centers=step.move_str[:1] in ('x','y','z'))
+        follow_turn(self.view,layer_target(step.axis,step.layers),begin)
 
     def _after_turn(self, step):
         if not self._busy or self._pending_index is None:
@@ -373,6 +381,7 @@ class DemoScreen(Screen):
         self._queue = []
         self._pending_index = None
         self._pending_move = None
+        cancel_follow(self.view)
         if hasattr(self.view, "_cancel_animation"):
             self.view._cancel_animation()
         elif hasattr(self.view, 'cancel_animation'):
@@ -394,8 +403,18 @@ class DemoScreen(Screen):
         move = self._pending_move or (
             self._moves[self._move_index - 1] if self._move_index else tr("playback.ready")
         )
+        spec=getattr(getattr(self._work,'geometry',None),'spec',None)
+        move_text=token(move,spec)
+        if getattr(self._work,'puzzle_kind',None)=='blossom' and not isinstance(move,str):
+            from cube.polyhedral import dot
+            spec=self._work.geometry.spec
+            axis=spec.axes[move.axis]
+            nearest=max(dot(normal,axis) for normal in spec.normals)
+            faces='/'.join(str(i+1) for i,normal in enumerate(spec.normals)
+                           if abs(dot(normal,axis)-nearest)<1e-7)
+            move_text=tr('poly.blossom_turn',faces=faces)
         self.lbl_progress.text = tr(
-            "demo.progress", i=self._move_index, total=len(self._moves), move=token(move),
+            "demo.progress", i=self._move_index, total=len(self._moves), move=move_text,
         )
 
     def on_pre_leave(self, *args):
@@ -422,7 +441,6 @@ def _changed_homes(cube):
     判据：位置 != home，或任一贴纸颜色与该位置该面标准色不符（覆盖原地扭转/翻转）。
     中心块不纳入（渲染时始终保留颜色作参照）。
     """
-    from cube.colors import DEFAULT_COLORS
     from cube.coordinates import FACE_NORMALS, FACE_AXIS_SIGN
 
     def _axis(nv):
@@ -439,7 +457,7 @@ def _changed_homes(cube):
 
     normal_color = {}
     for face, (ax, sn) in FACE_AXIS_SIGN.items():
-        normal_color[tuple(FACE_NORMALS[face])] = DEFAULT_COLORS[face]
+        normal_color[tuple(FACE_NORMALS[face])] = TEACHING_COLORS[face]
 
     out = set()
     for pos, c in cube.cubies.items():

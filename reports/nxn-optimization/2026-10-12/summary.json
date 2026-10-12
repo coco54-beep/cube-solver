@@ -1,0 +1,19 @@
+{
+  "samples": 27,
+  "orders": [
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14
+  ],
+  "mean_reduction_percent": 38.46,
+  "min_reduction_percent": 34.11,
+  "max_reduction_percent": 41.68,
+  "total_before": 126971,
+  "total_after": 77313
+}

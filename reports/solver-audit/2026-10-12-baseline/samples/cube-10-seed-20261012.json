@@ -1,0 +1,15 @@
+{
+  "kind": "cube",
+  "name": "普通魔方",
+  "order": 10,
+  "seed": 20261012,
+  "status": "crash",
+  "phase": "solve",
+  "steps": null,
+  "scramble_steps": 133,
+  "initial_solved": false,
+  "setup_seconds": 0.054,
+  "error": "worker exit 2",
+  "wall_seconds": 0.297,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-baseline\\logs\\cube-10-seed-20261012.log"
+}

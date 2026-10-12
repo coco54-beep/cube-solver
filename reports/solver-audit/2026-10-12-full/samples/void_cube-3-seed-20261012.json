@@ -1,0 +1,121 @@
+{
+  "kind": "void_cube",
+  "name": "空心三阶",
+  "order": 3,
+  "seed": 20261012,
+  "status": "pass",
+  "phase": "complete",
+  "steps": 20,
+  "scramble_steps": 30,
+  "initial_solved": false,
+  "setup_seconds": 0.098,
+  "progress": "({'done': 1, 'total': 24},)",
+  "solve_seconds": 0.054,
+  "replay_solved": true,
+  "replay_seconds": 0.0,
+  "solution": [
+    [
+      1,
+      0,
+      2
+    ],
+    [
+      2,
+      0,
+      3
+    ],
+    [
+      4,
+      0,
+      3
+    ],
+    [
+      0,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      1
+    ],
+    [
+      2,
+      0,
+      3
+    ],
+    [
+      0,
+      0,
+      3
+    ],
+    [
+      2,
+      0,
+      1
+    ],
+    [
+      5,
+      0,
+      3
+    ],
+    [
+      3,
+      0,
+      1
+    ],
+    [
+      2,
+      0,
+      3
+    ],
+    [
+      3,
+      0,
+      2
+    ],
+    [
+      2,
+      0,
+      2
+    ],
+    [
+      0,
+      0,
+      3
+    ],
+    [
+      4,
+      0,
+      2
+    ],
+    [
+      3,
+      0,
+      3
+    ],
+    [
+      4,
+      0,
+      2
+    ],
+    [
+      5,
+      0,
+      2
+    ],
+    [
+      4,
+      0,
+      2
+    ],
+    [
+      0,
+      0,
+      3
+    ]
+  ],
+  "total_seconds": 0.155,
+  "wall_seconds": 0.258,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-full\\logs\\void_cube-3-seed-20261012.log"
+}

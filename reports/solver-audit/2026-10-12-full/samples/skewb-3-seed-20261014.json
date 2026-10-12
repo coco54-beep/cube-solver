@@ -1,0 +1,61 @@
+{
+  "kind": "skewb",
+  "name": "斜转",
+  "order": 3,
+  "seed": 20261014,
+  "status": "pass",
+  "phase": "complete",
+  "steps": 8,
+  "sample_mode": "random",
+  "scramble_steps": 30,
+  "initial_solved": false,
+  "setup_seconds": 0.089,
+  "solve_seconds": 0.07,
+  "replay_solved": true,
+  "replay_seconds": 0.0,
+  "solution": [
+    [
+      0,
+      0,
+      2
+    ],
+    [
+      2,
+      0,
+      2
+    ],
+    [
+      0,
+      0,
+      2
+    ],
+    [
+      3,
+      0,
+      2
+    ],
+    [
+      0,
+      1,
+      2
+    ],
+    [
+      3,
+      1,
+      2
+    ],
+    [
+      2,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      2
+    ]
+  ],
+  "total_seconds": 0.161,
+  "wall_seconds": 0.262,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-full\\logs\\skewb-3-seed-20261014.log"
+}

@@ -668,6 +668,10 @@ from app.polyhedral_i18n import MESSAGES as _POLY_MESSAGES
 for _language, _messages in _POLY_MESSAGES.items():
     CATALOG[_language].update(_messages)
 
+from app.demo_i18n import MESSAGES as _DEMO_MESSAGES
+for _language, _messages in _DEMO_MESSAGES.items():
+    CATALOG[_language].update(_messages)
+
 
 class Translator(EventDispatcher):
     """持有当前语言并提供 tr()。语言变更时派发 on_language。"""

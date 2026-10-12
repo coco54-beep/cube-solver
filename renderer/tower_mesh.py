@@ -5,8 +5,10 @@ IDs and legal permutations. Geometry is cached and rotated with its layer.
 """
 from functools import lru_cache
 import math
-from cube.mastermorphix import _high_order_point
+from cube.mastermorphix import _high_order_point, VERTICES
 from cube.polyhedral import geometry, add, scale, mean, cross, dot, unit
+
+STYLE_VERSION='smooth_tower_lighting_v2'
 
 
 @lru_cache(maxsize=20000)
@@ -15,12 +17,16 @@ def tower_point(point):
 
 
 @lru_cache(maxsize=5)
-def tower_skin(n):
-    g=geometry('moyu',n)
-    divisions=max(2,8-n)
+def tower_skin(n,kind='moyu'):
+    g=geometry(kind,n)
+    divisions=max(3,8-n)
     result=[]
     for sticker in g.stickers:
         facets=[]
+        # Each face belongs to the sphere about the opposite tetrahedron tip.
+        # Its analytic normals are shared across sticker/triangle boundaries;
+        # flat triangle normals must only be used for visibility, not lighting.
+        center=scale(min(VERTICES,key=lambda p:dot(p,g.spec.normals[sticker.face])),.85)
         for patch in sticker.patches or (sticker.polygon,):
             a=mean(patch)
             for b,c in zip(patch,patch[1:]+patch[:1]):
@@ -40,13 +46,14 @@ def tower_skin(n):
                             normal=unit(normal)
                             if dot(normal,g.spec.normals[sticker.face])<0:
                                 normal=scale(normal,-1)
-                            facets.append((points,normal))
+                            vertex_normals=tuple(unit(add(p,scale(center,-1))) for p in points)
+                            facets.append((points,normal,vertex_normals))
         result.append(tuple(facets))
     return tuple(result)
 
 
 @lru_cache(maxsize=10000)
 def tower_edge(a,b,n):
-    divisions=max(2,8-n)
+    divisions=max(3,8-n)
     return tuple(tower_point(tuple(a[k]+(b[k]-a[k])*i/divisions for k in range(3)))
                  for i in range(divisions+1))

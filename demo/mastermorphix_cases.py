@@ -18,7 +18,7 @@ CASE_MASTERMORPHIX = [
     {
         "title": _text("认识转轴与变形", "Axes and shape changes", "回転軸と変形"),
         "desc": _text(
-            "四个外表颜色面对应三阶的六个转轴。U/D、F/B、R/L 分别是上/下、前/后、右/左轴；"
+            "四个外表颜色面采用三阶的六个转动面，成对共用三根机械轴。U/D、F/B、R/L 分别是上/下、前/后、右/左转动面；"
             "字母不代表四面体的颜色面。按下一步观察一层怎样回到原位，带撇号表示逆时针，2 表示半圈。",
             "Four colored surfaces share a 3×3 mechanism with six axes: U/D, F/B and R/L. "
             "Letters name axes, not the four colored surfaces. A prime means counterclockwise; 2 means a half turn.",

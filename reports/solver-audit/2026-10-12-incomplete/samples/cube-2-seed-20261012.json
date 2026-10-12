@@ -1,0 +1,19 @@
+{
+  "kind": "cube",
+  "name": "普通魔方",
+  "order": 2,
+  "seed": 20261012,
+  "status": "rejected",
+  "phase": "solve",
+  "steps": null,
+  "sample_mode": "incomplete",
+  "scramble_steps": 10,
+  "initial_solved": false,
+  "setup_seconds": 0.01,
+  "error": "RuntimeError: unsupported operand type(s) for >>: 'NoneType' and 'int'",
+  "traceback": "Traceback (most recent call last):\n  File \"D:\\coco\\cube-solver\\scripts\\audit_solvers.py\", line 221, in worker\n    raise RuntimeError(result.message)\nRuntimeError: unsupported operand type(s) for >>: 'NoneType' and 'int'\n",
+  "solve_seconds": 0.129,
+  "total_seconds": 0.14,
+  "wall_seconds": 0.265,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-incomplete\\logs\\cube-2-seed-20261012.log"
+}

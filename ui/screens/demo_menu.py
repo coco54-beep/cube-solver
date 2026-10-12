@@ -8,7 +8,9 @@ import os
 import hashlib
 
 from kivy.uix.boxlayout import BoxLayout
-from ui.widgets.buttons import UIButton
+from kivy.clock import Clock
+from kivy.uix.popup import Popup
+from ui.widgets.buttons import UIButton, PrimaryButton
 from kivy.uix.image import Image
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
@@ -16,13 +18,26 @@ from kivy.uix.scrollview import ScrollView
 
 from demo.cases import localized
 from app.i18n import tr
-from renderer.mastermorphix_view import cube_view_for
 from renderer.mastermorphix_mesh import STYLE_VERSION
 from app.constants import COLOR_INFO
 from ui.screens.demo_screen import (_changed_homes, _build_case_cube, _steps_for,
                                    _mode_title, _demo_view_for, _set_demo_cube)
 from ui.widgets import metrics as m
 from ui.widgets.layouts import ResponsiveBoxLayout
+from ui.widgets.dialogs import theme_popup
+from demo.solutions import make_scrambled_demo, verified_solution_lessons, state_signature
+from services.solve_service import SolveService
+
+DEMO_REVISION='accuracy-2026-10-12-v2'
+
+
+def source_screen(mode):
+    kind=mode[0] if isinstance(mode,tuple) else mode
+    return {'mastermorphix':'MastermorphixScreen','mirror':'MirrorScreen',
+            'axis':'ShapeCubeScreen','pandora':'ShapeCubeScreen',
+            'windmill':'ShapeCubeScreen','fisher':'ShapeCubeScreen',
+            'square1':'Square1Screen','mirror_tower':'MirrorTowerScreen'}.get(
+                kind,'PolyhedralScreen' if isinstance(mode,tuple) else 'InputScreen')
 
 
 def _num(n):
@@ -58,27 +73,22 @@ def _thumbs_dir():
     return d
 
 
-def _slug(name):
-    safe = []
-    for ch in name:
-        safe.append(ch if ch.isalnum() else "_")
-    return "".join(safe)
-
-
 def render_thumb(case, n, size=140):
     """渲染案例初始态为 PNG，缓存后返回路径；失败返回 None。"""
     cube = _build_case_cube(n, case)
-    if isinstance(n, tuple):
-        # Include moves so identically named tip examples do not share an image.
-        from app.prefs import get
-        identity = repr((n, case['moves'], getattr(cube, 'palette', None),
-                         get('poly_palette_' + n[0], None), STYLE_VERSION))
-        key = hashlib.sha256(identity.encode('utf-8')).hexdigest()[:24]
-        path = os.path.join(_thumbs_dir(), 'irregular_demo_' + key + '.png')
-        if os.path.exists(path):
-            return path
+    from app.prefs import get
+    identity=repr((DEMO_REVISION,n,case['moves'],state_signature(cube),
+                   getattr(cube,'palette',None),COLOR_INFO,
+                   get('poly_palette_'+n[0],None) if isinstance(n,tuple) else None,
+                   STYLE_VERSION))
+    key=hashlib.sha256(identity.encode('utf-8')).hexdigest()[:24]
+    path=os.path.join(_thumbs_dir(),'demo_'+key+'.png')
+    if os.path.exists(path):
+        return path
+    try:
         v = _demo_view_for(cube, size_hint=(None, None), size=(size, size))
-        _set_demo_cube(v, cube)
+        highlight=None if 'initial' in case or isinstance(n,tuple) or n=='mastermorphix' else _changed_homes(cube)
+        _set_demo_cube(v, cube,highlight)
         v.reset_camera()
         if hasattr(v, '_draw'):
             v._draw()
@@ -90,21 +100,9 @@ def render_thumb(case, n, size=140):
                 v._surface_fbo.draw()
         v.export_to_png(path)
         return path
-    palette_key = ""
-    if n == "mastermorphix":
-        colors = repr(tuple(COLOR_INFO[c][1] for c in cube.palette))
-        palette_key = "_" + STYLE_VERSION + "_" + hashlib.sha256(colors.encode("utf-8")).hexdigest()[:16]
-    path = os.path.join(_thumbs_dir(), f"{n}{palette_key}_{_slug(localized(case['name'], 'zh'))}.png")
-    if os.path.exists(path):
-        return path
-    hl = None if n == "mastermorphix" else _changed_homes(cube)
-    try:
-        v = cube_view_for(cube, size=(size, size))
-        v.set_cube(cube, highlight=hl)
-        v._draw_mesh()
-        v.export_to_png(path)
-        return path
     except Exception:
+        from kivy.logger import Logger
+        Logger.exception('Demo: thumbnail rendering failed')
         return None
 
 
@@ -112,6 +110,10 @@ class DemoMenuScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.mode = 3
+        self._solution_steps=None
+        self._job=None
+        self._service=SolveService()
+        self._solve_popup=None
         self.build_ui()
 
     def build_ui(self):
@@ -136,6 +138,8 @@ class DemoMenuScreen(Screen):
         self.add_widget(root)
 
     def set_mode(self, n):
+        if self.mode!=n:
+            self._solution_steps=None
         self.mode = n
         self.lbl_title.text = _mode_menu_title(n)
         self._rebuild()
@@ -148,19 +152,30 @@ class DemoMenuScreen(Screen):
 
     def _rebuild(self):
         self.list.clear_widgets()
+        actions=ResponsiveBoxLayout(height_px=52,gap_px=8)
+        for key,callback in (('demo.complete',self.start_complete_demo),('demo.my_input',self.solve_current_input)):
+            button=PrimaryButton(text=tr(key))
+            button.bind(on_release=lambda *_,fn=callback:fn())
+            actions.add_widget(button)
+        self.list.add_widget(actions)
+        if self._solution_steps:
+            self._add_steps(self._solution_steps)
         steps = _steps_for(self.mode)
+        self._add_steps(steps)
+
+    def _add_steps(self,steps):
         for si, step in enumerate(steps):
             head = Label(text=tr("demo.menu_step", cn=_num(si), n=si + 1,
-                                 title=localized(step['title'])),
+                                 title=tr(localized(step['title']))),
                          font_size="16sp",
                          bold=True, halign="left", valign="middle",
                          color=_app().theme.text)
             _autofit(head)
             self.list.add_widget(head)
             for ci, case in enumerate(step["cases"]):
-                self.list.add_widget(self._row(si, ci, case))
+                self.list.add_widget(self._row(si, ci, case,steps))
 
-    def _row(self, si, ci, case):
+    def _row(self, si, ci, case,steps=None):
         row = BoxLayout(size_hint_y=None, height=m.h(120), spacing=8, padding=[0, 4, 0, 4])
         # 缩略图
         thumb_png = render_thumb(case, self.mode)
@@ -172,7 +187,7 @@ class DemoMenuScreen(Screen):
         row.add_widget(img)
         # 文字列：自动换行 + 自动增高，行高随内容联动，杜绝重叠
         info = BoxLayout(orientation="vertical", spacing=2)
-        name = Label(text=localized(case["name"]), font_size="16sp", bold=True,
+        name = Label(text=tr(localized(case["name"])), font_size="16sp", bold=True,
                      halign="left", valign="middle")
         formula = Label(text=localized(case["text"]), font_size="13sp", halign="left",
                         valign="middle", color=_app().theme.text_muted)
@@ -192,7 +207,7 @@ class DemoMenuScreen(Screen):
         # 整行可点击
         row.bind(on_touch_down=self._row_press)
         row.bind(on_touch_up=lambda inst, touch, s=si, c=ci: self._row_touch(
-            inst, touch, s, c))
+            inst, touch, s, c,steps))
         row.add_widget(info)
         return row
 
@@ -201,12 +216,12 @@ class DemoMenuScreen(Screen):
             touch.ud[('demo-row', id(self))] = (row, touch.pos)
         return False
 
-    def _row_touch(self, row, touch, si, ci):
+    def _row_touch(self, row, touch, si, ci,steps=None):
         pressed = touch.ud.get(('demo-row', id(self)))
         if (pressed and pressed[0] is row and row.collide_point(*touch.pos)
                 and sum((a-b)**2 for a,b in zip(pressed[1],touch.pos)) <= m.h(12)**2):
             touch.ud.pop(('demo-row', id(self)), None)
-            self.open_case(si, ci)
+            self.open_case(si, ci,steps)
             return True
         return False
 
@@ -216,18 +231,88 @@ class DemoMenuScreen(Screen):
         if getattr(self, "list", None):
             self._rebuild()
 
-    def open_case(self, si, ci):
+    def open_case(self, si, ci,steps=None):
         demo = self.manager.get_screen("DemoScreen")
-        demo.enter_case(self.mode, si, ci)
+        demo.enter_case(self.mode, si, ci,steps)
         self.manager.current = "DemoScreen"
 
-    def go_home(self):
-        if isinstance(self.mode, tuple):
-            self.manager.current = {'mastermorphix': 'MastermorphixScreen',
-                                    'mirror': 'MirrorScreen'}.get(self.mode[0], 'PolyhedralScreen')
+    def start_complete_demo(self):
+        if self._job is not None:
             return
-        self.manager.current = ("MastermorphixScreen" if self.mode == "mastermorphix"
-                                else "InputScreen")
+        job=object()
+        self._job=job
+        message=Label(text=tr('demo.preparing_complete'),halign='center',valign='middle')
+        message.bind(size=lambda w,*_:setattr(w,'text_size',w.size))
+        content=ResponsiveBoxLayout(orientation='vertical',gap_px=8)
+        content.add_widget(message)
+        cancel=UIButton(text=tr('poly.cancel'),height=m.h(44),size_hint_y=None)
+        content.add_widget(cancel)
+        popup=Popup(title=tr('demo.complete'),content=content,size_hint=(.86,.34),auto_dismiss=False)
+        theme_popup(popup,_app().theme)
+        self._solve_popup=popup
+        cancel.bind(on_release=lambda *_:self._cancel_complete())
+        popup.open()
+        try:
+            initial=make_scrambled_demo(self.mode)
+        except Exception as exc:
+            self._finish_complete(job,None,str(exc))
+            return
+        def progress(payload):
+            def update(_dt):
+                if self._job is job:
+                    message.text=tr('demo.preparing_complete')
+                    if 'done' in payload and payload['done']>=0:
+                        message.text+='\n'+tr('poly.stage',done=payload['done'],total=payload['total'])
+            Clock.schedule_once(update,0)
+        def done(result):
+            try:
+                steps=verified_solution_lessons(initial,result)
+                error=None
+            except Exception as exc:
+                steps=None
+                error=str(exc)
+            Clock.schedule_once(lambda _dt:self._finish_complete(job,steps,error),0)
+        self._service.start(initial.clone(),done,progress)
+
+    def _finish_complete(self,job,steps,error):
+        if self._job is not job:
+            return
+        self._job=None
+        if self._solve_popup:
+            self._solve_popup.dismiss()
+            self._solve_popup=None
+        if error:
+            label=Label(text=tr('demo.complete_failed',detail=error),halign='center',valign='middle')
+            label.bind(size=lambda w,*_:setattr(w,'text_size',w.size))
+            popup=Popup(title=tr('poly.error.solve_title'),content=label,size_hint=(.86,.4))
+            theme_popup(popup,_app().theme)
+            popup.open()
+            return
+        self._solution_steps=steps
+        self._rebuild()
+        self.open_case(0,0,steps)
+
+    def _cancel_complete(self):
+        self._job=None
+        self._service.cancel()
+        if self._solve_popup:
+            self._solve_popup.dismiss()
+            self._solve_popup=None
+
+    def solve_current_input(self):
+        source=self.manager.get_screen(source_screen(self.mode))
+        self.manager.current=source.name
+        if source.name=='Square1Screen' and source._playback:
+            source._return_to_input()
+        callback=getattr(source,'start_solve',None) or source.solve
+        Clock.schedule_once(lambda _dt:callback(),0)
+
+    def on_leave(self,*args):
+        if self._job is not None:
+            self._cancel_complete()
+
+    def go_home(self):
+        self.manager.current=source_screen(self.mode)
 
 
 def _app():

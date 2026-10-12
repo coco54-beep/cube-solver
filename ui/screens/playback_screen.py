@@ -13,8 +13,10 @@ from kivy.uix.slider import Slider
 from app.i18n import tr
 from renderer.mastermorphix_view import cube_view_for
 from renderer.turn import decompose_move
+from renderer.camera_follow import follow_turn, layer_target, cancel_follow
 from ui.widgets import metrics as m
 from ui.widgets.layouts import ResponsiveBoxLayout, AdaptiveSceneLayout
+from ui.widgets.camera_follow import follow_panel
 
 
 class _ProgressTrack(Widget):
@@ -68,6 +70,7 @@ class PlaybackScreen(Screen):
         self._speed = 1.0
         self._busy = False
         self._queue = []        # 待播放的 MoveStep 队列
+        self._move_done = None
         self._hold = 0.5        # 每转完一步后的停留时间（秒）
         self._hold_ev = None    # 停留计时器
 
@@ -140,6 +143,7 @@ class PlaybackScreen(Screen):
         hold_row.add_widget(self.hold_slider)
         panel.add_widget(speed_row)
         panel.add_widget(hold_row)
+        panel, self.follow_control = follow_panel(panel)
         root.set_content(self.view, panel)
 
         self.add_widget(root)
@@ -149,6 +153,7 @@ class PlaybackScreen(Screen):
             return
         self.lbl_speed.text = tr("playback.speed")
         self.lbl_hold.text = tr("playback.hold")
+        self.follow_control.retranslate()
         self._update_buttons()
 
     def on_enter(self):
@@ -178,7 +183,9 @@ class PlaybackScreen(Screen):
         self._playing = False
         self._busy = False
         self._queue = []
+        self._move_done = None
         self._cancel_hold()
+        cancel_follow(self.view)
         # 取消 CubeView 正在进行的动画（若在播放中点跳结尾/上一步）
         if hasattr(self.view, "_cancel_animation"):
             self.view._cancel_animation()
@@ -209,9 +216,15 @@ class PlaybackScreen(Screen):
 
     def prev(self):
         self._playing = False
-        # 撤回到上一步前：重放 0..idx-1
-        self._idx = max(-1, self._idx - 1)
-        self._replay_to(self._idx)
+        self._cancel_hold()
+        if self._busy:
+            self._replay_to(self._idx-1)
+            return
+        if self._idx<0:
+            return
+        def done():
+            self._idx-=1
+        self._play_move(self._moves[self._idx],reverse=True,on_done=done)
 
     def to_end(self):
         self._confirm(tr("playback.confirm.end"), self._do_to_end)
@@ -239,9 +252,15 @@ class PlaybackScreen(Screen):
         mv = self._moves[self._idx]
         self._play_move(mv)
 
-    def _play_move(self, move_str):
+    def _play_move(self, move_str, reverse=False, on_done=None):
         steps = decompose_move(move_str, _app().n)
+        if reverse:
+            steps=list(reversed(steps))
+            for step in steps:
+                step.angle=-step.angle
+                step.count=(-step.count)%4
         self._queue = steps
+        self._move_done=on_done
         self._busy = True
         self._step_queue()
 
@@ -250,6 +269,9 @@ class PlaybackScreen(Screen):
             step = self._queue.pop(0)
             self._animate_step(step)
         else:
+            callback,self._move_done=self._move_done,None
+            if callback is not None:
+                callback()
             self._busy = False
             self._update_buttons()
             if self._playing:
@@ -280,14 +302,17 @@ class PlaybackScreen(Screen):
         # duration 按角度成比例（90° 为基准），让 90/180/270 度转速恒定，
         # 避免大角度动作在固定时长内转得过快。
         dur = 0.35 * abs(step.angle) / 90.0 / self._speed
-        self.view.start_turn(
-            step.axis,
-            step.layers[0],
-            step.angle,
-            dur,
-            on_done=lambda: self._after_turn(step),
-            layer_positions=step.layers,
-        )
+        def begin():
+            self.view.start_turn(
+                step.axis,
+                step.layers[0],
+                step.angle,
+                dur,
+                on_done=lambda: self._after_turn(step),
+                layer_positions=step.layers,
+                include_fixed_centers=step.move_str[:1] in ('x','y','z'),
+            )
+        follow_turn(self.view,layer_target(step.axis,step.layers),begin)
 
     def _after_turn(self, step):
         # 动画结束：应用 step 表示的一次转动（可能 90/180/270 度）到逻辑状态。
@@ -334,7 +359,12 @@ class PlaybackScreen(Screen):
 
     def reset_view(self):
         """把 3D 视角还原到默认。"""
+        if getattr(self.view,'_camera_follow_active',False):
+            return
         self.view.reset_camera()
+
+    def on_leave(self,*args):
+        self._stop_all()
 
     def go_home(self):
         self._stop_all()
@@ -346,7 +376,10 @@ class PlaybackScreen(Screen):
 
     def _do_go_back(self):
         self._stop_all()
-        self.manager.current = {'mastermorphix': 'MastermorphixScreen', 'mirror': 'MirrorScreen'}.get(
+        self.manager.current = {'mastermorphix': 'MastermorphixScreen', 'mirror': 'MirrorScreen',
+                                'axis':'ShapeCubeScreen','pandora':'ShapeCubeScreen','windmill':'ShapeCubeScreen',
+                                'fisher':'ShapeCubeScreen',
+                                'football':'ShapeCubeScreen'}.get(
             getattr(_app(), 'puzzle_kind', 'cube'), 'InputScreen')
 
     def _confirm(self, msg, on_ok):
@@ -379,6 +412,8 @@ def _app():
 def _single_turn_string(step):
     """返回表示 step 一次 90° 的动作字符串（base + 可选宽层小写）。"""
     token = step.move_str
+    if token and token[0] in ('x','y','z'):
+        return token[0]
     if token and token[0] in ("M", "E", "S"):
         return token[0]
     base = step.base

@@ -21,6 +21,8 @@ from app.constants import FACES
 from app.i18n import tr
 from renderer.cube_view import CubeView
 from renderer.twist import resolve_twist, apply_layer_turn
+from renderer.camera_follow import follow_turn, layer_target, cancel_follow
+from ui.widgets.camera_follow import follow_panel
 from cube.conversion import cubies_to_facelets
 from cube.cube2 import Cube2
 from cube.cube3 import Cube3
@@ -50,9 +52,19 @@ class _TwistCubeView(CubeView):
         self._touch0 = None
         self._grab_pick = None      # 本次按下接触的小面 (cubie_pos, face_name)
 
+    def cancel_touch(self):
+        if self._touch0 is not None:
+            self._touch0.ungrab(self)
+        self._touch0=None
+        self._touch0_pos=None
+        self._press=None
+        self._grab_pick=None
+
     def on_touch_down(self, touch):
         if not self.collide_point(*touch.pos):
             return super().on_touch_down(touch)
+        if getattr(self,'_camera_follow_active',False):
+            return True
         if getattr(touch, "is_mouse_scrolling", False):
             if self.lock_view:
                 return True
@@ -181,7 +193,7 @@ class TwistScreen(Screen):
         self.btn_wide = UIButton(text="", icon_name="single", size_hint_x=1)
         self.btn_wide.bind(on_release=lambda *a: self.toggle_wide())
         self.btn_reset = UIButton(text="", icon_name="reset", size_hint_x=1)
-        self.btn_reset.bind(on_release=lambda *a: self.view.reset_camera())
+        self.btn_reset.bind(on_release=lambda *a: self.view.reset_camera() if not self._busy else None)
         toggle_row.add_widget(self.btn_lock)
         toggle_row.add_widget(self.btn_wide)
         toggle_row.add_widget(self.btn_reset)
@@ -195,6 +207,7 @@ class TwistScreen(Screen):
         self.msg.bind(size=lambda widget, *_: setattr(widget, "text_size", widget.size))
         panel.add_widget(self.msg)
         panel.bind(size=lambda *_: setattr(self.msg, "height", m.h(34)))
+        panel, self.follow_control = follow_panel(panel)
         root.set_content(self.view, panel)
 
         self.add_widget(root)
@@ -203,6 +216,7 @@ class TwistScreen(Screen):
         if not hasattr(self, "title"):
             return
         self.title.text = tr("input.twist")
+        self.follow_control.retranslate()
         self._update_toggle_texts()
         self.msg.text = tr("twist.hint_lock_on") if self.view.lock_view else tr("twist.hint_lock_off")
 
@@ -214,6 +228,8 @@ class TwistScreen(Screen):
 
     # ---- 进入 / 初始化 ----
     def on_enter(self):
+        cancel_follow(self.view)
+        self._busy=False
         n = _app().n
         input_screen = self._input_screen()
         facelets = input_screen.collect_facelets()
@@ -288,18 +304,21 @@ class TwistScreen(Screen):
         self._animate(axis, layers, sign)
 
     def _animate(self, axis, layers, sign):
+        self.view.cancel_touch()
         self._busy = True
         angle = 90 * sign
         dur = 0.4 * abs(angle) / 90.0
-        self.view.start_turn(
-            axis,
-            layers[0],
-            angle,
-            dur,
-            on_done=lambda: self._after_twist(axis, layers, sign),
-            layer_positions=list(layers),
-            include_fixed_centers=True,
-        )
+        def begin():
+            self.view.start_turn(
+                axis,
+                layers[0],
+                angle,
+                dur,
+                on_done=lambda: self._after_twist(axis, layers, sign),
+                layer_positions=list(layers),
+                include_fixed_centers=True,
+            )
+        follow_turn(self.view,layer_target(axis,layers),begin)
 
     def _after_twist(self, axis, layers, sign):
         apply_layer_turn(self._work.cubies, axis, list(layers), sign)
@@ -354,8 +373,16 @@ class TwistScreen(Screen):
         app.solve_result = None
 
     def go_back(self):
+        if self._busy:
+            return
         self._write_back()
         self.manager.current = "InputScreen"
+
+    def on_leave(self,*args):
+        cancel_follow(self.view)
+        self.view._cancel_animation()
+        self.view.cancel_touch()
+        self._busy=False
 
 
 def _solved_for(n):

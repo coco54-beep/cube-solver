@@ -12,13 +12,15 @@ from ui.widgets import metrics as m
 
 
 class MirrorScreen(MastermorphixScreen):
+    cube_class=MirrorCube
+    view_class=MirrorView
     def go_back(self):
         self.manager.current='IrregularDirectoryScreen'
 
     def build_ui(self):
         super().build_ui()
         old=self.view
-        self.view=MirrorView()
+        self.view=self.view_class()
         self.view.camera.azimuth=0.0
         self.view.camera.elevation=0.0
         self.view.lock_rotation=True
@@ -38,7 +40,7 @@ class MirrorScreen(MastermorphixScreen):
         self._refresh()
 
     def _blank(self,palette):
-        self._cube=MirrorCube.solved(n=_app().n)
+        self._cube=self.cube_class.solved(n=_app().n)
         self._ori=CubeOrientation(self._cube.n)
         self._recorded=set()
         self._history=[]
@@ -52,7 +54,7 @@ class MirrorScreen(MastermorphixScreen):
         self.demo_button.disabled=self._cube.n>5
         self.demo_button.opacity=1 if self._cube.n<=5 else 0
         self._cancel_view_turn()
-        self.title.text=f'{tr("directory.mirror")} · {tr("directory.order",order=self._cube.n)}'
+        self.title.text=f'{tr("directory."+self._cube.puzzle_kind)} · {tr("directory.order",order=self._cube.n)}'
         self.reference_label.text=tr('mirror.input_hint')
         self.view.selected_pos=self._pos
         self.view.recorded=self._recorded
@@ -67,7 +69,7 @@ class MirrorScreen(MastermorphixScreen):
 
     def _build_gallery(self):
         self.gallery.clear_widgets()
-        homes=[p for p in self._cube.positions if placements(p,self._pos)]
+        homes=self.available_homes(self._pos)
         page_size=8
         pages=max(1,(len(homes)+page_size-1)//page_size)
         self._gallery_page=max(0,min(self._gallery_page,pages-1))
@@ -84,16 +86,19 @@ class MirrorScreen(MastermorphixScreen):
             if active:
                 frame=current.frame
             button=UIButton(active=active)
-            view=MirrorView(size_hint=(None,None))
+            view=self.view_class(size_hint=(None,None))
             view.lock_rotation=True
             view.fit_piece=True
-            view.set_cube(MirrorCube({self._pos:make_piece(home,self._pos,frame,self._cube.n)},n=self._cube.n))
+            view.set_cube(self.cube_class({self._pos:make_piece(home,self._pos,frame,self._cube.n)},palette=self._cube.palette,n=self._cube.n))
             _thumbnail_camera_for(view,self._pos)
             button.add_widget(view)
             button.bind(pos=lambda b,*_:setattr(b.children[0],'pos',(b.x+b.width*.05,b.y+b.height*.05)),
                         size=lambda b,*_:setattr(b.children[0],'size',(b.width*.9,b.height*.9)))
             button.bind(on_release=lambda *_,h=home,f=frame:self.choose_piece(h,f))
             self.gallery.add_widget(button)
+
+    def available_homes(self,pos):
+        return [p for p in self._cube.positions if placements(p,pos)]
 
     def choose_piece(self,home,frame=None):
         self._remember()
@@ -104,7 +109,7 @@ class MirrorScreen(MastermorphixScreen):
     def random_load(self):
         from cube.scramble import random_scramble
         self._remember()
-        self._cube=MirrorCube.solved(n=self._cube.n)
+        self._cube=self.cube_class.solved(palette=self._cube.palette,n=self._cube.n)
         self._cube.apply_moves(random_scramble(self._cube.n))
         self._recorded=set(self._all_positions())
         self._refresh()
@@ -124,6 +129,6 @@ class MirrorScreen(MastermorphixScreen):
         cube=self.check()
         if cube is not None:
             _app().cube=cube
-            _app().puzzle_kind='mirror'
+            _app().puzzle_kind=self._cube.puzzle_kind
             _app().solve_result=None
             self.manager.current='SolvingScreen'

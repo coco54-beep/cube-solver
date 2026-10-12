@@ -1,0 +1,88 @@
+﻿name,kind,order,seed,status,scramble_steps,steps,solve_seconds,replay_seconds,wall_seconds,error
+变形金刚,axis,3,20261012,rejected,23,,0.122,,0.252,RuntimeError: shape.error.duplicate
+繁花五魔方,blossom,3,20261012,rejected,30,,0.047,,1.065,RuntimeError: Please enter every sticker
+四叶草,clover,3,20261012,rejected,30,,0.051,,0.343,RuntimeError: Please enter every sticker
+普通魔方,cube,2,20261012,rejected,10,,0.129,,0.265,RuntimeError: unsupported operand type(s) for >>: 'NoneType' and 'int'
+普通魔方,cube,3,20261012,rejected,23,,0.128,,0.243,RuntimeError: None
+普通魔方,cube,4,20261012,rejected,43,,0.15,,0.345,RuntimeError: ''
+普通魔方,cube,5,20261012,rejected,66,,0.119,,0.237,RuntimeError: None
+普通魔方,cube,6,20261012,rejected,78,,0.213,,0.413,RuntimeError: 角块或中棱的配色、方向不正确，请检查录入。
+普通魔方,cube,7,20261012,rejected,90,,0.206,,0.343,RuntimeError: 角块或中棱的配色、方向不正确，请检查录入。
+普通魔方,cube,8,20261012,rejected,109,,0.197,,0.344,RuntimeError: 角块或中棱的配色、方向不正确，请检查录入。
+普通魔方,cube,9,20261012,rejected,121,,0.196,,0.345,RuntimeError: 角块或中棱的配色、方向不正确，请检查录入。
+普通魔方,cube,10,20261012,rejected,133,,0.189,,0.352,RuntimeError: 角块或中棱的配色、方向不正确，请检查录入。
+普通魔方,cube,11,20261012,rejected,145,,0.191,,0.373,RuntimeError: 角块或中棱的配色、方向不正确，请检查录入。
+普通魔方,cube,12,20261012,rejected,157,,0.201,,0.407,RuntimeError: 角块或中棱的配色、方向不正确，请检查录入。
+普通魔方,cube,13,20261012,rejected,169,,0.201,,0.423,RuntimeError: 角块或中棱的配色、方向不正确，请检查录入。
+普通魔方,cube,14,20261012,rejected,181,,0.196,,0.47,RuntimeError: 角块或中棱的配色、方向不正确，请检查录入。
+恐龙／格子,dino,2,20261012,rejected,30,,0.055,,0.267,RuntimeError: Please enter every sticker
+恐龙／格子,dino,4,20261012,rejected,38,,0.044,,0.239,RuntimeError: Please enter every sticker
+恐龙／格子,dino,6,20261012,rejected,42,,0.046,,0.278,RuntimeError: Please enter every sticker
+八叶花,eight_petals,3,20261012,rejected,30,,0.046,,0.456,RuntimeError: Please enter every sticker
+移棱,fisher,3,20261012,rejected,23,,0.121,,0.238,RuntimeError: shape.error.duplicate
+足球,football,3,20261012,rejected,30,,0.05,,0.416,RuntimeError: Please enter every sticker
+足球,football,5,20261012,rejected,40,,0.049,,0.907,RuntimeError: Please enter every sticker
+转面八面体,fto,2,20261012,rejected,30,,0.047,,0.258,RuntimeError: Please enter every sticker
+转面八面体,fto,3,20261012,rejected,30,,0.045,,0.254,RuntimeError: Please enter every sticker
+转面八面体,fto,4,20261012,rejected,38,,0.045,,0.26,RuntimeError: Please enter every sticker
+二十面体,icosahedron,2,20261012,rejected,30,,0.047,,0.272,RuntimeError: Please enter every sticker
+二十面体,icosahedron,3,20261012,rejected,30,,0.049,,0.315,RuntimeError: Please enter every sticker
+二十面体,icosahedron,4,20261012,rejected,38,,0.047,,0.41,RuntimeError: Please enter every sticker
+二十面体,icosahedron,5,20261012,rejected,40,,0.047,,0.515,RuntimeError: Please enter every sticker
+枫叶,ivy,3,20261012,rejected,30,,0.044,,0.296,RuntimeError: Please enter every sticker
+粽子,mastermorphix,2,20261012,rejected,10,,0.129,,0.252,RuntimeError: unsupported operand type(s) for >>: 'NoneType' and 'int'
+粽子,mastermorphix,3,20261012,rejected,23,,0.122,,0.249,RuntimeError: incomplete
+粽子,mastermorphix,4,20261012,rejected,43,,0.208,,0.347,RuntimeError: 角块或中棱的配色、方向不正确，请检查录入。
+粽子,mastermorphix,5,20261012,rejected,66,,0.193,,0.325,RuntimeError: 角块或中棱的配色、方向不正确，请检查录入。
+粽子,mastermorphix,6,20261012,rejected,78,,0.203,,0.333,RuntimeError: 角块或中棱的配色、方向不正确，请检查录入。
+粽子,mastermorphix,7,20261012,rejected,90,,0.196,,0.327,RuntimeError: 角块或中棱的配色、方向不正确，请检查录入。
+粽子,mastermorphix,8,20261012,rejected,109,,0.191,,0.321,RuntimeError: 角块或中棱的配色、方向不正确，请检查录入。
+粽子,mastermorphix,9,20261012,rejected,121,,0.194,,0.328,RuntimeError: 角块或中棱的配色、方向不正确，请检查录入。
+五魔方,megaminx,2,20261012,rejected,30,,0.047,,0.273,RuntimeError: Please enter every sticker
+五魔方,megaminx,3,20261012,rejected,30,,0.044,,0.264,RuntimeError: Please enter every sticker
+五魔方,megaminx,4,20261012,rejected,38,,0.181,,0.479,RuntimeError: Please enter every sticker
+五魔方,megaminx,5,20261012,rejected,40,,0.501,,0.796,RuntimeError: Please enter every sticker
+五魔方,megaminx,6,20261012,rejected,42,,0.281,,0.754,RuntimeError: Please enter every sticker
+五魔方,megaminx,7,20261012,rejected,44,,1.897,,2.363,RuntimeError: Please enter every sticker
+五魔方,megaminx,8,20261012,rejected,46,,0.557,,1.308,RuntimeError: Please enter every sticker
+五魔方,megaminx,9,20261012,rejected,48,,7.148,,7.87,RuntimeError: Please enter every sticker
+五魔方,megaminx,10,20261012,rejected,50,,1.19,,2.371,RuntimeError: Please enter every sticker
+五魔方,megaminx,11,20261012,rejected,52,,21.564,,22.689,RuntimeError: Please enter every sticker
+五魔方,megaminx,12,20261012,rejected,54,,2.629,,4.49,RuntimeError: Please enter every sticker
+五魔方,megaminx,13,20261012,timeout,56,,27.636,,29.399,RuntimeError: InterruptedError
+镜面,mirror,2,20261012,rejected,10,,0.128,,0.25,RuntimeError: '<' not supported between instances of 'NoneType' and 'NoneType'
+镜面,mirror,3,20261012,rejected,23,,0.116,,0.23,RuntimeError: None
+镜面,mirror,4,20261012,rejected,43,,0.199,,0.323,RuntimeError: 角块或中棱的配色、方向不正确，请检查录入。
+镜面,mirror,5,20261012,rejected,66,,0.189,,0.316,RuntimeError: 角块或中棱的配色、方向不正确，请检查录入。
+镜面,mirror,6,20261012,rejected,78,,0.198,,0.325,RuntimeError: 角块或中棱的配色、方向不正确，请检查录入。
+镜面,mirror,7,20261012,rejected,90,,0.219,,0.356,RuntimeError: 角块或中棱的配色、方向不正确，请检查录入。
+镜面,mirror,8,20261012,rejected,109,,0.195,,0.324,RuntimeError: 角块或中棱的配色、方向不正确，请检查录入。
+镜面,mirror,9,20261012,rejected,121,,0.202,,0.339,RuntimeError: 角块或中棱的配色、方向不正确，请检查录入。
+镜面魔塔,mirror_tower,3,20261012,rejected,30,,0.063,,0.258,ValueError: Incomplete mirror piece state
+魔塔,moyu,3,20261012,rejected,30,,0.048,,0.243,RuntimeError: Please enter every sticker
+魔塔,moyu,4,20261012,rejected,38,,0.047,,0.251,RuntimeError: Please enter every sticker
+魔塔,moyu,5,20261012,rejected,40,,0.046,,0.235,RuntimeError: Please enter every sticker
+魔塔,moyu,6,20261012,rejected,42,,0.046,,0.249,RuntimeError: Please enter every sticker
+魔塔,moyu,7,20261012,rejected,44,,0.051,,0.265,RuntimeError: Please enter every sticker
+潘多拉,pandora,3,20261012,rejected,23,,0.127,,0.244,RuntimeError: shape.error.duplicate
+五面体,pentahedron,2,20261012,rejected,30,,0.057,,0.262,RuntimeError: Please enter every sticker
+五面体,pentahedron,3,20261012,rejected,30,,0.081,,0.295,RuntimeError: Please enter every sticker
+五面体,pentahedron,4,20261012,rejected,38,,0.057,,0.263,RuntimeError: Please enter every sticker
+五面体,pentahedron,5,20261012,rejected,40,,0.059,,0.288,RuntimeError: Please enter every sticker
+金字塔,pyraminx,2,20261012,rejected,30,,0.047,,0.239,RuntimeError: Please enter every sticker
+金字塔,pyraminx,3,20261012,rejected,30,,0.047,,0.241,RuntimeError: Please enter every sticker
+金字塔,pyraminx,4,20261012,rejected,38,,0.047,,0.245,RuntimeError: Please enter every sticker
+金字塔,pyraminx,5,20261012,rejected,40,,0.046,,0.266,RuntimeError: Please enter every sticker
+金字塔,pyraminx,6,20261012,rejected,42,,0.05,,0.277,RuntimeError: Please enter every sticker
+金字塔,pyraminx,7,20261012,rejected,44,,0.048,,0.277,RuntimeError: Please enter every sticker
+斜转,skewb,3,20261012,rejected,30,,0.062,,0.25,RuntimeError: Please enter every sticker
+斜转,skewb,5,20261012,rejected,40,,0.049,,0.255,RuntimeError: Please enter every sticker
+斜转,skewb,7,20261012,rejected,44,,0.045,,0.26,RuntimeError: Please enter every sticker
+SQ1,square1,3,20261012,rejected,60,,0.079,,0.203,ValueError: square1.error.incomplete
+空心三阶,void_cube,3,20261012,rejected,30,,0.043,,0.264,RuntimeError: Please enter every sticker
+空心魔塔,void_tower,3,20261012,rejected,30,,0.044,,0.242,RuntimeError: Please enter every sticker
+战鼓,war_drum,2,20261012,rejected,30,,0.059,,0.26,RuntimeError: Please enter every sticker
+战鼓,war_drum,3,20261012,rejected,30,,0.057,,0.287,RuntimeError: Please enter every sticker
+战鼓,war_drum,4,20261012,rejected,38,,0.057,,0.289,RuntimeError: Please enter every sticker
+战鼓,war_drum,5,20261012,rejected,40,,0.066,,0.373,RuntimeError: Please enter every sticker
+风火轮,windmill,3,20261012,rejected,23,,0.127,,0.253,RuntimeError: shape.error.duplicate

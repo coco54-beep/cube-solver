@@ -5,12 +5,14 @@
 import os
 import sys
 import traceback
-import io
 
 os.environ.setdefault("KIVY_NO_ARGS", "1")
 BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 LOG = os.path.join(BASE, "desktop_err.log")
+
+from app.desktop_runtime import configure_graphics
+configure_graphics()
 
 
 def main():

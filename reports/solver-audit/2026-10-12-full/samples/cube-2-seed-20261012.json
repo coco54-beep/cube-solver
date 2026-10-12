@@ -1,0 +1,28 @@
+{
+  "kind": "cube",
+  "name": "普通魔方",
+  "order": 2,
+  "seed": 20261012,
+  "status": "pass",
+  "phase": "complete",
+  "steps": 8,
+  "scramble_steps": 10,
+  "initial_solved": false,
+  "setup_seconds": 0.012,
+  "solve_seconds": 0.371,
+  "replay_solved": true,
+  "replay_seconds": 0.0,
+  "solution": [
+    "L'",
+    "D2",
+    "L'",
+    "B2",
+    "D",
+    "B2",
+    "D",
+    "B"
+  ],
+  "total_seconds": 0.385,
+  "wall_seconds": 0.5,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-full\\logs\\cube-2-seed-20261012.log"
+}

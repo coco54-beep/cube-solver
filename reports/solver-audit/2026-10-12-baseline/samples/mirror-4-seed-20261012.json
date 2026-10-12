@@ -1,0 +1,15 @@
+{
+  "kind": "mirror",
+  "name": "镜面",
+  "order": 4,
+  "seed": 20261012,
+  "status": "crash",
+  "phase": "solve",
+  "steps": null,
+  "scramble_steps": 43,
+  "initial_solved": false,
+  "setup_seconds": 0.047,
+  "error": "worker exit 2",
+  "wall_seconds": 0.29,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-baseline\\logs\\mirror-4-seed-20261012.log"
+}

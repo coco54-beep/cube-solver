@@ -6,6 +6,7 @@ from kivy.animation import Animation
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.uix.colorpicker import ColorPicker
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import Screen
@@ -17,6 +18,8 @@ from cube.polyhedral import Move
 from renderer.polyhedral_view import PolyhedralView, PolyhedralTwistView, default_palette
 from renderer.cube_orientation import CubeOrientation
 from renderer.mat4 import Mat4
+from renderer.camera_follow import follow_turn, polyhedral_target, cancel_follow
+from ui.widgets.camera_follow import follow_panel
 from ui.screens.mastermorphix_screen import _Swatch
 from ui.widgets.buttons import UIButton,PrimaryButton,DangerButton
 from ui.widgets.dialogs import theme_popup
@@ -28,7 +31,23 @@ def _app():
     return App.get_running_app()
 
 
+def _puzzle_title(cube):
+    kind=cube.puzzle_kind
+    if kind=='dino':
+        kind='dinosaur' if cube.n==2 else 'lattice'
+    return tr('directory.'+kind)
+
+
+def _view_for(cube,twist=False):
+    if cube is not None and getattr(cube,'puzzle_kind',None)=='mirror_tower':
+        from renderer.mirror_tower_view import MirrorTowerView,MirrorTowerTwistView
+        return MirrorTowerTwistView if twist else MirrorTowerView
+    return PolyhedralTwistView if twist else PolyhedralView
+
+
 class PolyhedralScreen(Screen):
+    view_class=PolyhedralView
+    customize_icon='gear'
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
         self._cube=None
@@ -58,13 +77,20 @@ class PolyhedralScreen(Screen):
         for item in (back,self.title,help_button):
             top.add_widget(item)
         root.add_widget(top)
-        self.view=PolyhedralView()
+        self.view=self.view_class()
         self.view.on_pick=self.paint
         panel=ResponsiveBoxLayout(orientation='vertical',gap_px=7,size_hint_y=None)
         self.palette=ResponsiveBoxLayout(height_px=44,gap_px=5)
         panel.add_widget(self.palette)
         self.palette2=ResponsiveBoxLayout(height_px=44,gap_px=5)
         panel.add_widget(self.palette2)
+        self._extra_palette_rows=[]
+        for _ in range(2):
+            row=ResponsiveBoxLayout(height_px=0,gap_px=5)
+            row.opacity=0
+            row.disabled=True
+            panel.add_widget(row)
+            self._extra_palette_rows.append(row)
         self.hint=Label(text=tr('poly.input_hint'),size_hint_y=None,height=m.h(54),
                         font_size='13sp',halign='center',valign='middle')
         self.hint.bind(size=lambda w,*_:setattr(w,'text_size',w.size))
@@ -72,7 +98,7 @@ class PolyhedralScreen(Screen):
         observation=ResponsiveBoxLayout(height_px=44,gap_px=6)
         prev=UIButton(icon_name='prev')
         prev.bind(on_release=lambda *_:self.change_view(-1))
-        customize=UIButton(icon_name='gear')
+        customize=UIButton(icon_name=self.customize_icon)
         customize.bind(on_release=lambda *_:self.customize())
         nxt=UIButton(icon_name='next')
         nxt.bind(on_release=lambda *_:self.change_view(1))
@@ -103,12 +129,12 @@ class PolyhedralScreen(Screen):
             self._axis=self._layer=self._color=self._face=0
             self.view.set_cube(self._cube)
             self._view_orientation=None
-            if self._cube.puzzle_kind=='skewb':
+            if self._cube.puzzle_kind in ('skewb', 'dino', 'eight_petals', 'void_cube', 'clover', 'ivy'):
                 self._view_orientation=CubeOrientation(self._cube.n)
                 self.view.set_whole_world(self._view_orientation.world)
                 self.view.yaw=self.view.pitch=0
                 self._face=2  # F, matching ordinary input's initial face.
-            elif self._cube.puzzle_kind in ('pyraminx','moyu'):
+            elif self._cube.puzzle_kind in ('pyraminx','moyu','void_tower'):
                 self.view.set_whole_world(Mat4())
                 self._set_face_camera(0)
             from app.prefs import get as pref_get
@@ -124,18 +150,21 @@ class PolyhedralScreen(Screen):
         self._refresh()
 
     def _build_palette(self):
-        self.palette.clear_widgets()
-        self.palette2.clear_widgets()
         count=len(self._cube.geometry.spec.normals)
-        self.palette2.height=m.h(44) if count>6 else 0
-        self.palette2._height_px=44 if count>6 else 0
-        self.palette2.opacity=1 if count>6 else 0
-        self.palette2.disabled=count<=6
+        width=8 if count>20 else 5 if count>12 else 6
+        rows=[self.palette,self.palette2]+self._extra_palette_rows
+        for index,row in enumerate(rows):
+            row.clear_widgets()
+            visible=index*width<count
+            row.height=m.h(44) if visible else 0
+            row._height_px=44 if visible else 0
+            row.opacity=1 if visible else 0
+            row.disabled=not visible
         self._swatches=[]
         for i in range(count):
             button=_Swatch(self.view.palette[i],text=str(i+1),active=i==self._color)
             button.bind(on_release=lambda *_,color=i:self.choose_color(color))
-            (self.palette if i<6 else self.palette2).add_widget(button)
+            rows[i//width].add_widget(button)
             self._swatches.append(button)
 
     def choose_color(self,color):
@@ -159,14 +188,15 @@ class PolyhedralScreen(Screen):
     def _refresh(self):
         if self._cube is None:
             return
-        self.demo_button.disabled=self._cube.n>5
-        self.demo_button.opacity=1 if self._cube.n<=5 else 0
+        has_demo=self._cube.n<=5
+        self.demo_button.disabled=not has_demo
+        self.demo_button.opacity=1 if has_demo else 0
         self.status.text=tr('poly.progress',done=sum(c>=0 for c in self._cube.colors),
                             total=len(self._cube.colors))
         self.view.refresh()
 
     def open_demo(self):
-        if self._job is not None or self._cube is None or self._cube.n>5:
+        if self._job is not None or self._cube is None or self.demo_button.disabled:
             return
         self.manager.get_screen('DemoMenuScreen').set_mode((self._cube.puzzle_kind,self._cube.n))
         self.manager.current='DemoMenuScreen'
@@ -201,7 +231,8 @@ class PolyhedralScreen(Screen):
     def _face_camera(self,index):
         x,y,z=self._cube.geometry.spec.normals[index]
         yaw=math.degrees(math.atan2(x,z))
-        pitch=math.degrees(math.asin(y))
+        # Rotated normals can round past +/-1; atan2 also handles the poles.
+        pitch=math.degrees(math.atan2(y,math.hypot(x,z)))
         return yaw,pitch
 
     def _set_face_camera(self,index):
@@ -211,7 +242,7 @@ class PolyhedralScreen(Screen):
     def _face_roll(self,index):
         # Keep each tetrahedral face upright, with the same convention for
         # both Pyraminx and the curved Tower model.
-        if self._cube.puzzle_kind in ('pyraminx','moyu'):
+        if self._cube.puzzle_kind in ('pyraminx','moyu','void_tower'):
             return 180 if self._cube.geometry.spec.normals[index][1]>0 else 0
         return 0
 
@@ -263,8 +294,12 @@ class PolyhedralScreen(Screen):
 
     def clear(self):
         box=ResponsiveBoxLayout(orientation='vertical',gap_px=8)
+        actions=ResponsiveBoxLayout(height_px=44,gap_px=8)
+        cancel=UIButton(text=tr('poly.cancel'))
         button=DangerButton(text=tr('poly.confirm'))
-        box.add_widget(button)
+        actions.add_widget(cancel)
+        actions.add_widget(button)
+        box.add_widget(actions)
         popup=self._popup(tr('poly.clear'),box,(.8,.26))
         def confirm(*args):
             self._remember()
@@ -272,6 +307,7 @@ class PolyhedralScreen(Screen):
             popup.dismiss()
             self._refresh()
         button.bind(on_release=confirm)
+        cancel.bind(on_release=lambda *_:popup.dismiss())
 
     def validate(self):
         from solver.polyhedral import identify
@@ -299,7 +335,8 @@ class PolyhedralScreen(Screen):
         self._solve_popup=popup
         cancel.bind(on_release=lambda *_:cancellation.set())
         def progress(done,total):
-            Clock.schedule_once(lambda dt:setattr(message,'text',tr('poly.stage',done=done,total=total)),0)
+            text=tr('poly.optimizing') if done<0 else tr('poly.stage',done=done,total=total)
+            Clock.schedule_once(lambda dt,text=text:setattr(message,'text',text),0)
         def finish(solution=None,error=None):
             if self._job is not job:
                 return
@@ -369,14 +406,21 @@ class PolyhedralScreen(Screen):
             'A piece has a mirrored or impossible orientation':'orientation',
             'Repeated color on a piece':'piece', 'Duplicate piece':'piece',
             'The entered core has an impossible orientation':'orientation',
+            'The entered core violates an orientation constraint':'orientation',
+            'Position must be restored before adjusting orientation':'illegal',
+            'Mirrored or impossible core orientation':'orientation',
             'The entered puzzle is not a legal state':'illegal',
             'Odd orbit permutation':'illegal',
             'The entered pieces violate an orientation or permutation constraint':'illegal',
         }
-        message=tr('poly.error.'+errors[message]) if message in errors else tr('poly.error.solver',detail=message)
+        input_error=message in errors
+        if message in ('Polyhedral reduction replay failed','Blossom reduction replay failed'):
+            message=tr('poly.error.replay')
+        else:
+            message=tr('poly.error.'+errors[message]) if input_error else tr('poly.error.solver',detail=message)
         content=Label(text=message,halign='center',valign='middle',color=_app().theme.text)
         content.bind(size=lambda w,*_:setattr(w,'text_size',w.size))
-        self._popup(tr('poly.error'),content)
+        self._popup(tr('poly.error' if input_error else 'poly.error.solve_title'),content)
 
     def help(self):
         label=Label(text=tr('poly.help'),halign='left',valign='middle',color=_app().theme.text)
@@ -387,7 +431,9 @@ class PolyhedralScreen(Screen):
         self._cancel_solve()
         self.reset_interaction()
         self.panel.disabled=False
-        self.manager.current='IrregularDirectoryScreen'
+        from ui.screens.irregular_directory_screen import SPECIAL_PUZZLES
+        self.manager.current=('SpecialIrregularScreen' if self._cube is not None and
+                              self._cube.puzzle_kind in SPECIAL_PUZZLES else 'IrregularDirectoryScreen')
 
     def on_leave(self,*args):
         self._cancel_solve()
@@ -403,8 +449,11 @@ class PolyhedralScreen(Screen):
 
     def retranslate(self):
         if self._cube:
-            self.title.text=f'{tr("directory."+self._cube.puzzle_kind)} · {tr("directory.order",order=self._cube.n)}'
-        self.hint.text=tr('poly.input_hint')
+            self.title.text=f'{_puzzle_title(self._cube)} · {tr("directory.order",order=self._cube.n)}'
+            if self._cube.puzzle_kind in ('blossom','ivy'):
+                self.title.text=_puzzle_title(self._cube)
+        kind=self._cube.puzzle_kind if self._cube else ''
+        self.hint.text=tr('poly.'+kind+'_input') if kind in ('clover','eight_petals','football','blossom','ivy','dino','war_drum','pentahedron') else tr('poly.input_hint')
 
     def refresh_theme(self):
         for label in (self.title,self.hint,self.status):
@@ -420,13 +469,16 @@ class PolyhedralPlaybackScreen(Screen):
         self._work=None
         self._index=0
         self._seek_job=None
+        self._pending_move=None
         self.build_ui()
 
     def build_ui(self):
         from ui.screens.playback_screen import _ProgressTrack
         self._simple=bool(getattr(_app(),'simple_input',False))
         root=AdaptiveSceneLayout(padding_px=[28,8,28,8],gap_px=6)
-        self.view=PolyhedralView()
+        initial=getattr(_app(),'polyhedral_solution',None)
+        self._render_kind=initial[0].puzzle_kind if initial else None
+        self.view=_view_for(initial[0] if initial else None)()
         panel=ResponsiveBoxLayout(orientation='vertical',gap_px=8,size_hint_y=None)
         self.view.lock_rotation=self._simple
         info=ResponsiveBoxLayout(orientation='vertical',height_px=72,gap_px=4)
@@ -442,8 +494,8 @@ class PolyhedralPlaybackScreen(Screen):
         controls=ResponsiveBoxLayout(orientation='vertical',height_px=110,gap_px=6)
         row=ResponsiveBoxLayout(gap_px=8)
         self._playback_buttons={}
-        for icon,fn in (('first',lambda:self.seek(0)),('prev',self.prev),('solve',self.play),
-                        ('next',self.next),('last',lambda:self.seek(len(self._moves)))):
+        for icon,fn in (('first',self.to_start),('prev',self.prev),('solve',self.play),
+                        ('next',self.next),('last',self.to_end)):
             button=PrimaryButton(icon_name=icon) if icon=='solve' else UIButton(icon_name=icon)
             button.bind(on_release=lambda *_,f=fn:f())
             self._playback_buttons[icon]=button
@@ -453,7 +505,7 @@ class PolyhedralPlaybackScreen(Screen):
                 self.play_button=button
         controls.add_widget(row)
         row=ResponsiveBoxLayout(gap_px=8)
-        for icon,fn in (('reset',self.view.reset_camera),('back',self.back)):
+        for icon,fn in (('reset',self.reset_view),('back',self.confirm_back)):
             b=UIButton(icon_name=icon)
             b.bind(on_release=lambda *_,f=fn:f())
             if not self._simple or icon=='back':
@@ -474,12 +526,14 @@ class PolyhedralPlaybackScreen(Screen):
         row.add_widget(self.hold_label)
         row.add_widget(self.hold)
         panel.add_widget(row)
+        panel,self.follow_control=follow_panel(panel)
         root.set_content(self.view,panel)
         self.add_widget(root)
 
     def retranslate(self):
         self.speed_label.text=tr('playback.speed')
         self.hold_label.text=tr('playback.hold')
+        self.follow_control.retranslate()
         if self._work is not None:
             self._refresh()
 
@@ -489,7 +543,8 @@ class PolyhedralPlaybackScreen(Screen):
 
     def on_pre_enter(self,*args):
         self.stop()
-        if self._simple!=bool(getattr(_app(),'simple_input',False)):
+        self._cancel_step()
+        if self._simple!=bool(getattr(_app(),'simple_input',False)) or self._render_kind!=_app().polyhedral_solution[0].puzzle_kind:
             self.view.cancel_animation()
             self.clear_widgets()
             self.build_ui()
@@ -506,13 +561,32 @@ class PolyhedralPlaybackScreen(Screen):
 
     def _refresh(self):
         from demo.irregular_cases import token
-        current=(token(self.view._move) if self.view._move is not None else
-                 token(self._moves[self._index-1]) if self._index else tr('playback.ready'))
+        active=self.view._move if self.view._move is not None else self._pending_move
+        current=(token(active,self._work.geometry.spec) if active is not None else
+                 token(self._moves[self._index-1],self._work.geometry.spec) if self._index else tr('playback.ready'))
+        if self._work.puzzle_kind in ('football','war_drum','pentahedron'):
+            move=active if active is not None else self._moves[self._index-1] if self._index else None
+            if move is not None:
+                order=self._work.geometry.spec.turn_order
+                amount=move.amount%order
+                if amount>order/2:
+                    amount-=order
+                current=tr('poly.face_turn',face=move.axis+1,layer=move.layer+1,angle=amount*360//order)
+        elif self._work.puzzle_kind=='blossom':
+            move=active if active is not None else self._moves[self._index-1] if self._index else None
+            if move is not None:
+                from cube.polyhedral import dot
+                spec=self._work.geometry.spec
+                axis=spec.axes[move.axis]
+                nearest=max(dot(n,axis) for n in spec.normals)
+                faces='/'.join(str(i+1) for i,n in enumerate(spec.normals)
+                               if abs(dot(n,axis)-nearest)<1e-7)
+                current=tr('poly.blossom_turn',faces=faces)
         self.title.text=tr('playback.current',move=current)
         self.status.text=tr('poly.step',done=self._index,total=len(self._moves))
         self.track.value=self._index
         self.play_button.icon_name='pause' if self._playing else 'solve'
-        busy=self.view._move is not None or self._seek_job is not None
+        busy=active is not None or self._seek_job is not None
         self._playback_buttons['prev'].disabled=busy or self._index<=0
         self._playback_buttons['next'].disabled=busy or self._index>=len(self._moves)
         self._playback_buttons['first'].disabled=busy or self._index<=0
@@ -522,7 +596,7 @@ class PolyhedralPlaybackScreen(Screen):
             label.color=_app().theme.text
 
     def next(self,*args):
-        if self.view._move is not None or self._seek_job is not None:
+        if self.view._move is not None or self._pending_move is not None or self._seek_job is not None:
             return
         if self._index>=len(self._moves):
             self.stop()
@@ -534,12 +608,12 @@ class PolyhedralPlaybackScreen(Screen):
             self._refresh()
             if self._playing:
                 self._hold=Clock.schedule_once(self.next,self._hold_time)
-        self.view.animate_move(self._moves[self._index],done,duration=.32/self.speed.value)
+        self._animate_followed(self._moves[self._index],done)
         self._refresh()
 
     def prev(self):
         self.stop()
-        self.view.cancel_animation()
+        self._cancel_step()
         if self._seek_job is not None:
             self.seek(self._index-1)
             return
@@ -550,8 +624,28 @@ class PolyhedralPlaybackScreen(Screen):
         def done():
             self._index-=1
             self._refresh()
-        self.view.animate_move(move,done,duration=.32/self.speed.value)
+        self._animate_followed(move,done)
         self._refresh()
+
+    def _animate_followed(self,move,done):
+        self._pending_move=move
+        self._refresh()
+        def begin():
+            if self._pending_move is not move:
+                return
+            self._pending_move=None
+            self.view.animate_move(move,done,duration=.32/self.speed.value)
+            self._refresh()
+        follow_turn(self.view,polyhedral_target(self._work,move),begin)
+
+    def _cancel_step(self):
+        self._pending_move=None
+        cancel_follow(self.view)
+        self.view.cancel_animation()
+
+    def reset_view(self):
+        if self._pending_move is None:
+            self.view.reset_camera()
 
     def play(self):
         if self._seek_job is not None:
@@ -573,7 +667,7 @@ class PolyhedralPlaybackScreen(Screen):
 
     def seek(self,index):
         self.stop()
-        self.view.cancel_animation()
+        self._cancel_step()
         index=max(0,min(len(self._moves),int(index)))
         nearest=max(k for k in self._checkpoints if k<=index)
         job=object()
@@ -603,19 +697,44 @@ class PolyhedralPlaybackScreen(Screen):
         else:
             worker()
 
+    def to_start(self):
+        self._confirm_playback(tr('playback.confirm.start'),lambda:self.seek(0))
+
+    def to_end(self):
+        self._confirm_playback(tr('playback.confirm.end'),lambda:self.seek(len(self._moves)))
+
+    def confirm_back(self):
+        self._confirm_playback(tr('playback.confirm.back'),self.back)
+
+    def _confirm_playback(self,message,on_confirm):
+        content=BoxLayout(orientation='vertical',spacing=12,padding=16)
+        label=Label(text=message,halign='center',font_size='18sp',size_hint_y=1)
+        buttons=BoxLayout(orientation='horizontal',spacing=8,size_hint_y=None,height=m.h(52))
+        popup=Popup(title=tr('confirm.title'),content=content,size_hint=(.86,.42))
+        cancel=UIButton(text='',icon_name='cancel')
+        cancel.bind(on_release=lambda *_:popup.dismiss())
+        confirm=PrimaryButton(text='',icon_name='done')
+        confirm.bind(on_release=lambda *_:(on_confirm(),popup.dismiss()))
+        buttons.add_widget(cancel)
+        buttons.add_widget(confirm)
+        content.add_widget(label)
+        content.add_widget(buttons)
+        theme_popup(popup,_app().theme)
+        popup.open()
+
     def _seek_touch(self,widget,touch):
         if widget.collide_point(*touch.pos):
             self.seek(round(widget.value))
 
     def back(self):
         self.stop()
-        self.view.cancel_animation()
-        self.manager.current='PolyhedralScreen'
+        self._cancel_step()
+        self.manager.current='MirrorTowerScreen' if self._work.puzzle_kind=='mirror_tower' else 'PolyhedralScreen'
 
     def on_leave(self,*args):
         self._seek_job=None
         self.stop()
-        self.view.cancel_animation()
+        self._cancel_step()
 
 
 class PolyhedralTwistScreen(Screen):
@@ -646,7 +765,7 @@ class PolyhedralTwistScreen(Screen):
         for item in (back,self.title,done):
             top.add_widget(item)
         root.add_widget(top)
-        self.view=PolyhedralTwistView()
+        self.view=_view_for(getattr(_app(),'cube',None),True)()
         self.view.on_twist=self.twist
         panel=ResponsiveBoxLayout(orientation='vertical',gap_px=7,size_hint_y=None)
         history=ResponsiveBoxLayout(height_px=48,gap_px=8)
@@ -686,6 +805,7 @@ class PolyhedralTwistScreen(Screen):
         self.hint.bind(size=lambda w,*_:setattr(w,'text_size',w.size))
         panel.add_widget(self.hint)
         self.panel=panel
+        panel,self.follow_control=follow_panel(panel)
         root.set_content(self.view,panel)
         self.add_widget(root)
 
@@ -693,6 +813,10 @@ class PolyhedralTwistScreen(Screen):
         self._cube=_app().cube
         if self._cube is None or not hasattr(self._cube,'geometry'):
             return
+        if type(self.view) is not _view_for(self._cube,True):
+            self.view.cancel_animation()
+            self.clear_widgets()
+            self._build()
         self.view.cancel_touch()
         self.view.set_cube(self._cube)
         self.view.lock_view=True
@@ -707,19 +831,55 @@ class PolyhedralTwistScreen(Screen):
             isinstance(c,list) and len(c)==4 for c in saved):
             self.view.palette=tuple(tuple(c) for c in saved)
         self.view.selected=None
-        self.axis.values=tuple(tr('poly.axis',i=i+1) for i in range(len(self._cube.geometry.spec.axes)))
-        self.axis.text=self.axis.values[0]
-        self._axis=0
-        self._set_layers()
         self.view.reset_camera() if hasattr(self.view,'reset_camera') else None
+        self.axis.values=self._axis_labels()
+        self._axis=self._initial_axis()
+        self.axis.text=self.axis.values[self._axis]
+        self._set_layers()
         self.retranslate()
         self.refresh_theme()
         self.view.refresh()
 
     def retranslate(self):
+        self.follow_control.retranslate()
         if self._cube is not None:
-            self.title.text=f'{tr("directory."+self._cube.puzzle_kind)} · {tr("input.twist")}'
-        self.hint.text=tr('poly.twist_hint_on') if self.view.lock_view else tr('poly.twist_hint_off')
+            self.title.text=f'{_puzzle_title(self._cube)} · {tr("input.twist")}'
+            self.axis.values=self._axis_labels()
+            self.axis.text=self.axis.values[self._axis]
+        kind=self._cube.puzzle_kind if self._cube else ''
+        if kind in ('clover','eight_petals','football','blossom','ivy','dino','war_drum','pentahedron'):
+            self.hint.text=tr('poly.'+kind+'_twist')
+        else:
+            self.hint.text=tr('poly.twist_hint_on') if self.view.lock_view else tr('poly.twist_hint_off')
+
+    def _initial_axis(self):
+        if self._cube.puzzle_kind not in ('dino','war_drum','pentahedron'):
+            return 0
+        # Dino axis zero points behind the default camera. Choose the visible
+        # corner so the first button turn is visible, even before a drag.
+        from cube.polyhedral import dot
+        yaw,pitch=math.radians(self.view.yaw),math.radians(self.view.pitch)
+        eye=(math.sin(yaw)*math.cos(pitch),math.sin(pitch),math.cos(yaw)*math.cos(pitch))
+        world=self.view.observation_world()
+        return max(range(len(self._cube.geometry.spec.axes)),key=lambda i:
+                   dot(world.transform(*self._cube.geometry.spec.axes[i]),eye))
+
+    def _axis_labels(self):
+        spec=self._cube.geometry.spec
+        if spec.kind in ('football','war_drum','pentahedron'):
+            return tuple(f'{tr("poly.face",i=i+1)} · {360//spec.order(i)}°' for i in range(len(spec.axes)))
+        if spec.kind not in ('clover','eight_petals','blossom','ivy','dino'):
+            return tuple(tr('poly.axis',i=i+1) for i in range(len(spec.axes)))
+        from cube.polyhedral import dot
+        role='poly.edge' if spec.kind in ('clover','blossom') else 'poly.corner'
+        if spec.kind in ('ivy','dino'):
+            return tuple(tr('poly.axis',i=j+1)+' · '+tr(role,faces='/'.join(
+                str(i+1) for i,normal in enumerate(spec.normals)
+                if abs(dot(normal,axis)-max(dot(n,axis) for n in spec.normals))<1e-7))
+                for j,axis in enumerate(spec.axes))
+        # Face numbers match the palette and the model's face labels.
+        return tuple(tr(role,faces='/'.join(str(i+1) for i,normal in enumerate(spec.normals)
+                                            if abs(dot(normal,axis)-max(dot(n,axis) for n in spec.normals))<1e-7)) for axis in spec.axes)
 
     def refresh_theme(self):
         self.title.color=_app().theme.text
@@ -736,7 +896,7 @@ class PolyhedralTwistScreen(Screen):
             yaw-=360
         while yaw-self.view.yaw<-180:
             yaw+=360
-        pitch=math.degrees(math.asin(y))
+        pitch=math.degrees(math.atan2(y,math.hypot(x,z)))
         Animation.cancel_all(self.view,'yaw','pitch')
         self.view.camera_busy=True
         animation=Animation(yaw=yaw,pitch=pitch,duration=.45,t='in_out_sine')
@@ -752,8 +912,18 @@ class PolyhedralTwistScreen(Screen):
     def _set_layers(self):
         if self._cube is None:
             return
-        self.layer.values=tuple(tr('poly.layer',i=i+1)
-                                for i in range(len(self._cube.geometry.layers[self._axis])))
+        if self._cube.puzzle_kind in ('clover','eight_petals','blossom','ivy'):
+            self.layer.values=(f'{360//self._cube.geometry.spec.turn_order}°',)
+            self.layer.disabled=True
+        elif self._cube.puzzle_kind=='skewb':
+            self.layer.disabled=False
+            count=len(self._cube.geometry.layers[self._axis])
+            self.layer.values=(tr('poly.skewb_outer_near'),)+tuple(
+                tr('poly.skewb_slice',i=i) for i in range(1,count-1))+(tr('poly.skewb_outer_far'),)
+        else:
+            self.layer.disabled=False
+            self.layer.values=tuple(tr('poly.layer',i=i+1)
+                                    for i in range(len(self._cube.geometry.layers[self._axis])))
         self.layer.text=self.layer.values[0]
         self._layer=0
 
@@ -776,6 +946,12 @@ class PolyhedralTwistScreen(Screen):
     def twist(self,move):
         if self._cube is None or self.view._move is not None or self.view.camera_busy:
             return
+        # Keep button turns on the axis/layer most recently used by a drag.
+        # Setting the axis label rebuilds layer values before selecting a layer.
+        self._axis=move.axis
+        self.axis.text=self.axis.values[move.axis]
+        self._layer=move.layer
+        self.layer.text=self.layer.values[move.layer]
         self._history.append(move)
         self._future.clear()
         self._animate(move)
@@ -798,31 +974,45 @@ class PolyhedralTwistScreen(Screen):
         self.view.cancel_touch()
         self.panel.disabled=True
         self._update_controls()
+        if self._cube.puzzle_kind=='mirror_tower':
+            entry=self.manager.get_screen('MirrorTowerScreen')
+            permutation=self._cube.geometry.permutation(move)
+            entry._remember()
+            recorded={self._cube.geometry.stickers[permutation[self._cube.geometry.pieces[p][0]]].piece
+                      for p in entry._recorded}
+        else:
+            recorded=None
         def done():
             _app().polyhedral_solution=None
+            if recorded is not None:
+                entry._recorded=recorded
             self.panel.disabled=False
             self._update_controls()
             self.view.refresh()
-        if not self.view.animate_move(move,done):
-            self.panel.disabled=False
+        def begin():
+            if not self.view.animate_move(move,done):
+                self.panel.disabled=False
+        follow_turn(self.view,polyhedral_target(self._cube,move),begin)
 
     def turn(self,direction):
         if self._cube is not None:
-            self.twist(Move(self._axis,self._layer,direction%self._cube.geometry.spec.turn_order))
+            spec=self._cube.geometry.spec
+            self.twist(Move(self._axis,self._layer,direction*spec.step(self._axis)%spec.turn_order))
 
     def back(self):
-        if self.view._move is not None:
+        if self.view._move is not None or self.view.camera_busy:
             return
         self.view.cancel_touch()
         self.view.cancel_animation()
         self.panel.disabled=False
-        self.manager.current='PolyhedralScreen'
+        self.manager.current='MirrorTowerScreen' if self._cube.puzzle_kind=='mirror_tower' else 'PolyhedralScreen'
 
     def reset_interaction(self):
         self.view.cancel_touch()
 
     def on_leave(self,*args):
         self.view.cancel_touch()
+        cancel_follow(self.view)
         self.view.camera_busy=False
         self.view.cancel_animation()
         self.panel.disabled=False

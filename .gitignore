@@ -37,3 +37,8 @@ desktop_err.log
 # --- Misc local scratch ---
 /_shots/
 /0002.input_geom3
+/tmp/
+/video_output/
+/count_*.py
+/count_*.txt
+/explore_project.py

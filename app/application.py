@@ -63,8 +63,8 @@ class CubeApp(App):
             Builder.load_file(_KV_PATH)
             self._kv_loaded = True
         sm = ScreenManager()
-        for name in ("HomeScreen", "IrregularDirectoryScreen", "InputScreen", "MastermorphixScreen", "MirrorScreen", "MorphixTwistScreen", "PolyhedralScreen", "PolyhedralTwistScreen", "PolyhedralPlaybackScreen", "SolvingScreen", "PlaybackScreen",
-                     "DemoScreen", "DemoMenuScreen", "TwistScreen", "SettingsScreen"):
+        for name in ("HomeScreen", "IrregularDirectoryScreen", "SpecialIrregularScreen", "InputScreen", "MastermorphixScreen", "MirrorScreen", "MorphixTwistScreen", "PolyhedralScreen", "PolyhedralTwistScreen", "PolyhedralPlaybackScreen", "SolvingScreen", "PlaybackScreen",
+                     "DemoScreen", "DemoMenuScreen", "TwistScreen", "SettingsScreen", "Square1Screen", "ShapeCubeScreen", "MirrorTowerScreen"):
             scr = _screen(name)
             scr.name = name
             sm.add_widget(scr)
@@ -83,7 +83,7 @@ class CubeApp(App):
         sm = getattr(self, "root", None)
         if sm is not None:
             for name in ("InputScreen", "MastermorphixScreen", "MirrorScreen", "PolyhedralScreen",
-                         "MorphixTwistScreen", "PolyhedralTwistScreen"):
+                         "MorphixTwistScreen", "PolyhedralTwistScreen", "Square1Screen", "ShapeCubeScreen", "MirrorTowerScreen"):
                 if sm.has_screen(name):
                     sm.get_screen(name).reset_interaction()
 
@@ -137,8 +137,8 @@ class CubeApp(App):
     def new_polyhedral(self, kind, n):
         from cube.polyhedral import PolyhedralPuzzle
         self.n = n
-        self.puzzle_kind = kind
         self.cube = PolyhedralPuzzle(kind, n)
+        self.puzzle_kind = self.cube.puzzle_kind
         self.cube.colors = [-1] * len(self.cube.colors)
         self.polyhedral_solution = None
 
@@ -148,6 +148,30 @@ class CubeApp(App):
         self.puzzle_kind = 'mirror'
         self.cube = MirrorCube.solved(n=n)
         self.solve_result = None
+
+    def new_square1(self):
+        from cube.square1 import Square1Cube
+        self.n=3
+        self.puzzle_kind='square1'
+        self.cube=Square1Cube.solved()
+        self.solve_result=None
+
+    def new_mirror_tower(self):
+        from cube.mirror_tower import MirrorTowerCube
+        self.n=3
+        self.puzzle_kind='mirror_tower'
+        self.cube=MirrorTowerCube.solved()
+        self.polyhedral_solution=None
+
+    def new_shape_cube(self,kind='axis',n=3):
+        from cube.shape_cube import AxisCube,PandoraCube,WindmillCube,FisherCube
+        factories={'axis':AxisCube,'pandora':PandoraCube,'windmill':WindmillCube,'fisher':FisherCube}
+        if kind not in factories:
+            raise ValueError('Unsupported shape modification')
+        self.n=n
+        self.puzzle_kind=kind
+        self.cube=factories[kind].solved(n=n)
+        self.solve_result=None
 
 
     def _apply_theme_mode(self):

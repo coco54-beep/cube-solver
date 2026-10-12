@@ -1,0 +1,20 @@
+{
+  "kind": "cube",
+  "name": "普通魔方",
+  "order": 12,
+  "seed": 20261012,
+  "status": "rejected",
+  "phase": "solve",
+  "steps": null,
+  "sample_mode": "incomplete",
+  "scramble_steps": 157,
+  "initial_solved": false,
+  "setup_seconds": 0.101,
+  "progress": "({'stage': 'nxn', 'progress': 0.02, 'label': '检查颜色和块的位置…'},)",
+  "error": "RuntimeError: 角块或中棱的配色、方向不正确，请检查录入。",
+  "traceback": "Traceback (most recent call last):\n  File \"D:\\coco\\cube-solver\\scripts\\audit_solvers.py\", line 221, in worker\n    raise RuntimeError(result.message)\nRuntimeError: 角块或中棱的配色、方向不正确，请检查录入。\n",
+  "solve_seconds": 0.201,
+  "total_seconds": 0.303,
+  "wall_seconds": 0.407,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-incomplete\\logs\\cube-12-seed-20261012.log"
+}

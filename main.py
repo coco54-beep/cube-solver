@@ -12,6 +12,9 @@ import traceback
 
 os.environ.setdefault("KIVY_NO_ARGS", "1")
 
+from app.desktop_runtime import configure_graphics
+configure_graphics()
+
 
 def _crash_log_path():
     """写入应用可访问的崩溃日志目录。"""

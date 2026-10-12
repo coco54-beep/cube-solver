@@ -1,0 +1,214 @@
+[
+  {
+    "mode": 2,
+    "moves": 9,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": 3,
+    "moves": 9,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": 4,
+    "moves": 22,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": 5,
+    "moves": 7,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": [
+      "pyraminx",
+      5
+    ],
+    "moves": 4,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": [
+      "mastermorphix",
+      5
+    ],
+    "moves": 7,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": [
+      "skewb",
+      5
+    ],
+    "moves": 4,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": [
+      "dino",
+      4
+    ],
+    "moves": 4,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": [
+      "megaminx",
+      5
+    ],
+    "moves": 4,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": [
+      "moyu",
+      5
+    ],
+    "moves": 4,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": [
+      "mirror",
+      5
+    ],
+    "moves": 7,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": [
+      "fto",
+      4
+    ],
+    "moves": 4,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": [
+      "eight_petals",
+      3
+    ],
+    "moves": 4,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": [
+      "void_cube",
+      3
+    ],
+    "moves": 4,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": [
+      "void_tower",
+      3
+    ],
+    "moves": 4,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": [
+      "clover",
+      3
+    ],
+    "moves": 4,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": [
+      "blossom",
+      3
+    ],
+    "moves": 6,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": [
+      "football",
+      5
+    ],
+    "moves": 4,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": [
+      "icosahedron",
+      5
+    ],
+    "moves": 4,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": [
+      "ivy",
+      3
+    ],
+    "moves": 4,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": [
+      "war_drum",
+      5
+    ],
+    "moves": 4,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": [
+      "pentahedron",
+      5
+    ],
+    "moves": 4,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": [
+      "square1",
+      3
+    ],
+    "moves": 3,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": [
+      "mirror_tower",
+      3
+    ],
+    "moves": 2,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": [
+      "axis",
+      3
+    ],
+    "moves": 4,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": [
+      "pandora",
+      3
+    ],
+    "moves": 4,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": [
+      "windmill",
+      3
+    ],
+    "moves": 4,
+    "next_prev_cancel": "pass"
+  },
+  {
+    "mode": [
+      "fisher",
+      3
+    ],
+    "moves": 4,
+    "next_prev_cancel": "pass"
+  }
+]

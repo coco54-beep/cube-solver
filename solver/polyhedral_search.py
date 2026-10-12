@@ -7,8 +7,15 @@ from cube.polyhedral import PolyhedralPuzzle
 from solver.polyhedral import piece_orbits, inverse, simplify
 
 
-@lru_cache(maxsize=6)
-def core_database(kind,n):
+_DATABASES={}
+
+
+def core_database(kind,n,cancel=None):
+    cached=_DATABASES.get((kind,n))
+    if cached is not None:
+        return cached
+    if cancel and cancel():
+        raise InterruptedError()
     cube=PolyhedralPuzzle(kind,n)
     g=cube.geometry
     orbits=piece_orbits(kind,n)
@@ -17,7 +24,7 @@ def core_database(kind,n):
         tips=set()
     # Pyraminx tips can be set independently after the interacting core.
     # Including them in IDA multiplies equivalent branches needlessly.
-    selected=[o for o in orbits if (1<len(o)<=6 or len(g.pieces[o[0]])==3)
+    selected=[o for o in orbits if (kind=='clover' or 1<len(o)<=6 or len(g.pieces[o[0]])==3)
               and o[0] not in tips]
     points=tuple(s for orbit in selected for piece in orbit for s in g.pieces[piece])
     index={s:i for i,s in enumerate(points)}
@@ -42,7 +49,11 @@ def core_database(kind,n):
         start=bytes(goal[s] for s in ids)
         distances={start:0}
         queue=deque([start])
+        expanded=0
         while queue:
+            expanded+=1
+            if expanded%256==0 and cancel and cancel():
+                raise InterruptedError()
             state=queue.popleft()
             depth=distances[state]+1
             for perm in perms:
@@ -69,11 +80,15 @@ def core_database(kind,n):
         components.setdefault(find(i),[]).append(i)
     groups=tuple((tuple(indices),max(len(set(indices)&active) for active in touched))
                  for indices in components.values())
-    return points,goal,tuple(moves),tuple(maps),tuple(patterns),groups
+    result=points,goal,tuple(moves),tuple(maps),tuple(patterns),groups
+    if len(_DATABASES)>=3:
+        _DATABASES.pop(next(iter(_DATABASES)))
+    _DATABASES[(kind,n)]=result
+    return result
 
 
 def _search_core(cube,cancel=None,progress=None,max_seconds=2):
-    points,goal,moves,maps,patterns,groups=core_database(cube.puzzle_kind,cube.n)
+    points,goal,moves,maps,patterns,groups=core_database(cube.puzzle_kind,cube.n,cancel)
     state=bytes(cube.colors[i] for i in points)
     if state==goal:
         return ()
@@ -144,21 +159,38 @@ def _search_core(cube,cancel=None,progress=None,max_seconds=2):
 _CORE_CHAINS={}
 
 
-def solve_core(cube,cancel=None,progress=None,max_seconds=2):
-    """Try a short solution, then use a constructive stabilizer solution."""
-    try:
-        return _search_core(cube,cancel,progress,max_seconds)
-    except TimeoutError:
-        from solver.polyhedral import StabilizerChain,identify
-        points=core_database(cube.puzzle_kind,cube.n)[0]
-        point_index={s:i for i,s in enumerate(points)}
-        full=identify(cube)
-        state=tuple(point_index[full[s]] for s in points)
-        key=(cube.puzzle_kind,cube.n)
-        chain=_CORE_CHAINS.get(key)
-        if chain is None:
-            chain=StabilizerChain(cube,cancel,progress,points)
-            _CORE_CHAINS.clear()
-            _CORE_CHAINS[key]=chain
-        word=chain.solve(state)
-        return simplify(word.flatten(cube.geometry.spec.turn_order,cancel),cube.geometry.spec.turn_order)
+def solve_core(cube,cancel=None,progress=None,max_seconds=2,exact=True):
+    """Try a short solution, then use a constructive stabilizer solution.
+
+    ``exact=False`` skips the bounded IDA search and goes straight to the
+    constructive chain. The improvement search re-solves the puzzle many times
+    and the IDA attempt is far too slow to repeat on each call.
+    """
+    if exact:
+        try:
+            return _search_core(cube,cancel,progress,max_seconds)
+        except (TimeoutError, ValueError):
+            pass
+    if cube.puzzle_kind=='fto':
+        # Safety net: the compact PDB may not cover every state.
+        from solver.fto import solve_prepared_core
+        prepared=solve_prepared_core(cube,cancel,progress)
+        if prepared is not None:
+            return prepared
+    from solver.polyhedral import StabilizerChain,identify
+    if cube.puzzle_kind == 'fto':
+        from solver.fto import core_points
+        points=core_points(cube)
+    else:
+        points=core_database(cube.puzzle_kind,cube.n,cancel)[0]
+    point_index={s:i for i,s in enumerate(points)}
+    full=identify(cube)
+    state=tuple(point_index[full[s]] for s in points)
+    key=(cube.puzzle_kind,cube.n)
+    chain=_CORE_CHAINS.get(key)
+    if chain is None:
+        chain=StabilizerChain(cube,cancel,progress,points)
+        _CORE_CHAINS.clear()
+        _CORE_CHAINS[key]=chain
+    word=chain.solve(state)
+    return simplify(word.flatten(cube.geometry.spec.turn_order,cancel),cube.geometry.spec.turn_order)

@@ -13,7 +13,7 @@ from kivy.graphics.texture import Texture
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 
-from cube.polyhedral import dot,cross,unit,mean,add,scale,rotate,key,body,Move
+from cube.polyhedral import dot,cross,unit,mean,add,scale,rotate,key,body,body_faces,Move
 from renderer.mat4 import Mat4
 
 
@@ -28,12 +28,25 @@ PALETTE=((.98,.98,.98,1),(.02,.65,.18,1),(.9,.05,.06,1),(.51,.12,.73,1),
 TETRA_PALETTE=((.91,.04,.04,1),(1,.85,0,1),(.06,.19,.9,1),(.01,.65,.18,1))
 CUBE_PALETTE=((.98,.98,.98,1),(.9,.04,.05,1),(.01,.65,.18,1),
               (1,.85,0,1),(1,.46,.01,1),(.06,.19,.9,1))
+ICOSA_PALETTE=PALETTE+((.46,.22,.1,1),(.94,.63,.46,1),(.49,.78,.97,1),
+                     (.86,.55,.95,1),(.02,.35,.27,1),(.72,.08,.28,1),
+                     (.49,.49,.05,1),(.16,.31,.51,1))
+TUTT_PALETTE=ICOSA_PALETTE+((.95,.74,.85,1),(.31,.71,.46,1),(.91,.72,.38,1),
+                          (.46,.45,.8,1),(.72,.92,.8,1),(.55,.33,.42,1),
+                          (.81,.39,.12,1),(.26,.69,.71,1),(.92,.91,.63,1),
+                          (.55,.7,.21,1),(.65,.68,.84,1),(.87,.66,.97,1))
 
 
 def default_palette(cube):
     """Return the same factory face colors used when a model is first opened."""
+    if cube.puzzle_kind=='pentahedron':
+        return (CUBE_PALETTE[2],CUBE_PALETTE[5],CUBE_PALETTE[1],
+                CUBE_PALETTE[0],CUBE_PALETTE[3])
+    if cube.puzzle_kind=='war_drum':
+        return (CUBE_PALETTE[4],PALETTE[3],CUBE_PALETTE[1],CUBE_PALETTE[5],
+                CUBE_PALETTE[3],CUBE_PALETTE[2],CUBE_PALETTE[0],PALETTE[7])
     count=len(cube.geometry.spec.normals)
-    return {4:TETRA_PALETTE,6:CUBE_PALETTE}.get(count,PALETTE)
+    return {4:TETRA_PALETTE,6:CUBE_PALETTE,20:ICOSA_PALETTE,32:TUTT_PALETTE}.get(count,PALETTE)
 
 
 def _inside(point,poly,normal):
@@ -77,6 +90,10 @@ def _outlines(sticker,normal):
 def outlines(kind,n):
     from cube.polyhedral import geometry
     g=geometry(kind,n)
+    if kind in ('eight_petals','clover','blossom','ivy'):
+        # Ear-clipped patches share the original concave outline. Walking the
+        # source boundary avoids discovering internal triangle edges again.
+        return tuple(tuple(zip(s.polygon,s.polygon[1:]+s.polygon[:1])) for s in g.stickers)
     return tuple(_outlines(s,g.spec.normals[s.face]) for s in g.stickers)
 
 
@@ -95,6 +112,7 @@ class PolyhedralView(Widget):
         self.on_pick=None
         self._polygons=[]
         self._fbo=None
+        self._gpu_layer=None
         self._gpu_failed=False
         self._compatible=InstructionGroup()
         self.canvas.add(self._compatible)
@@ -141,15 +159,15 @@ class PolyhedralView(Widget):
                 ClearBuffers(clear_depth=True)
                 self._group=InstructionGroup()
                 Callback(self._depth_off)
-            with self.canvas:
-                Color(1,1,1,1)
-                self._image=Rectangle(texture=self._fbo.texture)
             self._meshes=[]
-            self.canvas.add(self._fbo)
-            self.canvas.add(Color(1,1,1,1))
-            # The offscreen buffer must execute before its display rectangle.
-            self.canvas.remove(self._image)
-            self.canvas.add(self._image)
+            # Draw the model before child labels. Appending its texture to
+            # canvas would cover the face numbers needed to follow a demo.
+            self._gpu_layer=InstructionGroup()
+            self._gpu_layer.add(self._fbo)
+            self._gpu_layer.add(Color(1,1,1,1))
+            self._image=Rectangle(texture=self._fbo.texture)
+            self._gpu_layer.add(self._image)
+            self.canvas.before.add(self._gpu_layer)
         if self._fbo.size!=size:
             self._fbo.size=size
             self._image.texture=self._fbo.texture
@@ -163,10 +181,15 @@ class PolyhedralView(Widget):
         if self.cube is not cube:
             self._whole_world=Mat4()
             self.roll=0
+            self.yaw=32
+            self.pitch=22
         self.cube=cube
         count=len(cube.geometry.spec.normals)
         self.palette=default_palette(cube)
-        if count==4:
+        if cube.puzzle_kind=='war_drum':
+            self.yaw=0
+            self.pitch=18
+        elif count==4:
             self.yaw=45
             self.pitch=math.degrees(math.atan(1/math.sqrt(2)))
         for label in self._face_labels:
@@ -222,6 +245,8 @@ class PolyhedralView(Widget):
         tetra = self.cube is not None and len(self.cube.geometry.spec.normals) == 4
         self.yaw = 45 if tetra else 32
         self.pitch = math.degrees(math.atan(1/math.sqrt(2))) if tetra else 22
+        if self.cube is not None and self.cube.puzzle_kind=='war_drum':
+            self.yaw,self.pitch=0,18
         self.refresh()
 
     def turn_view(self,direction):
@@ -266,13 +291,15 @@ class PolyhedralView(Widget):
         g=self.cube.geometry
         yaw,pitch=math.radians(self.yaw),math.radians(self.pitch)
         eye=(math.sin(yaw)*math.cos(pitch),math.sin(pitch),math.cos(yaw)*math.cos(pitch))
-        right=unit(cross((0,1,0),eye))
+        # Derive right from yaw so looking exactly at either pole does not
+        # normalize the zero vector produced by cross(world_up, eye).
+        right=(math.cos(yaw),0.,-math.sin(yaw))
         up=cross(eye,right)
         if self.roll:
             angle=math.radians(self.roll)
             right,up=(add(scale(right,math.cos(angle)),scale(up,math.sin(angle))),
                       add(scale(up,math.cos(angle)),scale(right,-math.sin(angle))))
-        radius=max(math.sqrt(dot(p,p)) for face in body(g.spec.normals) for p in face)
+        radius=max(math.sqrt(dot(p,p)) for face in body_faces(g.spec) for p in face)
         factor=min(self.width,self.height)*.42/max(radius,1)
         cx,cy=self.width/2,self.height/2
         self._proj=(eye,right,up,factor,cx,cy)
@@ -283,10 +310,19 @@ class PolyhedralView(Widget):
         compatible=[]
         self._polygons=[]
         boundaries=outlines(self.cube.puzzle_kind,self.cube.n)
-        curved=self.cube.puzzle_kind=='moyu'
-        if curved:
+        rounded_flower=self.cube.puzzle_kind in ('eight_petals','clover','ivy')
+        football=self.cube.puzzle_kind=='football'
+        rounded_variant=self.cube.puzzle_kind in ('war_drum','pentahedron')
+        curved=self.cube.puzzle_kind=='moyu' or rounded_flower or rounded_variant
+        if rounded_variant:
+            from renderer.drum_prism_mesh import curved_skin,curved_edge,surface_point
+            skin=curved_skin(self.cube.n,self.cube.puzzle_kind)
+        elif rounded_flower:
+            from renderer.flower_mesh import flower_skin,flower_edge,flower_hubs
+            skin=flower_skin(self.cube.n,self.cube.puzzle_kind)
+        elif curved:
             from renderer.tower_mesh import tower_skin,tower_edge
-            skin=tower_skin(self.cube.n)
+            skin=tower_skin(self.cube.n,self.cube.puzzle_kind)
         moving=set(g.layers[self._move.axis][self._move.layer]) if self._move else set()
         turn=None
         if self._move:
@@ -305,7 +341,7 @@ class PolyhedralView(Widget):
                                          turn[0][2]*x+turn[1][2]*y+turn[2][2]*z)
         def project(p):
             return (cx+dot(p,right)*factor,cy+dot(p,up)*factor,-dot(p,eye)*.12)
-        def polygon(points,rgba,bias=0):
+        def polygon(points,rgba,bias=0,vertex_colors=None):
             if not gpu:
                 compatible.append((tuple((x+self.x,y+self.y,z+bias) for x,y,z in points),rgba))
                 return
@@ -314,8 +350,9 @@ class PolyhedralView(Widget):
                 vertices.clear()
                 indices.clear()
             base=len(vertices)//7
-            for x,y,z in points:
-                vertices.extend((x,y,z+bias,*rgba))
+            for index,(x,y,z) in enumerate(points):
+                color=vertex_colors[index] if vertex_colors is not None else rgba
+                vertices.extend((x,y,z+bias,*color))
             for i in range(1,len(points)-1):
                 indices.extend((base,base+i,base+i+1))
         def edge(a,b,rgba,width):
@@ -326,6 +363,8 @@ class PolyhedralView(Widget):
             nx,ny=-dy/length*width,dx/length*width
             polygon(((a[0]+nx,a[1]+ny,a[2]),(a[0]-nx,a[1]-ny,a[2]),
                      (b[0]-nx,b[1]-ny,b[2]),(b[0]+nx,b[1]+ny,b[2])),rgba,-.0015)
+        light=unit((-.3,.8,.52))
+        curved_colors={}
         for i,s in enumerate(g.stickers):
             rotate_piece=s.piece in moving
             normal=transform(g.spec.normals[s.face]) if rotate_piece else observation.transform(*g.spec.normals[s.face])
@@ -333,43 +372,75 @@ class PolyhedralView(Widget):
                 continue
             color=self.cube.colors[i]
             rgba=self.palette[color] if color>=0 else (.37,.43,.5,1)
-            patches=skin[i] if curved else tuple((patch,g.spec.normals[s.face])
+            patches=skin[i] if curved else tuple((patch,g.spec.normals[s.face],())
                                                 for patch in s.patches or (s.polygon,))
             visible=False
-            for patch,patch_normal in patches:
+            for patch,patch_normal,vertex_normals in patches:
                 patch_normal=transform(patch_normal) if rotate_piece else observation.transform(*patch_normal)
                 if dot(patch_normal,eye)<=1e-8:
                     continue
                 visible=True
-                brightness=.85+.15*max(0,dot(patch_normal,unit((-.3,.8,.52))))
+                # Compatible drawing uses one face shade to avoid faceted bands.
+                brightness=.85+.15*max(0,dot(normal if curved else patch_normal,light))
                 shade=tuple(c*brightness for c in rgba[:3])+(1,)
+                vertex_colors=None
+                if curved:
+                    colors=[]
+                    for p in vertex_normals:
+                        cache_key=(rotate_piece,p,rgba)
+                        color=curved_colors.get(cache_key)
+                        if color is None:
+                            p=transform(p) if rotate_piece else observation.transform(*p)
+                            brightness=.85+.15*max(0,dot(p,light))
+                            color=tuple(c*brightness for c in rgba[:3])+(1,)
+                            curved_colors[cache_key]=color
+                        colors.append(color)
+                    vertex_colors=tuple(colors)
                 world=tuple(transform(p) if rotate_piece else observation.transform(*p) for p in patch)
                 pts=tuple(project(p) for p in world)
-                polygon(pts,shade)
+                polygon(pts,shade,vertex_colors=vertex_colors)
                 self._polygons.append((pts,i))
             if not visible:
                 continue
             for a,b in boundaries[i]:
-                path=tower_edge(a,b,self.cube.n) if curved else (a,b)
+                path=(flower_edge(a,b,self.cube.puzzle_kind) if rounded_flower else
+                      curved_edge(a,b,self.cube.n,self.cube.puzzle_kind) if rounded_variant else
+                      tower_edge(a,b,self.cube.n) if curved else (a,b))
                 if rotate_piece:
                     path=tuple(transform(p) for p in path)
                 else:
                     path=tuple(observation.transform(*p) for p in path)
                 for a,b in zip(path,path[1:]):
-                    edge(project(a),project(b),(.12,.16,.2,1),.6)
+                    seam=tuple(c*.48 for c in rgba[:3])+(1,) if rounded_flower else (.12,.16,.2,1)
+                    edge(project(a),project(b),seam,.48 if rounded_flower else .6)
                     if i==self.selected:
                         edge(project(a),project(b),(.05,.84,1,1),1.5)
+        if rounded_flower and self._move is None:
+            for normal,patches in flower_hubs(self.cube.puzzle_kind):
+                if dot(observation.transform(*normal),eye)<=1e-8:
+                    continue
+                for patch in patches:
+                    polygon(tuple(project(observation.transform(*p)) for p in patch),
+                            (.18,.20,.22,1),-.002)
         if vertices:
             chunks.append((vertices,indices))
         for normal,label in zip(g.spec.normals,self._face_labels):
+            if rounded_variant:
+                location=surface_point(mean(body_faces(g.spec)[g.spec.normals.index(normal)]),
+                                       self.cube.puzzle_kind,self.cube.n)
+            elif football:
+                location=scale(normal,g.spec.bounds[g.spec.normals.index(normal)])
+            else:
+                location=normal
+            location=observation.transform(*location)
             normal=observation.transform(*normal)
-            label.opacity=1 if self._move is None and dot(normal,eye)>.1 else 0
-            x,y,_=project(normal)
+            label.opacity=1 if not rounded_flower and self.cube.puzzle_kind!='void_tower' and self._move is None and dot(normal,eye)>.1 else 0
+            x,y,_=project(location)
             label.center=(self.x+x,self.y+y)
         if not gpu:
             if self._fbo is not None:
-                self.canvas.remove(self._fbo)
-                self.canvas.remove(self._image)
+                self.canvas.before.remove(self._gpu_layer)
+                self._gpu_layer=None
                 self._fbo=None
             if not hasattr(self,'_fallback_texture'):
                 self._fallback_texture=Texture.create(size=(1,1),colorfmt='rgba')
@@ -428,6 +499,8 @@ class PolyhedralView(Widget):
         self._touch_start=None
 
     def on_touch_down(self,touch):
+        if self.collide_point(*touch.pos) and getattr(self,'_camera_follow_active',False):
+            return True
         if self.collide_point(*touch.pos) and self._move is None and self._observation_animation is None:
             if self._touch is not None:
                 return True
@@ -479,6 +552,8 @@ class PolyhedralTwistView(PolyhedralView):
         else:
             self.yaw=32
             self.pitch=22
+        if self.cube and self.cube.puzzle_kind=='war_drum':
+            self.yaw,self.pitch=0,18
         self.refresh()
 
     def cancel_touch(self):
@@ -527,7 +602,6 @@ class PolyhedralTwistView(PolyhedralView):
 
     def resolve_twist(self, sticker_index, drag, press=None):
         from cube.polyhedral import Move
-        from renderer.gesture import choose_turn
         proj=getattr(self,'_proj',None)
         if proj is None or self.cube is None or sticker_index is None:
             return None
@@ -536,6 +610,10 @@ class PolyhedralTwistView(PolyhedralView):
         sticker=g.stickers[sticker_index]
         if press is None:
             point=mean(sticker.polygon)
+            if self.cube.puzzle_kind in ('war_drum','pentahedron'):
+                from renderer.drum_prism_mesh import surface_point
+                point=surface_point(point,self.cube.puzzle_kind,self.cube.n)
+            point=self.observation_world().transform(*point)
         else:
             hit=self.pick_surface(*press)
             if hit is not None and hit[0]==sticker_index:
@@ -547,11 +625,31 @@ class PolyhedralTwistView(PolyhedralView):
             for layer,band in enumerate(bands):
                 if sticker.piece not in band:
                     continue
-                velocity=cross(g.spec.axes[axis],point)
+                velocity=cross(self.observation_world().transform(*g.spec.axes[axis]),point)
                 candidates.append(((axis,layer),(dot(velocity,right),dot(velocity,up))))
                 break
-        chosen=choose_turn(drag,candidates)
-        if chosen is None:
+        drag_length=math.hypot(*drag)
+        if drag_length<1e-8:
             return None
-        (axis,layer),sign=chosen
-        return Move(axis,layer,sign%g.spec.turn_order)
+        # Opposite face normals can describe the same physical slice. Their
+        # projected drag vectors tie exactly, so merge candidates by the
+        # resulting sticker permutation before treating a gesture as ambiguous.
+        actions={}
+        for (axis,layer),velocity in candidates:
+            speed=math.hypot(*velocity)
+            if speed<1e-7:
+                continue
+            score=sum(a*b for a,b in zip(drag,velocity))/(drag_length*speed)
+            if abs(score)<.65:
+                continue
+            sign=1 if score>0 else -1
+            move=Move(axis,layer,sign*g.spec.step(axis)%g.spec.turn_order)
+            permutation=g.permutation(move)
+            rank=abs(score)
+            previous=actions.get(permutation)
+            if previous is None or rank>previous[0]:
+                actions[permutation]=(rank,move)
+        ranked=sorted(actions.values(),key=lambda item:item[0],reverse=True)
+        if not ranked or (len(ranked)>1 and ranked[0][0]-ranked[1][0]<.05):
+            return None
+        return ranked[0][1]

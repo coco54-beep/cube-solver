@@ -37,15 +37,29 @@ def inverse_word(word,order):
 
 
 def simplify(word,order):
-    result=[]
+    """Combine turns of disjoint layers about the same axis.
+
+    Layer bands on one axis commute. Keep separate axis blocks so no turn
+    crosses a turn on a different axis; a cancelled block can expose another
+    block of the same axis for further cancellation.
+    """
+    blocks=[]
     for move in word:
-        if result and (result[-1].axis,result[-1].layer)==(move.axis,move.layer):
-            amount=(result.pop().amount+move.amount)%order
-            if amount:
-                result.append(Move(move.axis,move.layer,amount))
-        elif move.amount%order:
-            result.append(Move(move.axis,move.layer,move.amount%order))
-    return tuple(result)
+        amount=move.amount%order
+        if not amount:
+            continue
+        if not blocks or blocks[-1][0]!=move.axis:
+            blocks.append((move.axis,{}))
+        layers=blocks[-1][1]
+        amount=(layers.get(move.layer,0)+amount)%order
+        if amount:
+            layers[move.layer]=amount
+        else:
+            layers.pop(move.layer,None)
+        if not layers:
+            blocks.pop()
+    return tuple(Move(axis,layer,amount) for axis,layers in blocks
+                 for layer,amount in layers.items())
 
 
 @lru_cache(maxsize=8)
@@ -86,7 +100,20 @@ def identify(cube):
         available=defaultdict(deque)
         for home in orbit:
             available[tuple(sorted(g.stickers[i].face for i in g.pieces[home]))].append(home)
+        fixed=set()
+        if len(g.pieces[orbit[0]])==1:
+            # Same-colour centres have no visible identity. Reserve those
+            # already on their home face before labelling the displaced ones.
+            for position in orbit:
+                sticker=g.pieces[position][0]
+                face=g.stickers[sticker].face
+                if cube.colors[sticker]==face:
+                    state[sticker]=sticker
+                    available[(face,)].remove(position)
+                    fixed.add(position)
         for position in orbit:
+            if position in fixed:
+                continue
             slots=g.pieces[position]
             colors=tuple(sorted(cube.colors[i] for i in slots))
             if not available[colors]:
@@ -112,7 +139,14 @@ def identify(cube):
                 for home in orbit:
                     s=g.pieces[home][0]
                     duplicates[g.stickers[s].face].append(s)
-                pair=next((ids[:2] for ids in duplicates.values() if len(ids)>1),None)
+                pairs=[ids for ids in duplicates.values() if len(ids)>1]
+                # Prefer exchanging labels that are already displaced. This
+                # changes parity without unnecessarily moving restored centres.
+                pairs.sort(key=lambda ids:sum(state[s]!=s for s in ids),reverse=True)
+                pair=None
+                if pairs:
+                    ids=sorted(pairs[0],key=lambda s:state[s]==s)
+                    pair=ids[:2]
                 if pair:
                     a,b=pair
                     state[a],state[b]=state[b],state[a]
@@ -137,16 +171,15 @@ def _parity(perm):
 
 
 @lru_cache(maxsize=4)
-def _body_frames(kind):
-    g=PolyhedralPuzzle(kind,3).geometry
-    axes=list(g.spec.axes[:2])
-    order=g.spec.turn_order
+def _body_frames(kind,n=3):
+    g=PolyhedralPuzzle(kind,n).geometry
+    axes=list(enumerate(g.spec.axes if kind in ('clover','blossom') else g.spec.axes[:2]))
     identity=((1.,0.,0.),(0.,1.,0.),(0.,0.,1.))
     frames=[identity]
     seen={tuple(key(v) for v in identity)}
     for frame in frames:
-        for axis in axes:
-            nxt=tuple(rotate(v,axis,2*math.pi/order) for v in frame)
+        for axis_id,axis in axes:
+            nxt=tuple(rotate(v,axis,2*math.pi/g.spec.order(axis_id)) for v in frame)
             signature=tuple(key(v) for v in nxt)
             if signature not in seen:
                 seen.add(signature)
@@ -168,7 +201,7 @@ def _oriented_identities(kind,n):
     for home,slots in enumerate(g.pieces):
         if len(slots)==1:
             continue
-        for frame in _body_frames(kind):
+        for frame in _body_frames(kind,n):
             point=_transform(frame,g.centres[home])
             position=positions.get(key(point))
             if position is None:
@@ -235,7 +268,7 @@ def minx_chain(n=3):
     return tuple(reversed(chain))
 
 
-def solve_minx(cube,cancel=None,progress=None):
+def solve_minx(cube,cancel=None,progress=None,optimize=True,optimize_budget=None):
     if cube.n not in (2,3):
         raise ValueError('Higher-order minx reduction is not yet available')
     entered=identify(cube)
@@ -272,6 +305,13 @@ def solve_minx(cube,cancel=None,progress=None):
         check.apply_move(move)
     if not check.is_solved():
         raise ValueError('Solution replay did not restore the entered puzzle')
+    if optimize:
+        from solver.polyhedral_optimize import (DEFAULT_OPTIMIZE_BUDGET,
+                                                optimize_solution)
+        budget=DEFAULT_OPTIMIZE_BUDGET if optimize_budget is None else optimize_budget
+        solution=optimize_solution(cube,solution,
+                                   lambda work:solve_minx(work,cancel,None,optimize=False),
+                                   budget=budget,cancel=cancel,progress=progress)
     return solution
 
 
@@ -283,7 +323,8 @@ def scramble(cube,length=30,seed=None):
     for _ in range(length):
         options=[m for m in moves if m.axis!=last]
         move=rng.choice(options)
-        move=Move(move.axis,move.layer,rng.randrange(1,cube.geometry.spec.turn_order))
+        spec=cube.geometry.spec
+        move=Move(move.axis,move.layer,spec.step(move.axis)*rng.randrange(1,spec.order(move.axis)))
         cube.apply_move(move)
         word.append(move)
         last=move.axis
@@ -410,16 +451,129 @@ class StabilizerChain:
         return word
 
 
+#: Wall-clock budget for the optional verified improvement search. Reduction
+#: solvers are greedy and unstable, so re-solving slightly perturbed states can
+#: cancel many more moves; the search keeps the shortest sequence that replays
+#: to a solved puzzle.
+_OPTIMIZE_KINDS=('eight_petals','clover')
+_OPTIMIZE_BUDGET=3.0
+#: The prism family starts from much longer words, so its instability search is
+#: given a larger budget. A per-order target lets easy states stop early while
+#: hard states keep searching, which flattens the long tail of solution sizes.
+_OPTIMIZE_HEAVY_BUDGET=18.0
+_OPTIMIZE_TARGETS={('pentahedron',4):600,('pentahedron',5):750}
+
+
+def _optimize_plan(cube):
+    if cube.puzzle_kind=='pentahedron' and cube.n>=4:
+        return _OPTIMIZE_HEAVY_BUDGET,_OPTIMIZE_TARGETS.get((cube.puzzle_kind,cube.n))
+    if cube.puzzle_kind=='war_drum':
+        return 6.0,None
+    if cube.puzzle_kind in _OPTIMIZE_KINDS:
+        return _OPTIMIZE_BUDGET,None
+    return None
+
+
 def solve_polyhedral(cube,cancel=None,progress=None):
-    """Solve an entered state and verify it by replay on a fresh instance."""
+    """Solve an entered state, optionally trimming greedy reduction output."""
     if cube.is_solved():
         return ()
+    solution=_solve_polyhedral_raw(cube,cancel,progress)
+    if cube.puzzle_kind=='pentahedron' and cube.n>=4 and len(solution)>1:
+        from solver.polyhedral_optimize import optimize_solution
+        from solver.pentahedron_reduce import core_injection
+        candidates=[solution]
+        try:
+            injected=core_injection(cube)
+        except Exception:
+            injected=None
+        if injected is not None and len(injected) < len(solution):
+            candidates.append(tuple(injected))
+        resolver=lambda work:_solve_polyhedral_raw(work)
+        best=min(candidates,key=len)
+        per=_OPTIMIZE_HEAVY_BUDGET/len(candidates)
+        target=_OPTIMIZE_TARGETS.get((cube.puzzle_kind,cube.n))
+        for cand in candidates:
+            if cancel and cancel():
+                raise InterruptedError()
+            result=optimize_solution(cube,cand,resolver,budget=per,target=target,
+                                     cancel=cancel,progress=progress)
+            if len(result)<len(best):
+                best=result
+        return best
+    plan=_optimize_plan(cube)
+    if plan and len(solution)>1:
+        from solver.polyhedral_optimize import optimize_solution
+        budget,target=plan
+        if cube.puzzle_kind=='clover':
+            # Re-solve constructively: the exact search is too slow to repeat.
+            resolver=lambda work:_solve_clover_core(work)
+        else:
+            resolver=lambda work:_solve_polyhedral_raw(work)
+        solution=optimize_solution(cube,solution,resolver,budget=budget,
+                                   target=target,cancel=cancel,progress=progress)
+    return solution
+
+
+def _solve_clover_core(cube,cancel=None,progress=None):
+    from solver.polyhedral_search import solve_core
+    identify(cube)
+    return solve_core(cube,cancel,progress,exact=False)
+
+
+def _solve_polyhedral_raw(cube,cancel=None,progress=None):
+    """Dispatch to the puzzle's solver before any improvement search."""
+    if cube.is_solved():
+        return ()
+    if cube.puzzle_kind in ('war_drum','pentahedron'):
+        if cube.puzzle_kind=='pentahedron' and cube.n in (2,3):
+            from solver.pentahedron_optimal import solve_pentahedron
+            return solve_pentahedron(cube,cancel,progress)
+        from solver.drum_prism import solve_drum_prism
+        return solve_drum_prism(cube,cancel,progress)
+    if cube.puzzle_kind=='dino' and cube.n==2:
+        from solver.dino import solve_dino
+        return solve_dino(cube,cancel,progress)
+    if cube.puzzle_kind=='skewb' and cube.n==3:
+        from solver.skewb import solve_skewb
+        return solve_skewb(cube,cancel,progress)
+    if cube.puzzle_kind=='mirror_tower':
+        from solver.mirror_tower_optimal import solve_mirror_tower
+        return solve_mirror_tower(cube,cancel,progress)
+    if cube.puzzle_kind=='football':
+        from solver.football import solve_football
+        return solve_football(cube,cancel,progress)
+    if cube.puzzle_kind=='blossom':
+        from solver.blossom import solve_blossom
+        return solve_blossom(cube,cancel,progress)
+    if cube.puzzle_kind=='ivy':
+        from solver.ivy import solve_ivy
+        return solve_ivy(cube,cancel,progress)
+    if cube.puzzle_kind=='clover':
+        from solver.polyhedral_search import solve_core
+        identify(cube)
+        # The exact IDA search only reaches shallow states; give it a small
+        # slice of time and otherwise fall back to the constructive solver at
+        # once. The expensive 2s search mainly wastes the user's time.
+        solution=solve_core(cube,cancel,progress,max_seconds=0.2)
+        replay=cube.entered()
+        for move in solution:
+            replay.apply_move(move)
+        if not replay.is_solved():
+            raise ValueError('Clover solution replay failed')
+        return solution
+    if cube.puzzle_kind=='void_cube':
+        from solver.void_cube import solve_void_cube
+        return solve_void_cube(cube,cancel,progress)
+    if cube.puzzle_kind=='icosahedron':
+        from solver.icosahedron import solve_icosahedron
+        return solve_icosahedron(cube,cancel,progress)
     if cube.puzzle_kind=='megaminx':
         if cube.n in (2,3):
             return solve_minx(cube,cancel,progress)
         from solver.polyhedral_reduction import solve_high_minx
         return solve_high_minx(cube,cancel,progress)
-    if cube.puzzle_kind in ('pyraminx','moyu','skewb'):
+    if cube.puzzle_kind in ('pyraminx','moyu','skewb','dino','fto','eight_petals','void_tower'):
         from solver.polyhedral_reduction import solve_tetrahedral
         return solve_tetrahedral(cube,cancel,progress)
     raise ValueError('Unsupported puzzle family')

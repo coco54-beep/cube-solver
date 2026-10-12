@@ -1,0 +1,56 @@
+{"mode": 2, "seed": 54, "status": "pass", "moves": 9, "phases": 1, "seconds": 1.368}
+{"mode": 3, "seed": 54, "status": "pass", "moves": 20, "phases": 1, "seconds": 0.211}
+{"mode": 4, "seed": 54, "status": "pass", "moves": 145, "phases": 0, "seconds": 1.455}
+{"mode": 5, "seed": 54, "status": "pass", "moves": 450, "phases": 0, "seconds": 3.885}
+{"mode": ["pyraminx", 2], "seed": 54, "status": "pass", "moves": 2, "phases": 0, "seconds": 0.027}
+{"mode": ["pyraminx", 3], "seed": 54, "status": "pass", "moves": 11, "phases": 0, "seconds": 0.134}
+{"mode": ["pyraminx", 4], "seed": 54, "status": "pass", "moves": 19, "phases": 0, "seconds": 0.278}
+{"mode": ["pyraminx", 5], "seed": 54, "status": "pass", "moves": 121, "phases": 0, "seconds": 0.596}
+{"mode": ["mastermorphix", 2], "seed": 54, "status": "pass", "moves": 9, "phases": 1, "seconds": 1.905}
+{"mode": ["mastermorphix", 3], "seed": 54, "status": "pass", "moves": 49, "phases": 1, "seconds": 3.621}
+{"mode": ["mastermorphix", 4], "seed": 54, "status": "pass", "moves": 433, "phases": 0, "seconds": 0.514}
+{"mode": ["mastermorphix", 5], "seed": 54, "status": "pass", "moves": 787, "phases": 0, "seconds": 1.165}
+{"mode": ["skewb", 3], "seed": 54, "status": "pass", "moves": 8, "phases": 0, "seconds": 0.177}
+{"mode": ["skewb", 5], "seed": 54, "status": "pass", "moves": 166, "phases": 0, "seconds": 0.998}
+{"mode": ["dino", 2], "seed": 54, "status": "pass", "moves": 10, "phases": 0, "seconds": 0.031}
+{"mode": ["dino", 4], "seed": 54, "status": "pass", "moves": 115, "phases": 0, "seconds": 0.295}
+{"mode": ["megaminx", 2], "seed": 54, "status": "pass", "moves": 133, "phases": 0, "seconds": 6.156}
+{"mode": ["megaminx", 3], "seed": 54, "status": "pass", "moves": 152, "phases": 0, "seconds": 6.009}
+{"mode": ["megaminx", 4], "seed": 54, "status": "pass", "moves": 1036, "phases": 0, "seconds": 9.971}
+{"mode": ["megaminx", 5], "seed": 54, "status": "pass", "moves": 1223, "phases": 0, "seconds": 11.894}
+{"mode": ["moyu", 3], "seed": 54, "status": "pass", "moves": 8, "phases": 0, "seconds": 0.05}
+{"mode": ["moyu", 4], "seed": 54, "status": "pass", "moves": 88, "phases": 0, "seconds": 0.106}
+{"mode": ["moyu", 5], "seed": 54, "status": "pass", "moves": 129, "phases": 0, "seconds": 0.25}
+{"mode": ["mirror", 2], "seed": 54, "status": "pass", "moves": 9, "phases": 1, "seconds": 1.353}
+{"mode": ["mirror", 3], "seed": 54, "status": "pass", "moves": 20, "phases": 1, "seconds": 0.135}
+{"mode": ["mirror", 4], "seed": 54, "status": "pass", "moves": 396, "phases": 0, "seconds": 0.161}
+{"mode": ["mirror", 5], "seed": 54, "status": "pass", "moves": 658, "phases": 0, "seconds": 0.356}
+{"mode": ["fto", 2], "seed": 54, "status": "pass", "moves": 7, "phases": 0, "seconds": 0.181}
+{"mode": ["fto", 3], "seed": 54, "status": "pass", "moves": 443, "phases": 0, "seconds": 0.299}
+{"mode": ["fto", 4], "seed": 54, "status": "pass", "moves": 306, "phases": 0, "seconds": 0.594}
+{"mode": ["eight_petals", 3], "seed": 54, "status": "pass", "moves": 39, "phases": 0, "seconds": 3.216}
+{"mode": ["void_cube", 3], "seed": 54, "status": "pass", "moves": 19, "phases": 0, "seconds": 0.026}
+{"mode": ["void_tower", 3], "seed": 54, "status": "pass", "moves": 8, "phases": 0, "seconds": 0.047}
+{"mode": ["clover", 3], "seed": 54, "status": "pass", "moves": 36, "phases": 0, "seconds": 3.286}
+{"mode": ["blossom", 3], "seed": 54, "status": "pass", "moves": 168, "phases": 0, "seconds": 1.282}
+{"mode": ["football", 3], "seed": 54, "status": "pass", "moves": 1237, "phases": 0, "seconds": 1.631}
+{"mode": ["football", 5], "seed": 54, "status": "pass", "moves": 2050, "phases": 0, "seconds": 10.819}
+{"mode": ["icosahedron", 2], "seed": 54, "status": "pass", "moves": 1316, "phases": 0, "seconds": 1.207}
+{"mode": ["icosahedron", 3], "seed": 54, "status": "pass", "moves": 1380, "phases": 0, "seconds": 1.734}
+{"mode": ["icosahedron", 4], "seed": 54, "status": "pass", "moves": 1630, "phases": 0, "seconds": 3.052}
+{"mode": ["icosahedron", 5], "seed": 54, "status": "pass", "moves": 2791, "phases": 0, "seconds": 3.502}
+{"mode": ["ivy", 3], "seed": 54, "status": "pass", "moves": 5, "phases": 0, "seconds": 0.055}
+{"mode": ["war_drum", 2], "seed": 54, "status": "pass", "moves": 120, "phases": 0, "seconds": 6.53}
+{"mode": ["war_drum", 3], "seed": 54, "status": "pass", "moves": 167, "phases": 0, "seconds": 6.516}
+{"mode": ["war_drum", 4], "seed": 54, "status": "pass", "moves": 493, "phases": 0, "seconds": 7.893}
+{"mode": ["war_drum", 5], "seed": 54, "status": "pass", "moves": 502, "phases": 0, "seconds": 7.546}
+{"mode": ["pentahedron", 2], "seed": 54, "status": "pass", "moves": 9, "phases": 0, "seconds": 0.016}
+{"mode": ["pentahedron", 3], "seed": 54, "status": "pass", "moves": 10, "phases": 0, "seconds": 0.045}
+{"mode": ["pentahedron", 4], "seed": 54, "status": "pass", "moves": 619, "phases": 0, "seconds": 18.58}
+{"mode": ["pentahedron", 5], "seed": 54, "status": "pass", "moves": 804, "phases": 0, "seconds": 18.741}
+{"mode": ["square1", 3], "seed": 54, "status": "pass", "moves": 29, "phases": 0, "seconds": 11.699}
+{"mode": ["mirror_tower", 3], "seed": 54, "status": "pass", "moves": 21, "phases": 0, "seconds": 0.101}
+{"mode": ["axis", 3], "seed": 54, "status": "pass", "moves": 56, "phases": 2, "seconds": 0.121}
+{"mode": ["pandora", 3], "seed": 54, "status": "pass", "moves": 20, "phases": 1, "seconds": 0.13}
+{"mode": ["windmill", 3], "seed": 54, "status": "pass", "moves": 56, "phases": 2, "seconds": 0.134}
+{"mode": ["fisher", 3], "seed": 54, "status": "pass", "moves": 56, "phases": 2, "seconds": 0.145}

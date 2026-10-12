@@ -13,6 +13,8 @@ from app.i18n import tr
 from cube.polyhedral import dot, cross
 from renderer.mastermorphix_view import MastermorphixView
 from renderer.turn import decompose_move
+from renderer.camera_follow import follow_turn, layer_target, cancel_follow
+from ui.widgets.camera_follow import follow_panel
 from ui.widgets.buttons import UIButton, PrimaryButton
 from ui.widgets.layouts import AdaptiveSceneLayout, ResponsiveBoxLayout
 from ui.widgets import metrics as m
@@ -25,7 +27,17 @@ def _app():
 
 
 def _make_twist_view(cube, **kwargs):
-    if getattr(cube, 'puzzle_kind', None) == 'mirror':
+    if getattr(cube,'puzzle_kind',None)=='axis':
+        from renderer.shape_cube_view import AxisView as base
+    elif getattr(cube,'puzzle_kind',None)=='football':
+        from renderer.shape_cube_view import FootballView as base
+    elif getattr(cube,'puzzle_kind',None)=='pandora':
+        from renderer.shape_cube_view import PandoraView as base
+    elif getattr(cube,'puzzle_kind',None)=='windmill':
+        from renderer.shape_cube_view import WindmillView as base
+    elif getattr(cube,'puzzle_kind',None)=='fisher':
+        from renderer.shape_cube_view import FisherView as base
+    elif getattr(cube, 'puzzle_kind', None) == 'mirror':
         from renderer.mirror_view import MirrorView as base
     else:
         base = MastermorphixView
@@ -49,6 +61,7 @@ def _make_twist_view(cube, **kwargs):
             if not self.collide_point(*touch.pos):
                 return False
             if (self._anim is not None or self._whole_anim is not None
+                    or getattr(self,'_camera_follow_active',False)
                     or self._grab is not None or self._touch0 is not None):
                 return True
             if not self.lock_view:
@@ -166,6 +179,7 @@ class MorphixTwistScreen(Screen):
         self.hint.bind(size=lambda w, *_: setattr(w, 'text_size', w.size))
         panel.add_widget(self.hint)
         self.panel = panel
+        panel, self.follow_control = follow_panel(panel)
         root.set_content(self.view, panel)
         self.add_widget(root)
 
@@ -194,6 +208,7 @@ class MorphixTwistScreen(Screen):
 
     def retranslate(self):
         self.title.text = tr('input.twist')
+        self.follow_control.retranslate()
         self.hint.text = tr('poly.twist_hint_on') if getattr(self.view,'lock_view',True) else tr('poly.twist_hint_off')
 
     def refresh_theme(self):
@@ -227,6 +242,8 @@ class MorphixTwistScreen(Screen):
         self._update_controls()
 
     def reset_view(self):
+        if self._busy:
+            return
         self.view.cancel_touch()
         self.view.reset_camera()
 
@@ -279,9 +296,11 @@ class MorphixTwistScreen(Screen):
             self.panel.disabled=False
             self._update_controls()
             _app().solve_result=None
-        self.view.start_turn(move.axis, move.layer_positions[0], 90*move.sign, .4,
-                             on_done=done, layer_positions=move.layer_positions,
-                             include_fixed_centers=False)
+        def begin():
+            self.view.start_turn(move.axis, move.layer_positions[0], 90*move.sign, .4,
+                                 on_done=done, layer_positions=move.layer_positions,
+                                 include_fixed_centers=False)
+        follow_turn(self.view,layer_target(move.axis,move.layer_positions),begin)
 
     def back(self):
         if self._busy:
@@ -296,6 +315,7 @@ class MorphixTwistScreen(Screen):
 
     def on_leave(self, *args):
         self.view.cancel_touch()
+        cancel_follow(self.view)
         self.view._cancel_animation()
         self._busy = False
         self.panel.disabled = False

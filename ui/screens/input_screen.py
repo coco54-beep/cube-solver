@@ -203,14 +203,13 @@ class InputScreen(Screen):
         self.btn_back = UIButton(text="", icon_name="back", size_hint_x=0.22)
         self.btn_back.bind(on_release=lambda *a: self.go_home())
         self.title = Label(text=tr("input.title", n=self._n()),
-                           size_hint_x=(0.78 if simple else 0.56),
+                           size_hint_x=0.56,
                            halign="center", font_size="20sp", bold=True)
         self.btn_demo = UIButton(text="", icon_name="demo", size_hint_x=0.22)
         self.btn_demo.bind(on_release=lambda *a: self.open_demo())
         top.add_widget(self.btn_back)
         top.add_widget(self.title)
-        if not simple:
-            top.add_widget(self.btn_demo)
+        top.add_widget(self.btn_demo)
         root.add_widget(top)
 
         # ---- 3D 视图占满主区 ----

@@ -1,0 +1,19 @@
+{
+  "kind": "war_drum",
+  "name": "战鼓",
+  "order": 4,
+  "seed": 20261012,
+  "status": "rejected",
+  "phase": "solve",
+  "steps": null,
+  "sample_mode": "incomplete",
+  "scramble_steps": 38,
+  "initial_solved": false,
+  "setup_seconds": 0.131,
+  "error": "RuntimeError: Please enter every sticker",
+  "traceback": "Traceback (most recent call last):\n  File \"D:\\coco\\cube-solver\\scripts\\audit_solvers.py\", line 221, in worker\n    raise RuntimeError(result.message)\nRuntimeError: Please enter every sticker\n",
+  "solve_seconds": 0.057,
+  "total_seconds": 0.188,
+  "wall_seconds": 0.289,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-incomplete\\logs\\war_drum-4-seed-20261012.log"
+}

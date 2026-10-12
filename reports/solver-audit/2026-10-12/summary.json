@@ -1,0 +1,364 @@
+[
+  {
+    "kind": "cube",
+    "name": "普通魔方",
+    "orders": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ],
+    "samples": 40,
+    "highest_order": 14,
+    "highest_order_steps_min": 9127,
+    "highest_order_steps_max": 9368,
+    "max_solve_seconds": 25.059
+  },
+  {
+    "kind": "pyraminx",
+    "name": "金字塔",
+    "orders": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "samples": 19,
+    "highest_order": 7,
+    "highest_order_steps_min": 366,
+    "highest_order_steps_max": 451,
+    "max_solve_seconds": 1.115
+  },
+  {
+    "kind": "mastermorphix",
+    "name": "粽子",
+    "orders": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "samples": 25,
+    "highest_order": 9,
+    "highest_order_steps_min": 3681,
+    "highest_order_steps_max": 3838,
+    "max_solve_seconds": 3.379
+  },
+  {
+    "kind": "skewb",
+    "name": "斜转",
+    "orders": [
+      3,
+      5,
+      7
+    ],
+    "samples": 10,
+    "highest_order": 7,
+    "highest_order_steps_min": 401,
+    "highest_order_steps_max": 449,
+    "max_solve_seconds": 2.848
+  },
+  {
+    "kind": "dino",
+    "name": "恐龙／格子",
+    "orders": [
+      2,
+      4,
+      6
+    ],
+    "samples": 10,
+    "highest_order": 6,
+    "highest_order_steps_min": 196,
+    "highest_order_steps_max": 224,
+    "max_solve_seconds": 0.616
+  },
+  {
+    "kind": "megaminx",
+    "name": "五魔方",
+    "orders": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "samples": 37,
+    "highest_order": 13,
+    "highest_order_steps_min": 6281,
+    "highest_order_steps_max": 13506,
+    "max_solve_seconds": 97.622
+  },
+  {
+    "kind": "moyu",
+    "name": "魔塔",
+    "orders": [
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "samples": 16,
+    "highest_order": 7,
+    "highest_order_steps_min": 353,
+    "highest_order_steps_max": 363,
+    "max_solve_seconds": 0.719
+  },
+  {
+    "kind": "mirror",
+    "name": "镜面",
+    "orders": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "samples": 25,
+    "highest_order": 9,
+    "highest_order_steps_min": 3266,
+    "highest_order_steps_max": 3387,
+    "max_solve_seconds": 3.355
+  },
+  {
+    "kind": "fto",
+    "name": "转面八面体",
+    "orders": [
+      2,
+      3,
+      4
+    ],
+    "samples": 10,
+    "highest_order": 4,
+    "highest_order_steps_min": 296,
+    "highest_order_steps_max": 311,
+    "max_solve_seconds": 0.659
+  },
+  {
+    "kind": "football",
+    "name": "足球",
+    "orders": [
+      3,
+      5
+    ],
+    "samples": 7,
+    "highest_order": 5,
+    "highest_order_steps_min": 2665,
+    "highest_order_steps_max": 5036,
+    "max_solve_seconds": 12.191
+  },
+  {
+    "kind": "icosahedron",
+    "name": "二十面体",
+    "orders": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "samples": 13,
+    "highest_order": 5,
+    "highest_order_steps_min": 2817,
+    "highest_order_steps_max": 4021,
+    "max_solve_seconds": 3.481
+  },
+  {
+    "kind": "war_drum",
+    "name": "战鼓",
+    "orders": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "samples": 13,
+    "highest_order": 5,
+    "highest_order_steps_min": 469,
+    "highest_order_steps_max": 566,
+    "max_solve_seconds": 7.962
+  },
+  {
+    "kind": "pentahedron",
+    "name": "五面体",
+    "orders": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "samples": 13,
+    "highest_order": 5,
+    "highest_order_steps_min": 687,
+    "highest_order_steps_max": 1589,
+    "max_solve_seconds": 6.1
+  },
+  {
+    "kind": "eight_petals",
+    "name": "八叶花",
+    "orders": [
+      3
+    ],
+    "samples": 3,
+    "highest_order": 3,
+    "highest_order_steps_min": 39,
+    "highest_order_steps_max": 44,
+    "max_solve_seconds": 3.051
+  },
+  {
+    "kind": "clover",
+    "name": "四叶草",
+    "orders": [
+      3
+    ],
+    "samples": 3,
+    "highest_order": 3,
+    "highest_order_steps_min": 18,
+    "highest_order_steps_max": 40,
+    "max_solve_seconds": 3.262
+  },
+  {
+    "kind": "blossom",
+    "name": "繁花五魔方",
+    "orders": [
+      3
+    ],
+    "samples": 3,
+    "highest_order": 3,
+    "highest_order_steps_min": 146,
+    "highest_order_steps_max": 190,
+    "max_solve_seconds": 0.541
+  },
+  {
+    "kind": "square1",
+    "name": "SQ1",
+    "orders": [
+      3
+    ],
+    "samples": 3,
+    "highest_order": 3,
+    "highest_order_steps_min": 25,
+    "highest_order_steps_max": 32,
+    "max_solve_seconds": 7.009
+  },
+  {
+    "kind": "void_cube",
+    "name": "空心三阶",
+    "orders": [
+      3
+    ],
+    "samples": 3,
+    "highest_order": 3,
+    "highest_order_steps_min": 20,
+    "highest_order_steps_max": 20,
+    "max_solve_seconds": 0.325
+  },
+  {
+    "kind": "void_tower",
+    "name": "空心魔塔",
+    "orders": [
+      3
+    ],
+    "samples": 3,
+    "highest_order": 3,
+    "highest_order_steps_min": 7,
+    "highest_order_steps_max": 9,
+    "max_solve_seconds": 0.132
+  },
+  {
+    "kind": "mirror_tower",
+    "name": "镜面魔塔",
+    "orders": [
+      3
+    ],
+    "samples": 3,
+    "highest_order": 3,
+    "highest_order_steps_min": 17,
+    "highest_order_steps_max": 22,
+    "max_solve_seconds": 0.083
+  },
+  {
+    "kind": "axis",
+    "name": "变形金刚",
+    "orders": [
+      3
+    ],
+    "samples": 3,
+    "highest_order": 3,
+    "highest_order_steps_min": 47,
+    "highest_order_steps_max": 60,
+    "max_solve_seconds": 0.296
+  },
+  {
+    "kind": "pandora",
+    "name": "潘多拉",
+    "orders": [
+      3
+    ],
+    "samples": 3,
+    "highest_order": 3,
+    "highest_order_steps_min": 19,
+    "highest_order_steps_max": 20,
+    "max_solve_seconds": 0.262
+  },
+  {
+    "kind": "windmill",
+    "name": "风火轮",
+    "orders": [
+      3
+    ],
+    "samples": 3,
+    "highest_order": 3,
+    "highest_order_steps_min": 45,
+    "highest_order_steps_max": 56,
+    "max_solve_seconds": 0.245
+  },
+  {
+    "kind": "fisher",
+    "name": "移棱",
+    "orders": [
+      3
+    ],
+    "samples": 3,
+    "highest_order": 3,
+    "highest_order_steps_min": 45,
+    "highest_order_steps_max": 56,
+    "max_solve_seconds": 0.3
+  },
+  {
+    "kind": "ivy",
+    "name": "枫叶",
+    "orders": [
+      3
+    ],
+    "samples": 3,
+    "highest_order": 3,
+    "highest_order_steps_min": 6,
+    "highest_order_steps_max": 6,
+    "max_solve_seconds": 0.048
+  }
+]

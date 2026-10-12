@@ -1,0 +1,19 @@
+{
+  "kind": "mirror",
+  "name": "镜面",
+  "order": 2,
+  "seed": 20261012,
+  "status": "rejected",
+  "phase": "solve",
+  "steps": null,
+  "sample_mode": "incomplete",
+  "scramble_steps": 10,
+  "initial_solved": false,
+  "setup_seconds": 0.013,
+  "error": "RuntimeError: '<' not supported between instances of 'NoneType' and 'NoneType'",
+  "traceback": "Traceback (most recent call last):\n  File \"D:\\coco\\cube-solver\\scripts\\audit_solvers.py\", line 221, in worker\n    raise RuntimeError(result.message)\nRuntimeError: '<' not supported between instances of 'NoneType' and 'NoneType'\n",
+  "solve_seconds": 0.128,
+  "total_seconds": 0.141,
+  "wall_seconds": 0.25,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-incomplete\\logs\\mirror-2-seed-20261012.log"
+}

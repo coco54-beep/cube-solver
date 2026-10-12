@@ -856,6 +856,8 @@ class CubeView(Widget):
 	def on_touch_down(self, touch):
 		if not self.collide_point(*touch.pos):
 			return super().on_touch_down(touch)
+		if getattr(self,'_camera_follow_active',False):
+			return True
 
 		if getattr(touch, "is_mouse_scrolling", False):
 			button = getattr(touch, "button", "")

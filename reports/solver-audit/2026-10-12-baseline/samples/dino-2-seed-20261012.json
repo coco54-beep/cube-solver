@@ -1,0 +1,70 @@
+{
+  "kind": "dino",
+  "name": "恐龙／格子",
+  "order": 2,
+  "seed": 20261012,
+  "status": "pass",
+  "phase": "complete",
+  "steps": 10,
+  "scramble_steps": 30,
+  "initial_solved": false,
+  "setup_seconds": 0.106,
+  "solve_seconds": 0.084,
+  "replay_solved": true,
+  "replay_seconds": 0.0,
+  "solution": [
+    [
+      2,
+      0,
+      2
+    ],
+    [
+      3,
+      0,
+      1
+    ],
+    [
+      4,
+      0,
+      2
+    ],
+    [
+      6,
+      0,
+      1
+    ],
+    [
+      3,
+      0,
+      1
+    ],
+    [
+      4,
+      0,
+      2
+    ],
+    [
+      7,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      2
+    ],
+    [
+      2,
+      0,
+      2
+    ],
+    [
+      7,
+      0,
+      2
+    ]
+  ],
+  "total_seconds": 0.192,
+  "wall_seconds": 0.3,
+  "log": "D:\\coco\\cube-solver\\reports\\solver-audit\\2026-10-12-baseline\\logs\\dino-2-seed-20261012.log"
+}

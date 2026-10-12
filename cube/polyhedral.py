@@ -73,7 +73,9 @@ def clip(poly, axis, bound):
 
 
 TETRA = tuple(unit(p) for p in ((-1,-1,-1),(-1,1,1),(1,-1,1),(1,1,-1)))
+OCTA = TETRA + tuple(scale(p, -1) for p in TETRA)
 CUBE = ((0,1,0),(1,0,0),(0,0,1),(0,-1,0),(-1,0,0),(0,0,-1))
+EDGE_AXES = tuple(unit(add(a,b)) for a,b in combinations(CUBE,2) if dot(a,b)==0)
 PHI = (1+math.sqrt(5))/2
 # Standard minx face names: U F L BL BR R FR FL DL B DR D.
 _H=1/math.sqrt(5)
@@ -126,9 +128,67 @@ class Spec:
     cuts: tuple
     turn_order: int
     even_minx: bool = False
+    axis_steps: tuple = ()
+    axis_cuts: tuple = ()
+    bounds: tuple = ()
+
+    def step(self,axis):
+        return self.axis_steps[axis] if self.axis_steps else 1
+
+    def order(self,axis):
+        return self.turn_order//self.step(axis)
+
+
+def body_faces(spec):
+    return body(tuple(scale(n,1/d) for n,d in zip(spec.normals,spec.bounds))) if spec.bounds else body(spec.normals)
 
 
 def specification(kind, n):
+    if kind == 'war_drum':
+        from cube.war_drum import drum_specification
+        return drum_specification(n)
+    if kind == 'pentahedron':
+        from cube.prism import prism_specification
+        return prism_specification(n)
+    if kind == 'ivy' and n == 3:
+        from cube.ivy import ivy_specification
+        return ivy_specification()
+    if kind == 'blossom' and n == 3:
+        from cube.blossom import blossom_specification
+        return blossom_specification()
+    if kind=='icosahedron' and n in (2,3,4,5):
+        normals=tuple({key(unit(v)):unit(v) for face in body(DODECA) for v in face}.values())
+        # The supplied Raphaël Royal Icosamate has five layers and 500
+        # triangular stickers. Its family turns around the twelve vertices.
+        # Opposite vertex cuts give barycentric divisions of each face;
+        # a/3 is the standard Regular Astrominx depth.
+        a=3*.18759247376021
+        cuts=tuple(a*(2*i/n-1) for i in range(1,n))
+        return Spec(kind,n,normals,DODECA,cuts,5)
+    if kind=='football' and n in (3,5):
+        from cube.football import football_specification
+        return football_specification(n)
+    if kind == 'clover' and n == 3:
+        return Spec(kind, n, CUBE, EDGE_AXES, (1.,), 2)
+    if kind == 'void_cube' and n == 3:
+        return Spec(kind, n, CUBE, CUBE, (-1/3, 1/3), 4)
+    if kind == 'void_tower' and n == 3:
+        return Spec(kind, n, TETRA, TETRA, (0.,), 3)
+    if kind == 'fto' and n in (2, 3, 4):
+        cuts = {2: (0.,), 3: (1/3,), 4: (0., .5)}[n]
+        return Spec(kind, n, OCTA, OCTA, cuts, 3)
+    if kind == 'eight_petals' and n == 3:
+        return Spec(kind, n, CUBE, OCTA, (1/math.sqrt(3),), 3)
+    if kind == 'dino' and n == 2:
+        # Dino: twelve two-colour edges, all eight corner axes, no corners.
+        return Spec(kind, n, CUBE, OCTA, (1/math.sqrt(3),), 3)
+    if kind == 'dino' and n in (4,6):
+        # Lattice/Master Dino: retain the eight Dino axes. Subdivide the
+        # corner-side region with additional shallow cuts; there is no
+        # bisecting cut. Catalogue orders 4/6 belong to this Dino family.
+        layers=n//2
+        cuts=tuple((1+2*i/layers)/math.sqrt(3) for i in range(layers))
+        return Spec(kind,n,CUBE,OCTA,cuts,3)
     if kind == 'megaminx' and 2<=n<=13:
         k=n//2
         cuts = (.7,) if n==3 else tuple(.64+.36*i/k for i in range(k))
@@ -178,13 +238,16 @@ class Geometry:
     def permutation(self, move):
         order = self.spec.turn_order
         amount = move.amount % order
+        step=self.spec.step(move.axis)
+        if amount%step:
+            raise ValueError('This face cannot turn by that angle')
         key = (move.axis, move.layer, amount)
         cache = self._perm_cache
         result = cache.get(key)
         if result is None:
             perm = self.permutations[move.axis][move.layer]
             result = tuple(range(len(perm)))
-            for _ in range(amount):
+            for _ in range(amount//step):
                 result = tuple(map(perm.__getitem__, result))
             cache[key] = result
         return result
@@ -192,8 +255,9 @@ class Geometry:
 
 def _cut_skin(spec):
     fragments=[]
-    planes=tuple((axis,d) for axis in spec.axes for d in spec.cuts)
-    for face,polygon in enumerate(body(spec.normals)):
+    planes=tuple((axis,d) for i,axis in enumerate(spec.axes)
+                 for d in (spec.axis_cuts[i] if spec.axis_cuts else spec.cuts))
+    for face,polygon in enumerate(body_faces(spec)):
         cells=[polygon]
         for axis,d in planes:
             cells=[part for cell in cells for part in (
@@ -329,11 +393,21 @@ def _even_geometry(n,kind='megaminx'):
 @lru_cache(maxsize=4)
 def geometry(kind,n):
     spec=specification(kind,n)
+    if kind == 'void_tower':
+        return _without_centres(geometry('moyu', n), spec)
     if spec.even_minx:
         return _even_geometry(n)
     if kind=='moyu' and n in (4,6):
         return _even_geometry(n,kind)
-    fragments=_cut_skin(spec)
+    if kind=='blossom':
+        from cube.blossom import blossom_skin
+        fragments=blossom_skin(spec)
+    elif kind=='ivy':
+        from cube.ivy import ivy_skin
+        fragments=ivy_skin(spec)
+    else:
+        fragments=(_clover_skin(spec) if kind=='clover' else
+               _redi_skin(spec) if kind=='eight_petals' else _cut_skin(spec))
     groups=defaultdict(list)
     for signature,face,poly in fragments:
         if n==2 and kind=='pyraminx' and not any(signature):
@@ -356,8 +430,8 @@ def geometry(kind,n):
     sticker_index={(s.piece,s.face):i for i,s in enumerate(stickers)}
     all_perms=[]
     all_layers=[]
-    angle=2*math.pi/spec.turn_order
-    for axis in spec.axes:
+    for axis_id,axis in enumerate(spec.axes):
+        angle=2*math.pi/spec.order(axis_id)
         point_perm=[]
         for p in centres:
             q=key(rotate(p,axis,angle))
@@ -373,18 +447,33 @@ def geometry(kind,n):
                 point_perm.append(centre_index[q])
         normal_perm=[face_index[key(rotate(normal,axis,angle))] for normal in spec.normals]
         projections=[dot(axis,p) for p in centres]
-        if n==2 and kind=='pyraminx':
+        if kind=='blossom':
+            from cube.blossom import edge_caps
+            cap,radius=edge_caps()[axis_id]
+            bands=[{i for i,p in enumerate(centres)
+                    if dot(add(p,scale(cap,-1)),add(p,scale(cap,-1)))<radius*radius-EPS}]
+        elif kind=='clover':
+            cap=scale(axis,math.sqrt(2))
+            bands=[{i for i,p in enumerate(centres)
+                    if dot(add(p,scale(cap,-1)),add(p,scale(cap,-1)))<1-EPS}]
+        elif n==2 and kind=='pyraminx':
             corner=max((i for i,p in enumerate(pieces) if len(p)==3),key=lambda i:projections[i])
             # Mini Pyraminx has four independent tips and fixed face centres.
             band={corner}
             bands=[band]
         else:
-            thresholds=sorted(spec.cuts,reverse=True)
+            thresholds=sorted(spec.axis_cuts[axis_id] if spec.axis_cuts else spec.cuts,reverse=True)
             bands=[]
             upper=float('inf')
             for lower in thresholds:
                 bands.append({i for i,p in enumerate(projections) if lower+EPS<p<upper-EPS})
                 upper=lower
+            if kind=='skewb':
+                # Cuts split the complete diagonal into ncuts+1
+                # physical regions. Include the opposite outer cap too:
+                # omitting it is a generating-set convention, but prevents
+                # direct touch turns of that side in the interactive model.
+                bands.append({i for i,p in enumerate(projections) if p<upper-EPS})
         axis_perms=[]
         kept=[]
         for band in bands:
@@ -401,8 +490,180 @@ def geometry(kind,n):
                 kept.append(tuple(sorted(band)))
         all_perms.append(tuple(axis_perms))
         all_layers.append(tuple(kept))
-    return Geometry(spec,tuple(stickers),tuple(pieces),tuple(centres),
+    result=Geometry(spec,tuple(stickers),tuple(pieces),tuple(centres),
                     tuple(all_perms),tuple(all_layers))
+    if kind == 'war_drum' and n % 2 == 0:
+        from cube.war_drum import drum_even_geometry
+        return drum_even_geometry(result, spec)
+    if kind == 'eight_petals':
+        return _flower_geometry(result, spec)
+    if kind in ('clover','blossom','ivy'):
+        return _patch_faces(result)
+    return _without_centres(result, spec) if kind == 'void_cube' else result
+
+
+def _without_centres(source, spec):
+    """Remove whole centre pieces while retaining exact closed move orbits."""
+    kept=tuple(i for i, slots in enumerate(source.pieces) if len(slots)>1)
+    piece_index={p:i for i,p in enumerate(kept)}
+    retained=tuple(s for s,sticker in enumerate(source.stickers) if sticker.piece in piece_index)
+    index={s:i for i,s in enumerate(retained)}
+    stickers=tuple(Sticker(piece_index[source.stickers[s].piece], source.stickers[s].face,
+                           source.stickers[s].polygon,source.stickers[s].patches) for s in retained)
+    pieces=tuple(tuple(index[s] for s in source.pieces[p]) for p in kept)
+    permutations=tuple(tuple(tuple(index[perm[s]] for s in retained) for perm in axis)
+                       for axis in source.permutations)
+    layers=tuple(tuple(tuple(piece_index[p] for p in layer if p in piece_index) for layer in axis)
+                 for axis in source.layers)
+    return Geometry(spec,stickers,pieces,tuple(source.centres[p] for p in kept),permutations,layers)
+
+
+def _redi_skin(spec):
+    """Twenty Redi pieces: eight fixed-position corners and twelve edges.
+
+    Each face has four corner triangles and four edge pentagons meeting at
+    its centre. Cutting all eight planes instead would invent fixed centres.
+    Piece signatures use physical home positions, not colour or face number.
+    """
+    fragments = []
+    for face, poly in enumerate(body(spec.normals)):
+        centre = mean(poly)
+        def toward(a, b):
+            return add(scale(a, .75), scale(b, .25))
+        for i, vertex in enumerate(poly):
+            previous, following = poly[i-1], poly[(i+1) % 4]
+            fragments.append((('corner', key(vertex)), face,
+                              (vertex, toward(vertex, following), toward(vertex, previous))))
+            end = following
+            edge = (toward(vertex, end), toward(end, vertex),
+                    toward(end, poly[(i+2) % 4]), centre, toward(vertex, previous))
+            fragments.append((('edge', key(mean((vertex, end)))), face, edge))
+    return fragments
+
+
+def _clover_skin(spec):
+    """Spherical edge cuts: twelve two-colour caps, 24 single-colour leaves.
+
+    A radius-one sphere at each edge midpoint intersects its two faces in
+    quarter circles through the face centre and adjacent cube vertices.
+    Unlike Redi, a normal move rotates an edge cap by 180 degrees.
+    """
+    fragments=[]
+    for face,vertices in enumerate(body(spec.normals)):
+        centre=mean(vertices)
+        def arc(edge,corner):
+            u,v=add(centre,scale(edge,-1)),add(corner,scale(edge,-1))
+            return tuple(add(edge,add(scale(u,math.cos(t)),scale(v,math.sin(t))))
+                         for t in (i*math.pi/24 for i in range(13)))
+        for i,corner in enumerate(vertices):
+            nxt,previous=vertices[(i+1)%4],vertices[i-1]
+            before,after=mean((corner,previous)),mean((corner,nxt))
+            first,second=arc(before,corner),arc(after,corner)
+            leaf=first+tuple(reversed(second[:-1]))
+            if dot(cross(add(leaf[1],scale(leaf[0],-1)),
+                         add(mean(leaf),scale(leaf[0],-1))),spec.normals[face])<0:
+                leaf=tuple(reversed(leaf))
+            fragments.append((('leaf',face,key(corner)),face,leaf))
+            left=arc(before,corner)
+            right=arc(mean((nxt,vertices[(i+2)%4])),nxt)
+            cap=(corner,nxt)+tuple(reversed(right[:-1]))+left[1:-1]
+            fragments.append((('edge',key(after)),face,cap))
+    return fragments
+
+
+def _patch_faces(source):
+    stickers=[]
+    for s in source.stickers:
+        patches=triangulate(s.polygon,source.spec.normals[s.face])
+        stickers.append(Sticker(s.piece,s.face,s.polygon,patches))
+    return Geometry(source.spec,tuple(stickers),source.pieces,source.centres,
+                    source.permutations,source.layers)
+
+
+def triangulate(polygon,normal):
+    """Triangulate concave face outlines without filling another piece's area."""
+    points=[]
+    for point in polygon:
+        if not points or key(points[-1])!=key(point):
+            points.append(point)
+    if len(points)>1 and key(points[0])==key(points[-1]):
+        points.pop()
+    def side(a,b,c):
+        return dot(cross(add(b,scale(a,-1)),add(c,scale(a,-1))),normal)
+    if sum(dot(cross(a,b),normal) for a,b in zip(points,points[1:]+points[:1]))<0:
+        points.reverse()
+    triangles=[]
+    while len(points)>3:
+        for i,b in enumerate(points):
+            a,c=points[i-1],points[(i+1)%len(points)]
+            turn=side(a,b,c)
+            if abs(turn)<1e-10:
+                points.pop(i)
+                break
+            if turn<0:
+                continue
+            others=[p for j,p in enumerate(points)
+                    if j not in ((i-1)%len(points),i,(i+1)%len(points))]
+            if any(min(side(a,b,p),side(b,c,p),side(c,a,p))>=-1e-10 for p in others):
+                continue
+            triangles.append((a,b,c))
+            points.pop(i)
+            break
+        else:
+            raise ValueError('Flower outline cannot be triangulated without overlap')
+    if len(points)==3 and side(*points)>1e-10:
+        triangles.append(tuple(points))
+    return tuple(triangles)
+
+
+def _flower_geometry(source, spec):
+    """Partition each square into eight leaves with shared curved seams.
+
+    Source piece IDs, mechanical centres and permutations remain intact.
+    Eight Petals uses Redi mechanics; edge-turning Clover has a separate skin.
+    """
+    piece_positions={tuple(0 if abs(v)<EPS else (1 if v>0 else -1) for v in p):i
+                     for i,p in enumerate(source.centres)}
+    polygons={}
+    for face, vertices in enumerate(body(spec.normals)):
+        centre=mean(vertices)
+        def curved_path(corner, neighbour):
+            # The physical corner is the circle centre; corner-to-face-centre
+            # is exactly half the square's diagonal. Intersect the adjoining
+            # edge with this circle instead of forcing an edge midpoint.
+            radial=add(centre,scale(corner,-1))
+            radius=math.sqrt(dot(radial,radial))
+            u=unit(add(neighbour,scale(corner,-1)))
+            v=unit(radial)
+            cosine=dot(u,v)
+            tangent=unit(add(v,scale(u,-cosine)))
+            angle=math.acos(max(-1,min(1,cosine)))
+            a=add(corner,scale(u,radius))
+            arc=tuple(add(corner,add(scale(u,radius*math.cos(t)),
+                                     scale(tangent,radius*math.sin(t))))
+                      for t in (angle*i/20 for i in range(21)))
+            # Both adjoining polygons share the exact hub and edge endpoints.
+            return (a,)+arc[1:-1]+(centre,)
+        for i,corner in enumerate(vertices):
+            nxt=vertices[(i+1)%4]
+            before=vertices[i-1]
+            first=curved_path(corner,nxt)
+            other=curved_path(nxt,corner)
+            second=curved_path(before,corner)
+            # Neighbouring corner circles bound this corner's patch. Using
+            # its own circle here would overlap the adjacent corner patches.
+            poly=(corner,)+other+tuple(reversed(second[:-1]))
+            polygons[(piece_positions[tuple(round(v) for v in corner)],face)]=poly
+            poly=tuple(reversed(first+tuple(reversed(other[:-1]))))
+            position=tuple(round(v) for v in mean((corner,nxt)))
+            polygons[(piece_positions[position],face)]=poly
+    stickers=[]
+    for sticker in source.stickers:
+        poly=polygons[(sticker.piece,sticker.face)]
+        patches=triangulate(poly,spec.normals[sticker.face])
+        stickers.append(Sticker(sticker.piece,sticker.face,poly,patches))
+    return Geometry(spec,tuple(stickers),source.pieces,source.centres,
+                    source.permutations,source.layers)
 
 
 class PolyhedralPuzzle:
@@ -432,11 +693,17 @@ class PolyhedralPuzzle:
         return self
 
     def is_solved(self):
+        if self.puzzle_kind == 'void_cube':
+            from solver.polyhedral import _body_frames, _transform
+            faces={key(normal):i for i,normal in enumerate(self.geometry.spec.normals)}
+            return any(all(color==faces[key(_transform(frame,self.geometry.spec.normals[s.face]))]
+                           for color,s in zip(self.colors,self.geometry.stickers))
+                       for frame in _body_frames(self.puzzle_kind,self.n))
         return len(self.colors)==len(self.geometry.stickers) and all(
             color==s.face for color,s in zip(self.colors,self.geometry.stickers))
 
     def moves(self):
-        return tuple(Move(axis,layer) for axis,layers in enumerate(self.geometry.layers)
+        return tuple(Move(axis,layer,self.geometry.spec.step(axis)) for axis,layers in enumerate(self.geometry.layers)
                      for layer in range(len(layers)))
 
     def entered(self):

@@ -12,9 +12,19 @@ from kivy.uix.label import Label
 from ui.widgets import fx
 from ui.widgets import metrics as m
 
+_DEFAULT_THEME = None
+
 
 def _theme():
-    return App.get_running_app().theme
+    app = App.get_running_app()
+    if app is not None and getattr(app, "theme", None) is not None:
+        return app.theme
+    # 构造期/冒烟测试可能没有运行中的 App，回退到默认主题而不是崩溃。
+    global _DEFAULT_THEME
+    if _DEFAULT_THEME is None:
+        from app.theme import Theme
+        _DEFAULT_THEME = Theme()
+    return _DEFAULT_THEME
 
 
 class HomeCard(BoxLayout):

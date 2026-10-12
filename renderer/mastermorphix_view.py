@@ -45,6 +45,9 @@ _VERTEX_FORMAT = [(b'surface_position', 3, 'float'), (b'surface_color', 4, 'floa
 
 class MastermorphixView(CubeView):
     _piece_geometry = staticmethod(oriented_piece_geometry)
+
+    def _piece_color(self,color):
+        return COLOR_INFO[self.cube.palette[color]][1]
     def __init__(self, **kwargs):
         self.selected_pos = None
         self.recorded = None
@@ -240,10 +243,12 @@ class MastermorphixView(CubeView):
                     points = tuple(self._whole_world.transform(*p) for p in points)
                 if finish == "shell":
                     rgba = (.94, .955, .975, 1)
+                elif finish == "cut":
+                    rgba = (.12, .15, .19, 1)
                 elif self.recorded is not None and pos not in self.recorded:
                     rgba = (.38, .45, .52, 1)
                 else:
-                    rgba = COLOR_INFO[self.cube.palette[color]][1]
+                    rgba = self._piece_color(color)
                 brightness = .82 + .18 * max(0., dot(normal, light))
                 rgba = tuple(c*brightness for c in rgba[:3]) + (rgba[3],)
                 polygon = tuple(project(p) for p in points)
@@ -253,7 +258,7 @@ class MastermorphixView(CubeView):
                 # fight with stickers. Leave several depth units of margin.
                 append_polygon(polygon, rgba, -.0005 if finish == "sticker" else 0.)
                 self._polygons.append((polygon, pos, color))
-                if (self.cube.n > 3 or getattr(self.cube,'puzzle_kind',None)=='mirror') and finish == "sticker":
+                if (self.cube.n > 3 or getattr(self.cube,'puzzle_kind',None) in ('mirror','axis','pandora','football','windmill','fisher')) and finish == "sticker":
                     seams.extend((polygon[a], polygon[b]) for a, b in outline)
                 if pos == self.selected_pos and finish in ("sticker", "internal"):
                     borders.extend((polygon[a], polygon[b]) for a, b in outline)
@@ -362,6 +367,21 @@ class MastermorphixView(CubeView):
 
 
 def cube_view_for(cube=None, **kwargs):
+    if getattr(cube,'puzzle_kind',None)=='fisher':
+        from renderer.shape_cube_view import FisherView
+        return FisherView(**kwargs)
+    if getattr(cube,'puzzle_kind',None)=='windmill':
+        from renderer.shape_cube_view import WindmillView
+        return WindmillView(**kwargs)
+    if getattr(cube,'puzzle_kind',None)=='pandora':
+        from renderer.shape_cube_view import PandoraView
+        return PandoraView(**kwargs)
+    if getattr(cube,'puzzle_kind',None)=='football':
+        from renderer.shape_cube_view import FootballView
+        return FootballView(**kwargs)
+    if getattr(cube,'puzzle_kind',None)=='axis':
+        from renderer.shape_cube_view import AxisView
+        return AxisView(**kwargs)
     if getattr(cube, 'puzzle_kind', None) == 'mirror':
         from renderer.mirror_view import MirrorView
         return MirrorView(**kwargs)

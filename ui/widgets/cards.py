@@ -53,6 +53,10 @@ class HomeCard(BoxLayout):
         self.add_widget(self._title)
         self._labels = (self._big, self._title)
         self.bind(size=self._restyle)
+        app = App.get_running_app()
+        if app is not None and getattr(app, "theme", None) is not None:
+            # Repaint whenever the palette changes (light/dark switch).
+            app.theme.bind(on_palette=self.refresh_theme)
         self._draw()
 
     def set_text(self, big, title):
@@ -84,7 +88,7 @@ class HomeCard(BoxLayout):
         g.add(Line(width=0.9, rounded_rectangle=(
             self.x + 0.7, self.y + 0.7, self.width - 1.4, self.height - 1.4, 14)))
 
-    def refresh_theme(self):
+    def refresh_theme(self, *_args):
         theme = _theme()
         if not self._is_image:
             self._big.color = theme.text

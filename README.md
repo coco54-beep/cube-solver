@@ -2,7 +2,7 @@
 
 ### A state-based solver for standard, higher-order, and irregular twisty puzzles
 
-[Latest Android release](https://github.com/coco54-beep/cube-solver/releases/latest) · [中文技术说明](README.zh-CN.md) · [Source code](https://github.com/coco54-beep/cube-solver)
+[Latest Android release](https://github.com/coco54-beep/cube-solver/releases/latest) · [中文技术说明](README.zh-CN.md) · [日本語](README.ja.md) · [Source code](https://github.com/coco54-beep/cube-solver)
 
 ## Abstract
 

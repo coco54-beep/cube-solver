@@ -2,7 +2,7 @@
 
 ### 面向常规、高阶与异形魔方的状态建模和求解系统
 
-[下载最新版 Android 安装包](https://github.com/coco54-beep/cube-solver/releases/latest) · [English technical overview](README.md) · [源代码](https://github.com/coco54-beep/cube-solver)
+[下载最新版 Android 安装包](https://github.com/coco54-beep/cube-solver/releases/latest) · [English technical overview](README.md) · [日本語](README.ja.md) · [源代码](https://github.com/coco54-beep/cube-solver)
 
 > **异形魔方已扩充到 1.2.21：** 异形目录以卡片图展示，涵盖金字塔、斜转、五魔方、魔塔、镜面、粽子、恐龙/格子、转面八面体、足球、二十面体、繁花、枫叶、四叶草、八叶花、空心、SQ1、镜面塔、战鼓、五面体与形状魔方等，均有独立的模型、转动和 3D 回放入口。
 

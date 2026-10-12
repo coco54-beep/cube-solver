@@ -65,6 +65,31 @@ JOBS = [
 OUT = os.path.join(BASE, "assets", "puzzles")
 os.makedirs(OUT, exist_ok=True)
 SIZE = 260
+#: Every thumbnail is normalised so its visible content spans this many pixels,
+#: which puts all puzzles (cube-shaped and not) on one common scale.
+FILL = 224
+
+
+def _normalize(path):
+    """Crop to the visible content and re-centre it at a common scale."""
+    try:
+        from PIL import Image
+        import numpy as np
+    except Exception:
+        return
+    im = Image.open(path).convert("RGBA")
+    alpha = np.array(im)[..., 3]
+    ys, xs = np.where(alpha > 8)
+    if len(xs) == 0:
+        return
+    crop = im.crop((int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1))
+    w, h = crop.size
+    scale = FILL / max(w, h)
+    nw, nh = max(1, int(round(w * scale))), max(1, int(round(h * scale)))
+    crop = crop.resize((nw, nh), Image.LANCZOS)
+    out = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
+    out.paste(crop, ((SIZE - nw) // 2, (SIZE - nh) // 2), crop)
+    out.save(path)
 
 
 class ThumbApp(App):
@@ -114,7 +139,9 @@ class ThumbApp(App):
 
     def _export(self, view, name):
         try:
-            view.export_to_png(os.path.join(OUT, name + ".png"))
+            path = os.path.join(OUT, name + ".png")
+            view.export_to_png(path)
+            _normalize(path)
             print("saved", name, flush=True)
         except Exception as exc:
             print("export failed", name, repr(exc), flush=True)

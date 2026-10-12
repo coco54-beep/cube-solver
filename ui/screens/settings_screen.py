@@ -18,7 +18,6 @@ from app.i18n import tr
 from app.theme import AUTO, LIGHT, DARK
 from ui.widgets.buttons import PrimaryButton, UIButton
 from ui.widgets import metrics as m
-from ui.widgets.camera_follow import CameraFollowControl
 
 _THEME_ORDER = (AUTO, LIGHT, DARK)
 
@@ -66,15 +65,6 @@ class SettingsScreen(Screen):
         self.input_row = BoxLayout(spacing=8, size_hint_y=None, height=m.h(52))
         content.add_widget(self.input_row)
 
-        self.lbl_follow = self._section_label(tr('camera.follow'))
-        content.add_widget(self.lbl_follow)
-        self.follow_control = CameraFollowControl()
-        content.add_widget(self.follow_control)
-        self.lbl_follow_hint = Label(text=tr('camera.follow_hint'),font_size='13sp',
-                                     size_hint_y=None,height=m.h(38),halign='left',valign='middle')
-        self.lbl_follow_hint.bind(size=lambda w,*_:setattr(w,'text_size',w.size))
-        content.add_widget(self.lbl_follow_hint)
-
         # 使用说明（从首页移到这里）
         self.lbl_help = self._section_label(tr("home.help"))
         content.add_widget(self.lbl_help)
@@ -106,7 +96,6 @@ class SettingsScreen(Screen):
         self._responsive_height_specs = [
             (top, 46), (self.theme_row, 52), (self.lang_row, 52),
             (self.input_row, 52), (self.help_row, 52),
-            (self.follow_control,44), (self.lbl_follow_hint,38), (self.lbl_follow,30),
             (self.lbl_theme, 30), (self.lbl_lang, 30),
             (self.lbl_input, 30), (self.lbl_help, 30), (self.lbl_about, 30),
         ]
@@ -185,9 +174,6 @@ class SettingsScreen(Screen):
         self.lbl_theme.text = tr("settings.theme")
         self.lbl_lang.text = tr("settings.language")
         self.lbl_input.text = tr("settings.input_mode")
-        self.lbl_follow.text=tr('camera.follow')
-        self.lbl_follow_hint.text=tr('camera.follow_hint')
-        self.follow_control.retranslate()
         self.lbl_help.text = tr("home.help")
         self.btn_help.text = tr("home.help")
         self.lbl_about.text = tr("settings.about")
@@ -204,11 +190,10 @@ class SettingsScreen(Screen):
             return
         self.lbl_title.color = _app().theme.text
         for lbl in (self.lbl_theme, self.lbl_lang, self.lbl_input,
-                    self.lbl_help, self.lbl_about, self.lbl_follow):
+                    self.lbl_help, self.lbl_about):
             lbl.color = _app().theme.accent
         self.lbl_ver.color = _app().theme.text_muted
         self.lbl_feature.color = _app().theme.text_muted
-        self.lbl_follow_hint.color=_app().theme.text_muted
         self._build_theme_row()
         self._build_lang_row()
         self._build_input_row()

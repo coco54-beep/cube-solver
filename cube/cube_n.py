@@ -3,7 +3,7 @@ from cube.cubie_model import BaseCube, build_solved_cube
 from cube.colors import DEFAULT_COLORS
 
 MIN_N = 4
-MAX_N = 14
+MAX_N = 17
 
 
 class CubeN(BaseCube):

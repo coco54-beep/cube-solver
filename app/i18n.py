@@ -77,7 +77,7 @@ CATALOG = {
         "help.close": "关闭",
         "help.select.title": "选择魔方",
         "help.select.body":
-            "首页用卡片选择魔方：2 / 3 / 4 / 5 阶、N 阶（6–14），以及「异形魔方」。\n"
+            "首页用卡片选择魔方：2 / 3 / 4 / 5 阶、N 阶（6–17），以及「异形魔方」。\n"
             "点卡片进入对应录入页；「异形魔方」进入异形目录——多阶魔方各占一张卡片，\n"
             "其它单一规格魔方集中在「特殊异形」。随时点底部的「使用说明」可回到本页。",
         "help.input.title": "录入布局",
@@ -280,7 +280,7 @@ CATALOG = {
         "help.close": "Close",
         "help.select.title": "Choose a puzzle",
         "help.select.body":
-            "Pick from the home cards: 2 / 3 / 4 / 5, N×N (6–14), or Shape Mods.\n"
+            "Pick from the home cards: 2 / 3 / 4 / 5, N×N (6–17), or Shape Mods.\n"
             "2–5 and N×N open their input pages; Shape Mods opens the irregular catalog\n"
             "(multi-order families plus a separate special collection). Use Help below anytime.",
         "help.input.title": "Enter the layout",
@@ -490,7 +490,7 @@ CATALOG = {
         "help.close": "閉じる",
         "help.select.title": "魔方を選ぶ",
         "help.select.body":
-            "ホーム画面のカードから選びます：2 / 3 / 4 / 5、N×N（6–14）、変形キューブ。\n"
+            "ホーム画面のカードから選びます：2 / 3 / 4 / 5、N×N（6–17）、変形キューブ。\n"
             "2〜5 と N×N は入力ページへ、変形キューブは異形カタログへ移動します"
             "（多段ファミリーと、特殊な単一規格のまとめ）。下の「使い方」でいつでも戻れます。",
         "help.input.title": "配置を入力",

@@ -253,7 +253,7 @@ class HomeScreen(Screen):
     def open_n_cube(self):
         from kivy.uix.popup import Popup
         from kivy.uix.textinput import TextInput
-        N_MIN, N_MAX = 6, 14  # 首页 N 阶可选项（内部仍保留 4 阶供异形魔方使用）
+        N_MIN, N_MAX = 6, 17  # 首页 N 阶可选项（内部仍保留 4 阶供异形魔方使用）
         from ui.widgets.dialogs import theme_popup
         content = BoxLayout(orientation="vertical", spacing=m.h(12), padding=m.h(16))
         message = Label(text=tr("nxn.select.hint", min=N_MIN, max=N_MAX),

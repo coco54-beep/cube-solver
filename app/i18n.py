@@ -77,8 +77,9 @@ CATALOG = {
         "help.close": "关闭",
         "help.select.title": "选择魔方",
         "help.select.body":
-            "首页用卡片选择 2 / 3 / 4 / 5 阶魔方（横屏 1×4、竖屏 2×2）。\n"
-            "点卡片进入对应录入页；随时点下方「使用说明」可回到本页。",
+            "首页用卡片选择魔方：2 / 3 / 4 / 5 阶、N 阶（6–14），以及「异形魔方」。\n"
+            "点卡片进入对应录入页；「异形魔方」进入异形目录——多阶魔方各占一张卡片，\n"
+            "其它单一规格魔方集中在「特殊异形」。随时点底部的「使用说明」可回到本页。",
         "help.input.title": "录入布局",
         "help.input.body":
             "在展开图上逐格点色即可录入每个面的颜色：先从六色选择器选好颜色，\n"
@@ -102,42 +103,6 @@ CATALOG = {
             "双左箭头：跳到还原开始；左箭头：后退一步；右箭头：前进一步；双右箭头：跳到还原完成。\n"
             "播放三角形：自动播放步骤；暂停图标：暂停播放。环形箭头：恢复 3D 视角；返回箭头：回到录入页。\n"
             "播放速度和步骤停留时间通过旁边的滑杆调整。",
-        "help.icons_input.title": "Input screen icons",
-        "help.icons_input.body":
-            "Back arrow: return home; book: open the demo catalog; − / +: zoom the grid out or in.\n"
-            "Eyedropper: turn color picking on or off; when on, tap a cell to sample its color. Paint bucket: fill the current face with the selected color.\n"
-            "Curved left / right arrows: undo / redo the last color edit; angle arrows: switch the displayed cube face.\n"
-            "Cube: open manual turning; shuffle arrows: load a random scramble; trash: clear entered colors.\n"
-            "Play triangle: solve; circled check: validate the layout; clipboard: paste or enter scramble notation.\n"
-            "W / Y / R / O / B / G swatches: choose white / yellow / red / orange / blue / green for the next fill. Gear: open Settings.",
-        "help.icons_twist.title": "Manual turning icons",
-        "help.icons_twist.body":
-            "Back arrow: return to input; check: finish manual turning and return, saving the current turns.\n"
-            "Curved left / right arrows: undo / redo a turn; lock / unlock: change drag mode. Locked: drag to turn the selected layer. Unlocked: drag to rotate the view.\n"
-            "Single / wide layer: switch between turning one outer layer or multiple layers; circular arrow: restore the default 3D view.",
-        "help.icons_playback.title": "Solution playback icons",
-        "help.icons_playback.body":
-            "Double-left: jump to the beginning; left: step back; right: step forward; double-right: jump to the solved state.\n"
-            "Play triangle: play steps automatically; pause: pause playback. Circular arrow: reset the 3D view; back arrow: return to input.\n"
-            "Use the nearby sliders to adjust playback speed and how long each step stays on screen.",
-        "help.icons_input.title": "入力画面のアイコン",
-        "help.icons_input.body":
-            "戻る矢印：ホームへ戻る；本：デモ一覧を開く；− / ＋：盤面を縮小 / 拡大します。\n"
-            "スポイト：色取得のオン / オフ。オンにしてマスをタップすると、その色を取得します。バケツ：選択中の色で面を塗ります。\n"
-            "左 / 右の曲がった矢印：色変更を元に戻す / やり直す；左右の山形：表示する面を切り替えます。\n"
-            "キューブ：手動回転画面を開く；シャッフル：ランダム状態を読み込む；ゴミ箱：入力色を消去します。\n"
-            "再生：解き始める；丸付きチェック：配置を検証；クリップボード：スクランブル記法を貼り付け / 入力します。\n"
-            "W / Y / R / O / B / G：次に塗る白 / 黄 / 赤 / 橙 / 青 / 緑を選択；歯車：設定を開きます。",
-        "help.icons_twist.title": "手動回転画面のアイコン",
-        "help.icons_twist.body":
-            "戻る矢印：入力画面へ戻る；チェック：回転を保存して入力画面へ戻ります。\n"
-            "左 / 右の曲がった矢印：回転を元に戻す / やり直す；ロック / 解除：ドラッグ方法を切り替えます。ロック中は層を回し、解除中は視点を動かします。\n"
-            "単層 / ワイド：外側1層または複数層を回転；円形矢印：3D視点を初期状態に戻します。",
-        "help.icons_playback.title": "解答再生画面のアイコン",
-        "help.icons_playback.body":
-            "二重左矢印：最初へ；左矢印：1手戻る；右矢印：1手進む；二重右矢印：完成状態へ移動します。\n"
-            "再生：自動再生；一時停止：再生を止めます。円形矢印：3D視点を戻す；戻る矢印：入力画面へ戻ります。\n"
-            "近くのスライダーで再生速度と各手の表示時間を調整できます。",
         "help.solve.title": "一键求解",
         "help.solve.body":
             "录入完成后点「开始求解」，程序会在后台计算还原步骤，\n"
@@ -151,10 +116,10 @@ CATALOG = {
             "演示目录按阶数收录了标准方法：2 阶分层法、3 阶七步法、\n"
             "4 阶与 5 阶降阶法。5 阶部分只讲它与 4 阶的不同：\n"
             "中心是 3×3（带固定中心块），每条棱由中棱加两块翼棱组成。",
-        "help.theme.title": "主题切换",
+        "help.theme.title": "设置",
         "help.theme.body":
-            "在首页进入「设置」，可选择 自动 / 浅色 / 深色 主题；\n"
-            "自动模式会跟随系统（Windows / Android）的深浅色设置。",
+            "在首页进入「设置」，可切换 主题（自动 / 浅色 / 深色）与 语言（简中 / English / 日本語），\n"
+            "还能选择 输入方式（高级 / 简洁）。自动主题会跟随系统的深浅色设置。",
         "help.notation.title": "颜色与记号",
         "help.notation.body":
             "魔方六色固定：上黄、下白、前蓝、后绿、左橙、右红。\n"
@@ -313,16 +278,34 @@ CATALOG = {
 
         "help.title": "Help",
         "help.close": "Close",
-        "help.select.title": "Choose a cube",
+        "help.select.title": "Choose a puzzle",
         "help.select.body":
-            "Pick a 2 / 3 / 4 / 5 cube from the cards on the home screen "
-            "(1×4 in landscape, 2×2 in portrait).\n"
-            "Tap a card to open its input page; use Help below to return anytime.",
+            "Pick from the home cards: 2 / 3 / 4 / 5, N×N (6–14), or Shape Mods.\n"
+            "2–5 and N×N open their input pages; Shape Mods opens the irregular catalog\n"
+            "(multi-order families plus a separate special collection). Use Help below anytime.",
         "help.input.title": "Enter the layout",
         "help.input.body":
             "Tap cells to set each facelet's color: first pick a color from the "
             "six-swatch selector,\nthen tap the cells. Or press Random to load a "
             "random scramble for testing;\npress Validate to check whether the layout is legal.",
+        "help.icons_input.title": "Input screen icons",
+        "help.icons_input.body":
+            "Back arrow: return home; book: open the demo catalog; − / +: zoom the grid out or in.\n"
+            "Eyedropper: turn color picking on or off; when on, tap a cell to sample its color. Paint bucket: fill the current face with the selected color.\n"
+            "Curved left / right arrows: undo / redo the last color edit; angle arrows: switch the displayed cube face.\n"
+            "Cube: open manual turning; shuffle arrows: load a random scramble; trash: clear entered colors.\n"
+            "Play triangle: solve; circled check: validate the layout; clipboard: paste or enter scramble notation.\n"
+            "W / Y / R / O / B / G swatches: choose white / yellow / red / orange / blue / green for the next fill. Gear: open Settings.",
+        "help.icons_twist.title": "Manual turning icons",
+        "help.icons_twist.body":
+            "Back arrow: return to input; check: finish manual turning and return, saving the current turns.\n"
+            "Curved left / right arrows: undo / redo a turn; lock / unlock: change drag mode. Locked: drag to turn the selected layer. Unlocked: drag to rotate the view.\n"
+            "Single / wide layer: switch between turning one outer layer or multiple layers; circular arrow: restore the default 3D view.",
+        "help.icons_playback.title": "Solution playback icons",
+        "help.icons_playback.body":
+            "Double-left: jump to the beginning; left: step back; right: step forward; double-right: jump to the solved state.\n"
+            "Play triangle: play steps automatically; pause: pause playback. Circular arrow: reset the 3D view; back arrow: return to input.\n"
+            "Use the nearby sliders to adjust playback speed and how long each step stays on screen.",
         "help.solve.title": "One-tap solve",
         "help.solve.body":
             "After entering the layout, press Solve; the solver computes the "
@@ -339,10 +322,11 @@ CATALOG = {
             "3×3 seven-step,\nand 4×4 / 5×5 reduction. The 5×5 section focuses on "
             "what differs from 4×4:\ncenters are 3×3 (with a fixed center) and each "
             "edge has a middle edge plus 2 wings.",
-        "help.theme.title": "Theme",
+        "help.theme.title": "Settings",
         "help.theme.body":
-            "Open Settings from the home screen to choose Auto / Light / Dark.\n"
-            "Auto follows your system (Windows / Android) light or dark setting.",
+            "Open Settings from the home screen to switch the theme (Auto / Light / Dark) and language\n"
+            "(Simplified Chinese / English / Japanese), and to pick the input mode (Advanced / Simple).\n"
+            "The Auto theme follows your system light or dark setting.",
         "help.notation.title": "Colors & notation",
         "help.notation.body":
             "The six colors are fixed: yellow up, white down, blue front, "
@@ -504,16 +488,34 @@ CATALOG = {
 
         "help.title": "使い方",
         "help.close": "閉じる",
-        "help.select.title": "キューブを選ぶ",
+        "help.select.title": "魔方を選ぶ",
         "help.select.body":
-            "ホーム画面のカードから 2 / 3 / 4 / 5 キューブを選びます"
-            "（横向き 1×4、縦向き 2×2）。\n"
-            "カードをタップすると入力ページへ移動します。下の「使い方」でいつでも戻れます。",
+            "ホーム画面のカードから選びます：2 / 3 / 4 / 5、N×N（6–14）、変形キューブ。\n"
+            "2〜5 と N×N は入力ページへ、変形キューブは異形カタログへ移動します"
+            "（多段ファミリーと、特殊な単一規格のまとめ）。下の「使い方」でいつでも戻れます。",
         "help.input.title": "配置を入力",
         "help.input.body":
             "セルをタップして各面の色を入力します：先に6色セレクターで色を選び、\n"
             "セルを順にタップします。「ランダム」でスクランブルを読み込んで試せます。\n"
             "入力後は「検証」で配置が正しいか確認できます。",
+        "help.icons_input.title": "入力画面のアイコン",
+        "help.icons_input.body":
+            "戻る矢印：ホームへ戻る；本：デモ一覧を開く；− / ＋：盤面を縮小 / 拡大します。\n"
+            "スポイト：色取得のオン / オフ。オンにしてマスをタップすると、その色を取得します。バケツ：選択中の色で面を塗ります。\n"
+            "左 / 右の曲がった矢印：色変更を元に戻す / やり直す；左右の山形：表示する面を切り替えます。\n"
+            "キューブ：手動回転画面を開く；シャッフル：ランダム状態を読み込む；ゴミ箱：入力色を消去します。\n"
+            "再生：解き始める；丸付きチェック：配置を検証；クリップボード：スクランブル記法を貼り付け / 入力します。\n"
+            "W / Y / R / O / B / G：次に塗る白 / 黄 / 赤 / 橙 / 青 / 緑を選択；歯車：設定を開きます。",
+        "help.icons_twist.title": "手動回転画面のアイコン",
+        "help.icons_twist.body":
+            "戻る矢印：入力画面へ戻る；チェック：回転を保存して入力画面へ戻ります。\n"
+            "左 / 右の曲がった矢印：回転を元に戻す / やり直す；ロック / 解除：ドラッグ方法を切り替えます。ロック中は層を回し、解除中は視点を動かします。\n"
+            "単層 / ワイド：外側1層または複数層を回転；円形矢印：3D視点を初期状態に戻します。",
+        "help.icons_playback.title": "解答再生画面のアイコン",
+        "help.icons_playback.body":
+            "二重左矢印：最初へ；左矢印：1手戻る；右矢印：1手進む；二重右矢印：完成状態へ移動します。\n"
+            "再生：自動再生；一時停止：再生を止めます。円形矢印：3D視点を戻す；戻る矢印：入力画面へ戻ります。\n"
+            "近くのスライダーで再生速度と各手の表示時間を調整できます。",
         "help.solve.title": "ワンタップで解く",
         "help.solve.body":
             "入力が終わったら「解く」を押すと、バックグラウンドで解法を計算します。\n"
@@ -530,10 +532,10 @@ CATALOG = {
             "3×3 七手順法、\n4×4 / 5×5 縮約法。5×5 は 4×4 との違いに注目します——\n"
             "センターは 3×3（固定センターあり）で、"
             "各エッジは中エッジ + 2 ウィングの3つで構成されます。",
-        "help.theme.title": "テーマ",
+        "help.theme.title": "設定",
         "help.theme.body":
-            "ホーム画面から「設定」を開き、自動 / ライト / ダーク を選べます。\n"
-            "自動はシステム（Windows / Android）の明暗設定に従います。",
+            "ホーム画面から「設定」を開き、テーマ（自動 / ライト / ダーク）と言語（簡体字 / English / 日本語）、\n"
+            "入力方式（詳細 / シンプル）を切り替えられます。自動テーマはシステムの明暗設定に従います。",
         "help.notation.title": "色と記号",
         "help.notation.body":
             "6色は固定です：上が黄、下が白、前が青、後ろが緑、左が橙、右が赤。\n"

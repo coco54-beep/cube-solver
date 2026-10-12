@@ -2,7 +2,7 @@
 MESSAGES = {
     "zh": {
         "home.subtitle": "2 / 3 / 4 / 5 阶魔方 · N 阶魔方 · 异形魔方",
-        "help.select.body": "首页按顺序提供 2、3、4、5 阶魔方、N 阶魔方和异形魔方目录。\nN 阶入口可选 6–17 阶；异形魔方目录可按类型和阶数选择。\n目前三阶粽子魔方已接入录入与求解，其它异形魔方先列入目录。",
+        "help.select.body": "首页按顺序提供 2、3、4、5 阶魔方、N 阶魔方和异形魔方。\nN 阶入口可选 6–14 阶；异形目录按类型和阶数选择，每种魔方都有示意图。\n列出的异形魔方均已接入录入与求解。",
         "nxn.select.hint": "选择 {min}–{max} 阶魔方\n支持手动录入、随机打乱和还原步骤播放。\n阶数越高，求解时间和还原步数通常越多。",
         "nxn.select.range": "请输入 {min}–{max} 之间的整数。",
         "nxn.select.enter": "开始录入",
@@ -27,7 +27,7 @@ MESSAGES = {
     },
     "en": {
         "home.subtitle": "2 / 3 / 4 / 5 Cubes · N×N · Shape Mods",
-        "help.select.body": "The home page lists 2, 3, 4 and 5 cubes, N×N, then the shape-mod catalog.\nChoose an order from 6 to 17 under N×N.\nThe 3-order Mastermorphix is connected; other shape mods are catalog entries for now.",
+        "help.select.body": "The home page lists 2, 3, 4 and 5 cubes, N×N, then the shape-mod catalog.\nChoose an order from 6 to 14 under N×N. The shape-mod catalog is chosen by type and order, each with a thumbnail.\nEvery listed irregular puzzle supports input and solving.",
         "nxn.select.hint": "Choose an order from {min} to {max}\nEnter colors, scramble and play the solution.\nLarger cubes usually take longer and need more moves.",
         "nxn.select.range": "Enter an integer between {min} and {max}.",
         "nxn.select.enter": "Enter colors",
@@ -52,7 +52,7 @@ MESSAGES = {
     },
     "ja": {
         "home.subtitle": "2 / 3 / 4 / 5 キューブ · N×N · 変形キューブ",
-        "help.select.body": "ホームには2、3、4、5段、N×N、変形キューブ一覧の順に表示されます。\nN×Nでは6～17段を選べます。\n三段のマスターモルフィックスは入力と解法に対応し、他の変形キューブは一覧から選択できます。",
+        "help.select.body": "ホームには2、3、4、5段、N×N、変形キューブの順に表示されます。\nN×Nでは6～14段を選べます。異形カタログは種類と段数で選べ、各項目に図があります。\n掲載の異形魔方はいずれも入力と解法に対応しています。",
         "nxn.select.hint": "{min}–{max} 段を選択\n色の入力・ランダムスクランブル・解法再生に対応。\n段数が大きいほど時間と手数が増えます。",
         "nxn.select.range": "{min}–{max} の整数を入力してください。",
         "nxn.select.enter": "色を入力",

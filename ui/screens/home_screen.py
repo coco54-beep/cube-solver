@@ -62,7 +62,7 @@ class HomeScreen(Screen):
         b5 = self._card("5", tr("home.card.5.title"), onClick=lambda *a: self.pick(5))
         self.n_button = self._card("N", tr("home.card.n.title"),
                                    onClick=lambda *_: self.open_n_cube())
-        self.irregular_button = self._card("异", tr("home.card.irregular.title"),
+        self.irregular_button = self._card(tr("home.card.irregular.mark"), tr("home.card.irregular.title"),
                                            onClick=lambda *_: self.open_irregular())
         for b in (b2, b3, b4, b5, self.n_button, self.irregular_button):
             self.cards.add_widget(b)
@@ -101,8 +101,10 @@ class HomeScreen(Screen):
         self._ver_label.text = tr("home.version", version=Config.app_version)
         for n, card in getattr(self, "_cards", {}).items():
             try:
-                _big, title_label = card._labels
+                big, title_label = card._labels
                 title_label.text = tr(f"home.card.{n}.title")
+                if n == "irregular":
+                    big.text = tr("home.card.irregular.mark")
             except Exception:
                 pass
 

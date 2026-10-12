@@ -233,14 +233,19 @@ class IrregularDirectoryScreen(Screen):
         orders = ORDERS[puzzle]
         rows = (len(orders) + 1) // 2
         order_grid = GridLayout(cols=2, spacing=m.h(8), size_hint_y=None,
-                                height=m.h(rows * 48 + (rows - 1) * 8))
+                                height=m.h(rows * 54 + (rows - 1) * 8))
         popup = Popup(title=tr("directory." + puzzle), content=content,
                       size_hint=(.78, .72),
                       auto_dismiss=True)
         theme_popup(popup, _app().theme)
         for order in orders:
             label_key = ORDER_LABELS.get((puzzle, order), 'directory.order')
-            button = UIButton(text=tr(label_key, order=order))
+            # Order labels can be long; wrap them so narrow portrait screens do
+            # not clip the name (a taller grid row gives the second line room).
+            button = UIButton(text=tr(label_key, order=order),
+                              halign="center", valign="middle")
+            button.bind(width=lambda b, w: setattr(
+                b, "text_size", (max(0, w - m.h(16)), None)))
             button.bind(on_release=lambda *_args, n=order: self.select_order(popup, puzzle, n))
             order_grid.add_widget(button)
         scroll = ScrollView(do_scroll_x=False)

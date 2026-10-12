@@ -68,6 +68,15 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Check release version
+        id: version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          release_version=$(python -c 'from app.constants import APP_VERSION; print(APP_VERSION)')
+          test "$RELEASE_TAG" = "v$release_version"
+          printf 'version=%s\n' "$release_version" >> "$GITHUB_OUTPUT"
+
       - name: Cache buildozer toolchain
         uses: actions/cache@v4
         with:
@@ -97,4 +106,5 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           files: bin/*.apk
-          generate_release_notes: true
+          body_path: docs/release-${{ steps.version.outputs.version }}.md
+          make_latest: true

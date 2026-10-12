@@ -135,7 +135,22 @@ def _cycles():
 @lru_cache(maxsize=1)
 def _cores():
     data=(Path(__file__).parent/'data'/'icosahedron_core.bin').read_bytes()
-    return json.loads(zlib.decompress(data))
+    records=json.loads(zlib.decompress(data))
+    try:
+        short=json.loads(zlib.decompress((Path(__file__).parent/'data'/'icosahedron_short_core.bin').read_bytes()))
+        for n,record in short.items():
+            base=records.get(n)
+            if not base or record.get('geometry')!=base.get('geometry'):continue
+            for replacement in record.get('replacements',()):
+                relations=base['relations'].get(replacement['prime'],())
+                index=replacement['index']
+                if not isinstance(index,int) or not 0<=index<len(relations):continue
+                original=relations[index]
+                if original['word']==replacement['original'] and len(replacement['word'])<len(original['word']):
+                    original['word']=replacement['word']
+    except (OSError,ValueError,KeyError,TypeError,zlib.error):
+        pass
+    return records
 
 
 @lru_cache(maxsize=1)

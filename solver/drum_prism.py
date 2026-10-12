@@ -120,9 +120,8 @@ def _colored_core(cube, record, cancel, progress):
 
 def _core_atoms(cube):
     """Every non-identity power of every legal layer turn."""
-    order = cube.geometry.spec.turn_order
-    return [Move(m.axis, m.layer, (cube.geometry.spec.step(m.axis) * power) % order)
-            for m in cube.moves() for power in range(1, order)]
+    from solver.polyhedral_optimize import _atoms
+    return _atoms(cube)
 
 
 def _core_word(cube, record):

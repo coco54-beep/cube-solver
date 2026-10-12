@@ -54,7 +54,23 @@ def _assets():
     return json.loads(zlib.decompress((Path(__file__).parent/'data'/'football_cycles.bin').read_bytes()))
 
 
-def solve_football(cube,cancel=None,progress=None):
+def solve_football(cube,cancel=None,progress=None,optimize_flips=True):
+    """Keep the shorter complete solve after comparing pair-flip and basis plans."""
+    baseline=_solve_football(cube,cancel,progress)
+    if not optimize_flips or not baseline:
+        return baseline
+    try:
+        candidate=_solve_football(cube,cancel,progress,improve_flips=True)
+    except InterruptedError:
+        raise
+    except Exception as exc:
+        import logging
+        logging.getLogger(__name__).warning('Football flip optimization rejected: %s',exc)
+        candidate=None
+    return candidate if candidate is not None and len(candidate)<len(baseline) else baseline
+
+
+def _solve_football(cube,cancel=None,progress=None,improve_flips=False):
     if cancel and cancel():
         raise InterruptedError()
     work=cube.entered()
@@ -102,9 +118,15 @@ def solve_football(cube,cancel=None,progress=None):
         flips=orientation_vector(tuple(ids[full[s]] for s in points),units)[2]
         relations=record['edge_flips']
         coefficients=relation_coefficients(flips,relations,2)
-        for coefficient,relation in zip(coefficients,relations):
-            if coefficient:
-                execute(tuple(Move(*m) for m in relation['word']))
+        flip_word=simplify((Move(*m) for coefficient,relation in zip(coefficients,relations)
+                            if coefficient for m in relation['word']),g.spec.turn_order)
+        if improve_flips:
+            from solver.football_flips import paired_flip_word
+            candidate=paired_flip_word(work,record,flips,cancel)
+            if candidate is None or len(candidate)>=len(flip_word):
+                return None
+            flip_word=candidate
+        execute(flip_word)
 
     for stage,index in enumerate(record.get('order') or [int(i) for i in record['cycles']]):
         if progress:

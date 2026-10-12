@@ -1,0 +1,12 @@
+{"order": 6, "seed": 20261013, "scramble_steps": 99, "before": {"steps": 887, "seconds": 1.026, "replay": "pass"}, "after": {"steps": 886, "seconds": 0.947, "replay": "pass"}}
+{"order": 7, "seed": 20261013, "scramble_steps": 111, "before": {"steps": 1125, "seconds": 1.94, "replay": "pass"}, "after": {"steps": 1125, "seconds": 1.488, "replay": "pass"}}
+{"order": 8, "seed": 20261013, "scramble_steps": 134, "before": {"steps": 1664, "seconds": 2.677, "replay": "pass"}, "after": {"steps": 1664, "seconds": 2.52, "replay": "pass"}}
+{"order": 9, "seed": 20261013, "scramble_steps": 146, "before": {"steps": 1970, "seconds": 4.349, "replay": "pass"}, "after": {"steps": 1970, "seconds": 3.607, "replay": "pass"}}
+{"order": 10, "seed": 20261013, "scramble_steps": 169, "before": {"steps": 2770, "seconds": 6.548, "replay": "pass"}, "after": {"steps": 2770, "seconds": 6.078, "replay": "pass"}}
+{"order": 11, "seed": 20261013, "scramble_steps": 181, "before": {"steps": 3206, "seconds": 8.989, "replay": "pass"}, "after": {"steps": 3206, "seconds": 9.209, "replay": "pass"}}
+{"order": 12, "seed": 20261013, "scramble_steps": 199, "before": {"steps": 3816, "seconds": 12.903, "replay": "pass"}, "after": {"steps": 3816, "seconds": 12.055, "replay": "pass"}}
+{"order": 13, "seed": 20261013, "scramble_steps": 211, "before": {"steps": 4589, "seconds": 17.239, "replay": "pass"}, "after": {"steps": 4583, "seconds": 16.526, "replay": "pass"}}
+{"order": 14, "seed": 20261013, "scramble_steps": 229, "before": {"steps": 5494, "seconds": 22.569, "replay": "pass"}, "after": {"steps": 5494, "seconds": 22.602, "replay": "pass"}}
+{"order": 15, "seed": 20261013, "scramble_steps": 241, "before": {"steps": 6429, "seconds": 30.748, "replay": "pass"}, "after": {"steps": 6425, "seconds": 29.769, "replay": "pass"}}
+{"order": 16, "seed": 20261013, "scramble_steps": 269, "before": {"steps": 7506, "seconds": 40.673, "replay": "pass"}, "after": {"steps": 7505, "seconds": 41.374, "replay": "pass"}}
+{"order": 17, "seed": 20261013, "scramble_steps": 281, "before": {"steps": 8382, "seconds": 51.232, "replay": "pass"}, "after": {"steps": 8382, "seconds": 48.989, "replay": "pass"}}

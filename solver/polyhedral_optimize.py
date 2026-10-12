@@ -11,6 +11,7 @@ safely fall back to the original solution.
 """
 from random import Random
 from time import monotonic
+from collections import OrderedDict
 
 from cube.polyhedral import Move
 from solver.polyhedral import simplify
@@ -23,10 +24,14 @@ def _atoms(cube):
     """Every non-identity power of every legal layer turn."""
     order = cube.geometry.spec.turn_order
     atoms = []
+    seen = set()
     for move in cube.moves():
         step = cube.geometry.spec.step(move.axis)
-        for power in range(1, order):
-            atoms.append(Move(move.axis, move.layer, (step * power) % order))
+        for power in range(1, cube.geometry.spec.order(move.axis)):
+            atom = Move(move.axis, move.layer, (step * power) % order)
+            if atom.amount and atom not in seen:
+                seen.add(atom)
+                atoms.append(atom)
     return atoms
 
 
@@ -59,6 +64,7 @@ def optimize_solution(cube, solution, solver, budget=DEFAULT_OPTIMIZE_BUDGET,
     solution of at most that length is found, and otherwise keeps working for
     the whole ``budget``. This trades time on hard states for a tighter spread
     of solution lengths.
+
     """
     best = list(solution)
     if not best:
@@ -67,8 +73,18 @@ def optimize_solution(cube, solution, solver, budget=DEFAULT_OPTIMIZE_BUDGET,
     atoms = _atoms(cube)
     if not atoms:
         return tuple(best)
+    proposals=[(move.axis,move) for move in atoms]
+    if cube.puzzle_kind=='pentahedron':
+        # Preserve the previous random proposal distribution while evaluating
+        # only distinct entered states. Zero powers become suffix restarts,
+        # not emitted or applied identity turns. Aliases share memoised solves.
+        canonical={(m.axis,m.layer,m.amount):m for m in atoms}
+        proposals=[(move.axis,canonical.get((move.axis,move.layer,
+                     power*cube.geometry.spec.step(move.axis)%order)))
+                   for move in cube.moves() for power in range(1,order)]
     deadline = monotonic() + max(0.0, budget)
     rng = Random(_seed_of(best) if seed is None else seed)
+    memo=OrderedDict()
 
     def done():
         return target is not None and len(best) <= target
@@ -80,8 +96,16 @@ def optimize_solution(cube, solution, solver, budget=DEFAULT_OPTIMIZE_BUDGET,
     def consider(prefix):
         nonlocal best
         work = _apply(cube, prefix)
+        state=bytes(work.colors)
         try:
-            word = solver(work)
+            word=memo.get(state)
+            if word is None:
+                word=tuple(solver(work))
+                memo[state]=word
+                if len(memo)>128:
+                    memo.popitem(last=False)
+            else:
+                memo.move_to_end(state)
         except InterruptedError:
             raise
         except Exception:
@@ -101,14 +125,15 @@ def optimize_solution(cube, solution, solver, budget=DEFAULT_OPTIMIZE_BUDGET,
     # full re-solves.
     started = monotonic()
     cancelled()
-    consider((atoms[0],))
+    first=proposals[0][1]
+    consider((first,) if first is not None else ())
     solve_cost = monotonic() - started
-    if solve_cost * len(atoms) < 0.35 * max(0.0, budget):
-        for move in atoms[1:]:
+    if solve_cost * len(proposals) < 0.35 * max(0.0, budget):
+        for _,move in proposals[1:]:
             if done() or monotonic() >= deadline:
                 return tuple(best)
             cancelled()
-            consider((move,))
+            consider((move,) if move is not None else ())
 
     # Iterated local search: keep a prefix of the current best, perturb the
     # remaining state, and re-solve the suffix. This reaches prefixes that a
@@ -121,7 +146,8 @@ def optimize_solution(cube, solution, solver, budget=DEFAULT_OPTIMIZE_BUDGET,
         cut = rng.randrange(0, length)
         prefix = best[:cut]
         last = best[cut - 1].axis if cut else None
-        options = [m for m in atoms if m.axis != last]
-        perturb = [rng.choice(options) for _ in range(rng.choice((1, 1, 2, 2, 3, 3, 4, 5, 6)))]
+        options=[m for axis,m in proposals if axis!=last] or [m for _,m in proposals]
+        perturb=[rng.choice(options) for _ in range(rng.choice((1,1,2,2,3,3,4,5,6)))]
+        perturb=[move for move in perturb if move is not None]
         consider(prefix + perturb)
     return tuple(best)

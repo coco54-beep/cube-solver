@@ -309,9 +309,10 @@ def solve_minx(cube,cancel=None,progress=None,optimize=True,optimize_budget=None
         from solver.polyhedral_optimize import (DEFAULT_OPTIMIZE_BUDGET,
                                                 optimize_solution)
         budget=DEFAULT_OPTIMIZE_BUDGET if optimize_budget is None else optimize_budget
+        target=({2:100,3:150}[cube.n] if optimize_budget is None else None)
         solution=optimize_solution(cube,solution,
                                    lambda work:solve_minx(work,cancel,None,optimize=False),
-                                   budget=budget,cancel=cancel,progress=progress)
+                                   budget=budget,target=target,cancel=cancel,progress=progress)
     return solution
 
 
@@ -475,6 +476,12 @@ def _optimize_plan(cube):
 
 
 def solve_polyhedral(cube,cancel=None,progress=None):
+    solution=_solve_and_optimize(cube,cancel,progress)
+    from solver.solution_loops import shorten_polyhedral_word
+    return shorten_polyhedral_word(cube,solution,cancel)
+
+
+def _solve_and_optimize(cube,cancel=None,progress=None):
     """Solve an entered state, optionally trimming greedy reduction output."""
     if cube.is_solved():
         return ()
@@ -482,14 +489,18 @@ def solve_polyhedral(cube,cancel=None,progress=None):
     if cube.puzzle_kind=='pentahedron' and cube.n>=4 and len(solution)>1:
         from solver.polyhedral_optimize import optimize_solution
         from solver.pentahedron_reduce import core_injection
+        from solver.pentahedron_high import shorten_pentahedron
+        refine=lambda word:shorten_pentahedron(cube,word,cancel)
         candidates=[solution]
         try:
-            injected=core_injection(cube)
+            injected=core_injection(cube,cancel)
+        except InterruptedError:
+            raise
         except Exception:
             injected=None
         if injected is not None and len(injected) < len(solution):
             candidates.append(tuple(injected))
-        resolver=lambda work:_solve_polyhedral_raw(work)
+        resolver=lambda work:_solve_polyhedral_raw(work,cancel)
         best=min(candidates,key=len)
         per=_OPTIMIZE_HEAVY_BUDGET/len(candidates)
         target=_OPTIMIZE_TARGETS.get((cube.puzzle_kind,cube.n))
@@ -500,16 +511,16 @@ def solve_polyhedral(cube,cancel=None,progress=None):
                                      cancel=cancel,progress=progress)
             if len(result)<len(best):
                 best=result
-        return best
+        return refine(best)
     plan=_optimize_plan(cube)
     if plan and len(solution)>1:
         from solver.polyhedral_optimize import optimize_solution
         budget,target=plan
         if cube.puzzle_kind=='clover':
             # Re-solve constructively: the exact search is too slow to repeat.
-            resolver=lambda work:_solve_clover_core(work)
+            resolver=lambda work:_solve_clover_core(work,cancel)
         else:
-            resolver=lambda work:_solve_polyhedral_raw(work)
+            resolver=lambda work:_solve_polyhedral_raw(work,cancel)
         solution=optimize_solution(cube,solution,resolver,budget=budget,
                                    target=target,cancel=cancel,progress=progress)
     return solution

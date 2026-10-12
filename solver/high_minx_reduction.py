@@ -57,17 +57,23 @@ def _checked(cancel):
 
 
 def native_beam(work, positions, cancel=None, progress=None,
-                width=_BEAM_WIDTH, max_depth=_BEAM_DEPTH):
+                width=_BEAM_WIDTH, max_depth=_BEAM_DEPTH,accelerated=True):
     """Greedily maximise the number of solved pieces with native ring turns."""
     g = work.geometry
     index = {p: i for i, p in enumerate(positions)}
     m = len(positions)
-    home = [tuple(sorted(g.stickers[s].face for s in g.pieces[p])) for p in positions]
-    colors = tuple(tuple(sorted(work.colors[s] for s in g.pieces[p])) for p in positions)
+    combinations=[tuple(sorted(g.stickers[s].face for s in g.pieces[p])) for p in positions]
+    entered=[tuple(sorted(work.colors[s] for s in g.pieces[p])) for p in positions]
+    codes={value:i for i,value in enumerate(dict.fromkeys(combinations+entered))}
+    if len(codes)>256:
+        raise ValueError('Native-ring colour encoding exceeds one byte')
+    home=bytes(codes[value] for value in combinations)
+    colors=bytes(codes[value] for value in entered)
     invs, atoms, rings = [], [], []
     seen = set()
     identity = tuple(range(m))
     for mv in _native_moves(work):
+        _checked(cancel)
         perm = g.permutation(mv)
         local = [index[g.stickers[perm[g.pieces[p][0]]].piece] for p in positions]
         inv = [0] * m
@@ -85,31 +91,53 @@ def native_beam(work, positions, cancel=None, progress=None,
         # states can be updated there instead of over every piece.
         rings.append(tuple((i, inv[i]) for i in range(m) if inv[i] != i))
 
+    if not invs or not positions:
+        return []
+    np=None
+    if accelerated:
+        try:
+            import numpy as np
+        except ImportError:
+            pass
+    if np is not None:
+        indices=np.asarray(invs,dtype=np.intp)
+        reference=np.frombuffer(home,dtype=np.uint8)
+
     def correct(state):
-        return sum(map(eq, state, home))
+        return sum(map(eq,state,home))
 
     frontier = {colors: ((), correct(colors))}
     best_count, best_path = correct(colors), ()
     for _ in range(max_depth):
         _checked(cancel)
         nxt = {}
-        for state, (path, score) in frontier.items():
+        for state,(path,score) in frontier.items():
+            _checked(cancel)
+            if np is not None:
+                candidates=np.frombuffer(state,dtype=np.uint8)[indices]
+                scores=(candidates==reference).sum(axis=1)
             for ai in range(len(invs)):
-                ring = rings[ai]
-                ns = list(state)
-                delta = 0
-                for i, j in ring:
-                    ns[i] = state[j]
-                for i, _j in ring:
-                    delta += (ns[i] == home[i]) - (state[i] == home[i])
-                ns = tuple(ns)
+                if np is not None:
+                    ns=candidates[ai].tobytes()
+                    next_score=int(scores[ai])
+                else:
+                    ring=rings[ai]
+                    ns=bytearray(state)
+                    for i,j in ring:
+                        ns[i]=state[j]
+                    next_score=score+sum((ns[i]==home[i])-(state[i]==home[i])
+                                         for i,_ in ring)
+                    ns=bytes(ns)
                 if ns not in nxt:
-                    nxt[ns] = (path + (atoms[ai],), score + delta)
-        ranked = sorted(nxt.items(), key=lambda kv: -kv[1][1])[:width]
-        frontier = {s: v for s, v in ranked}
-        bc = ranked[0][1][1]
+                    # Delay constructing complete paths until a candidate
+                    # survives the beam. Keep the original stable tie order.
+                    nxt[ns]=(next_score,path,ai)
+        ranked=sorted(nxt.items(),key=lambda kv:-kv[1][0])[:width]
+        frontier={s:(path+(atoms[ai],),score) for s,(score,path,ai) in ranked}
+        winner=next(iter(frontier.values()))
+        bc=winner[1]
         if bc > best_count:
-            best_count, best_path = bc, ranked[0][1][0]
+            best_count,best_path=bc,winner[0]
         if best_count == m:
             break
     for mv in best_path:
@@ -142,9 +170,24 @@ def solve_orbits(work, targets, cancel=None, progress=None, search_budget=0.3):
     """
     g = work.geometry
     order = g.spec.turn_order
-    baseline = primitives(work, targets, cancel)
+    from solver.minx_plans import orbit_plan
+    prepared=orbit_plan(work,targets)
+    if prepared is not None and prepared[2]:
+        macros,solve_order,_=prepared
+        solution=[]
+        for stage,index in enumerate(solve_order):
+            _checked(cancel)
+            primitive,base=macros[index]
+            word=_orbit_plan(work,targets[index],base,primitive,identify(work),
+                             solution,cancel,search_budget)
+            if word:
+                for move in word:work.apply_move(move)
+                solution.extend(word)
+            if progress:progress(stage+1,len(solve_order))
+        return solution
+    baseline = prepared[0] if prepared is not None else primitives(work,targets,cancel)
     staged, solve_order = None, None
-    if any(len(baseline[i][0]) > _SHORT_PRIMITIVE for i in baseline):
+    if prepared is None and any(len(baseline[i][0]) > _SHORT_PRIMITIVE for i in baseline):
         solve_order = sorted(targets, key=lambda i: -len(baseline[i][0]))
         guarded, protected = set(), {}
         for index in solve_order:

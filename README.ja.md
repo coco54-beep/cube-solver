@@ -2,11 +2,22 @@
 
 ### 通常・高次・変形ツイスティパズルの状態ベース解法
 
-[最新の Android 版](https://github.com/coco54-beep/cube-solver/releases/latest) · [English](README.md) · [中文技术说明](README.zh-CN.md) · [ソースコード](https://github.com/coco54-beep/cube-solver)
+[Windows / Android 版](https://github.com/coco54-beep/cube-solver/releases/latest) · [English](README.md) · [中文技术说明](README.zh-CN.md) · [ソースコード](https://github.com/coco54-beep/cube-solver)
+
+## 1.2.22 の更新
+
+- 通常の N 次キューブは **6〜17 段**。中心の候補は解全体で比較し、Mastermorphix と Mirror Cube の 4〜9 段はピース形状を保持して短い準備手順を選びます。
+- Football は辺の反転をペアで処理。高次 Megaminx はコンパクトな探索状態、一括評価、検証済みの軌道データを利用します。変形パズルには完全な作用が等しい手順の書き換えと、重複状態の除去を追加しました。
+- 形状キューブは本体と可視中心の向きを合計で評価。Square-1 と Mirror Tower は時間制限内で二段階の総手数を比較します。5 段以下の完全な復元デモも利用できます。
+- **90 種類／段数の入力状態が完全再生チェックを通過し、299 件の解法・デモ検査に合格しました。** [最適化レポート](reports/algorithm-upgrades/2026-10-13/report.md)にはサンプルと制限を記載しています。すべての入力で手数が減るとは限りません。
+
+**Windows x64：** [CubeSolver-1.2.22-windows-x64.zip](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.22/CubeSolver-1.2.22-windows-x64.zip) をダウンロードし、全体を展開して `CubeSolver/CubeSolver.exe` を起動してください。隣の `_internal` フォルダーを残します。Python のインストールは不要です。Android APK は[リリースページ](https://github.com/coco54-beep/cube-solver/releases/tag/v1.2.22)に掲載されます。
+
+[リリースノート](docs/release-1.2.22.md) · [Windows ビルド手順](docs/windows.md)
 
 ## 概要
 
-本プロジェクトは、入力されたパズル状態をモデル化し、パズルごとの検証と回放チェックを伴う手順列を生成します。通常の 2×2〜5×5 と実験的な 6×6〜17×17 に加え、現行版（1.2.21）は幅広い変形パズルを収録します：形状変化した Mastermorphix / Mirror Cube 系（2〜9段）、Pyraminx（2〜7）、Skewb（3/5/7）、Megaminx（2〜13）、Tower Cube（3〜7）、Dino / Lattice（2/4/6）、面回転八面体（2〜4）、Football / Tuttminx（3/5）、Icosahedron（2〜5）、Blossom、Ivy、Clover、Eight-petals、Void Cube / Tower、Square-1、Mirror Tower、ウォードラム（2〜5）、五面体（2〜5）、および形状キューブ（Axis / Pandora / Windmill / Fisher）。各系統は、すべてを通常の 3×3 表現に押し込むのではなく、幾何に基づく状態モデルを使います。変形カタログは、専用ディレクトリ内の図付きカードとして表示されます。
+本プロジェクトは、入力されたパズル状態をモデル化し、パズルごとの検証と回放チェックを伴う手順列を生成します。通常の 2×2〜5×5 と実験的な 6×6〜17×17 に加え、現行版（1.2.22）は幅広い変形パズルを収録します：形状変化した Mastermorphix / Mirror Cube 系（2〜9段）、Pyraminx（2〜7）、Skewb（3/5/7）、Megaminx（2〜13）、Tower Cube（3〜7）、Dino / Lattice（2/4/6）、面回転八面体（2〜4）、Football / Tuttminx（3/5）、Icosahedron（2〜5）、Blossom、Ivy、Clover、Eight-petals、Void Cube / Tower、Square-1、Mirror Tower、ウォードラム（2〜5）、五面体（2〜5）、および形状キューブ（Axis / Pandora / Windmill / Fisher）。各系統は、すべてを通常の 3×3 表現に押し込むのではなく、幾何に基づく状態モデルを使います。変形カタログは、専用ディレクトリ内の図付きカードとして表示されます。
 
 エンジニアリングの重点は、入力から回放までの一連の流れです：幾何キュービー表現、状態検証、解法の段階制御、手順の正規化、解のチェック。本プロジェクトは適切な箇所で既存の解法を取り込んでおり、キューブ群に対する新しい一般解や大域的最短解を主張するものではありません。高次の解法は実験的で、ランダム状態や Android 実機での網羅的な評価は未完了です。
 
@@ -19,7 +30,7 @@
   <img src="assets/screenshots/playback_stepping.png" width="155" alt="3D 回放" />
 </p>
 
-<p align="center"><sub>図 1：パズル選択、高次入力、形状を考慮した入力、3D 回放。1.2.21 では図付きカードの変形パズルディレクトリと、幾何ごとの回転・回放画面を追加。</sub></p>
+<p align="center"><sub>図 1：パズル選択、高次入力、形状を考慮した入力、3D 回放。1.2.22 は図付きカードの変形パズルディレクトリと、幾何ごとの回転・回放画面を追加。</sub></p>
 
 ## 1. 対象範囲と貢献
 
@@ -168,7 +179,7 @@ Python 3.10 以降が必要です。4×4 の解法表が無い場合は Git LFS 
 
 ## 6. 制限と評価状況
 
-本 README は実装したアルゴリズムと確認ゲートを説明するもので、管理されたベンチマーク結果は報告しません。本リポジトリには機種横断の時間計測や手数比較の公開はありません。特に 6×6〜17×17 と新たな変形系統は、網羅的なランダム状態の検証や機種横断の Android 性能評価を受けていません。Mastermorphix の手数探索は有界でヒューリスティックです。3×3 の二段階解法と 2×2 の双方向探索は、大域的最適解法として提示しません。
+本 README は実装したアルゴリズムと確認ゲートを説明するもので、管理されたベンチマーク結果は報告しません。上記の最適化レポートにはデスクトップでのサンプルと手数比較を掲載していますが、管理された機種横断の時間計測はありません。特に 6×6〜17×17 と新たな変形系統は、網羅的なランダム状態の検証や機種横断の Android 性能評価を受けていません。Mastermorphix の手数探索は有界でヒューリスティックです。3×3 の二段階解法と 2×2 の双方向探索は、大域的最適解法として提示しません。
 
 ## 参考と実装ノート
 

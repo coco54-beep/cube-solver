@@ -182,6 +182,28 @@ def _reduce_edges_escalate(work, cancel_event, progress_callback, deadline: floa
 
 
 def solve_5x5(cube: Cube5, cancel_event=None, progress_callback=None) -> SolveResult:
+    started=time.perf_counter()
+    baseline=_solve_5x5(cube,cancel_event,progress_callback)
+    if cube is None or not baseline.success or not baseline.moves:return baseline
+    if cancel_event is not None and cancel_event.is_set():return baseline
+    from solver.solver_n import solve_nxn
+    try:
+        candidate=solve_nxn(cube,cancel_event,None)
+    except Exception:
+        if cancel_event is not None and cancel_event.is_set():
+            return SolveResult(False,[],'nxn.cancelled',0,0,[])
+        baseline.elapsed_ms=int((time.perf_counter()-started)*1000)
+        return baseline
+    if cancel_event is not None and cancel_event.is_set():return candidate
+    result=baseline
+    if candidate.success and len(candidate.moves)<len(baseline.moves):
+        replay=cube.clone();replay.apply_moves(candidate.moves)
+        if replay.is_solved():result=candidate
+    result.elapsed_ms=int((time.perf_counter()-started)*1000)
+    return result
+
+
+def _solve_5x5(cube: Cube5, cancel_event=None, progress_callback=None) -> SolveResult:
     """求解 5x5。返回 SolveResult（moves 为全部阶段动作的拼接）。
 
     若中心 home 不可信（如由 facelets 重建、home==pos），先按颜色/轨道重建；

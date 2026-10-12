@@ -102,7 +102,7 @@ def wing_atoms(n, positions, base, start, targets, cancel):
         yield candidate if cost(candidate) < cost(original) else original
 
 
-def center_atoms(cube, positions, cancel):
+def center_atoms(cube, positions, cancel, strategies=(0,1,2),return_options=False):
     """Prefer useful colour cycles to arbitrary labels of same-colour pieces.
 
     Every selected cycle strictly reduces incorrect colours. A same-colour
@@ -113,7 +113,7 @@ def center_atoms(cube, positions, cancel):
     perm = orbit.center_permutation(cube, positions)
     targets = orbit.three_cycles(perm)
     if not targets:
-        return []
+        return ([],[]) if return_options else []
     base, start = orbit.primitive(cube.n, positions, False, cancel)
     legacy = [atom for seq in orbit.conjugates(cube.n, positions, base, start,
                                                targets, cancel) for atom in seq]
@@ -122,6 +122,49 @@ def center_atoms(cube, positions, cancel):
     expected = [next(iter(solved.cubies[p].stickers.values())) for p in positions]
     actual = [next(iter(cube.cubies[p].stickers.values())) for p in positions]
     candidates = tuple(table[1].items())
+    try:
+        import numpy as np
+    except ImportError:
+        np=None
+    if np is not None:
+        triples=np.asarray([triple for triple,_ in candidates],dtype=np.intp)
+        a,b,c=triples.T
+        costs=np.asarray([cost for _,cost in candidates],dtype=float)
+        colors={value:i for i,value in enumerate(dict.fromkeys(expected+actual))}
+        goal=np.asarray([colors[value] for value in expected])
+        proposals=[]
+        for strategy in strategies:
+            state=np.asarray([colors[value] for value in actual])
+            word=[]
+            while not np.array_equal(state,goal):
+                cancel()
+                correct=state==goal
+                aa,bb,cc=state[c]==goal[a],state[a]==goal[b],state[b]==goal[c]
+                gain=(aa.astype(int)+bb+cc-correct[a].astype(int)-correct[b]-correct[c])
+                disturbed=((correct[a]&~aa).astype(int)+(correct[b]&~bb)+(correct[c]&~cc))
+                valid=np.flatnonzero(gain>0)
+                if not len(valid):
+                    word=None;break
+                if strategy==0:
+                    ranking=np.lexsort((costs[valid],disturbed[valid],-gain[valid],
+                                        -gain[valid]/costs[valid]))
+                elif strategy==1:
+                    ranking=np.lexsort((disturbed[valid],costs[valid],-gain[valid]))
+                else:
+                    ranking=np.lexsort((costs[valid],-gain[valid],disturbed[valid],
+                                        -gain[valid]/(costs[valid]+1)))
+                i=int(valid[ranking[0]])
+                triple=tuple(int(x) for x in triples[i])
+                word.extend(_algorithm(table,triple))
+                x,y,z=triple
+                state[x],state[y],state[z]=int(state[z]),int(state[x]),int(state[y])
+            if word is not None:
+                proposals.append((strategy,word))
+        from solver.solver_n import _compress
+        def cost(word):return len(_compress(orbit.expand(word,cube.n),cube.n))
+        baseline=min([legacy]+[word for strategy,word in proposals if strategy==0],key=cost)
+        best=min([legacy]+[word for _,word in proposals],key=cost)
+        return (baseline,best) if return_options else best
     planned = []
     while actual != expected:
         cancel()
@@ -140,11 +183,22 @@ def center_atoms(cube, positions, cancel):
             if best_rank is None or rank > best_rank:
                 best, best_rank = (a, b, c), rank
         if best is None:
-            return legacy
+            return (legacy,legacy) if return_options else legacy
         planned.extend(_algorithm(table, best))
         a, b, c = best
         actual[a], actual[b], actual[c] = actual[c], actual[a], actual[b]
     from solver.solver_n import _compress
     def player_cost(atoms):
         return len(_compress(orbit.expand(atoms, cube.n), cube.n))
-    return planned if player_cost(planned) < player_cost(legacy) else legacy
+    best=planned if player_cost(planned) < player_cost(legacy) else legacy
+    return (best,best) if return_options else best
+
+
+def identity_center_atoms(cube,positions,cancel):
+    """Compare weighted setups while keeping the exact centre-piece cycle."""
+    targets=orbit.three_cycles(orbit.center_permutation(cube,positions))
+    if not targets:
+        return []
+    base,start=orbit.primitive(cube.n,positions,False,cancel)
+    return [atom for word in wing_atoms(cube.n,positions,base,start,targets,cancel)
+            for atom in word]

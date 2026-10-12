@@ -1,0 +1,4 @@
+﻿name,kind,order,seed,status,scramble_steps,steps,solve_seconds,replay_seconds,wall_seconds,error
+普通魔方,cube,5,20261013,pass,87,408,3.175,0.027,3.339,
+二十面体,icosahedron,3,20261013,pass,54,1927,1.412,0.01,1.752,
+二十面体,icosahedron,5,20261013,pass,88,2946,2.156,0.045,2.731,

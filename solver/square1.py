@@ -14,6 +14,7 @@ from pathlib import Path
 import struct
 import sys
 import zlib
+from time import monotonic
 
 from cube.square1 import Square1Cube,Square1Move
 
@@ -177,7 +178,7 @@ def _load_tables():
         return None
 
 
-def solve_square1(cube,cancel=None,progress=None):
+def solve_square1(cube,cancel=None,progress=None,optimize_budget=.2):
     cube.validate()
     if cube.is_solved():
         return ()
@@ -204,12 +205,19 @@ def solve_square1(cube,cancel=None,progress=None):
         raise ValueError('square1.error.shape')
     path=[]
     visits=0
+    deadline=None
+    total_limit=None
+    failed=set()
+
+    class SearchBudgetExpired(Exception):pass
 
     def tick():
         nonlocal visits
         visits+=1
         if visits%1024==0:
             _check(cancel)
+            if deadline is not None and monotonic()>=deadline:
+                raise SearchBudgetExpired()
 
     def phase2(edge,corner,te,be,mid,remaining,last):
         tick()
@@ -217,6 +225,8 @@ def solve_square1(cube,cancel=None,progress=None):
             return edge==corner==mid==0 and not te and be
         if max(pd[(edge<<1)|mid],pd[(corner<<1)|mid])>remaining:
             return False
+        state=(edge,corner,te,be,mid,remaining,last)
+        if state in failed:return False
         if last!=0 and te==be:
             e,c,m=ps[edge],ps[corner],1-mid
             if max(pd[(e<<1)|m],pd[(c<<1)|m])<remaining:
@@ -244,6 +254,7 @@ def solve_square1(cube,cancel=None,progress=None):
                 else:
                     c=table[c]
                     amount+=2
+        if len(failed)<100000:failed.add(state)
         return False
 
     def start_phase2():
@@ -257,7 +268,8 @@ def solve_square1(cube,cancel=None,progress=None):
         lower=max(pd[(edge<<1)|mid],pd[(corner<<1)|mid])
         # Keep phase two bounded so one difficult square-shape candidate
         # cannot monopolise the search. Phase one tries other candidates.
-        for depth in range(lower,18):
+        upper=17 if total_limit is None else min(17,total_limit-len(path))
+        for depth in range(lower,upper+1):
             if phase2(edge,corner,te,be,mid,depth,0):
                 return True
         return False
@@ -298,6 +310,21 @@ def solve_square1(cube,cancel=None,progress=None):
         if progress:
             progress(depth,40)
         if phase1(shape,depth,-1):
+            best=tuple(path)
+            if optimize_budget>0:
+                deadline=monotonic()+optimize_budget
+                try:
+                    for shape_depth in range(depth,min(40,depth+4)):
+                        while monotonic()<deadline:
+                            total_limit=len(best)-1
+                            if shape_depth>total_limit:break
+                            path.clear()
+                            if not phase1(shape,shape_depth,-1):break
+                            best=tuple(path)
+                except SearchBudgetExpired:
+                    pass
+            _check(cancel)
+            path[:]=best
             solution=tuple(prefix)+tuple(Square1Move(2) if v==0 else Square1Move(0 if v>0 else 1,abs(v)) for v in path)
             replay=cube.clone()
             replay.apply_moves(solution)

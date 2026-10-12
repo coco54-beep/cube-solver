@@ -1,0 +1,12 @@
+{"order": 6, "seed": 20261013, "scramble_steps": 99, "before": {"steps": 887, "seconds": 1.168, "replay": "pass"}, "after": {"steps": 886, "seconds": 1.062, "replay": "pass"}}
+{"order": 7, "seed": 20261013, "scramble_steps": 111, "before": {"steps": 1125, "seconds": 2.219, "replay": "pass"}, "after": {"steps": 1125, "seconds": 1.986, "replay": "pass"}}
+{"order": 8, "seed": 20261013, "scramble_steps": 134, "before": {"steps": 1664, "seconds": 3.943, "replay": "pass"}, "after": {"steps": 1664, "seconds": 3.695, "replay": "pass"}}
+{"order": 9, "seed": 20261013, "scramble_steps": 146, "before": {"steps": 2053, "seconds": 6.246, "replay": "pass"}, "after": {"steps": 2045, "seconds": 5.939, "replay": "pass"}}
+{"order": 10, "seed": 20261013, "scramble_steps": 169, "before": {"steps": 2770, "seconds": 8.805, "replay": "pass"}, "after": {"steps": 2770, "seconds": 8.285, "replay": "pass"}}
+{"order": 11, "seed": 20261013, "scramble_steps": 181, "before": {"steps": 3206, "seconds": 11.923, "replay": "pass"}, "after": {"steps": 3206, "seconds": 11.604, "replay": "pass"}}
+{"order": 12, "seed": 20261013, "scramble_steps": 199, "before": {"steps": 3816, "seconds": 15.961, "replay": "pass"}, "after": {"steps": 3816, "seconds": 15.312, "replay": "pass"}}
+{"order": 13, "seed": 20261013, "scramble_steps": 211, "before": {"steps": 4589, "seconds": 21.614, "replay": "pass"}, "after": {"steps": 4583, "seconds": 29.817, "replay": "pass"}}
+{"order": 14, "seed": 20261013, "scramble_steps": 229, "before": {"steps": 5494, "seconds": 41.111, "replay": "pass"}, "after": {"steps": 5494, "seconds": 39.242, "replay": "pass"}}
+{"order": 15, "seed": 20261013, "scramble_steps": 241, "before": {"steps": 6429, "seconds": 51.963, "replay": "pass"}, "after": {"steps": 6281, "seconds": 49.531, "replay": "pass"}}
+{"order": 16, "seed": 20261013, "scramble_steps": 269, "before": {"steps": 7506, "seconds": 70.56, "replay": "pass"}, "after": {"steps": 7505, "seconds": 56.315, "replay": "pass"}}
+{"order": 17, "seed": 20261013, "scramble_steps": 281, "before": {"steps": 8382, "seconds": 60.913, "replay": "pass"}, "after": {"steps": 8382, "seconds": 61.603, "replay": "pass"}}

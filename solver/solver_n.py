@@ -164,7 +164,22 @@ def _compress_pass(moves, n):
     return result
 
 
-def solve_nxn(cube, cancel_event=None, progress_callback=None):
+def solve_nxn(cube, cancel_event=None, progress_callback=None,optimize_shapes=True):
+    if getattr(cube,'puzzle_kind',None) is not None and optimize_shapes:
+        started=time.perf_counter()
+        baseline=_solve_nxn(cube,cancel_event,progress_callback)
+        if not baseline.success:
+            return baseline
+        candidate=_solve_nxn(cube,cancel_event,progress_callback,short_shape_centers=True)
+        if cancel_event is not None and cancel_event.is_set():
+            return candidate
+        result=candidate if candidate.success and len(candidate.moves)<len(baseline.moves) else baseline
+        result.elapsed_ms=int((time.perf_counter()-started)*1000)
+        return result
+    return _solve_nxn(cube,cancel_event,progress_callback)
+
+
+def _solve_nxn(cube, cancel_event=None, progress_callback=None,short_shape_centers=False):
     started = time.perf_counter()
     all_moves, stages = [], []
 
@@ -224,7 +239,7 @@ def solve_nxn(cube, cancel_event=None, progress_callback=None):
             if orbit.wing_permutation(work, positions) != list(range(len(positions))):
                 raise RuntimeError("nxn.error.replay")
             stages.append(SolveStage("nxn_wings", "nxn.solving.wings", all_moves[before:]))
-        def solve_center_orbits():
+        def solve_center_orbits(strategies=(0,1,2)):
             for k, positions in enumerate(centers):
                 cancel()
                 emit("nxn.solving.centers", .5 + .46 * k / max(1, len(centers)),
@@ -232,13 +247,17 @@ def solve_nxn(cube, cancel_event=None, progress_callback=None):
                 before = len(all_moves)
                 if getattr(work, "puzzle_kind", None) is None:
                     from solver.nxn_optimize import center_atoms
-                    apply(center_atoms(work, positions, cancel))
+                    apply(center_atoms(work, positions, cancel,strategies=strategies))
                 else:
-                    targets = orbit.three_cycles(orbit.center_permutation(work, positions))
-                    if targets:
-                        base, start = orbit.primitive(work.n, positions, False, cancel)
-                        for atoms in orbit.conjugates(work.n, positions, base, start, targets, cancel):
-                            apply(atoms)
+                    if short_shape_centers:
+                        from solver.nxn_optimize import identity_center_atoms
+                        apply(identity_center_atoms(work,positions,cancel))
+                    else:
+                        targets = orbit.three_cycles(orbit.center_permutation(work, positions))
+                        if targets:
+                            base, start = orbit.primitive(work.n, positions, False, cancel)
+                            for atoms in orbit.conjugates(work.n, positions, base, start, targets, cancel):
+                                apply(atoms)
                 stages.append(SolveStage("nxn_centers", "nxn.solving.centers", all_moves[before:]))
 
         if getattr(work, "puzzle_kind", None) == "mastermorphix" and work.n % 2:
@@ -260,7 +279,32 @@ def solve_nxn(cube, cancel_event=None, progress_callback=None):
                 all_moves.extend(correction)
                 stages.append(SolveStage("nxn_center_orientation",
                                           "morphix.solving.centers", correction))
-        solve_center_orbits()
+        if getattr(work,'puzzle_kind',None) is None:
+            # Orbit-local savings can lose cancellations at stage boundaries.
+            # Compare the complete centre suffix from the same core/wing state.
+            from solver.nxn_optimize import center_atoms
+            alternate_work=work.clone()
+            alternate_moves=list(all_moves)
+            alternate_stages=list(stages)
+            for k,positions in enumerate(centers):
+                cancel()
+                emit('nxn.solving.centers',.5+.46*k/max(1,len(centers)),i=k+1,total=len(centers))
+                baseline,best=center_atoms(work,positions,cancel,return_options=True)
+                moves=apply(baseline)
+                stages.append(SolveStage('nxn_centers','nxn.solving.centers',moves))
+                other=_compress(orbit.expand(best,work.n),work.n)
+                for move in other:
+                    cancel();alternate_work.apply_move(move)
+                alternate_moves.extend(other)
+                alternate_stages.append(SolveStage('nxn_centers','nxn.solving.centers',other))
+            baseline_moves=_compress(all_moves,work.n)
+            alternate_moves=_compress(alternate_moves,work.n)
+            if alternate_work.is_solved() and len(alternate_moves)<len(baseline_moves):
+                all_moves[:]=alternate_moves
+                stages[:]=alternate_stages
+                work=alternate_work
+        else:
+            solve_center_orbits()
         emit("nxn.solving.replay", .98)
         moves = _compress(all_moves, work.n)
         replay = cube.clone()

@@ -10,6 +10,7 @@ from functools import lru_cache
 import json
 import zlib
 from pathlib import Path
+from time import monotonic
 
 from cube.mirror_tower import marker_system
 from cube.polyhedral import Move
@@ -56,7 +57,7 @@ def _tables():
     return table, centers
 
 
-def solve_mirror_tower(cube, cancel=None, progress=None):
+def solve_mirror_tower(cube, cancel=None, progress=None,optimize_budget=.15):
     if cube.is_solved():
         return ()
     moves, perms, rank0, rank1, rank2 = model()
@@ -70,6 +71,7 @@ def solve_mirror_tower(cube, cancel=None, progress=None):
         return rank2[st[24:36]]
 
     st = tuple(cube.labeled_state())
+    initial=st
     goal = tuple(range(36))
     word = []
     dist = table[moving_index(st)]
@@ -95,6 +97,28 @@ def solve_mirror_tower(cube, cancel=None, progress=None):
         inverse[i] = next(j for j, m2 in enumerate(moves) if m2 == m.inverse(3))
     for mi in reversed(entry):
         word.append(inverse[mi])
+    if optimize_budget>0:
+        deadline=monotonic()+optimize_budget
+        visited=set()
+        best=tuple(word)
+        def descend(state,distance,path):
+            nonlocal best
+            if cancel and cancel():raise InterruptedError()
+            if monotonic()>=deadline or len(visited)>=4096:return
+            if state in visited or len(path)+distance>=len(best):return
+            visited.add(state)
+            if distance==0:
+                tail=centers.get(str(center_index(state)))
+                if tail is not None:
+                    candidate=path+tuple(inverse[i] for i in reversed(tail))
+                    if len(candidate)<len(best):best=candidate
+                return
+            for mi,p in enumerate(perms):
+                nxt=tuple(p[v] for v in state)
+                if table[moving_index(nxt)]==distance-1:
+                    descend(nxt,distance-1,path+(mi,))
+        descend(initial,table[moving_index(initial)],())
+        word=list(best)
     solution = tuple(moves[mi] for mi in word)
     replay = cube.clone()
     for move in solution:

@@ -29,7 +29,39 @@ def _side_centres(twists,cancelled):
     return best
 
 
-def solve_shape_cube(cube,cancel_event=None,progress_callback=None):
+def solve_shape_cube(cube,cancel_event=None,progress_callback=None,optimize_budget=1.0):
+    started=time.perf_counter()
+    baseline=_solve_shape_cube(cube,cancel_event,progress_callback)
+    if not baseline.success or cube.n!=3 or cube.puzzle_kind=='pandora' or not baseline.moves:
+        return baseline
+    from solver.solver_n import _compress
+    best=baseline
+    deadline=time.perf_counter()+max(0,optimize_budget)
+    # Distinct body solves expose distinct centre twists. Rank their complete
+    # body+centre result, rather than choosing only the shortest cubie solve.
+    for prefix in ((),('R',),('U',),('F',),("R'",),("U'",),("F'",)):
+        if time.perf_counter()>=deadline:break
+        if cancel_event is not None and cancel_event.is_set():raise InterruptedError()
+        trial=cube.clone();trial.apply_moves(prefix)
+        try:
+            candidate=_solve_shape_cube(trial,cancel_event,None,max_length=18,timeout=.15)
+        except InterruptedError:
+            raise
+        except Exception:
+            continue
+        if not candidate.success:continue
+        moves=_compress(list(prefix)+candidate.moves,3)
+        if len(moves)>=len(best.moves):continue
+        replay=cube.clone();replay.apply_moves(moves)
+        if replay.is_solved():
+            best=SolveResult(True,moves,'',0,len(moves),
+                             [SolveStage('shape.body_centres','shape.body_centres',moves)])
+    if cancel_event is not None and cancel_event.is_set():raise InterruptedError()
+    best.elapsed_ms=int((time.perf_counter()-started)*1000)
+    return best
+
+
+def _solve_shape_cube(cube,cancel_event=None,progress_callback=None,max_length=20,timeout=3.0):
     from solver.solver3 import solve_3x3
     from solver.mastermorphix import center_solution
     start=time.perf_counter()
@@ -73,7 +105,7 @@ def solve_shape_cube(cube,cancel_event=None,progress_callback=None):
                 return SolveResult(False,[],'shape.error.replay',0,0,[])
         result=solve_3x3(facelets)
     else:
-        result=solve_3x3(cubies_to_facelets(cube.cubies,3))
+        result=solve_3x3(cubies_to_facelets(cube.cubies,3),max_length=max_length,timeout=timeout)
     if not result.success:
         return result
     if cancelled():

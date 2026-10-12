@@ -21,6 +21,16 @@ def main():
 
 
 if __name__ == "__main__":
+    if len(sys.argv)==3 and sys.argv[1]=='--self-check':
+        try:
+            from app.desktop_self_check import run
+            run(sys.argv[2])
+        except Exception:
+            import json
+            with open(sys.argv[2],'w',encoding='utf-8') as output:
+                json.dump({'status':'error','traceback':traceback.format_exc()},output,ensure_ascii=False)
+            sys.exit(1)
+        sys.exit(0)
     # 捕获主线程异常 + Kivy 未处理异常
     def _hook(t, v, tb):
         try:

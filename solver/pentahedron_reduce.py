@@ -103,21 +103,27 @@ def _solve_core(n, state):
     return moves
 
 
-def core_injection(cube):
+def core_injection(cube,cancel=None):
     """Return a verified solution that first solves the n=2 core, or None."""
     from solver.drum_prism import solve_drum_prism
 
     if cube.n not in (4, 5):
         return None
+    if cancel and cancel():
+        raise InterruptedError()
     state = identify(cube)
     core_moves = _solve_core(cube.n, state)
+    if cancel and cancel():
+        raise InterruptedError()
     if core_moves is None:
         return None
     work = cube.clone()
     for move in core_moves:
         work.apply_move(move)
     try:
-        rest = solve_drum_prism(work)
+        rest = solve_drum_prism(work,cancel)
+    except InterruptedError:
+        raise
     except Exception:
         return None
     return simplify(tuple(core_moves) + tuple(rest), cube.geometry.spec.turn_order)

@@ -2,11 +2,22 @@
 
 ### A state-based solver for standard, higher-order, and irregular twisty puzzles
 
-[Latest Android release](https://github.com/coco54-beep/cube-solver/releases/latest) · [中文技术说明](README.zh-CN.md) · [日本語](README.ja.md) · [Source code](https://github.com/coco54-beep/cube-solver)
+[Windows and Android downloads](https://github.com/coco54-beep/cube-solver/releases/latest) · [中文技术说明](README.zh-CN.md) · [日本語](README.ja.md) · [Source code](https://github.com/coco54-beep/cube-solver)
+
+## 1.2.22 update
+
+- Standard N-order cubes cover **6–17**. Centre strategies are compared using the complete solution; Mastermorphix and Mirror Cube 4–9 retain exact shape identities while comparing shorter setups.
+- Football uses paired edge flips. High-order Megaminx uses compact search states, batch scoring, and verified precomputed orbit plans. More irregular families receive equivalent-action rewriting and repeated-state removal.
+- Shape cubes compare body and visible centre orientation together; Square-1 and Mirror Tower compare complete two-stage paths within a time budget. Existing solver-backed demonstrations through order five remain available.
+- **90 type/order configurations passed complete entered-state replay**, with 299 targeted solver and demonstration checks passing. Samples and limits are documented in the [optimization report](reports/algorithm-upgrades/2026-10-13/report.md); shorter solutions are not guaranteed for every input.
+
+**Windows x64:** download [CubeSolver-1.2.22-windows-x64.zip](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.22/CubeSolver-1.2.22-windows-x64.zip), extract the complete archive, and open `CubeSolver/CubeSolver.exe`. Keep the `_internal` folder beside the executable. Python installation is unnecessary. Android APKs are listed on the [release page](https://github.com/coco54-beep/cube-solver/releases/tag/v1.2.22).
+
+[Release notes](docs/release-1.2.22.md) · [Windows build instructions](docs/windows.md)
 
 ## Abstract
 
-This project models entered puzzle states and produces move sequences with puzzle-specific validation and replay checks. In addition to conventional 2x2-5x5 cubes and an experimental 6x6-17x17 solver, the current release (1.2.21) covers a broad irregular catalog: the shape-modified Mastermorphix and Mirror Cube families (orders 2-9), Pyraminx (2-7), Skewb (3/5/7), Megaminx (2-13), Tower Cube (3-7), Dino/Lattice (2/4/6), Face-turning Octahedron (2-4), Football/Tuttminx (3/5), Icosahedron (2-5), Blossom, Ivy, Clover, and Eight-petals, Void Cube/Tower, Square-1, Mirror Tower, War Drum (2-5), Pentahedron (2-5), and the shape cubes (Axis, Pandora, Windmill, Fisher). Each family uses a geometry-aware state model rather than forcing every shape through a conventional 3x3 representation. The irregular catalog is presented as illustrated cards in a dedicated directory.
+This project models entered puzzle states and produces move sequences with puzzle-specific validation and replay checks. In addition to conventional 2x2-5x5 cubes and an experimental 6x6-17x17 solver, the current release (1.2.22) covers a broad irregular catalog: the shape-modified Mastermorphix and Mirror Cube families (orders 2-9), Pyraminx (2-7), Skewb (3/5/7), Megaminx (2-13), Tower Cube (3-7), Dino/Lattice (2/4/6), Face-turning Octahedron (2-4), Football/Tuttminx (3/5), Icosahedron (2-5), Blossom, Ivy, Clover, and Eight-petals, Void Cube/Tower, Square-1, Mirror Tower, War Drum (2-5), Pentahedron (2-5), and the shape cubes (Axis, Pandora, Windmill, Fisher). Each family uses a geometry-aware state model rather than forcing every shape through a conventional 3x3 representation. The irregular catalog is presented as illustrated cards in a dedicated directory.
 
 The engineering focus is the complete path from input to replay: geometric cubie representation, state validation, solver orchestration, move normalization, and solution checking. The project integrates established solving methods where appropriate; it does not claim a new general solution to the cube group or globally optimal solutions. Higher-order solving remains experimental and has not been comprehensively benchmarked across random states and Android devices.
 
@@ -19,7 +30,7 @@ The engineering focus is the complete path from input to replay: geometric cubie
   <img src="assets/screenshots/playback_stepping.png" width="155" alt="3D solution playback" />
 </p>
 
-<p align="center"><sub>Figure 1. Puzzle selection, higher-order input, shape-aware input, and 3D playback. The 1.2.21 release adds an irregular-puzzle directory with illustrated cards and geometry-specific twist and playback screens.</sub></p>
+<p align="center"><sub>Figure 1. Puzzle selection, higher-order input, shape-aware input, and 3D playback. The 1.2.22 release includes an irregular-puzzle directory with illustrated cards and geometry-specific twist and playback screens.</sub></p>
 
 ## 1. Scope and contributions
 
@@ -168,7 +179,7 @@ Python 3.10 or newer is required. If the 4x4 solver table is absent, install Git
 
 ## 6. Limitations and evaluation status
 
-This README describes the implemented algorithms and verification gates; it does not report controlled benchmark results. There is no published cross-device timing study or move-count comparison in this repository. In particular, 6x6-17x17 solving and the new irregular-puzzle families have not received comprehensive random-state coverage or cross-device Android performance evaluation. The Mastermorphix move-count search is bounded and heuristic. The 3x3 two-phase solver and 2x2 bidirectional search are not presented as globally optimal solvers.
+This README describes the implemented algorithms and verification gates; it does not report controlled benchmark results. Desktop samples and move-count comparisons are published in the optimization report linked above; a controlled cross-device timing study is not available. In particular, 6x6-17x17 solving and the new irregular-puzzle families have not received comprehensive random-state coverage or cross-device Android performance evaluation. The Mastermorphix move-count search is bounded and heuristic. The 3x3 two-phase solver and 2x2 bidirectional search are not presented as globally optimal solvers.
 
 ## References and implementation notes
 

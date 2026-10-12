@@ -35,7 +35,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install test deps
-        run: pip install pytest
+        run: pip install pytest numpy
 
       - name: Byte-compile all packages
         run: python -m compileall -q app cube renderer services solver ui main.py

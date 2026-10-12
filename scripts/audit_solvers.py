@@ -59,7 +59,8 @@ def catalogue():
         if assignment or update:
             exec(compile(ast.Module(body=[node], type_ignores=[]), str(path), 'exec'), env)
     orders = {**env['ORDERS'], **env['IMPLEMENTED_ORDERS']}
-    cases = [('cube', n) for n in range(2, 15)]
+    from cube.cube_n import MAX_N
+    cases = [('cube', n) for n in range(2, MAX_N + 1)]
     for kind in env['PUZZLES'] + env['SPECIAL_PUZZLES']:
         cases.extend((kind, n) for n in orders.get(kind, (3,)))
     return sorted(set(cases), key=lambda c: (c[1], c[0]))
@@ -68,7 +69,7 @@ def catalogue():
 def write_json(path, value):
     path = Path(path)
     temporary = path.with_suffix('.tmp')
-    temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding='utf-8')
+    temporary.write_text(json.dumps(value, ensure_ascii=False, separators=(',',':'))+'\n', encoding='utf-8')
     for attempt in range(6):
         try:
             temporary.replace(path)

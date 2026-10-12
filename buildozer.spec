@@ -24,7 +24,7 @@ source.exclude_patterns = table_gen*.log,pytest.ini,*.log,count_by_dir.py,count_
 # ----------------------------------------------------------------------------
 # 构建需求
 # ----------------------------------------------------------------------------
-requirements = python3,kivy==2.3.1
+requirements = python3,kivy==2.3.1,numpy
 
 # 竖屏与左右横屏，跟随手机方向
 orientation = portrait, landscape, landscape-reverse

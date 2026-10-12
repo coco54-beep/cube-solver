@@ -6,7 +6,7 @@
 
 ## Abstract
 
-This project models entered puzzle states and produces move sequences with puzzle-specific validation and replay checks. In addition to conventional 2x2-5x5 cubes and an experimental 6x6-17x17 solver, version 1.2.18 extends the shape-modified Mastermorphix family to orders 2-9 and adds five other irregular families: Pyraminx, Skewb, Megaminx, Tower Cube, and Mirror Cube. Their supported orders range from 2 to 13 depending on the mechanism. Each family uses a geometry-aware state model rather than forcing every shape through a conventional 3x3 representation.
+This project models entered puzzle states and produces move sequences with puzzle-specific validation and replay checks. In addition to conventional 2x2-5x5 cubes and an experimental 6x6-17x17 solver, the current release (1.2.21) covers a broad irregular catalog: the shape-modified Mastermorphix and Mirror Cube families (orders 2-9), Pyraminx (2-7), Skewb (3/5/7), Megaminx (2-13), Tower Cube (3-7), Dino/Lattice (2/4/6), Face-turning Octahedron (2-4), Football/Tuttminx (3/5), Icosahedron (2-5), Blossom, Ivy, Clover, and Eight-petals, Void Cube/Tower, Square-1, Mirror Tower, War Drum (2-5), Pentahedron (2-5), and the shape cubes (Axis, Pandora, Windmill, Fisher). Each family uses a geometry-aware state model rather than forcing every shape through a conventional 3x3 representation. The irregular catalog is presented as illustrated cards in a dedicated directory.
 
 The engineering focus is the complete path from input to replay: geometric cubie representation, state validation, solver orchestration, move normalization, and solution checking. The project integrates established solving methods where appropriate; it does not claim a new general solution to the cube group or globally optimal solutions. Higher-order solving remains experimental and has not been comprehensively benchmarked across random states and Android devices.
 
@@ -19,7 +19,7 @@ The engineering focus is the complete path from input to replay: geometric cubie
   <img src="assets/screenshots/playback_stepping.png" width="155" alt="3D solution playback" />
 </p>
 
-<p align="center"><sub>Figure 1. Puzzle selection, higher-order input, shape-aware input, and 3D playback. Version 1.2.18 also adds a dedicated irregular-puzzle directory and geometry-specific twist and playback screens.</sub></p>
+<p align="center"><sub>Figure 1. Puzzle selection, higher-order input, shape-aware input, and 3D playback. The 1.2.21 release adds an irregular-puzzle directory with illustrated cards and geometry-specific twist and playback screens.</sub></p>
 
 ## 1. Scope and contributions
 
@@ -119,7 +119,7 @@ Orders other than three use their corresponding corner-state or higher-order cub
 
 ### 3.7. Irregular puzzle families: geometry-specific state and moves
 
-Version 1.2.18 adds a dedicated irregular-puzzle directory. The order ranges below are the choices exposed by the application; each geometry has its own legal layer-turn model.
+A dedicated irregular-puzzle directory groups the multi-order families as individual cards and the single-specification puzzles under a separate special collection; each card shows a rendered 3D thumbnail. The order ranges below are the choices exposed by the application; each geometry has its own legal layer-turn model.
 
 | Puzzle family | Orders | State representation and solving path |
 |---|---:|---|
@@ -129,6 +129,21 @@ Version 1.2.18 adds a dedicated irregular-puzzle directory. The order ranges bel
 | Tower Cube | 3-7 | A tetrahedral tower geometry with its own layer-turn permutations and shape-aware replay. |
 | Mirror Cube | 2-9 | Input is based on piece dimensions and orientation rather than color; exact piece identities are solved with the matching 2x2, 3x3, or higher-order engine. |
 | Mastermorphix | 2-9 | Four-color shaped-piece model. Order three tracks center orientation explicitly; other orders use their corresponding cube-state solver. |
+| Dino / Lattice | 2, 4, 6 | Eight corner-axis turns of 120°. Dino has twelve two-color edges; Lattice adds inner layers. Solved through a core and orbit reduction. |
+| Face-turning Octahedron (FTO) | 2-4 | Eight triangular faces turn about their face axes; solved through a small core and conjugated three-cycle transports. |
+| Football / Tuttminx | 3, 5 | 32-face ball: pentagons turn 72°, hexagons 120°. |
+| Icosahedron | 2-5 | Twenty triangular faces; a reduced core plus orbit-based three-cycles. |
+| Blossom Megaminx | 3 | Edge turns of 180°; petals follow their edge while face centres stay fixed. |
+| Ivy | 3 | Four corner turns of 120° that move adjacent leaf centres. |
+| Clover | 3 | Edge turns of 180°, including states produced by half turns. |
+| Eight-petals | 3 | Corner turns of 120°. |
+| Void Cube | 3 | 3x3 mechanism without fixed face centres. |
+| Void Tower | 3 | Tower variant of the void cube. |
+| Square-1 | - | Slice puzzle with shape and color entry, including a middle-layer flip. |
+| Mirror Tower | - | Piece-size input only, without color. |
+| War Drum | 2-5 | Eight 120° face axes (four large hexagons, four small triangles). |
+| Pentahedron | 2-5 | Triangular prism: three 180° side axes and two 120° triangular axes. |
+| Shape cubes (Axis / Pandora / Windmill / Fisher) | 3 | 3x3 mechanism with a shape-modified shell. |
 
 The polyhedral engine derives sticker permutations from the puzzle geometry, reconstructs state without a scramble history, and checks generated moves by replay. A separate twist screen lets users select an axis and layer, rotate the puzzle, undo or redo moves, and lock the view. Solution playback keeps the original geometry and provides step navigation, playback speed, and dwell-time control. See [the irregular-puzzle model and usage notes](docs/irregular-puzzles.md) for input conventions, order details, and implementation limits.
 

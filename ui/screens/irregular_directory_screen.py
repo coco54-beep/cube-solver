@@ -18,6 +18,16 @@ from ui.widgets.buttons import UIButton, PrimaryButton
 from ui.widgets.cards import HomeCard
 from ui.widgets.dialogs import theme_popup
 
+from pathlib import Path
+
+# Rendered 3D thumbnails (tools/export_puzzle_thumbs.py) shown on each card.
+PUZZLE_IMG_DIR = Path(__file__).resolve().parents[2] / "assets" / "puzzles"
+
+
+def puzzle_image(key):
+    path = PUZZLE_IMG_DIR / f"{key}.png"
+    return str(path) if path.exists() else None
+
 
 PUZZLES = ("pyraminx", "mastermorphix", "skewb", "dino", "megaminx", "moyu", "mirror",
            "fto", "football", "icosahedron", "war_drum", "pentahedron")
@@ -115,7 +125,7 @@ class IrregularDirectoryScreen(Screen):
 
         self.grid = GridLayout(cols=2, spacing=(m.h(12), m.h(12)), size_hint=(1, None))
         for key in self.puzzle_keys:
-            button = HomeCard(MARKS[key], tr("directory." + key),
+            button = HomeCard(MARKS[key], tr("directory." + key), image=puzzle_image(key),
                               on_click=lambda k=key: self.open_order_picker(k))
             self.grid.add_widget(button)
             self._buttons[key] = button

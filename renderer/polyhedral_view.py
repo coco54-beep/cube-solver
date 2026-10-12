@@ -110,6 +110,7 @@ class PolyhedralView(Widget):
         self.palette=PALETTE
         self.selected=None
         self.on_pick=None
+        self.fit_margin=1.0
         self._polygons=[]
         self._fbo=None
         self._gpu_layer=None
@@ -300,7 +301,9 @@ class PolyhedralView(Widget):
             right,up=(add(scale(right,math.cos(angle)),scale(up,math.sin(angle))),
                       add(scale(up,math.cos(angle)),scale(right,-math.sin(angle))))
         radius=max(math.sqrt(dot(p,p)) for face in body_faces(g.spec) for p in face)
-        factor=min(self.width,self.height)*.42/max(radius,1)
+        # fit_margin > 1 leaves extra room for the rounded outer shell, which
+        # extends past the flat body faces used for the radius above.
+        factor=min(self.width,self.height)*.42/max(radius*self.fit_margin,1)
         cx,cy=self.width/2,self.height/2
         self._proj=(eye,right,up,factor,cx,cy)
         observation=self.observation_world()

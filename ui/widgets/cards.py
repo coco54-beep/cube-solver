@@ -30,7 +30,7 @@ def _theme():
 class HomeCard(BoxLayout):
     """大号强调文字 + 标题的卡片按钮，绘制风格与首页一致。"""
 
-    def __init__(self, big, title, on_click=None, **kwargs):
+    def __init__(self, big, title, on_click=None, image=None, **kwargs):
         super().__init__(orientation="vertical", spacing=2, padding=10, **kwargs)
         self._pressed = False
         self._on_click = on_click
@@ -38,8 +38,14 @@ class HomeCard(BoxLayout):
         self.canvas.before.add(self._bg)
         self.bind(pos=lambda *a: self._draw(), size=lambda *a: self._draw())
         theme = _theme()
-        self._big = Label(text=big, font_size="46sp", bold=True, halign="center",
-                          valign="middle", color=theme.text, size_hint_y=0.62)
+        self._is_image = image is not None
+        if self._is_image:
+            from kivy.uix.image import Image
+            self._big = Image(source=image, size_hint_y=0.62,
+                              allow_stretch=True, keep_ratio=True)
+        else:
+            self._big = Label(text=big, font_size="46sp", bold=True, halign="center",
+                              valign="middle", color=theme.text, size_hint_y=0.62)
         self._title = Label(text=title, font_size="18sp", bold=True, halign="center",
                             valign="middle", color=theme.text, size_hint_y=0.38)
         self._title.bind(size=lambda label, *_: setattr(label, "text_size", label.size))
@@ -50,7 +56,8 @@ class HomeCard(BoxLayout):
         self._draw()
 
     def set_text(self, big, title):
-        self._big.text = big
+        if not self._is_image:
+            self._big.text = big
         self._title.text = title
 
     def set_title(self, title):
@@ -58,7 +65,8 @@ class HomeCard(BoxLayout):
 
     def _restyle(self, *_args):
         height = self.height / max(1e-6, _scale_factor())
-        self._big.font_size = m.font(max(22, min(46, height * 0.32)))
+        if not self._is_image:
+            self._big.font_size = m.font(max(22, min(46, height * 0.32)))
         self._title.font_size = m.font(max(11, min(18, height * 0.13)))
         self.padding = m.h(max(4, min(10, height * 0.055)))
 
@@ -78,7 +86,8 @@ class HomeCard(BoxLayout):
 
     def refresh_theme(self):
         theme = _theme()
-        self._big.color = theme.text
+        if not self._is_image:
+            self._big.color = theme.text
         self._title.color = theme.text
         self._draw()
 

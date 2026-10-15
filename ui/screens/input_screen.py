@@ -931,6 +931,11 @@ class InputScreen(Screen):
         app.facelets_input = facelets
 
     def go_home(self):
+        app = _app()
+        if getattr(app, "input_from_camera", False):
+            app.input_from_camera = False
+            self.manager.current = "CameraScreen"
+            return
         self.manager.current = "HomeScreen"
 
     def open_demo(self):

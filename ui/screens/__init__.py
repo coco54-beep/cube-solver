@@ -7,6 +7,7 @@ from ui.screens.mirror_screen import MirrorScreen
 from ui.screens.square1_screen import Square1Screen
 from ui.screens.shape_cube_screen import ShapeCubeScreen
 from ui.screens.input_screen import InputScreen  # noqa: F401
+from ui.screens.camera_screen import CameraScreen  # noqa: F401
 from ui.screens.mastermorphix_screen import MastermorphixScreen  # noqa: F401
 from ui.screens.morphix_twist_screen import MorphixTwistScreen  # noqa: F401
 from ui.screens.solving_screen import SolvingScreen  # noqa: F401

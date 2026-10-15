@@ -31,6 +31,8 @@
     "switch": "Repeat2",
     "cancel": "X",
     "done": "Check",
-    "gear": "Settings"
+    "gear": "Settings",
+    "camera": "Camera",
+    "image": "Image"
   }
 }

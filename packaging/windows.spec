@@ -13,7 +13,7 @@ from kivy.tools.packaging.pyinstaller_hooks import get_deps_minimal,hookspath,ru
 deps=get_deps_minimal(window='sdl2',text='sdl2',image=('sdl2','pil','tex','dds'),
                       clipboard=('winctypes','sdl2'),audio=None,video=None,camera=None,spelling=None)
 hidden=list(deps['hiddenimports'])
-for package in ('app','cube','demo','renderer','services','solver','ui','twophase'):
+for package in ('app','cube','demo','renderer','services','solver','ui','vision','twophase'):
     hidden.extend(collect_submodules(package))
 hidden.extend(('kivy_deps.angle','kivy_deps.glew','kivy_deps.sdl2'))
 datas=[]

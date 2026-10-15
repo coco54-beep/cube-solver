@@ -38,7 +38,7 @@ jobs:
         run: pip install pytest numpy
 
       - name: Byte-compile all packages
-        run: python -m compileall -q app cube renderer services solver ui main.py
+        run: python -m compileall -q app cube renderer services solver ui vision main.py
 
       - name: Run test suite
         run: python -m pytest -q

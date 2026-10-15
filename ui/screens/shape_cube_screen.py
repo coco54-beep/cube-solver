@@ -13,6 +13,20 @@ class ShapeCubeScreen(MirrorScreen):
     cube_class=AxisCube
     view_class=AxisView
 
+    def build_ui(self):
+        super().build_ui()
+        from ui.widgets.buttons import UIButton
+        self.camera_button=UIButton(icon_name='camera',size_hint_x=.16)
+        self.camera_button.bind(on_release=lambda *_:self.open_camera())
+        header=self.title.parent
+        header.add_widget(self.camera_button,index=header.children.index(self.demo_button)+1)
+
+    def open_camera(self):
+        if self._cube is None or self._busy_turn:
+            return
+        from ui.widgets.photo_entry import open_existing
+        open_existing(self,self._cube)
+
     def _blank(self,palette):
         super()._blank(palette)
         if self._cube.puzzle_kind!='football':
@@ -82,13 +96,34 @@ class ShapeCubeScreen(MirrorScreen):
             self._cube=None
             self.build_ui()
         super().on_pre_enter(*args)
+        pending=getattr(_app(),'camera_shape_result',None)
+        if pending is not None and pending.puzzle_kind==kind:
+            from vision.scan_profiles import CUBE_CODES
+            pending.palette=tuple(f'S_pandora_{CUBE_CODES.index(c)}' if c in CUBE_CODES else c for c in pending.palette)
+            self._cube=pending
+            self._recorded=set(pending.positions)
+            self._history=[]
+            self._preview=None
+            from renderer.cube_orientation import CubeOrientation
+            self._ori=CubeOrientation(self._cube.n)
+            self._pos=self._cube.positions[0]
+            self._group=position_kind(self._pos)
+            _app().camera_shape_result=None
+            self._refresh()
 
     def go_back(self):
+        if getattr(_app(),'input_from_camera',False):
+            self.manager.current='CameraScreen'
+            return
         self.manager.current='IrregularDirectoryScreen' if self._cube.puzzle_kind=='football' else 'SpecialIrregularScreen'
 
     def _refresh(self):
         super()._refresh()
         if self._cube is not None:
+            can_scan=self._cube.puzzle_kind=='pandora' and self._cube.n==3
+            self.camera_button.disabled=not can_scan
+            self.camera_button.opacity=1 if can_scan else 0
+            self.camera_button.size_hint_x=.16 if can_scan else .001
             from ui.screens.mastermorphix_screen import _Swatch
             visible=self._cube.puzzle_kind!='football'
             self.palette_row.height=m.h(44) if visible else 0

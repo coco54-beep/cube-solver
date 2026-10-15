@@ -47,6 +47,10 @@ class CubeApp(App):
         self.solve_result = None
         self.facelets_input = None  # 用户录入的 facelets
         self.facelets_cache = {}    # 各阶录入状态的快照（切回该阶时恢复）
+        self.input_from_camera = False  # 录入页是否由拍照识别进入（决定返回目标）
+        self.camera_return_screen = 'HomeScreen'
+        self.camera_shape_result = None
+        self.camera_recorded = None
         # ---- 输入方式（高级 / 简洁，默认简洁）----
         self.simple_input = bool(_pref_get("simple_input", True))
         self._kv_loaded = False
@@ -63,7 +67,7 @@ class CubeApp(App):
             Builder.load_file(_KV_PATH)
             self._kv_loaded = True
         sm = ScreenManager()
-        for name in ("HomeScreen", "IrregularDirectoryScreen", "SpecialIrregularScreen", "InputScreen", "MastermorphixScreen", "MirrorScreen", "MorphixTwistScreen", "PolyhedralScreen", "PolyhedralTwistScreen", "PolyhedralPlaybackScreen", "SolvingScreen", "PlaybackScreen",
+        for name in ("HomeScreen", "IrregularDirectoryScreen", "SpecialIrregularScreen", "InputScreen", "CameraScreen", "MastermorphixScreen", "MirrorScreen", "MorphixTwistScreen", "PolyhedralScreen", "PolyhedralTwistScreen", "PolyhedralPlaybackScreen", "SolvingScreen", "PlaybackScreen",
                      "DemoScreen", "DemoMenuScreen", "TwistScreen", "SettingsScreen", "Square1Screen", "ShapeCubeScreen", "MirrorTowerScreen"):
             scr = _screen(name)
             scr.name = name
@@ -89,10 +93,14 @@ class CubeApp(App):
 
     def on_pause(self):
         self._reset_input_interaction()
+        if self.root is not None and self.root.has_screen("CameraScreen"):
+            self.root.get_screen("CameraScreen").pause_camera()
         return True
 
     def on_resume(self):
         self._reset_input_interaction()
+        if self.root is not None and self.root.has_screen("CameraScreen"):
+            self.root.get_screen("CameraScreen").resume_camera()
 
     def new_cube(self, n: int):
         """新建一个已还原的 n 阶魔方，重置求解结果。"""

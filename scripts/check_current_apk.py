@@ -21,7 +21,7 @@ def main():
     root=args.source_root or workspace
     stage=workspace/'.buildozer/android/app'
     expected={}
-    for folder in ('app','cube','demo','renderer','services','solver','ui','twophase'):
+    for folder in ('app','cube','demo','renderer','services','solver','ui','vision','twophase'):
         for source in (root/folder).rglob('*.py'):
             relative=source.relative_to(root)
             assert digest(source.read_bytes())==digest((stage/relative).read_bytes()),relative

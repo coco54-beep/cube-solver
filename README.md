@@ -4,6 +4,17 @@
 
 [Windows and Android downloads](https://github.com/coco54-beep/cube-solver/releases/latest) · [中文技术说明](README.zh-CN.md) · [日本語](README.ja.md) · [Source code](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.23 update
+
+- Adds photo scanning for standard cubes and suitable irregular puzzles, **up to order five**. This limit applies to scanning; standard N-order solving still covers **6–17**.
+- Supports Skewb, Dino/Lattice, Clover, Eight-petals, Ivy, Void Cube, Pandora, Pyraminx, Tower/Void Tower, face-turning octahedra, **Icosahedron orders 2–5**, Megaminx, Blossom, and 32-face Football/Tuttminx. Scanning samples the actual sticker polygons and skips holes.
+- Align the face vertices and cuts, follow the whole-puzzle turn animation, and correct uncertain stickers on the small model. Photo color calibration updates previously scanned faces while keeping manual corrections; Icosahedron and Football expose 20 and 32 color references.
+- Android uses the system photo picker and matches the camera preview to the selection frame. **Real-photo accuracy for the newly added irregular profiles has not yet been validated.** Mirror finishes, changing silhouettes, curved shells, and jumbling states are outside these fixed-face templates.
+
+**Android arm64-v8a:** [1.2.23 APK for testing](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.23/cubesolver-1.2.23-arm64-v8a-debug.apk). **Windows x64:** see the [1.2.23 release assets](https://github.com/coco54-beep/cube-solver/releases/tag/v1.2.23) for the portable ZIP; extract it completely and retain `_internal`.
+
+[1.2.23 release notes](docs/release-1.2.23.md) · [Supported photo profiles and workflow](docs/photo-scan.md) · [Windows build instructions](docs/windows.md)
+
 ## 1.2.22 update
 
 - Standard N-order cubes cover **6–17**. Centre strategies are compared using the complete solution; Mastermorphix and Mirror Cube 4–9 retain exact shape identities while comparing shorter setups.
@@ -17,7 +28,7 @@
 
 ## Abstract
 
-This project models entered puzzle states and produces move sequences with puzzle-specific validation and replay checks. In addition to conventional 2x2-5x5 cubes and an experimental 6x6-17x17 solver, the current release (1.2.22) covers a broad irregular catalog: the shape-modified Mastermorphix and Mirror Cube families (orders 2-9), Pyraminx (2-7), Skewb (3/5/7), Megaminx (2-13), Tower Cube (3-7), Dino/Lattice (2/4/6), Face-turning Octahedron (2-4), Football/Tuttminx (3/5), Icosahedron (2-5), Blossom, Ivy, Clover, and Eight-petals, Void Cube/Tower, Square-1, Mirror Tower, War Drum (2-5), Pentahedron (2-5), and the shape cubes (Axis, Pandora, Windmill, Fisher). Each family uses a geometry-aware state model rather than forcing every shape through a conventional 3x3 representation. The irregular catalog is presented as illustrated cards in a dedicated directory.
+This project models entered puzzle states and produces move sequences with puzzle-specific validation and replay checks. In addition to conventional 2x2-5x5 cubes and an experimental 6x6-17x17 solver, the current release (1.2.23) covers a broad irregular catalog: the shape-modified Mastermorphix and Mirror Cube families (orders 2-9), Pyraminx (2-7), Skewb (3/5/7), Megaminx (2-13), Tower Cube (3-7), Dino/Lattice (2/4/6), Face-turning Octahedron (2-4), Football/Tuttminx (3/5), Icosahedron (2-5), Blossom, Ivy, Clover, and Eight-petals, Void Cube/Tower, Square-1, Mirror Tower, War Drum (2-5), Pentahedron (2-5), and the shape cubes (Axis, Pandora, Windmill, Fisher). Each family uses a geometry-aware state model rather than forcing every shape through a conventional 3x3 representation. The irregular catalog is presented as illustrated cards in a dedicated directory.
 
 The engineering focus is the complete path from input to replay: geometric cubie representation, state validation, solver orchestration, move normalization, and solution checking. The project integrates established solving methods where appropriate; it does not claim a new general solution to the cube group or globally optimal solutions. Higher-order solving remains experimental and has not been comprehensively benchmarked across random states and Android devices.
 

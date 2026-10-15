@@ -4,6 +4,17 @@
 
 [Windows / Android 版](https://github.com/coco54-beep/cube-solver/releases/latest) · [English](README.md) · [中文技术说明](README.zh-CN.md) · [ソースコード](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.23 の更新
+
+- 通常のキューブと対応する変形パズルに写真読み取りを追加。**読み取りは5段以下**に制限します。通常の N 次求解は引き続き **6〜17段**に対応します。
+- Skewb、Dino / Lattice、Clover、Eight-petals、Ivy、Void Cube、Pandora、Pyraminx、Tower / Void Tower、面回転八面体、**二十面体の2〜5段**、Megaminx、Blossom、32面 Football / Tuttminx に対応。モデルのステッカー輪郭から色を読み、空洞を除外します。
+- 頂点と切れ目を合わせ、モデルの全体回転アニメーションに従って面を切り替えます。不確かな色はモデル上で修正でき、色の校正は手動修正を保持して撮影済みの面を更新します。二十面体は20色、Footballは32色の参照番号を使います。
+- Android のシステム写真選択画面に対応し、カメラ映像と選択枠の位置を修正しました。**新しい変形テンプレートの実写精度は未検証です。** 鏡面、形状が変わる外形、曲面、ジャンブリング状態は固定平面テンプレートの対象外です。
+
+**Android arm64-v8a：** [1.2.23 試用 APK](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.23/cubesolver-1.2.23-arm64-v8a-debug.apk)。**Windows x64：** [1.2.23 のリリース資産](https://github.com/coco54-beep/cube-solver/releases/tag/v1.2.23)から便携 ZIP を取得し、全体を展開して `_internal` を残してください。
+
+[1.2.23 リリースノート](docs/release-1.2.23.md) · [写真読み取りの対応表と手順](docs/photo-scan.md) · [Windows ビルド手順](docs/windows.md)
+
 ## 1.2.22 の更新
 
 - 通常の N 次キューブは **6〜17 段**。中心の候補は解全体で比較し、Mastermorphix と Mirror Cube の 4〜9 段はピース形状を保持して短い準備手順を選びます。

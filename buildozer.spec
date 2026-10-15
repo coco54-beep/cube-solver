@@ -6,7 +6,7 @@
 title = 3D魔方智能还原
 package.name = cubesolver
 package.domain = com.example
-version = 1.2.22
+version = 1.2.23
 
 # 工程源码目录（buildozer 会把它拷贝进打包环境）
 source.dir = .
@@ -39,8 +39,8 @@ android.ndk_api = 26
 # 图标（如无则跳过）
 # icon.filename = assets/icons/%source.name%.png
 
-# 权限：离线求解无需网络/存储
-android.permissions = INTERNET
+# 权限：离线求解无需网络/存储；CAMERA 供「拍照识别」使用
+android.permissions = INTERNET, CAMERA
 
 # 自动接受 Android SDK 许可证
 android.accept_sdk_license = True

@@ -1,6 +1,6 @@
 """首页：选择 3 阶 / 4 阶、使用说明、版本号（美观启动页式）。"""
 
-from ui.widgets.buttons import GearButton, UIButton
+from ui.widgets.buttons import GearButton, UIButton, PrimaryButton
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
@@ -21,13 +21,21 @@ class HomeScreen(Screen):
         root = BoxLayout(orientation="vertical", spacing=8, padding=[20, 10, 20, 10])
         self._root_layout = root
 
-        # ---- 顶栏：设置齿轮（右上角）----
-        topbar = BoxLayout(orientation="horizontal", size_hint_y=None, height=m.h(44))
+        # ---- 顶栏：中间「拍照识别」，右侧设置齿轮 ----
+        topbar = BoxLayout(orientation="horizontal", size_hint_y=None, height=m.h(44), spacing=8)
         self._topbar = topbar
         topbar.add_widget(BoxLayout(size_hint_x=1))
+        self.camera_btn = UIButton(text="", icon_name="camera",
+                                   size_hint=(None, None),
+                                   width=m.h(44), height=m.h(44))
+        self.camera_btn.bind(on_release=lambda *a: self.open_camera())
+        topbar.add_widget(self.camera_btn)
+        right = BoxLayout(size_hint_x=1)
+        right.add_widget(BoxLayout(size_hint_x=1))
         self.settings_btn = GearButton(size_hint_x=None, width=m.h(44))
         self.settings_btn.bind(on_release=lambda *a: self.open_settings())
-        topbar.add_widget(self.settings_btn)
+        right.add_widget(self.settings_btn)
+        topbar.add_widget(right)
         root.add_widget(topbar)
 
         # ---- 标题区（顶部）----
@@ -111,6 +119,10 @@ class HomeScreen(Screen):
     def open_settings(self):
         self.manager.current = "SettingsScreen"
 
+    def open_camera(self):
+        from ui.widgets.photo_entry import choose_photo_puzzle
+        choose_photo_puzzle(self)
+
     def _card_height(self, h=None):
         """卡片区高度，随屏幕尺寸微调（基准高屏 240，小屏略降）。"""
         from kivy.core.window import Window
@@ -145,6 +157,7 @@ class HomeScreen(Screen):
         self._root_layout.padding = layout['padding']
         self._root_layout.spacing = layout['spacing']
         self._topbar.height = self.settings_btn.width = layout['top_height']
+        self.camera_btn.height = self.camera_btn.width = layout['top_height']
         self._bottom.height = layout['bottom_height']
         self._head.height = layout['head_height']
         self._head.spacing = max(2, self._head.height * 0.025)
@@ -310,6 +323,7 @@ class HomeScreen(Screen):
     def pick(self, n: int):
         app = _app()
         app.new_cube(n)
+        app.input_from_camera = False
         self.manager.current = "InputScreen"
 
 

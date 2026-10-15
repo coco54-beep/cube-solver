@@ -21,10 +21,16 @@ class HomeScreen(Screen):
         root = BoxLayout(orientation="vertical", spacing=8, padding=[20, 10, 20, 10])
         self._root_layout = root
 
-        # ---- 顶栏：中间「拍照识别」，右侧设置齿轮 ----
+        # ---- 顶栏：左侧公式库，中间拍照识别，右侧设置 ----
         topbar = BoxLayout(orientation="horizontal", size_hint_y=None, height=m.h(44), spacing=8)
         self._topbar = topbar
-        topbar.add_widget(BoxLayout(size_hint_x=1))
+        left = BoxLayout(size_hint_x=1, spacing=8)
+        self.formula_btn = UIButton(text=tr("formula.home"), size_hint=(None, None),
+                                    width=m.h(64), height=m.h(44), font_size=m.font(13))
+        self.formula_btn.bind(on_release=lambda *_: self.open_formula_help())
+        left.add_widget(self.formula_btn)
+        left.add_widget(BoxLayout(size_hint_x=1))
+        topbar.add_widget(left)
         self.camera_btn = UIButton(text="", icon_name="camera",
                                    size_hint=(None, None),
                                    width=m.h(44), height=m.h(44))
@@ -107,6 +113,7 @@ class HomeScreen(Screen):
         self.title.text = tr("app.name")
         self.subtitle.text = tr("home.subtitle")
         self._ver_label.text = tr("home.version", version=Config.app_version)
+        self.formula_btn.text = tr("formula.home")
         for n, card in getattr(self, "_cards", {}).items():
             try:
                 big, title_label = card._labels
@@ -122,6 +129,9 @@ class HomeScreen(Screen):
     def open_camera(self):
         from ui.widgets.photo_entry import choose_photo_puzzle
         choose_photo_puzzle(self)
+
+    def open_formula_help(self):
+        self.manager.current = "FormulaLibraryScreen"
 
     def _card_height(self, h=None):
         """卡片区高度，随屏幕尺寸微调（基准高屏 240，小屏略降）。"""
@@ -158,6 +168,8 @@ class HomeScreen(Screen):
         self._root_layout.spacing = layout['spacing']
         self._topbar.height = self.settings_btn.width = layout['top_height']
         self.camera_btn.height = self.camera_btn.width = layout['top_height']
+        self.formula_btn.height = layout['top_height']
+        self.formula_btn.width = layout['top_height'] * 1.45
         self._bottom.height = layout['bottom_height']
         self._head.height = layout['head_height']
         self._head.spacing = max(2, self._head.height * 0.025)

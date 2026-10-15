@@ -25,7 +25,7 @@ def main():
                         str(ROOT/'packaging/windows.spec')],cwd=ROOT,check=True)
     bundle=output/'CubeSolver';internal=bundle/'_internal'
     assets=[]
-    for folder in ('assets','solver','ui','docs','twophase'):
+    for folder in ('assets','solver','ui','docs','twophase','demo'):
         for source in (ROOT/folder).rglob('*'):
             if source.is_file() and '__pycache__' not in source.parts and source.suffix not in ('.py','.pyc','.log'):
                 assets.append(source)

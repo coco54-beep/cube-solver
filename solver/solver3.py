@@ -109,6 +109,13 @@ def solve_3x3(facelets, max_length=20, timeout=3.0, minimize=False):
     cubestring = _build_cubestring(facelets)
 
     def _result(raw, success, moves):
+        if success and len(moves) > 1:
+            from solver.formula_finishes import shorten_3x3
+            shorter = shorten_3x3(facelets, moves)
+            if len(shorter) < len(moves):
+                counts = {'': '1', '2': '2', "'": '3'}
+                raw = ' '.join(m[0] + counts[m[1:]] for m in shorter) + f' ({len(shorter)}f)'
+                moves = shorter
         elapsed_ms = int((time.perf_counter() - t0) * 1000)
         return SolveResult(
             success=success,

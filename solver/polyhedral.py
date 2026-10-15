@@ -306,6 +306,9 @@ def solve_minx(cube,cancel=None,progress=None,optimize=True,optimize_budget=None
     if not check.is_solved():
         raise ValueError('Solution replay did not restore the entered puzzle')
     if optimize:
+        if cube.n == 3:
+            from solver.formula_finishes import shorten
+            solution = shorten('Megaminx', cube, solution, cancel, budget=.3)
         from solver.polyhedral_optimize import (DEFAULT_OPTIMIZE_BUDGET,
                                                 optimize_solution)
         budget=DEFAULT_OPTIMIZE_BUDGET if optimize_budget is None else optimize_budget
@@ -313,6 +316,8 @@ def solve_minx(cube,cancel=None,progress=None,optimize=True,optimize_budget=None
         solution=optimize_solution(cube,solution,
                                    lambda work:solve_minx(work,cancel,None,optimize=False),
                                    budget=budget,target=target,cancel=cancel,progress=progress)
+        if cube.n == 3:
+            solution = shorten('Megaminx', cube, solution, cancel, budget=.15)
     return solution
 
 

@@ -68,7 +68,7 @@ class CubeApp(App):
             self._kv_loaded = True
         sm = ScreenManager()
         for name in ("HomeScreen", "IrregularDirectoryScreen", "SpecialIrregularScreen", "InputScreen", "CameraScreen", "MastermorphixScreen", "MirrorScreen", "MorphixTwistScreen", "PolyhedralScreen", "PolyhedralTwistScreen", "PolyhedralPlaybackScreen", "SolvingScreen", "PlaybackScreen",
-                     "DemoScreen", "DemoMenuScreen", "TwistScreen", "SettingsScreen", "Square1Screen", "ShapeCubeScreen", "MirrorTowerScreen"):
+                     "DemoScreen", "DemoMenuScreen", "FormulaLibraryScreen", "PracticeScreen", "TwistScreen", "SettingsScreen", "Square1Screen", "ShapeCubeScreen", "MirrorTowerScreen"):
             scr = _screen(name)
             scr.name = name
             sm.add_widget(scr)

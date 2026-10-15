@@ -32,6 +32,8 @@ DEMO_REVISION='accuracy-2026-10-12-v2'
 
 
 def source_screen(mode):
+    if mode == 'cfop':
+        return 'HomeScreen'
     kind=mode[0] if isinstance(mode,tuple) else mode
     return {'mastermorphix':'MastermorphixScreen','mirror':'MirrorScreen',
             'axis':'ShapeCubeScreen','pandora':'ShapeCubeScreen',
@@ -45,6 +47,8 @@ def _num(n):
 
 
 def _mode_menu_title(n):
+    if n == 'cfop':
+        return tr('formula.title')
     if isinstance(n, tuple):
         return _mode_title(n)
     return tr(f"demo.mode.menu.{n}")
@@ -52,6 +56,7 @@ def _mode_menu_title(n):
 
 _MODE_TITLE = {2: "demo.mode.menu.2", 3: "demo.mode.menu.3",
                4: "demo.mode.menu.4", 5: "demo.mode.menu.5",
+               "cfop": "formula.title",
                "mastermorphix": "demo.mode.menu.mastermorphix"}
 
 
@@ -90,6 +95,9 @@ def render_thumb(case, n, size=140):
         highlight=None if 'initial' in case or isinstance(n,tuple) or n=='mastermorphix' else _changed_homes(cube)
         _set_demo_cube(v, cube,highlight)
         v.reset_camera()
+        if 'camera' in case:
+            v.yaw, v.pitch, v.roll = case['camera']
+            v.refresh()
         if hasattr(v, '_draw'):
             v._draw()
             if v._fbo is not None:
@@ -152,12 +160,13 @@ class DemoMenuScreen(Screen):
 
     def _rebuild(self):
         self.list.clear_widgets()
-        actions=ResponsiveBoxLayout(height_px=52,gap_px=8)
-        for key,callback in (('demo.complete',self.start_complete_demo),('demo.my_input',self.solve_current_input)):
-            button=PrimaryButton(text=tr(key))
-            button.bind(on_release=lambda *_,fn=callback:fn())
-            actions.add_widget(button)
-        self.list.add_widget(actions)
+        if self.mode != 'cfop':
+            actions=ResponsiveBoxLayout(height_px=52,gap_px=8)
+            for key,callback in (('demo.complete',self.start_complete_demo),('demo.my_input',self.solve_current_input)):
+                button=PrimaryButton(text=tr(key))
+                button.bind(on_release=lambda *_,fn=callback:fn())
+                actions.add_widget(button)
+            self.list.add_widget(actions)
         if self._solution_steps:
             self._add_steps(self._solution_steps)
         steps = _steps_for(self.mode)

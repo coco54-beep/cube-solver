@@ -326,14 +326,25 @@ class PolyhedralView(Widget):
         elif curved:
             from renderer.tower_mesh import tower_skin,tower_edge
             skin=tower_skin(self.cube.n,self.cube.puzzle_kind)
-        moving=set(g.layers[self._move.axis][self._move.layer]) if self._move else set()
+        whole_axis = getattr(self._move, 'rotation_axis', None)
+        if whole_axis is not None:
+            moving = set(range(len(g.pieces)))
+        elif self._move:
+            layers = getattr(self._move, 'layers', ()) or (self._move.layer,)
+            moving = {piece for layer in layers for piece in g.layers[self._move.axis][layer]}
+        else:
+            moving = set()
         turn=None
         if self._move:
-            amount=self._move.amount
-            if amount>g.spec.turn_order/2:
-                amount-=g.spec.turn_order
-            angle=2*math.pi/g.spec.turn_order*amount*self._fraction
-            turn=tuple(rotate(v,g.spec.axes[self._move.axis],angle)
+            if whole_axis is not None:
+                axis, angle = whole_axis, math.radians(self._move.angle) * self._fraction
+            else:
+                amount=self._move.amount
+                if amount>g.spec.turn_order/2:
+                    amount-=g.spec.turn_order
+                axis = g.spec.axes[self._move.axis]
+                angle=2*math.pi/g.spec.turn_order*amount*self._fraction
+            turn=tuple(rotate(v,axis,angle)
                        for v in ((1,0,0),(0,1,0),(0,0,1)))
         def transform(p):
             if turn is None:

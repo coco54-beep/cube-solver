@@ -4,6 +4,17 @@
 
 [Windows / Android 版](https://github.com/coco54-beep/cube-solver/releases/latest) · [English](README.md) · [中文技术说明](README.zh-CN.md) · [ソースコード](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.24 の更新
+
+- 通常の2〜5段、Square-1、Skewb、Pyraminx、3段Megaminxのオフライン上級公式集を追加。**43セット・6,060ケース**に対応し、適用段階、代替公式、ネイティブ3D再生を提供します。出典は通常のラベルで表示します。
+- 2×2・3×3・Square-1・Pyraminxの練習に、セット選択、向き・位置合わせの変化、お気に入り公式、学習状態、苦手優先の出題を追加。スクランブルを練習画面に直接表示します。2×2・3×3・Square-1はバックグラウンドで別解から生成を試み、時間切れ時は合法な代替手順を使います。
+- OK／+2／DNF、ao5／ao12、最近の記録に対応。終了前に解答を見た試行は成績対象外です。再生は現在の出題モデルと一致します。
+- 3×3・Megaminx・Square-1の終盤に公式を利用し、完全再生で復元でき、総手数が短い場合だけ採用します。Square-1の連続した括弧付き回転の解析も修正しました。
+
+**ダウンロード：** [Android arm64-v8a APK](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.24/cubesolver-1.2.24-arm64-v8a-debug.apk) · [Windows x64 ポータブルZIP](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.24/CubeSolver-1.2.24-windows-x64.zip)。Windows版は全体を展開し、`_internal`を残してください。Android APKは既存のローカルdebug署名を使います。
+
+[1.2.24 リリースノート](docs/release-1.2.24.md) · [上級公式集と練習](docs/advanced-formula-library.md)
+
 ## 1.2.23 の更新
 
 - 通常のキューブと対応する変形パズルに写真読み取りを追加。**読み取りは5段以下**に制限します。通常の N 次求解は引き続き **6〜17段**に対応します。
@@ -28,7 +39,7 @@
 
 ## 概要
 
-本プロジェクトは、入力されたパズル状態をモデル化し、パズルごとの検証と回放チェックを伴う手順列を生成します。通常の 2×2〜5×5 と実験的な 6×6〜17×17 に加え、現行版（1.2.23）は幅広い変形パズルを収録します：形状変化した Mastermorphix / Mirror Cube 系（2〜9段）、Pyraminx（2〜7）、Skewb（3/5/7）、Megaminx（2〜13）、Tower Cube（3〜7）、Dino / Lattice（2/4/6）、面回転八面体（2〜4）、Football / Tuttminx（3/5）、Icosahedron（2〜5）、Blossom、Ivy、Clover、Eight-petals、Void Cube / Tower、Square-1、Mirror Tower、ウォードラム（2〜5）、五面体（2〜5）、および形状キューブ（Axis / Pandora / Windmill / Fisher）。各系統は、すべてを通常の 3×3 表現に押し込むのではなく、幾何に基づく状態モデルを使います。変形カタログは、専用ディレクトリ内の図付きカードとして表示されます。
+本プロジェクトは、入力されたパズル状態をモデル化し、パズルごとの検証と回放チェックを伴う手順列を生成します。通常の 2×2〜5×5 と実験的な 6×6〜17×17 に加え、現行版（1.2.24）は幅広い変形パズルを収録します：形状変化した Mastermorphix / Mirror Cube 系（2〜9段）、Pyraminx（2〜7）、Skewb（3/5/7）、Megaminx（2〜13）、Tower Cube（3〜7）、Dino / Lattice（2/4/6）、面回転八面体（2〜4）、Football / Tuttminx（3/5）、Icosahedron（2〜5）、Blossom、Ivy、Clover、Eight-petals、Void Cube / Tower、Square-1、Mirror Tower、ウォードラム（2〜5）、五面体（2〜5）、および形状キューブ（Axis / Pandora / Windmill / Fisher）。各系統は、すべてを通常の 3×3 表現に押し込むのではなく、幾何に基づく状態モデルを使います。変形カタログは、専用ディレクトリ内の図付きカードとして表示されます。
 
 エンジニアリングの重点は、入力から回放までの一連の流れです：幾何キュービー表現、状態検証、解法の段階制御、手順の正規化、解のチェック。本プロジェクトは適切な箇所で既存の解法を取り込んでおり、キューブ群に対する新しい一般解や大域的最短解を主張するものではありません。高次の解法は実験的で、ランダム状態や Android 実機での網羅的な評価は未完了です。
 

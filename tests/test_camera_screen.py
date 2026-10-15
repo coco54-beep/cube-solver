@@ -45,6 +45,7 @@ def test_camera_screen_constructs(monkeypatch):
 def test_camera_screen_face_order_matches_input(monkeypatch):
     from renderer.cube_orientation import SEQ
     app, scr = _make(monkeypatch, 3)
+    monkeypatch.setattr(scr.grid, 'animate_whole_turn', lambda *args, on_done, **kwargs: on_done())
     seen = [scr._ori.current_face()]
     for _ in range(5):
         scr.navigate("next")
@@ -53,6 +54,18 @@ def test_camera_screen_face_order_matches_input(monkeypatch):
     # 继续下一步回到起点
     scr.navigate("next")
     assert scr._ori.current_face() == SEQ[0]
+
+
+def test_camera_navigation_commits_only_after_animation(monkeypatch):
+    app, scr = _make(monkeypatch, 3)
+    callbacks = []
+    monkeypatch.setattr(scr.grid, 'animate_whole_turn', lambda *args, on_done, **kwargs: callbacks.append(on_done))
+    scr.navigate('next')
+    assert scr._ori.current_face() == 'F' and scr._turning
+    scr.navigate('next')
+    assert len(callbacks) == 1
+    callbacks[0]()
+    assert scr._ori.current_face() == 'R' and not scr._turning
 
 
 def test_camera_screen_navigate_shows_rotation_hint(monkeypatch):

@@ -39,6 +39,8 @@ def preferences():
 
 
 def polyhedral_target(cube, move):
+    if getattr(move, 'rotation_axis', None) is not None:
+        return (0., 0., 0.)
     g = cube.geometry
     return mean(tuple(g.centres[p] for p in g.layers[move.axis][move.layer]))
 

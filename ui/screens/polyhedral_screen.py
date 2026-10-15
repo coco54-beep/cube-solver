@@ -74,9 +74,7 @@ class PolyhedralScreen(Screen):
         help_button=UIButton(icon_name='demo',size_hint_x=.16)
         help_button.bind(on_release=lambda *_:self.open_demo())
         self.demo_button=help_button
-        self.camera_button=UIButton(icon_name='camera',size_hint_x=.16)
-        self.camera_button.bind(on_release=lambda *_:self.open_camera())
-        for item in (back,self.title,self.camera_button,help_button):
+        for item in (back,self.title,help_button):
             top.add_widget(item)
         root.add_widget(top)
         self.view=self.view_class()
@@ -190,23 +188,12 @@ class PolyhedralScreen(Screen):
     def _refresh(self):
         if self._cube is None:
             return
-        from ui.widgets.photo_entry import supported
-        can_scan=supported(self._cube.puzzle_kind,self._cube.n)
-        self.camera_button.disabled=not can_scan or self._job is not None or self._view_busy
-        self.camera_button.opacity=1 if can_scan else 0
-        self.camera_button.size_hint_x=.16 if can_scan else .001
         has_demo=self._cube.n<=5
         self.demo_button.disabled=not has_demo
         self.demo_button.opacity=1 if has_demo else 0
         self.status.text=tr('poly.progress',done=sum(c>=0 for c in self._cube.colors),
                             total=len(self._cube.colors))
         self.view.refresh()
-
-    def open_camera(self):
-        if self._cube is None or self._job is not None or self._view_busy:
-            return
-        from ui.widgets.photo_entry import open_existing
-        open_existing(self,self._cube)
 
     def open_demo(self):
         if self._job is not None or self._cube is None or self.demo_button.disabled:

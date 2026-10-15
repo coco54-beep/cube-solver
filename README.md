@@ -4,6 +4,17 @@
 
 [Windows and Android downloads](https://github.com/coco54-beep/cube-solver/releases/latest) · [中文技术说明](README.zh-CN.md) · [日本語](README.ja.md) · [Source code](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.24 update
+
+- Adds an offline advanced algorithm library for 2–5-layer cubes, Square-1, Skewb, Pyraminx and 3-layer Megaminx: **43 consolidated sets and 6,060 playable cases**, with prerequisites, alternatives and native 3D playback. Source attribution is a plain label.
+- Practice covers 2×2, 3×3, Square-1 and Pyraminx, with selectable sets, randomized holds/alignment, preferred algorithms, learning status and weak-case prioritization. Scrambles appear directly on the practice screen; 2×2/3×3/Square-1 attempt independently generated setups in the background and retain a legal fallback on timeout.
+- Adds OK/+2/DNF, ao5/ao12 and recent results. Viewing the answer before finishing excludes that attempt. Playback uses the actual current question.
+- Native formula finishes can shorten 3×3, Megaminx and Square-1 solutions; candidates are accepted only after full replay and a lower total move count. Fixes consecutive parenthesized Square-1 turns in displayed scrambles.
+
+**Downloads:** [Android arm64-v8a APK](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.24/cubesolver-1.2.24-arm64-v8a-debug.apk) · [Windows x64 portable ZIP](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.24/CubeSolver-1.2.24-windows-x64.zip). Extract the Windows ZIP completely and retain `_internal`. The Android APK uses the existing local debug signing key.
+
+[1.2.24 release notes](docs/release-1.2.24.md) · [Advanced library and practice](docs/advanced-formula-library.md)
+
 ## 1.2.23 update
 
 - Adds photo scanning for standard cubes and suitable irregular puzzles, **up to order five**. This limit applies to scanning; standard N-order solving still covers **6–17**.
@@ -28,7 +39,7 @@
 
 ## Abstract
 
-This project models entered puzzle states and produces move sequences with puzzle-specific validation and replay checks. In addition to conventional 2x2-5x5 cubes and an experimental 6x6-17x17 solver, the current release (1.2.23) covers a broad irregular catalog: the shape-modified Mastermorphix and Mirror Cube families (orders 2-9), Pyraminx (2-7), Skewb (3/5/7), Megaminx (2-13), Tower Cube (3-7), Dino/Lattice (2/4/6), Face-turning Octahedron (2-4), Football/Tuttminx (3/5), Icosahedron (2-5), Blossom, Ivy, Clover, and Eight-petals, Void Cube/Tower, Square-1, Mirror Tower, War Drum (2-5), Pentahedron (2-5), and the shape cubes (Axis, Pandora, Windmill, Fisher). Each family uses a geometry-aware state model rather than forcing every shape through a conventional 3x3 representation. The irregular catalog is presented as illustrated cards in a dedicated directory.
+This project models entered puzzle states and produces move sequences with puzzle-specific validation and replay checks. In addition to conventional 2x2-5x5 cubes and an experimental 6x6-17x17 solver, the current release (1.2.24) covers a broad irregular catalog: the shape-modified Mastermorphix and Mirror Cube families (orders 2-9), Pyraminx (2-7), Skewb (3/5/7), Megaminx (2-13), Tower Cube (3-7), Dino/Lattice (2/4/6), Face-turning Octahedron (2-4), Football/Tuttminx (3/5), Icosahedron (2-5), Blossom, Ivy, Clover, and Eight-petals, Void Cube/Tower, Square-1, Mirror Tower, War Drum (2-5), Pentahedron (2-5), and the shape cubes (Axis, Pandora, Windmill, Fisher). Each family uses a geometry-aware state model rather than forcing every shape through a conventional 3x3 representation. The irregular catalog is presented as illustrated cards in a dedicated directory.
 
 The engineering focus is the complete path from input to replay: geometric cubie representation, state validation, solver orchestration, move normalization, and solution checking. The project integrates established solving methods where appropriate; it does not claim a new general solution to the cube group or globally optimal solutions. Higher-order solving remains experimental and has not been comprehensively benchmarked across random states and Android devices.
 

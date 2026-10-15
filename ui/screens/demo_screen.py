@@ -35,6 +35,8 @@ def _theme():
 
 
 def _mode_title(n):
+    if n == "cfop":
+        return tr("formula.title")
     if isinstance(n, tuple):
         if n[0] in ('blossom','ivy'):
             return tr('directory.'+n[0])
@@ -49,6 +51,9 @@ DEMO_MODES = (2, 3, 4, 5, "mastermorphix")
 
 
 def _steps_for(n):
+    if n == "cfop":
+        from demo.cfop_cases import CFOP_CASES
+        return CFOP_CASES
     if isinstance(n, tuple):
         return lessons(*n)
     return {2: CASE_2X2, 3: CASE_3X3, 4: CASE_4X4, 5: CASE_5X5,
@@ -225,15 +230,16 @@ class DemoScreen(Screen):
         self.lbl_progress.color = t.text_muted
 
     # ---- 模式 / 导航 ----
-    def enter_case(self, mode, si, ci, steps=None):
+    def enter_case(self, mode, si, ci, steps=None, return_screen=None):
         """从目录跳到指定案例。"""
         self.mode = mode
+        self._return_screen = return_screen
         self._steps = steps if steps is not None else _steps_for(mode)
         self.lbl_mode.text = _mode_title(mode)
         self._si = si
         self._ci = ci
         self._show_case()
-        if self.mode == "mastermorphix" or isinstance(self.mode, tuple):
+        if 'camera' not in self._case() and (self.mode in ("cfop", "mastermorphix") or isinstance(self.mode, tuple)):
             self.view.reset_camera()
 
     def toggle_mode(self):
@@ -266,8 +272,11 @@ class DemoScreen(Screen):
         self._moves = list(case["moves"])
         self._move_index = 0
         # 聚焦：只给被移动/参与公式的块上色，其余灰色
-        self._highlight = None if "initial" in case or self.mode == "mastermorphix" or isinstance(self.mode, tuple) else _changed_homes(cube)
+        self._highlight = None if "initial" in case or case.get('show_all') or self.mode == "mastermorphix" or isinstance(self.mode, tuple) else _changed_homes(cube)
         _set_demo_cube(self.view, cube, self._highlight)
+        if 'camera' in case:
+            self.view.yaw, self.view.pitch, self.view.roll = case['camera']
+            self.view.refresh()
         self._refresh_case_text()
         self._update_controls()
 
@@ -325,7 +334,11 @@ class DemoScreen(Screen):
         self._start_move(self._moves[self._move_index], self._move_index + 1)
 
     def _start_move(self, move, target_index):
-        self._queue = list(decompose_move(move, self._work.n)) if isinstance(move, str) else []
+        if isinstance(move, str) and getattr(self._work, 'standard_notation', False):
+            from demo.formula_notation import animation_steps
+            self._queue = list(animation_steps(move, self._work))
+        else:
+            self._queue = list(decompose_move(move, self._work.n)) if isinstance(move, str) else []
         self._busy = True
         self._pending_index = target_index
         self._pending_move = move
@@ -364,7 +377,7 @@ class DemoScreen(Screen):
                 return
             self.view.start_turn(step.axis,step.layers[0],step.angle,dur,
                                  on_done=lambda:self._after_turn(step),layer_positions=step.layers,
-                                 include_fixed_centers=step.move_str[:1] in ('x','y','z'))
+                                 include_fixed_centers=getattr(self._work, 'standard_notation', False) or step.move_str[:1] in ('x','y','z'))
         follow_turn(self.view,layer_target(step.axis,step.layers),begin)
 
     def _after_turn(self, step):
@@ -422,6 +435,9 @@ class DemoScreen(Screen):
 
     def go_menu(self):
         self._stop()
+        if getattr(self, '_return_screen', None):
+            self.manager.current = self._return_screen
+            return
         self.manager.get_screen("DemoMenuScreen").set_mode(self.mode)
         self.manager.current = "DemoMenuScreen"
 

@@ -140,7 +140,9 @@ def test_mixed_axis_angles_and_turn_labels_are_unambiguous(kind,n):
         assert f'+{360/spec.order(axis):g}°' in s
         reverse=forward.inverse(spec.turn_order)
         if spec.order(axis)>2: assert '-' in token(reverse,spec)
-    assert len(lessons(kind,n)[0]['cases'])==3
+    # Typical-case formula lessons may replace the old three axis examples.
+    assert lessons(kind,n)[0]['cases']
+    assert all(case['moves'] for case in lessons(kind,n)[0]['cases'])
 
 
 @pytest.mark.parametrize('move',('R','r','3R2','M',"E'",'S2','x','3U'))

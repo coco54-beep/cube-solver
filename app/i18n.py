@@ -55,6 +55,9 @@ CATALOG = {
         "home.card.5.title": "5 阶魔方",
         "home.card.5.desc": "还原教授魔方（Professor's Cube）",
         "home.help": "使用说明",
+        "formula.home": "公式库",
+        "formula.title": "三阶 CFOP 情景公式",
+        "formula.hint": "按 Cross、F2L、OLL、PLL 分类。点开案例后，对照图示判断情况，再逐步播放公式。",
         "home.version": "版本 {version}",
         "home.settings": "设置",
 
@@ -258,6 +261,9 @@ CATALOG = {
         "home.card.5.title": "5×5 Cube",
         "home.card.5.desc": "Solve the Professor's Cube",
         "home.help": "Help",
+        "formula.home": "Algs",
+        "formula.title": "3×3 CFOP formula cases",
+        "formula.hint": "Cases are grouped into Cross, F2L, OLL, and PLL. Match the pictured state, then play the formula step by step.",
         "home.version": "Version {version}",
         "home.settings": "Settings",
 
@@ -468,6 +474,9 @@ CATALOG = {
         "home.card.5.title": "5×5 キューブ",
         "home.card.5.desc": "プロフェッサーキューブを解く",
         "home.help": "使い方",
+        "formula.home": "公式集",
+        "formula.title": "3×3 CFOP 状況別公式",
+        "formula.hint": "Cross、F2L、OLL、PLLに分類しています。図の状態を見分けて、公式を一手ずつ再生できます。",
         "home.version": "バージョン {version}",
         "home.settings": "設定",
 

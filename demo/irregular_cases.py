@@ -4,6 +4,7 @@ Examples start from the inverse of the displayed sequence, like the ordinary
 cube lessons. No example reads, scrambles, or changes the user's input draft.
 """
 from functools import lru_cache
+from copy import deepcopy
 
 from cube.polyhedral import PolyhedralPuzzle, Move
 from demo.cases import CASE_2X2, CASE_3X3, CASE_4X4, CASE_5X5
@@ -111,6 +112,8 @@ def text(zh, en, ja=None):
 def token(move,spec=None):
     if isinstance(move,str):
         return move
+    if getattr(move, 'notation', None):
+        return move.notation
     if move.__class__.__name__=='Square1Move':
         return str(move)
     label=f'A{move.axis+1}:{move.layer+1}'
@@ -131,6 +134,113 @@ def step(title, desc, cases):
     return {'title':title, 'desc':desc, 'cases':cases}
 
 
+def _piece_group_names(size):
+    return {
+        1:('单色中心块','single-colour centre','単色センター'),
+        2:('双色棱块','two-colour edge','2色エッジ'),
+        3:('三色角块','three-colour corner','3色コーナー'),
+    }.get(size,(f'{size}色块',f'{size}-colour piece',f'{size}色ピース'))
+
+
+def _cycle_formula_lessons(cube):
+    """Expose solver-certified three-cycle macros as typical-case lessons."""
+    from solver.polyhedral import piece_orbits
+    from solver.lattice_data import geometry_key
+
+    kind,n=cube.puzzle_kind,cube.n
+    records={}
+    if kind=='dino' and n in (4,6):
+        from solver.lattice_data import _data
+        record=_data().get(str(n),{})
+        if record.get('geometry')==geometry_key(cube.geometry):
+            records=record.get('cycles',{})
+    elif kind=='fto':
+        from solver.fto import _cycle_assets
+        record=_cycle_assets().get(str(n),{})
+        if record.get('geometry')==geometry_key(cube.geometry):
+            records=record.get('cycles',{})
+    elif kind=='football':
+        from solver.football import _assets
+        record=_assets().get(str(n),{})
+        if record.get('geometry')==geometry_key(cube.geometry):
+            records=dict(record.get('cycles',{}))
+            if record.get('edge_cycle'):
+                records['edge']=record['edge_cycle']
+    elif kind=='icosahedron':
+        from solver.icosahedron import _cycles
+        record=_cycles().get(str(n),{})
+        if record.get('geometry')==geometry_key(cube.geometry):
+            records=record.get('cycles',{})
+    elif kind=='megaminx' and n>=4:
+        from solver.minx_plans import orbit_plan
+        orbits=piece_orbits(kind,n)
+        targets={i:orbit for i,orbit in enumerate(orbits) if len(orbit)>1}
+        prepared=orbit_plan(cube,targets)
+        if prepared and not prepared[2]:
+            macros,_,_=prepared
+            records={str(i):{'word':[[m.axis,m.layer,m.amount] for m in word],
+                             'base':list(base)}
+                     for i,(word,base) in macros.items()}
+    elif kind in ('clover','eight_petals','ivy','moyu','pyraminx','skewb',
+                  'void_cube','void_tower','war_drum','pentahedron'):
+        # Derive exact, isolated three-cycle formulas from each puzzle's own
+        # geometry instead of reusing a cube algorithm with mismatched turns.
+        from solver.polyhedral_reduction import primitives
+        orbits=piece_orbits(kind,n)
+        targets={}
+        macros={}
+        seen_sizes=set()
+        for index,orbit in enumerate(orbits):
+            if len(orbit)<3:
+                continue
+            size=len(cube.geometry.pieces[orbit[0]])
+            if size in seen_sizes:
+                continue
+            try:
+                # Some piece orbits (notably tetrahedral face references)
+                # cannot cycle independently. Keep searching other orbits of
+                # the same piece type rather than aborting the entire lesson.
+                candidate=primitives(cube,{index:orbit},use_prepared=True)
+            except ValueError:
+                continue
+            targets[index]=orbit
+            macros.update(candidate)
+            seen_sizes.add(size)
+            if len(targets)>=(1 if kind in ('war_drum','pentahedron') else 3):
+                break
+        if targets:
+            records={str(i):{'word':[[m.axis,m.layer,m.amount] for m in word],
+                             'base':list(base)}
+                     for i,(word,base) in macros.items()}
+
+    if not records:
+        return None
+    g=cube.geometry
+    cases=[]
+    for key,record in sorted(records.items(),key=lambda item:str(item[0])):
+        try:
+            base=tuple(int(piece) for piece in record['base'])
+            word=tuple(Move(*move) for move in record['word'])
+            if len(base)!=3 or not word or any(not 0<=p<len(g.pieces) for p in base):
+                continue
+        except (KeyError,TypeError,ValueError):
+            continue
+        group_zh,group_en,group_ja=_piece_group_names(len(g.pieces[base[0]]))
+        title=text(f'{group_zh}三块循环',f'{group_en} three-cycle',f'{group_ja} 3点交換')
+        item=case(title,word,text(
+            '本例只有这一组的三块循环错位，其余块已还原。按图示方向拿稳魔方，再完整执行公式。',
+            'This case has a three-cycle in this piece group while the other pieces are solved. Hold the puzzle as shown and complete the formula.',
+            '本例ではこのピース組の3個だけが循環し、他は揃っています。図と同じ向きで持ち、公式を最後まで実行します。'))
+        item['text']='  '.join(token(move,g.spec) for move in word)
+        cases.append(item)
+    if not cases:
+        return None
+    return [step(text('典型情况：三块循环错位','Typical case: three-cycle','典型例：3点交換'),text(
+        '先识别同一类块中仅有三块循环错位的情形。每条公式针对图示的一组位置；公式结束后，这三块归位，其他块保持不动。',
+        'Recognize a three-cycle in one piece group with the rest solved. Each formula targets the positions shown; it restores those three pieces and leaves the others fixed.',
+        '他が揃った状態で、同じピース組の3個だけが循環している場合を見分けます。各公式は図の位置に対応し、3個を戻して他を保ちます。'),cases)]
+
+
 @lru_cache(maxsize=32)
 def lessons(kind,n):
     if not 2<=n<=5:
@@ -138,40 +248,62 @@ def lessons(kind,n):
     if kind=='square1':
         from cube.square1 import Square1Move
         return [
-            step(text('上下层转动','Top and bottom turns'),text(
-                'SQ1 的上下层可以分别转动；先观察块的位置变化，再尝试反向转回。',
-                'Turn the top and bottom layers independently, then reverse the turn.'),[
-                case(text('上层转动','Turn the top layer'),(Square1Move(0,3),),text(
-                    '一步转动后观察棱块和角块的排列。','Observe the edge and corner order after one turn.')),
-                case(text('下层转动','Turn the bottom layer'),(Square1Move(1,-2),),text(
-                    '下层按自己的方向记号转动。','The bottom layer uses its own turn direction.'))]),
-            step(text('斜切与形状变化','Slash and shape change'),text(
-                '上下层转到切口处没有跨界的角块后才能斜切。斜切会交换两层的一半，再转回可恢复原状。',
-                'The slash is legal only when no corner crosses the cut. It swaps half of each layer.'),[
-                case(text('转层后斜切复原','Align layers, then restore with a slash'),
+            step(text('典型情况：立方体外形复原','Typical case: restore cube shape','典型例：立方体形状への復元'),text(
+                '识别上下层各偏一格、切口对齐且可以斜切的状态。按公式先转上层和下层，再斜切；每个层转单位为30°。',
+                'Use this when the top and bottom are each offset by one unit and the cut is aligned. Turn both layers, then slash; each unit is 30 degrees.',
+                '上下層がそれぞれ1単位ずれ、切断位置が揃った状態で使います。上下層を回してから斜め切断します。1単位は30°です。'),[
+                case(text('上下层错位一格','Both layers offset by one unit','上下層が1単位ずれた場合'),
                      (Square1Move(0,1),Square1Move(1,-1),Square1Move(2)),text(
-                    '本例从变形状态开始；按顺序执行三个动作恢复立方体外形。每个转层单位是30°。',
-                    'This example starts with a changed shape. All three moves restore the cube shape; each layer unit is 30 degrees.'))])]
+                    '只适用于模型显示的这一种切口对齐状态。先确认斜切没有被角块挡住，再完整执行公式恢复立方体外形。',
+                    'This formula is for the exact aligned shape shown. Confirm no corner blocks the slash, then complete the formula to restore cube shape.',
+                    '表示された切断位置が揃った形にのみ適用します。角が切断を妨げないことを確認し、公式を最後まで実行します。')),
+                case(text('反向错位一格','Reverse one-unit offset','逆向きに1単位ずれた場合'),
+                     (Square1Move(0,-1),Square1Move(1,1),Square1Move(2)),text(
+                    '适用于上下层错位方向相反的对应状态；先核对模型方向和切口，再执行。',
+                    'Use for the mirrored offset shown. Check the model orientation and cut alignment before following the formula.',
+                    '上下層のずれ方向が逆の状態に使います。モデルの向きと切断位置を確認してから実行します。'))])]
     if kind in ('axis','pandora','windmill','fisher'):
         names={'axis':('轴心魔方','Axis Cube','アクシスキューブ'),'pandora':('潘多拉魔方','Pandora Cube','パンドラキューブ'),
                'windmill':('风火轮魔方','Windmill Cube','ウィンドミルキューブ'),'fisher':('移棱魔方','Fisher Cube','フィッシャーキューブ')}
         zh,en,ja=names[kind]
-        return [step(text('观察外形与转层','Shape and layer turns'),text(
-            f'{zh}使用三阶立方体转层结构。先观察转动后外形和色块如何改变，再完成公式回到示例起始状态。',
-            f'{en} uses a three-layer cube mechanism. Observe the changing shape and stickers, then complete each formula.',
-            f'{ja} は3層の立方体機構です。回転で外形とステッカーがどう変わるかを観察し、公式を完了すると例の初期状態に戻ります。'),[            case(text('右层转动','Right-layer turn'),('R',),text(
-                '观察右侧结构转动。','Observe the right-side pieces turn.')),
-            case(text('连续转动与复位','Turn sequence and restoration'),('U','R',"U'","R'"),text(
-                '完整执行公式后观察形状和色块复位。','Complete the sequence to restore the example state.'))])]
+        # These shape modifications retain the ordinary 3x3 layer mechanism.
+        # Teach the same recognizable layer-by-layer cases and algorithms,
+        # while reminding learners to match the physical shape as well as colour.
+        result=deepcopy(CASE_3X3)
+        result[0]=dict(result[0],desc=text(
+            f'{zh}沿用三阶转层结构。按贴纸颜色和块形状一起识别白底棱块，把白色棱块对到相邻面后用半圈归底。',
+            f'{en} keeps the 3x3 layer mechanism. Identify each white edge by both sticker colours and piece shape, align its side colour, then turn it into the bottom layer.',
+            f'{ja} は3×3の層回転機構です。色とピース形状で白い辺を見分け、側面色を合わせてから半回転で底面に入れます。'))
+        result[1]=dict(result[1],desc=text(
+            '先完成底层十字，再按目标角块的颜色与形状识别插入方向；白色朝右、朝前和角块反向时分别套用对应公式。',
+            'After the bottom cross, identify the corner by its colours and shape. Choose the matching insertion formula for white facing right, facing front, or a reversed corner.',
+            '底面の十字を作り、色と形で角を見分けます。白が右向き・前向き・逆向きの場合に対応する挿入公式を使います。'))
+        result[2]=dict(result[2],desc=text(
+            '目标棱块在顶层且侧色对正时，按所在位置使用右插或左插公式；中层棱反向时先取出，再转顶层后插回。',
+            'When the target edge is in the top layer, align its side colour and use the right- or left-insertion algorithm. If a middle edge is flipped, take it out, turn the top, then insert it again.',
+            '対象の辺が上層にある場合、側面色を合わせて右または左の挿入公式を使います。中段の辺が反転していたら、一度取り出して上層を回してから戻します。'))
+        for item in result:
+            item['desc']=dict(item['desc']) if isinstance(item['desc'],dict) else text(item['desc'],item['desc'],item['desc'])
+            item['desc']['zh'] += ' 本例图示公式适用于当前标出的状态；先按示例方向拿稳魔方，再逐步跟做。'
+            item['desc']['en'] += ' The displayed algorithm applies to the illustrated case; hold the puzzle in the shown orientation and follow it move by move.'
+            item['desc']['ja'] += ' 表示された公式は図の状態に適用します。図と同じ向きで持ち、一手ずつ進めてください。'
+        return result
     if kind=='mirror_tower':
-        moves=(Move(0,0),Move(1,0))
-        return [step(text('观察银色块与转层','Silver pieces and layers'),text(
-            '魔塔魔方以块的尺寸和朝向作为录入信息。按转轴和层号逐步观察银色块的位置及朝向变化。',
-            'The Mirror Tower records piece size and orientation. Follow each axis and layer to observe piece movement.'),[
-            case(text('外层转动','Outer-layer turn'),(moves[0],),text(
-                '观察外层银色块移动和朝向变化。','Observe the silver pieces move and change orientation.')),
-            case(text('相邻转层','Adjacent layer turn'),moves,text(
-                    '完整执行两次转动后，银色块回到本例的还原外形。','Both displayed turns restore the silver pieces in this example.'))])]
+        a,b=Move(0,0),Move(1,0)
+        commutator=(a,b,a.inverse(3),b.inverse(3))
+        reverse=(b,a,b.inverse(3),a.inverse(3))
+        return [step(text('典型情况：相邻转轴公式','Typical case: adjacent-axis formula','典型例：隣接軸の公式'),text(
+            '镜面魔塔按块的尺寸和朝向识别位置。先在模型上找到与案例相同的尺寸排列，再照公式逐步执行。此处每条公式对应模型展示的具体状态；×2表示反向转120°。',
+            'Identify positions by piece size and orientation. Match the arrangement shown in the model, then follow the formula. Each formula applies to its displayed state; ×2 means a reverse 120-degree turn.',
+            'ピースの大きさと向きで位置を見分けます。モデルの配置を確認してから公式を実行してください。各公式は表示状態に対応し、×2は120°の逆回転です。'),[
+            case(text('相邻轴 A B A⁻¹ B⁻¹','Adjacent-axis A B A⁻¹ B⁻¹','隣接軸 A B A⁻¹ B⁻¹'),commutator,text(
+                '先辨认模型展示的块形与尺寸错位，再按标出的两条转轴和层号执行完整公式。',
+                'Match the piece shapes and size offsets shown, then complete the formula using the labelled axes and layers.',
+                '表示されたピース形状と大きさのずれを確認し、軸と層番号に従って公式を最後まで実行します。')),
+            case(text('反向相邻轴 A B A⁻¹ B⁻¹','Reverse adjacent-axis A B A⁻¹ B⁻¹','逆向きの隣接軸 A B A⁻¹ B⁻¹'),reverse,text(
+                '适用于模型展示的反向排列。对照尺寸和朝向，确认与当前情况一致后再执行。',
+                'Use for the reversed arrangement shown. Compare the sizes and orientations before applying it.',
+                '表示された逆向きの配置に使います。大きさと向きが現在の状態に合うことを確認してください。'))])]
     if kind=='mirror':
         originals={2:CASE_2X2,3:CASE_3X3,4:CASE_4X4,5:CASE_5X5}[n]
         result=[]
@@ -253,6 +385,9 @@ def lessons(kind,n):
                                     '观察完整八步后的效果；中间动作会暂时移动其他块。',
                                     'Observe the effect after all eight moves. Other pieces move temporarily.'))
                     for i,macro in enumerate(cycles)])]
+    formula_lessons=_cycle_formula_lessons(cube)
+    if formula_lessons:
+        return formula_lessons
     inverse=lambda move:move.inverse(g.spec.turn_order)
     # Pyraminx tip layer and body layer are different legal bands.
     body_layer=next((i for i,b in enumerate(g.layers[0]) if len(b)>1),0)
@@ -275,6 +410,19 @@ def lessons(kind,n):
             f'This axis turns by {360//g.spec.order(other)} degrees; select its labelled axis.',
             f'本軸の最小回転角は{360//g.spec.order(other)}°です。動作の軸番号で選択します。')))
     if kind=='dino':
+        if n==2:
+            return [step(text('典型情况：三条棱循环错位','Typical case: three cycled edges','典型例：3本の辺が循環'),text(
+                '二阶恐龙魔方每次角转会循环相邻三条棱。当图示这组三条棱循环错位、其余块已复原时，按对应方向执行一次120°转动。',
+                'Each order-two Dino corner turn cycles three adjacent edges. When the three edges shown are cycled and the rest is solved, use the matching 120° turn.',
+                '2段ダイノの角回転は隣接する3本の辺を巡回させます。図の3本だけが循環し、他が揃っている場合、対応する向きに120°回します。'),[
+                case(text('三棱正向循环','Cycle three edges forward','3本の辺を順方向に循環'),(a,),text(
+                    '本例由该转动的逆公式构造；看清图示角轴，正向转一次即可复原。',
+                    'This case is built from the inverse turn. Match the shown corner axis and turn forward once to solve it.',
+                    '本例は回転の逆操作から作っています。図の角軸を合わせて1回回すと揃います。')),
+                case(text('三棱反向循环','Cycle three edges backward','3本の辺を逆方向に循環'),(inverse(a),),text(
+                    '与正向情况相反，按图示角轴反向转一次。',
+                    'This is the opposite cycle; turn the shown corner axis in reverse once.',
+                    '正方向とは逆の循環です。図の角軸を反対向きに1回回します。'))])]
         result[0]=dict(result[0],title=text('恐龙与格子的角转结构','Dino / Lattice corner turns'),desc=text(
             '恐龙魔方与格子魔方同属一组：恐龙以12个双色棱块为主体，格子在相同的八个角转方向上增加切层。'
             '每次转动120°；本组使用浅切的恐龙结构。A1至A8对应拧动页的转轴编号。',
@@ -282,13 +430,18 @@ def lessons(kind,n):
             'edges; Lattice variants add layers to this mechanism. Each turn is 120 degrees. A1 through A8 '
             'match the twist-page axes.'))
     if kind=='ivy':
-        result[0]=step(text('四个转角和六片叶形块','Four corners and six leaf centres'),text(
-            '枫叶魔方的四个相间角可转动120°。每次转动一个三色角块，并循环移动相邻三片叶形块。'
-            'A1至A4对应拧动页的四个转轴；观察角块的三色朝向，再观察叶形块的移动。',
-            'Four alternating corners turn by 120 degrees. Each turn rotates one three-colour corner '
-            'and cycles its three neighbouring leaf centres. A1 through A4 match the four twist-page axes.'),[
-                case(text('角块正转120°','Corner turn 120°'),(a,),notation),
-                case(text('角块反转120°','Reverse corner turn 120°'),(inverse(a),),notation)])
+        result[0]=step(text('典型情况：角块和三片叶错位','Typical case: corner and three leaves','典型例：角と3枚の葉がずれている'),text(
+            '当一个三色角块及其相邻三片叶形块呈现图示循环错位、其余块已还原时，执行该角轴的120°公式。A1至A4对应拧动页的四个转轴。',
+            'When one three-colour corner and its three neighbouring leaves have the cycle shown while the rest is solved, apply the 120° algorithm for that corner axis. A1–A4 match the twist-page axes.',
+            '3色コーナー1個と隣接する葉3枚だけが図のように循環している場合、その角軸の120°公式を使います。A1〜A4は回転画面の軸番号です。'),[
+                case(text('角轴正转归位','Solve with a forward corner turn','角軸を正回転して戻す'),(a,),text(
+                    '本例由该转动的逆公式构造；先找到图中错位的角和叶，再按相同方向转一次。',
+                    'This case is built from the inverse turn. Locate the displaced corner and leaves shown, then turn the same axis once.',
+                    '本例は回転の逆操作から作っています。図の角と葉を見つけ、同じ軸を1回回します。')),
+                case(text('角轴反转归位','Solve with a reverse corner turn','角軸を逆回転して戻す'),(inverse(a),),text(
+                    '若循环方向与上一例相反，使用反向公式。',
+                    'Use the reverse algorithm when the cycle runs opposite to the previous case.',
+                    '循環方向が前の例と逆の場合は、逆向きの公式を使います。'))])
     if kind=='pyraminx':
         tips=[Move(i,0,g.spec.step(i)) for i,layers in enumerate(g.layers) if len(layers[0])==1]
         if tips:

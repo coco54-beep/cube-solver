@@ -11,7 +11,12 @@ from kivy.clock import Clock
 import ui.screens.playback_screen as ps
 from ui.screens.playback_screen import PlaybackScreen
 
-ps._app = lambda: types.SimpleNamespace(n=4)
+@pytest.fixture(autouse=True)
+def playback_app(monkeypatch):
+    from cube.cube4 import Cube4
+    from app.theme import Theme
+    app = types.SimpleNamespace(n=4, cube=Cube4.solved(), theme=Theme())
+    monkeypatch.setattr(ps, '_app', lambda: app)
 
 
 class _FakeView:

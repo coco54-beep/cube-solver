@@ -10,6 +10,8 @@ def solved_demo_cube(mode):
     from cube.cube3 import Cube3
     from cube.cube4 import Cube4
     from cube.cube5 import Cube5
+    if mode == 'cfop':
+        mode = 3
     if isinstance(mode,int):
         return {2:Cube2,3:Cube3,4:Cube4,5:Cube5}[mode].solved(TEACHING_COLORS)
     kind,n=('mastermorphix',3) if mode=='mastermorphix' else mode

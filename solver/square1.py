@@ -330,5 +330,9 @@ def solve_square1(cube,cancel=None,progress=None,optimize_budget=.2):
             replay.apply_moves(solution)
             if not replay.is_solved():
                 raise ValueError('square1.error.replay')
+            if optimize_budget > 0:
+                from solver.formula_finishes import shorten
+                solution = shorten('SQ1', cube, solution, cancel,
+                                   budget=min(.2, optimize_budget))
             return solution
     raise ValueError('square1.error.illegal')

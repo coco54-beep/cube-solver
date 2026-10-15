@@ -17,7 +17,7 @@ for package in ('app','cube','demo','renderer','services','solver','ui','vision'
     hidden.extend(collect_submodules(package))
 hidden.extend(('kivy_deps.angle','kivy_deps.glew','kivy_deps.sdl2'))
 datas=[]
-for folder in ('assets','solver','ui','docs','twophase'):
+for folder in ('assets','solver','ui','docs','twophase','demo'):
     for path in (root/folder).rglob('*'):
         if path.is_file() and '__pycache__' not in path.parts and path.suffix not in ('.py','.pyc','.log'):
             datas.append((str(path),str(path.relative_to(root).parent)))

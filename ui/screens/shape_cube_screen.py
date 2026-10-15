@@ -13,20 +13,6 @@ class ShapeCubeScreen(MirrorScreen):
     cube_class=AxisCube
     view_class=AxisView
 
-    def build_ui(self):
-        super().build_ui()
-        from ui.widgets.buttons import UIButton
-        self.camera_button=UIButton(icon_name='camera',size_hint_x=.16)
-        self.camera_button.bind(on_release=lambda *_:self.open_camera())
-        header=self.title.parent
-        header.add_widget(self.camera_button,index=header.children.index(self.demo_button)+1)
-
-    def open_camera(self):
-        if self._cube is None or self._busy_turn:
-            return
-        from ui.widgets.photo_entry import open_existing
-        open_existing(self,self._cube)
-
     def _blank(self,palette):
         super()._blank(palette)
         if self._cube.puzzle_kind!='football':
@@ -120,10 +106,6 @@ class ShapeCubeScreen(MirrorScreen):
     def _refresh(self):
         super()._refresh()
         if self._cube is not None:
-            can_scan=self._cube.puzzle_kind=='pandora' and self._cube.n==3
-            self.camera_button.disabled=not can_scan
-            self.camera_button.opacity=1 if can_scan else 0
-            self.camera_button.size_hint_x=.16 if can_scan else .001
             from ui.screens.mastermorphix_screen import _Swatch
             visible=self._cube.puzzle_kind!='football'
             self.palette_row.height=m.h(44) if visible else 0

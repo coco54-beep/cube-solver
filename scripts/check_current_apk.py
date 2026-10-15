@@ -36,9 +36,9 @@ def main():
                    *[p for p in (root/'solver').rglob('*') if p.suffix in ('.bin','.pkl','.json') and p.is_file()]]:
         relative=source.relative_to(root).as_posix()
         expected[relative]=digest(source.read_bytes())
-    for folder in ('assets','ui','twophase'):
+    for folder in ('assets','ui','twophase','demo'):
         for source in (root/folder).rglob('*'):
-            if (source.is_file() and (source.suffix in ('.kv','.ttf','.png','.jpg')
+            if (source.is_file() and (source.suffix in ('.kv','.ttf','.png','.jpg','.json')
                                      or (folder=='twophase' and not source.suffix))):
                 expected[source.relative_to(root).as_posix()]=digest(source.read_bytes())
     verified=[]

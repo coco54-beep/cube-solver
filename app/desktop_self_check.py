@@ -40,7 +40,22 @@ def run(report_path):
         targets={i:o for i,o in enumerate(piece_orbits('megaminx',n)) if len(o)>1}
         assert orbit_plan(cube,targets) is not None,n
     assert MAX_N==17
+    from demo.algorithm_library import catalog
+    from solver.formula_finishes import _tables
+    from demo.practice import PracticeSession
+    from demo.learning import LearningProgress
+    formula_cases=sum(len(group['cases']) for group in catalog()['sets'])
+    assert formula_cases==6060
+    finishes,_=_tables()
+    assert all(finishes.get(p) for p in ('3x3','Megaminx','SQ1'))
+    practice=PracticeSession(progress=LearningProgress(),clock=lambda:10.)
+    practice.configure('2x2',['CLL'])
+    practice.next_question()
+    assert practice.start()
+    assert practice.stop() is not None and practice.penalty('+2')
+    assert practice.stats()['best']==2.
     data={'status':'pass','version':APP_VERSION,'max_n':MAX_N,'samples':results,
-          'minx_precomputed_orders':list(range(4,14))}
+          'minx_precomputed_orders':list(range(4,14)), 'formula_cases':formula_cases,
+          'formula_finish_states':{p:len(rows) for p,rows in finishes.items()},'practice':'pass'}
     Path(report_path).write_text(json.dumps(data,indent=2),encoding='utf-8')
     return data

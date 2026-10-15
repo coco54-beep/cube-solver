@@ -19,7 +19,7 @@ def main():
     destination.mkdir(parents=True)
     extensions={'.py','.kv','.png','.jpg','.json','.txt','.bin','.md','.ttf','.pkl'}
     sources=[root/name for name in ('main.py','primitives.py','joint_dist.bin','p4_table.bin',
-                                  'README.md','README.zh-CN.md','LICENSE')]
+                                  'README.md','README.zh-CN.md','README.ja.md','LICENSE')]
     for folder in ('app','assets','cube','demo','docs','renderer','services','solver','ui','vision','twophase','kociemba-src'):
         for source in (root/folder).rglob('*'):
             if (source.is_file() and '__pycache__' not in source.parts

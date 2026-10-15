@@ -11,7 +11,7 @@
 - 頂点と切れ目を合わせ、モデルの全体回転アニメーションに従って面を切り替えます。不確かな色はモデル上で修正でき、色の校正は手動修正を保持して撮影済みの面を更新します。二十面体は20色、Footballは32色の参照番号を使います。
 - Android のシステム写真選択画面に対応し、カメラ映像と選択枠の位置を修正しました。**新しい変形テンプレートの実写精度は未検証です。** 鏡面、形状が変わる外形、曲面、ジャンブリング状態は固定平面テンプレートの対象外です。
 
-**Android arm64-v8a：** [1.2.23 試用 APK](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.23/cubesolver-1.2.23-arm64-v8a-debug.apk)。**Windows x64：** [1.2.23 のリリース資産](https://github.com/coco54-beep/cube-solver/releases/tag/v1.2.23)から便携 ZIP を取得し、全体を展開して `_internal` を残してください。
+**Android arm64-v8a：** [1.2.23 試用 APK](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.23/cubesolver-1.2.23-arm64-v8a-debug.apk)。**Windows x64：** [1.2.23 のリリース資産](https://github.com/coco54-beep/cube-solver/releases/tag/v1.2.23)からポータブル ZIP を取得し、全体を展開して `_internal` を残してください。
 
 [1.2.23 リリースノート](docs/release-1.2.23.md) · [写真読み取りの対応表と手順](docs/photo-scan.md) · [Windows ビルド手順](docs/windows.md)
 
@@ -28,7 +28,7 @@
 
 ## 概要
 
-本プロジェクトは、入力されたパズル状態をモデル化し、パズルごとの検証と回放チェックを伴う手順列を生成します。通常の 2×2〜5×5 と実験的な 6×6〜17×17 に加え、現行版（1.2.22）は幅広い変形パズルを収録します：形状変化した Mastermorphix / Mirror Cube 系（2〜9段）、Pyraminx（2〜7）、Skewb（3/5/7）、Megaminx（2〜13）、Tower Cube（3〜7）、Dino / Lattice（2/4/6）、面回転八面体（2〜4）、Football / Tuttminx（3/5）、Icosahedron（2〜5）、Blossom、Ivy、Clover、Eight-petals、Void Cube / Tower、Square-1、Mirror Tower、ウォードラム（2〜5）、五面体（2〜5）、および形状キューブ（Axis / Pandora / Windmill / Fisher）。各系統は、すべてを通常の 3×3 表現に押し込むのではなく、幾何に基づく状態モデルを使います。変形カタログは、専用ディレクトリ内の図付きカードとして表示されます。
+本プロジェクトは、入力されたパズル状態をモデル化し、パズルごとの検証と回放チェックを伴う手順列を生成します。通常の 2×2〜5×5 と実験的な 6×6〜17×17 に加え、現行版（1.2.23）は幅広い変形パズルを収録します：形状変化した Mastermorphix / Mirror Cube 系（2〜9段）、Pyraminx（2〜7）、Skewb（3/5/7）、Megaminx（2〜13）、Tower Cube（3〜7）、Dino / Lattice（2/4/6）、面回転八面体（2〜4）、Football / Tuttminx（3/5）、Icosahedron（2〜5）、Blossom、Ivy、Clover、Eight-petals、Void Cube / Tower、Square-1、Mirror Tower、ウォードラム（2〜5）、五面体（2〜5）、および形状キューブ（Axis / Pandora / Windmill / Fisher）。各系統は、すべてを通常の 3×3 表現に押し込むのではなく、幾何に基づく状態モデルを使います。変形カタログは、専用ディレクトリ内の図付きカードとして表示されます。
 
 エンジニアリングの重点は、入力から回放までの一連の流れです：幾何キュービー表現、状態検証、解法の段階制御、手順の正規化、解のチェック。本プロジェクトは適切な箇所で既存の解法を取り込んでおり、キューブ群に対する新しい一般解や大域的最短解を主張するものではありません。高次の解法は実験的で、ランダム状態や Android 実機での網羅的な評価は未完了です。
 

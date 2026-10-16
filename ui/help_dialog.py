@@ -92,7 +92,7 @@ def show_help():
     # 标题栏：标题 + 强调色横条
     header = BoxLayout(orientation="vertical", size_hint_y=None,
                        height=m.h(62), padding=[22, 14, 22, 6])
-    t = Label(text=tr("help.title"), font_size=m.font(20), bold=True, halign="left",
+    t = Label(text=tr("help.title"), font_size=m.font(24), bold=True, halign="left",
               valign="middle", color=theme.text, size_hint_y=1)
     header.add_widget(t)
 
@@ -118,9 +118,9 @@ def show_help():
     for sec_title, body in _help_sections():
         card = BoxLayout(orientation="vertical", size_hint_y=None,
                          spacing=2, padding=[14, 10, 14, 10])
-        ct = Label(text=sec_title, font_size=m.font(17), bold=True, halign="left",
+        ct = Label(text=sec_title, font_size=m.font(20), bold=True, halign="left",
                    valign="middle", color=theme.text)
-        cb = Label(text=body, font_size=m.font(14), halign="left", valign="top",
+        cb = Label(text=body, font_size=m.font(18), halign="left", valign="top",
                    color=theme.text)
         _autofit(ct, pad=6)
         _autofit(cb, pad=6)
@@ -151,7 +151,7 @@ def show_help():
 
     # 底部：关闭按钮
     foot = BoxLayout(size_hint_y=None, height=m.h(62), padding=[22, 10, 22, 14])
-    close = PrimaryButton(text=tr("help.close"), font_size=m.font(16))
+    close = PrimaryButton(text=tr("help.close"), font_size=m.font(18))
     foot.add_widget(close)
     panel.add_widget(foot)
 

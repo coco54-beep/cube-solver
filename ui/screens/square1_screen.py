@@ -6,6 +6,7 @@ from kivy.clock import Clock
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import Screen
+from ui.screens.entry_mixin import EntryActionsMixin
 from kivy.uix.slider import Slider
 
 from app.i18n import tr
@@ -25,7 +26,7 @@ def _app():
     return App.get_running_app()
 
 
-class Square1Screen(Screen):
+class Square1Screen(EntryActionsMixin, Screen):
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
         self._cube=None
@@ -124,7 +125,7 @@ class Square1Screen(Screen):
             panel.add_widget(row)
             row=ResponsiveBoxLayout(height_px=44,gap_px=6)
             for icon,callback,cls in (('random',self.randomize,UIButton),('clear',self.clear,DangerButton),
-                                      ('undo',self.undo,UIButton),('check',self.validate,UIButton),('solve',self.solve,PrimaryButton)):
+                                      ('undo',self.undo,UIButton),('target',self.assign_initial,UIButton),('solve',self.solve,PrimaryButton)):
                 self._button(row,icon,callback,cls)
             panel.add_widget(row)
         else:
@@ -328,6 +329,26 @@ class Square1Screen(Screen):
         except ValueError as exc:
             self._refresh(tr(str(exc)))
             return False
+
+    # ---- EntryActionsMixin 钩子 ----
+    def entry_can_assign(self):
+        return self._job is None and self.view._move is None
+
+    def entry_reset_solved(self):
+        self._remember()
+        solved=Square1Cube.solved()
+        self._entry=Square1Entry(solved,colored=True)
+        self._slot=self._entry.block_start(0)
+        self._field=0
+        entered=self._entry.to_cube()
+        self._cube.slots,self._cube.middle=entered.slots,entered.middle
+
+    def entry_commit_state(self):
+        _app().cube=self._cube
+        self._refresh()
+
+    def entry_set_status(self, text, error=False):
+        self.status.text=text
 
     def solve(self):
         if self._job is not None or self.view._move is not None or not self.validate():

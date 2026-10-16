@@ -12,6 +12,7 @@ from kivy.uix.label import Label
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.screenmanager import Screen
 
+from ui.screens.entry_mixin import EntryActionsMixin
 from ui.widgets.buttons import UIButton, PrimaryButton, DangerButton, ArrowButton
 
 from renderer.cube_view import CubeView
@@ -176,7 +177,7 @@ class _InputCubeView(CubeView):
         return True
 
 
-class InputScreen(Screen):
+class InputScreen(EntryActionsMixin, Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._data = {}          # {face: n x n matrix}
@@ -283,9 +284,9 @@ class InputScreen(Screen):
         self.btn_clear = DangerButton(text="" if not simple else tr("input.clear"),
                                       icon_name=None if simple else "clear")
         self.btn_clear.bind(on_release=lambda *a: self.confirm_clear())
-        self.btn_check = UIButton(text="" if not simple else tr("input.check"),
-                                  icon_name=None if simple else "check")
-        self.btn_check.bind(on_release=lambda *a: self.check())
+        self.btn_assign = UIButton(text="" if not simple else tr("input.assign"),
+                                   icon_name=None if simple else "target")
+        self.btn_assign.bind(on_release=lambda *a: self.assign_initial())
         self.btn_solve = PrimaryButton(text="", icon_name="solve")
         self.btn_solve.bind(on_release=lambda *a: self.start_solve())
         self.simple_turn_row = BoxLayout(
@@ -300,7 +301,7 @@ class InputScreen(Screen):
                 self.btn_pick, self.btn_fill, self.btn_undo, self.btn_redo,
                 self.btn_prev, self.btn_next,
                 self.btn_twist, self.btn_random, self.btn_clear,
-                self.btn_solve, self.btn_check, self.btn_scramble,
+                self.btn_solve, self.btn_assign, self.btn_scramble,
             ):
                 self.controls_grid.add_widget(b)
             self.input_panel.add_widget(self.controls_grid)
@@ -904,6 +905,21 @@ class InputScreen(Screen):
         self._valid = True
         self._refresh_view()
 
+    # ---- EntryActionsMixin 钩子 ----
+    entry_twist_screen = "TwistScreen"
+
+    def entry_reset_solved(self):
+        from cube.conversion import cubies_to_facelets
+        n = self._n()
+        self.set_facelets(cubies_to_facelets(_new_solved_cube(n).cubies, n))
+
+    def entry_commit_state(self):
+        self._commit_cube(self.collect_facelets())
+
+    def entry_set_status(self, text, error=False):
+        self.msg.text = text
+        self.msg.color = _app().theme.danger if error else _app().theme.accent
+
     def start_solve(self):
         self.check()
         if not getattr(self, "_valid", False):
@@ -946,9 +962,6 @@ class InputScreen(Screen):
         menu = self.manager.get_screen("DemoMenuScreen")
         menu.set_mode(self._n())
         self.manager.current = "DemoMenuScreen"
-
-    def open_twist(self):
-        self.manager.current = "TwistScreen"
 
 
 def _app():

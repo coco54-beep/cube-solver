@@ -75,6 +75,33 @@ class CubeApp(App):
         return sm
 
     def on_start(self):
+        # 若请求了 UI 自检（adb extra / 环境变量），跑完即退出，不做求解预热。
+        try:
+            from app.ui_self_check import requested, default_output_dir, UISelfCheck
+            if requested():
+                out = default_output_dir()
+
+                def _done(data):
+                    try:
+                        from kivy.logger import Logger
+                        Logger.info("ui_selfcheck: %s (%d checked, %d errors) -> %s"
+                                    % (data.get("status"), data.get("checked"),
+                                       data.get("errors"), out))
+                    except Exception:
+                        pass
+                    self.stop()
+
+                # 必须持有引用：Kivy Clock 对绑定方法只留弱引用，否则会被回收。
+                self._ui_selfcheck = UISelfCheck(self, out, on_done=_done)
+                self._ui_selfcheck.start()
+                return
+        except Exception:
+            try:
+                import traceback
+                from kivy.logger import Logger
+                Logger.error("ui_selfcheck setup failed:\n" + traceback.format_exc())
+            except Exception:
+                pass
         # 后台预热求解器资源（kociemba 表 / 中心 setup 表等），消除首解长等待。
         try:
             from app.warmup import warmup_solvers

@@ -26,10 +26,10 @@ class MirrorTowerScreen(PolyhedralScreen):
     def on_pre_enter(self,*args):
         fresh=self._cube is not _app().cube
         if fresh:
-            self._recorded=set()
             self._position=0
         super().on_pre_enter(*args)
         if fresh:
+            self._recorded=self.center_preset(set())
             self._set_face_camera(0)
         self._refresh()
 
@@ -138,6 +138,20 @@ class MirrorTowerScreen(PolyhedralScreen):
         if self._history:
             self._cube.pieces,self._recorded=self._history.pop()
             self._refresh()
+
+    def entry_reset_solved(self):
+        self._remember()
+        self._cube.pieces=MirrorTowerCube().pieces
+        self._recorded=set(range(14))
+
+    def entry_commit_state(self):
+        _app().cube=self._cube
+        self._refresh()
+
+    def entry_center_preset(self):
+        # 和粽子/镜子一致：预置 4 个单贴纸中心块，方便对位。
+        pieces=self._cube.geometry.pieces
+        return {i for i in range(len(pieces)) if len(pieces[i])==1}
 
     def validate(self):
         if len(self._recorded)!=14:

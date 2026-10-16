@@ -4,6 +4,12 @@ from app.i18n import current_language
 TEXT = {
     'title': ('进阶公式库', 'Advanced algorithms', '上級公式ライブラリ'),
     'practice': ('公式练习', 'Practice', '公式練習'),
+    'practice_help': ('练习说明', 'Practice help', '練習の説明'),
+    'practice_ready': ('准备', 'Ready', '準備'),
+    'practice_running': ('计时中', 'Timing', '計測中'),
+    'practice_stopped': ('已记录', 'Recorded', '記録済み'),
+    'practice_assisted': ('已看答案 · 不计成绩', 'Assisted · Unranked', '解答表示済み・集計対象外'),
+    'practice_stats': ('{count} 次 · 最快 {best} · ao5 {ao5} · ao12 {ao12}', '{count} solves · Best {best} · ao5 {ao5} · ao12 {ao12}', '{count}回 · 最速 {best} · ao5 {ao5} · ao12 {ao12}'),
     'search': ('搜索编号、情况或公式', 'Search cases, patterns or algorithms', '番号・形・公式を検索'),
     'source': ('来源：SpeedCubeDB', 'Source: SpeedCubeDB', '出典：SpeedCubeDB'),
     'count': ('{count} 个情况 · 第 {page}/{pages} 页', '{count} cases · Page {page}/{pages}', '{count}ケース · {page}/{pages}ページ'),

@@ -1,6 +1,5 @@
 """五阶以内、可按固定外表面取色的异形拍照模板。"""
 from dataclasses import dataclass
-import math
 import numpy as np
 
 from cube.coordinates import FACE_NORMALS
@@ -88,37 +87,34 @@ def project_controls(canonical, controls, points):
 
 
 class SurfaceOrientation:
+    """Use the entry screen's adjacent-face walk and hinge rotations."""
     def __init__(self, profile):
-        self.profile = profile
-        self.index = 0
-        self.world = profile.face_world(profile.face_keys[0])
+        from renderer.polyhedral_orientation import PolyhedralOrientation
+        self.profile=profile
+        roll=180 if profile.kind in ('pyraminx','moyu','void_tower') and profile.normals[0][1]>0 else 0
+        self._navigation=PolyhedralOrientation(profile.spec,roll)
+        self.world=self._navigation.world
+        self.index=self._navigation.sequence[0]
 
     def current_face(self): return self.profile.face_keys[self.index]
-    def next_face(self): return self.profile.face_keys[(self.index+1)%len(self.profile.face_keys)]
-    def prev_face(self): return self.profile.face_keys[(self.index-1)%len(self.profile.face_keys)]
-    def _delta(self, face):
-        a=np.array(self.profile.face_world(face).m).reshape(4,4).T[:3,:3]
-        b=np.array(self.world.m).reshape(4,4).T[:3,:3]
-        rotation=a@b.T
-        angle=math.acos(float(np.clip((np.trace(rotation)-1)/2,-1,1)))
-        if angle < 1e-8: return 0.,(1.,0.,0.)
-        if abs(math.sin(angle)) < 1e-7:
-            vals,vectors=np.linalg.eig(rotation)
-            axis=np.real(vectors[:,np.argmin(abs(vals-1))])
-        else:
-            axis=np.array([rotation[2,1]-rotation[1,2],rotation[0,2]-rotation[2,0],rotation[1,0]-rotation[0,1]])
-        axis=axis/np.linalg.norm(axis)
-        return math.degrees(angle),tuple(float(v) for v in axis)
-    def next_axis_deg(self): return self._delta(self.next_face())
-    def prev_axis_deg(self): return self._delta(self.prev_face())
+    def _target(self,direction):
+        nav=self._navigation
+        return self.profile.face_keys[nav.sequence[(nav.index+direction)%len(nav.sequence)]]
+    def next_face(self): return self._target(1)
+    def prev_face(self): return self._target(-1)
+    def _delta(self,direction):
+        _,angle,axis=self._navigation.transition(direction)
+        return angle,axis
+    def next_axis_deg(self): return self._delta(1)
+    def prev_axis_deg(self): return self._delta(-1)
     def next_dir(self): return 'up'
     def prev_dir(self): return 'down'
-    def turn_next(self):
-        self.index=(self.index+1)%len(self.profile.face_keys)
-        self.world=self.profile.face_world(self.current_face())
-    def turn_prev(self):
-        self.index=(self.index-1)%len(self.profile.face_keys)
-        self.world=self.profile.face_world(self.current_face())
+    def _turn(self,direction):
+        self.index=self._navigation.commit(*self._navigation.transition(direction))
+        self.world=self._navigation.world
+        return self.current_face()
+    def turn_next(self): return self._turn(1)
+    def turn_prev(self): return self._turn(-1)
 
 
 class ScanProfile:
@@ -142,6 +138,7 @@ class ScanProfile:
             self.surfaces=tuple(surfaces)
         else:
             g=geometry(kind,n)
+            self.spec=g.spec
             self.normals=g.spec.normals
             self.body=body_faces(g.spec)
             self.surfaces=tuple(Surface(i,s.face,s.polygon,s.patches or (s.polygon,)) for i,s in enumerate(g.stickers))

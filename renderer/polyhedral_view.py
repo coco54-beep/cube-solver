@@ -118,6 +118,8 @@ class PolyhedralView(Widget):
         self._compatible=InstructionGroup()
         self.canvas.add(self._compatible)
         self._face_labels=[]
+        self.tutorial_targets={}
+        self._tutorial_labels={}
         self._event=None
         self._move=None
         self._fraction=0
@@ -179,6 +181,8 @@ class PolyhedralView(Widget):
 
     def set_cube(self,cube):
         self.cancel_animation()
+        if self.cube is not None and self.cube.geometry is not cube.geometry:
+            self.set_tutorial_targets({})
         if self.cube is not cube:
             self._whole_world=Mat4()
             self.roll=0
@@ -205,6 +209,24 @@ class PolyhedralView(Widget):
         self._trigger()
 
     def refresh(self):
+        self._trigger()
+
+    def set_tutorial_targets(self,targets):
+        """Mark fixed geometry slots, never the pieces moving through them."""
+        targets={int(piece):str(label) for piece,label in targets.items()
+                 if self.cube is not None and 0<=int(piece)<len(self.cube.geometry.pieces)}
+        if targets==self.tutorial_targets:
+            return
+        for label in self._tutorial_labels.values():
+            self.remove_widget(label)
+        self.tutorial_targets=targets
+        self._tutorial_labels={}
+        for piece,text in targets.items():
+            label=Label(text=text,size_hint=(None,None),size=(28,28),
+                        font_size='18sp',bold=True,color=(1,.78,.25,1),
+                        outline_width=2,outline_color=(.05,.06,.08,1),opacity=0)
+            self.add_widget(label)
+            self._tutorial_labels[piece]=label
         self._trigger()
 
     def set_whole_world(self,world):
@@ -379,6 +401,7 @@ class PolyhedralView(Widget):
                      (b[0]-nx,b[1]-ny,b[2]),(b[0]+nx,b[1]+ny,b[2])),rgba,-.0015)
         light=unit((-.3,.8,.52))
         curved_colors={}
+        tutorial_candidates={}
         for i,s in enumerate(g.stickers):
             rotate_piece=s.piece in moving
             normal=transform(g.spec.normals[s.face]) if rotate_piece else observation.transform(*g.spec.normals[s.face])
@@ -414,6 +437,13 @@ class PolyhedralView(Widget):
                 pts=tuple(project(p) for p in world)
                 polygon(pts,shade,vertex_colors=vertex_colors)
                 self._polygons.append((pts,i))
+                if self._move is None and s.piece in self.tutorial_targets:
+                    # Triangle centroids stay inside concave or curved patches.
+                    a=pts[0]
+                    for b,c in zip(pts[1:],pts[2:]):
+                        area=abs((b[0]-a[0])*(c[1]-a[1])-(c[0]-a[0])*(b[1]-a[1]))
+                        point=((a[0]+b[0]+c[0])/3,(a[1]+b[1]+c[1])/3)
+                        tutorial_candidates.setdefault(s.piece,[]).append((area,point))
             if not visible:
                 continue
             for a,b in boundaries[i]:
@@ -429,6 +459,8 @@ class PolyhedralView(Widget):
                     edge(project(a),project(b),seam,.48 if rounded_flower else .6)
                     if i==self.selected:
                         edge(project(a),project(b),(.05,.84,1,1),1.5)
+                    if self._move is None and s.piece in self.tutorial_targets:
+                        edge(project(a),project(b),(1,.55,.08,1),1.3)
         if rounded_flower and self._move is None:
             for normal,patches in flower_hubs(self.cube.puzzle_kind):
                 if dot(observation.transform(*normal),eye)<=1e-8:
@@ -438,6 +470,14 @@ class PolyhedralView(Widget):
                             (.18,.20,.22,1),-.002)
         if vertices:
             chunks.append((vertices,indices))
+        for piece,label in self._tutorial_labels.items():
+            label.opacity=0
+            for _,(x,y) in sorted(tutorial_candidates.get(piece,()),reverse=True):
+                hit=self.pick(self.x+x,self.y+y)
+                if hit is not None and g.stickers[hit].piece==piece:
+                    label.center=(self.x+x,self.y+y)
+                    label.opacity=1
+                    break
         for normal,label in zip(g.spec.normals,self._face_labels):
             if rounded_variant:
                 location=surface_point(mean(body_faces(g.spec)[g.spec.normals.index(normal)]),
@@ -451,6 +491,10 @@ class PolyhedralView(Widget):
             label.opacity=1 if not rounded_flower and self.cube.puzzle_kind!='void_tower' and self._move is None and dot(normal,eye)>.1 else 0
             x,y,_=project(location)
             label.center=(self.x+x,self.y+y)
+            if any(marker.opacity and math.hypot(marker.center_x-label.center_x,
+                                                 marker.center_y-label.center_y)<22
+                   for marker in self._tutorial_labels.values()):
+                label.opacity=0
         if not gpu:
             if self._fbo is not None:
                 self.canvas.before.remove(self._gpu_layer)

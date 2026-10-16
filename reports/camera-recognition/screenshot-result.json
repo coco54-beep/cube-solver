@@ -1,0 +1,55 @@
+{
+  "screenshot_grid": [
+    [
+      "G",
+      "B"
+    ],
+    [
+      "B",
+      "Y"
+    ]
+  ],
+  "complete_faces": "前(F) · 已识别 1/6",
+  "selection_grid": [
+    [
+      "G",
+      "B"
+    ],
+    [
+      "B",
+      "Y"
+    ]
+  ],
+  "rotated_clockwise_grid": [
+    [
+      "B",
+      "G"
+    ],
+    [
+      "Y",
+      "B"
+    ]
+  ],
+  "after_full_rotation": [
+    [
+      "G",
+      "B"
+    ],
+    [
+      "B",
+      "Y"
+    ]
+  ],
+  "portrait_preview_bounds": [
+    8,
+    687,
+    1064,
+    1407.0
+  ],
+  "portrait_image_bounds": [
+    8,
+    687.0,
+    1064,
+    1407.0
+  ]
+}

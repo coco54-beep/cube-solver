@@ -42,11 +42,17 @@ class MirrorScreen(MastermorphixScreen):
     def _blank(self,palette):
         self._cube=self.cube_class.solved(n=_app().n)
         self._ori=CubeOrientation(self._cube.n)
-        self._recorded=set()
+        self._recorded=self.center_preset(set())
         self._history=[]
         self._preview=None
         self._pos=self._cube.positions[0]
         self._group=position_kind(self._pos)
+
+    def entry_center_preset(self):
+        # 和粽子魔方一致：奇数阶预置 6 个固定中心块（偶数阶无固定中心）。
+        if self._cube is None or self._cube.n%2==0:
+            return set()
+        return {p for p in self._cube.positions if sum(v!=0 for v in p)==1}
 
     def _refresh(self):
         if self._cube is None:

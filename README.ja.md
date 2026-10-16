@@ -4,6 +4,18 @@
 
 [Windows / Android 版](https://github.com/coco54-beep/cube-solver/releases/latest) · [English](README.md) · [中文技术说明](README.zh-CN.md) · [ソースコード](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.25 の更新
+
+- **写真読み取り**が入力画面の面順（F→R→U→B→L→D）に従い、切り替え時にキューブの回転方向を案内、ガイド枠を重ね、未撮影でも適用できます。カメラ映像は端末の向きに自動補正します。
+- 各入力画面の余分な**検証**ボタンを**初期値を設定**に置き換え、ワンタップでパズルを初期（完成）状態に戻します。形状／Mirror／Mirror Tower の入力画面は中心ピースを先に置き、位置合わせを容易にします。
+- ホーム下部に操作バー（Σ 公式集・カメラ・設定）を追加し、アイコンを統一。使い方ダイアログは画面に応じて拡大し、公式集・練習・写真読み取りの説明を追加しました。
+- スクランブル手数はパズルの規模に応じて増加（高次 Megaminx／Football）、Blossom Megaminx は長め。求解失敗のメッセージを多言語化しました。
+- エンジニアリング：アプリ内 UI スモーク自検 + スクリーンショット基準回帰、ADB による実機自検、i18n カバレッジ監査。
+
+**ダウンロード：** [Android arm64-v8a APK](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.25/cubesolver-1.2.25-arm64-v8a-release.apk) · [Windows x64 ポータブル ZIP](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.25/CubeSolver-1.2.25-windows-x64.zip)。Windows版は全体を展開し `_internal` を残してください。
+
+[1.2.25 リリースノート](docs/release-1.2.25.md) · [すべてのリリース](https://github.com/coco54-beep/cube-solver/releases/latest)
+
 ## 1.2.24 の更新
 
 - 通常の2〜5段、Square-1、Skewb、Pyraminx、3段Megaminxのオフライン上級公式集を追加。**43セット・6,060ケース**に対応し、適用段階、代替公式、ネイティブ3D再生を提供します。出典は通常のラベルで表示します。
@@ -21,6 +33,7 @@
 - Skewb、Dino / Lattice、Clover、Eight-petals、Ivy、Void Cube、Pandora、Pyraminx、Tower / Void Tower、面回転八面体、**二十面体の2〜5段**、Megaminx、Blossom、32面 Football / Tuttminx に対応。モデルのステッカー輪郭から色を読み、空洞を除外します。
 - 頂点と切れ目を合わせ、モデルの全体回転アニメーションに従って面を切り替えます。不確かな色はモデル上で修正でき、色の校正は手動修正を保持して撮影済みの面を更新します。二十面体は20色、Footballは32色の参照番号を使います。
 - Android のシステム写真選択画面に対応し、カメラ映像と選択枠の位置を修正しました。**新しい変形テンプレートの実写精度は未検証です。** 鏡面、形状が変わる外形、曲面、ジャンブリング状態は固定平面テンプレートの対象外です。
+- **ヒント：** パズルを開いてカメラアイコンをタップし、1面全体をガイド枠に合わせて撮影（または写真を読み込み）します。Android はシステムの写真選択画面を使うため、ギャラリー権限は不要です。不確かなステッカーはモデル上で直してから適用します。
 
 **Android arm64-v8a：** [1.2.23 試用 APK](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.23/cubesolver-1.2.23-arm64-v8a-debug.apk)。**Windows x64：** [1.2.23 のリリース資産](https://github.com/coco54-beep/cube-solver/releases/tag/v1.2.23)からポータブル ZIP を取得し、全体を展開して `_internal` を残してください。
 
@@ -52,7 +65,7 @@
   <img src="assets/screenshots/playback_stepping.png" width="155" alt="3D 回放" />
 </p>
 
-<p align="center"><sub>図 1：パズル選択、高次入力、形状を考慮した入力、3D 回放。1.2.22 は図付きカードの変形パズルディレクトリと、幾何ごとの回転・回放画面を追加。</sub></p>
+<p align="center"><sub>図 1：パズル選択、高次入力、形状を考慮した入力、3D 回放。1.2.24 はオフライン上級公式集と練習モード、写真読み取り、そして図付きカードの変形パズルディレクトリと、幾何ごとの回転・回放画面を追加。</sub></p>
 
 ## 1. 対象範囲と貢献
 

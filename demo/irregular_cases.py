@@ -225,20 +225,60 @@ def _cycle_formula_lessons(cube):
                 continue
         except (KeyError,TypeError,ValueError):
             continue
+        from cube.cycle_effects import three_cycle
+        from solver.polyhedral import simplify, inverse_word
+        word=simplify(word,g.spec.turn_order)
+        effect=three_cycle(kind,n,word)
+        if effect is None:
+            continue
+        destinations=dict(effect[0])
+        base=tuple(sorted(destinations))
+        markers={piece:label for piece,label in zip(base,('A','B','C'))}
         group_zh,group_en,group_ja=_piece_group_names(len(g.pieces[base[0]]))
-        title=text(f'{group_zh}三块循环',f'{group_en} three-cycle',f'{group_ja} 3点交換')
-        item=case(title,word,text(
-            '本例只有这一组的三块循环错位，其余块已还原。按图示方向拿稳魔方，再完整执行公式。',
-            'This case has a three-cycle in this piece group while the other pieces are solved. Hold the puzzle as shown and complete the formula.',
-            '本例ではこのピース組の3個だけが循環し、他は揃っています。図と同じ向きで持ち、公式を最後まで実行します。'))
-        item['text']='  '.join(token(move,g.spec) for move in word)
-        cases.append(item)
+        for reverse,formula in ((False,word),(True,inverse_word(word,g.spec.turn_order))):
+            mapping={v:k for k,v in destinations.items()} if reverse else destinations
+            a=base[0];b=mapping[a];c=mapping[b]
+            route=' → '.join(markers[p] for p in (a,b,c,a))
+            label=text(f'{group_zh}循环 · {key} · '+('反向' if reverse else '正向'),
+                       f'{group_en} cycle · {key} · '+('reverse' if reverse else 'forward'),
+                       f'{group_ja}循環 · {key} · '+('逆方向' if reverse else '順方向'))
+            tip=text(
+                f'看哪里：橙色描边的 A、B、C 标记位置。适用情况：只有这三块循环错位，块的朝向与图示一致，其余块已还原。\n'
+                f'怎么判断：当前 A 位置的块应去 {markers[mapping[a]]}，按 {route} 归位；方向相反时选另一例。\n'
+                '怎么做：先整体旋转实物，对齐模型上的位置和面色编号；不要靠转动某一层来硬套位置。完整执行公式，中途其他块可暂时移动；结束后三块归位，其余贴纸不变。A/B/C 标记固定位置，转动时暂时隐藏。',
+                f'Look at the orange-outlined slots A, B and C. Use this case only when those three pieces are cycled, their orientations match, and everything else is solved.\n'
+                f'The piece at A belongs at {markers[mapping[a]]}: restore {route}. Choose the other example for the opposite cycle.\n'
+                'Match the slot labels and face colours by rotating the whole puzzle. Complete the entire algorithm: other pieces may move temporarily but finish unchanged. Labels mark fixed slots and hide during turns.',
+                f'オレンジの輪郭で示す位置A・B・Cを確認します。この3個だけが循環し、向きが図と一致し、他が揃っている場合に使います。\n'
+                f'Aのピースは{markers[mapping[a]]}へ移ります。{route}の順で戻します。逆の循環には別の例を選びます。\n'
+                'パズル全体を持ち替え、位置と面色番号を図に合わせてください。公式を最後まで実行すると3個が戻り、他のステッカーは元のままです。文字は固定位置を示し、回転中は非表示です。')
+            item=case(label,formula,tip)
+            item['text']='  '.join(token(move,g.spec) for move in formula)
+            item['tutorial_targets']=markers
+            item['cycle_route']=route
+            item['show_all']=True
+            item['camera']=_cycle_camera(g,base)
+            cases.append(item)
     if not cases:
         return None
     return [step(text('典型情况：三块循环错位','Typical case: three-cycle','典型例：3点交換'),text(
         '先识别同一类块中仅有三块循环错位的情形。每条公式针对图示的一组位置；公式结束后，这三块归位，其他块保持不动。',
         'Recognize a three-cycle in one piece group with the rest solved. Each formula targets the positions shown; it restores those three pieces and leaves the others fixed.',
         '他が揃った状態で、同じピース組の3個だけが循環している場合を見分けます。各公式は図の位置に対応し、3個を戻して他を保ちます。'),cases)]
+
+
+def _cycle_camera(g,pieces):
+    import math
+    from cube.polyhedral import dot,unit,add
+    faces=[tuple({g.stickers[i].face for i in g.pieces[p]}) for p in pieces]
+    candidates=list(g.spec.normals)
+    candidates.extend(unit(add(a,b)) for a in g.spec.normals for b in g.spec.normals
+                      if dot(add(a,b),add(a,b))>.01)
+    def score(eye):
+        visibility=[max(dot(eye,g.spec.normals[f]) for f in group) for group in faces]
+        return sum(v>.15 for v in visibility),sum(visibility)
+    eye=max(candidates,key=score)
+    return math.degrees(math.atan2(eye[0],eye[2])),math.degrees(math.asin(max(-1,min(1,eye[1])))),0
 
 
 @lru_cache(maxsize=32)

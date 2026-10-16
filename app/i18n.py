@@ -119,6 +119,20 @@ CATALOG = {
             "演示目录按阶数收录了标准方法：2 阶分层法、3 阶七步法、\n"
             "4 阶与 5 阶降阶法。5 阶部分只讲它与 4 阶的不同：\n"
             "中心是 3×3（带固定中心块），每条棱由中棱加两块翼棱组成。",
+        "help.formula.title": "进阶公式库",
+        "help.formula.body":
+            "首页底部的 Σ 进入公式库：离线收录 2 阶、3 阶、SQ1、斜转、金字塔、\n"
+            "三阶五魔方的进阶公式（43 个公式集、6060 个情况），\n"
+            "可按阶段、前提和关键字搜索，并在 3D 模型上演示。",
+        "help.practice.title": "公式练习",
+        "help.practice.body":
+            "在公式库或练习页选择公式集与阶数即可练习：随机对位、可选常用公式、\n"
+            "记录学习状态并优先出薄弱情况，支持 OK/+2/DNF 与 ao5/ao12。",
+        "help.camera.title": "拍照识别",
+        "help.camera.body":
+            "首页或输入页点相机图标：把魔方一个整面正对取景框拍照（或导入照片），\n"
+            "识别后在小模型上修正并应用。Android 用系统照片选择器，无需相册权限；\n"
+            "支持到五阶及部分异形。",
         "help.theme.title": "设置",
         "help.theme.body":
             "在首页进入「设置」，可切换 主题（自动 / 浅色 / 深色）与 语言（简中 / English / 日本語），\n"
@@ -157,6 +171,7 @@ CATALOG = {
         "input.scramble.error": "无法识别的动作：{tok}",
         "input.clear": "清空",
         "input.check": "校验",
+        "input.assign": "赋予初始值",
         "input.solve": "开始求解",
         "input.missing": "未填写：{list}",
         "input.valid": "状态合法 ✓",
@@ -181,6 +196,7 @@ CATALOG = {
         "solving.depth": "中心求解深度 {depth}",
 
         "playback.total": "共 {k} 步",
+        "playback.failed": "该打乱超出现有求解范围，未找到解法，请换一个打乱再试。",
         "playback.step": "第 {i}/{t} 步",
         "playback.current": "当前动作：{move}",
         "playback.ready": "准备播放",
@@ -328,6 +344,21 @@ CATALOG = {
             "3×3 seven-step,\nand 4×4 / 5×5 reduction. The 5×5 section focuses on "
             "what differs from 4×4:\ncenters are 3×3 (with a fixed center) and each "
             "edge has a middle edge plus 2 wings.",
+        "help.formula.title": "Advanced formula library",
+        "help.formula.body":
+            "Open it from the Σ button at the bottom of Home: an offline catalog for 2×2,\n"
+            "3×3, SQ-1, Skewb, Pyraminx and 3-layer Megaminx (43 sets, 6,060 cases),\n"
+            "searchable by stage, prerequisite and keyword, with 3-D demos.",
+        "help.practice.title": "Formula practice",
+        "help.practice.body":
+            "Choose a set and order to practise: randomised holds/alignment, favourite\n"
+            "algorithms, learning status and weak-case priority, with OK/+2/DNF and ao5/ao12.",
+        "help.camera.title": "Photo scan",
+        "help.camera.body":
+            "Tap the camera icon on Home or the input page: aim one whole face into the\n"
+            "guide box (or import a photo), fix any uncertain sticker, then apply. Android\n"
+            "uses the system photo picker, so no gallery permission is needed; supported\n"
+            "up to order five and some irregular puzzles.",
         "help.theme.title": "Settings",
         "help.theme.body":
             "Open Settings from the home screen to switch the theme (Auto / Light / Dark) and language\n"
@@ -370,6 +401,7 @@ CATALOG = {
         "input.scramble.error": "Unrecognized move: {tok}",
         "input.clear": "Clear",
         "input.check": "Validate",
+        "input.assign": "Set initial",
         "input.solve": "Solve",
         "input.missing": "Missing: {list}",
         "input.valid": "Valid state ✓",
@@ -394,6 +426,7 @@ CATALOG = {
         "solving.depth": "Center search depth {depth}",
 
         "playback.total": "{k} moves",
+        "playback.failed": "No solution found for this scramble; try a different one.",
         "playback.step": "Move {i}/{t}",
         "playback.current": "Move: {move}",
         "playback.ready": "Ready",
@@ -541,6 +574,21 @@ CATALOG = {
             "3×3 七手順法、\n4×4 / 5×5 縮約法。5×5 は 4×4 との違いに注目します——\n"
             "センターは 3×3（固定センターあり）で、"
             "各エッジは中エッジ + 2 ウィングの3つで構成されます。",
+        "help.formula.title": "上級公式集",
+        "help.formula.body":
+            "ホーム下部の Σ から開きます。2×2・3×3・SQ1・Skewb・Pyraminx・3段Megaminx の\n"
+            "オフライン公式集（43セット・6,060ケース）。段階・前提・キーワードで検索でき、\n"
+            "3Dで演示します。",
+        "help.practice.title": "公式の練習",
+        "help.practice.body":
+            "セットと段数を選んで練習：向き・位置合わせの変化、よく使う公式、学習状態、\n"
+            "苦手優先、OK/+2/DNF と ao5/ao12 に対応します。",
+        "help.camera.title": "写真読み取り",
+        "help.camera.body":
+            "ホームまたは入力画面のカメラアイコンをタップ。1面全体をガイド枠に合わせて\n"
+            "撮影（または写真を読み込み）、モデル上で不確かな色を直して適用します。\n"
+            "Android はシステムの写真選択画面を使うためギャラリー権限は不要で、\n"
+            "5段以下と一部の変形に対応します。",
         "help.theme.title": "設定",
         "help.theme.body":
             "ホーム画面から「設定」を開き、テーマ（自動 / ライト / ダーク）と言語（簡体字 / English / 日本語）、\n"
@@ -582,6 +630,7 @@ CATALOG = {
         "input.scramble.error": "認識できない手順: {tok}",
         "input.clear": "クリア",
         "input.check": "検証",
+        "input.assign": "初期値を設定",
         "input.solve": "解く",
         "input.missing": "未入力: {list}",
         "input.valid": "状態は有効 ✓",
@@ -606,6 +655,7 @@ CATALOG = {
         "solving.depth": "センター探索の深さ {depth}",
 
         "playback.total": "全 {k} 手",
+        "playback.failed": "このスクランブルは現行の求解範囲外で解が見つかりませんでした。別のスクランブルでお試しください。",
         "playback.step": "{i}/{t} 手目",
         "playback.current": "現在の手順：{move}",
         "playback.ready": "再生待ち",

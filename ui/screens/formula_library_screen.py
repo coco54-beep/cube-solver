@@ -13,13 +13,13 @@ from kivy.uix.textinput import TextInput
 
 from app.formula_i18n import msg, puzzle_label
 from app.i18n import current_language
-from app import prefs
-from demo.learning import LearningProgress
+from ui.widgets.progress import load_learning_progress, save_learning_progress
 from demo.algorithm_library import MODES, PUZZLES, groups, lesson, prerequisite, search_cases, title
 from ui.widgets import metrics as m
 from ui.widgets.buttons import PrimaryButton, UIButton
 from ui.widgets.dialogs import theme_popup
 from ui.widgets.layouts import ResponsiveBoxLayout
+from ui.widgets.scroll_list import wrap_scroll
 
 
 def wrap(label):
@@ -62,10 +62,8 @@ class FormulaLibraryScreen(Screen):
         root.add_widget(self.search)
         self.hint = wrap(Label(size_hint_y=None, height=m.h(68), font_size='13sp', halign='left', valign='middle'))
         root.add_widget(self.hint)
-        self.scroll = ScrollView(do_scroll_x=False)
-        self.rows = BoxLayout(orientation='vertical', size_hint_y=None, spacing=m.h(6))
-        self.rows.bind(minimum_height=self.rows.setter('height'))
-        self.scroll.add_widget(self.rows)
+        self.rows = BoxLayout(orientation='vertical', spacing=m.h(6))
+        self.scroll = wrap_scroll(self.rows, do_scroll_x=False)
         root.add_widget(self.scroll)
         pager = ResponsiveBoxLayout(height_px=44, gap_px=6)
         self.previous = UIButton(text='<', size_hint_x=.14)
@@ -83,7 +81,7 @@ class FormulaLibraryScreen(Screen):
         self.refresh_theme()
 
     def on_pre_enter(self, *_):
-        self.progress = LearningProgress(prefs.get('formula_progress', {}))
+        self.progress = load_learning_progress()
         if not self._loaded:
             self._load_groups()
             self._loaded = True
@@ -170,7 +168,7 @@ class FormulaLibraryScreen(Screen):
             self.rows.add_widget(Label(text=msg('empty'), size_hint_y=None, height=m.h(64)))
             return
         page_items = matched[self.page * self.PAGE_SIZE:(self.page + 1) * self.PAGE_SIZE]
-        progress = LearningProgress(prefs.get('formula_progress', {}))
+        progress = load_learning_progress()
         for item in page_items:
             row = ResponsiveBoxLayout(height_px=122, gap_px=6)
             image = Image(size_hint_x=.28)
@@ -216,7 +214,7 @@ class FormulaLibraryScreen(Screen):
     def _open_case(self, item, alternative=None):
         try:
             if alternative is None:
-                alternative = LearningProgress(prefs.get('formula_progress', {})).preferred(self.puzzle, item)
+                alternative = load_learning_progress().preferred(self.puzzle, item)
             steps = lesson(self.group, item, alternative)
             self.manager.get_screen('DemoScreen').enter_case(
                 MODES[self.puzzle], 0, 0, steps, return_screen=self.name)
@@ -229,11 +227,8 @@ class FormulaLibraryScreen(Screen):
 
     def _alternatives(self, item):
         content = BoxLayout(orientation='vertical', spacing=m.h(6))
-        scroll = ScrollView(do_scroll_x=False)
-        listing = BoxLayout(orientation='vertical', size_hint_y=None, spacing=m.h(6))
-        listing.bind(minimum_height=listing.setter('height'))
-        scroll.add_widget(listing)
-        content.add_widget(scroll)
+        listing = BoxLayout(orientation='vertical', spacing=m.h(6))
+        content.add_widget(wrap_scroll(listing, do_scroll_x=False))
         content.add_widget(Label(text=msg('prefer_play'), size_hint_y=None, height=m.h(36), font_size='13sp'))
         popup = Popup(title=item['name'], content=content, size_hint=(.94, .85))
         for index, algorithm in enumerate(item['algorithms']):
@@ -246,9 +241,9 @@ class FormulaLibraryScreen(Screen):
                 except ValueError:
                     self._open_case(item, selected)
                     return
-                progress = LearningProgress(prefs.get('formula_progress', {}))
+                progress = load_learning_progress()
                 progress.prefer(self.puzzle, item, selected)
-                prefs.set('formula_progress', progress.records)
+                save_learning_progress(progress)
                 popup.dismiss()
                 self._open_case(item, selected)
             button.bind(on_release=choose)
@@ -260,9 +255,9 @@ class FormulaLibraryScreen(Screen):
         popup.open()
 
     def _cycle_progress(self, item):
-        progress = LearningProgress(prefs.get('formula_progress', {}))
+        progress = load_learning_progress()
         progress.cycle(self.puzzle, item)
-        prefs.set('formula_progress', progress.records)
+        save_learning_progress(progress)
         self._render_page()
 
     def open_practice(self, *_):

@@ -23,7 +23,13 @@ class ShapeCubeScreen(MirrorScreen):
             if isinstance(saved,list) and len(saved)==6 and all(isinstance(c,list) and len(c)==4 and
                     all(isinstance(v,(int,float)) and 0<=v<=1 for v in c) for c in saved):
                 colors=saved
-            self._apply_shape_colors(colors,persist=False,refresh=False)
+        self._apply_shape_colors(colors,persist=False,refresh=False)
+
+    def entry_center_preset(self):
+        # 和粽子魔方一致：预置中心块颜色，方便对位（足球无此中心概念）。
+        if self._cube is None or self._cube.puzzle_kind=='football':
+            return set()
+        return {p for p in self._all_positions() if position_kind(p)=='center'}
 
     def _apply_shape_colors(self,colors,persist=True,refresh=True):
         from app.prefs import set

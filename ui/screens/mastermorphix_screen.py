@@ -2,6 +2,7 @@
 
 import math
 from kivy.uix.screenmanager import Screen
+from ui.screens.entry_mixin import EntryActionsMixin
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
@@ -54,7 +55,7 @@ def _thumbnail_camera_for(view, pos):
     view._redraw()
 
 
-class MastermorphixScreen(Screen):
+class MastermorphixScreen(EntryActionsMixin, Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._cube = None
@@ -136,7 +137,7 @@ class MastermorphixScreen(Screen):
                                     ("random", UIButton, self.random_load),
                                     ("clear", DangerButton, self.confirm_clear),
                                     ("undo", UIButton, self.undo),
-                                    ("check", UIButton, self.check),
+                                    ("target", UIButton, self.assign_initial),
                                     ("solve", PrimaryButton, self.start_solve)):
             button = cls(icon_name=icon)
             button.bind(on_release=lambda _, cb=callback: cb())
@@ -190,8 +191,7 @@ class MastermorphixScreen(Screen):
         self._cube = MastermorphixCube.solved(palette, order)
         # Fixed center color pairs provide landmarks from the start. Their
         # preset orientations remain editable to match the physical puzzle.
-        self._recorded = ({p for p in self._cube.positions if position_kind(p) == "center"}
-                          if order == 3 else set())
+        self._recorded = self.center_preset(set())
         self._history.clear()
         self._preview = None
         if order == 3:
@@ -409,13 +409,15 @@ class MastermorphixScreen(Screen):
         self.manager.get_screen("DemoMenuScreen").set_mode((self._cube.puzzle_kind, self._cube.n))
         self.manager.current = "DemoMenuScreen"
 
-    def open_twist(self):
-        """进入专门的粽子/镜面拧动界面（录入页本身不内嵌拧动）。"""
-        if self._busy_turn or self._cube is None:
-            return
+    # ---- EntryActionsMixin 钩子 ----
+    entry_twist_screen = "MorphixTwistScreen"
+
+    def entry_can_twist(self):
+        return not self._busy_turn and self._cube is not None
+
+    def entry_prepare_twist(self):
         self.reset_interaction()
         _app().morphix_twist_source = self.name
-        self.manager.current = "MorphixTwistScreen"
 
     def open_help(self):
         content = ResponsiveBoxLayout(orientation="vertical", gap_px=12, padding_px=16)
@@ -535,6 +537,30 @@ class MastermorphixScreen(Screen):
             cube = self._cube.clone()
         self.hint.text = tr("morphix.valid")
         return cube
+
+    def entry_can_assign(self):
+        return self._cube is not None and not getattr(self, "_busy_turn", False)
+
+    def entry_reset_solved(self):
+        self._blank(getattr(self._cube, "palette", None))
+        # 还原态即全部块都已录入并归位，否则视图会显示成「未录入」。
+        self._recorded = set(self._all_positions())
+
+    def entry_commit_state(self):
+        app = _app()
+        app.cube = self._cube
+        app.n = self._cube.n
+        app.puzzle_kind = getattr(self._cube, "puzzle_kind", "mastermorphix")
+        app.solve_result = None
+        self._refresh()
+
+    def entry_set_status(self, text, error=False):
+        self.hint.text = text
+
+    def entry_center_preset(self):
+        if self._cube is None or self._cube.n != 3:
+            return set()
+        return {p for p in self._cube.positions if position_kind(p) == "center"}
 
     def start_solve(self):
         cube = self.check()

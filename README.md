@@ -4,6 +4,18 @@
 
 [Windows and Android downloads](https://github.com/coco54-beep/cube-solver/releases/latest) · [中文技术说明](README.zh-CN.md) · [日本語](README.ja.md) · [Source code](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.25 update
+
+- **Photo scan** now follows the input page's face order (F→R→U→B→L→D), shows which way to turn the cube, overlays an alignment guide, and lets you apply a partial scan; the camera preview is auto-oriented to the device.
+- Every input page replaces its redundant **Validate** button with a one-tap **Set initial** that resets the puzzle to the solved state; shape / Mirror / Mirror Tower pages pre-place their centre pieces for easier alignment.
+- Home gains a bottom action bar (Σ formula library · camera · settings) with matching icon buttons; the Help dialog now scales to the screen and documents the formula library, practice and photo scanning.
+- Scrambles scale with puzzle size (higher-order Megaminx / Football) and the Blossom Megaminx scrambles longer; solution-failure messages are localised.
+- Engineering: an in-app UI smoke self-check with screenshot-baseline regression, a device self-check over ADB, and an i18n coverage audit.
+
+**Downloads:** [Android arm64-v8a APK](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.25/cubesolver-1.2.25-arm64-v8a-release.apk) · [Windows x64 portable ZIP](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.25/CubeSolver-1.2.25-windows-x64.zip). Extract the Windows ZIP completely and retain `_internal`.
+
+[1.2.25 release notes](docs/release-1.2.25.md) · [All releases](https://github.com/coco54-beep/cube-solver/releases/latest)
+
 ## 1.2.24 update
 
 - Adds an offline advanced algorithm library for 2–5-layer cubes, Square-1, Skewb, Pyraminx and 3-layer Megaminx: **43 consolidated sets and 6,060 playable cases**, with prerequisites, alternatives and native 3D playback. Source attribution is a plain label.
@@ -21,6 +33,7 @@
 - Supports Skewb, Dino/Lattice, Clover, Eight-petals, Ivy, Void Cube, Pandora, Pyraminx, Tower/Void Tower, face-turning octahedra, **Icosahedron orders 2–5**, Megaminx, Blossom, and 32-face Football/Tuttminx. Scanning samples the actual sticker polygons and skips holes.
 - Align the face vertices and cuts, follow the whole-puzzle turn animation, and correct uncertain stickers on the small model. Photo color calibration updates previously scanned faces while keeping manual corrections; Icosahedron and Football expose 20 and 32 color references.
 - Android uses the system photo picker and matches the camera preview to the selection frame. **Real-photo accuracy for the newly added irregular profiles has not yet been validated.** Mirror finishes, changing silhouettes, curved shells, and jumbling states are outside these fixed-face templates.
+- **Hint.** Open a puzzle, tap the camera icon, aim one whole face into the on-screen guide box, and capture (or import a photo). The Android build opens the system photo picker, so no gallery permission is required; correct any uncertain sticker on the small model before applying.
 
 **Android arm64-v8a:** [1.2.23 APK for testing](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.23/cubesolver-1.2.23-arm64-v8a-debug.apk). **Windows x64:** see the [1.2.23 release assets](https://github.com/coco54-beep/cube-solver/releases/tag/v1.2.23) for the portable ZIP; extract it completely and retain `_internal`.
 
@@ -52,7 +65,7 @@ The engineering focus is the complete path from input to replay: geometric cubie
   <img src="assets/screenshots/playback_stepping.png" width="155" alt="3D solution playback" />
 </p>
 
-<p align="center"><sub>Figure 1. Puzzle selection, higher-order input, shape-aware input, and 3D playback. The 1.2.22 release includes an irregular-puzzle directory with illustrated cards and geometry-specific twist and playback screens.</sub></p>
+<p align="center"><sub>Figure 1. Puzzle selection, higher-order input, shape-aware input, and 3D playback. The 1.2.24 release adds an offline advanced formula library with practice mode, photo scanning, and a full irregular-puzzle directory with illustrated cards and geometry-specific twist and playback screens.</sub></p>
 
 ## 1. Scope and contributions
 

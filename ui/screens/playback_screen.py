@@ -176,7 +176,7 @@ class PlaybackScreen(Screen):
         self._queue = []
         self._busy = False
         self.lbl_move.text = tr("playback.total", k=len(self._moves))
-        self.lbl_stage.text = result.message if result and not result.success else ""
+        self.lbl_stage.text = tr("playback.failed") if result and not result.success else ""
         self._update_buttons()
 
     def _stop_all(self):

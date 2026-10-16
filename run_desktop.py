@@ -21,6 +21,12 @@ def main():
 
 
 if __name__ == "__main__":
+    if len(sys.argv)==3 and sys.argv[1]=='--ui-self-check':
+        # 桌面跑 UI 冒烟自检：python run_desktop.py --ui-self-check <输出目录>
+        os.environ['CUBESOLVER_UI_SELFCHECK']='1'
+        os.environ['CUBESOLVER_UI_SELFCHECK_DIR']=sys.argv[2]
+        main()
+        sys.exit(0)
     if len(sys.argv)==3 and sys.argv[1]=='--self-check':
         try:
             from app.desktop_self_check import run

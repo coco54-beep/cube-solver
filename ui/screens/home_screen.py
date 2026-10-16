@@ -21,29 +21,6 @@ class HomeScreen(Screen):
         root = BoxLayout(orientation="vertical", spacing=8, padding=[20, 10, 20, 10])
         self._root_layout = root
 
-        # ---- 顶栏：左侧公式库，中间拍照识别，右侧设置 ----
-        topbar = BoxLayout(orientation="horizontal", size_hint_y=None, height=m.h(44), spacing=8)
-        self._topbar = topbar
-        left = BoxLayout(size_hint_x=1, spacing=8)
-        self.formula_btn = UIButton(text=tr("formula.home"), size_hint=(None, None),
-                                    width=m.h(64), height=m.h(44), font_size=m.font(13))
-        self.formula_btn.bind(on_release=lambda *_: self.open_formula_help())
-        left.add_widget(self.formula_btn)
-        left.add_widget(BoxLayout(size_hint_x=1))
-        topbar.add_widget(left)
-        self.camera_btn = UIButton(text="", icon_name="camera",
-                                   size_hint=(None, None),
-                                   width=m.h(44), height=m.h(44))
-        self.camera_btn.bind(on_release=lambda *a: self.open_camera())
-        topbar.add_widget(self.camera_btn)
-        right = BoxLayout(size_hint_x=1)
-        right.add_widget(BoxLayout(size_hint_x=1))
-        self.settings_btn = GearButton(size_hint_x=None, width=m.h(44))
-        self.settings_btn.bind(on_release=lambda *a: self.open_settings())
-        right.add_widget(self.settings_btn)
-        topbar.add_widget(right)
-        root.add_widget(topbar)
-
         # ---- 标题区（顶部）----
         head = BoxLayout(orientation="vertical", size_hint_y=None, height=132, spacing=3)
         self._head = head
@@ -95,6 +72,31 @@ class HomeScreen(Screen):
         # 弹性空白
         root.add_widget(BoxLayout(size_hint_y=1))
 
+        # ---- 底部操作栏：左侧公式库，中间拍照识别，右侧设置 ----
+        actionbar = BoxLayout(orientation="horizontal", size_hint_y=None,
+                              height=m.h(44), spacing=8)
+        self._actionbar = actionbar
+        left = BoxLayout(size_hint_x=1, spacing=8)
+        self.formula_btn = UIButton(text="", icon_name="sigma",
+                                    size_hint=(None, None),
+                                    width=m.h(44), height=m.h(44))
+        self.formula_btn.bind(on_release=lambda *_: self.open_formula_help())
+        left.add_widget(self.formula_btn)
+        left.add_widget(BoxLayout(size_hint_x=1))
+        actionbar.add_widget(left)
+        self.camera_btn = UIButton(text="", icon_name="camera",
+                                   size_hint=(None, None),
+                                   width=m.h(44), height=m.h(44))
+        self.camera_btn.bind(on_release=lambda *a: self.open_camera())
+        actionbar.add_widget(self.camera_btn)
+        right = BoxLayout(size_hint_x=1)
+        right.add_widget(BoxLayout(size_hint_x=1))
+        self.settings_btn = GearButton(size_hint_x=None, width=m.h(44))
+        self.settings_btn.bind(on_release=lambda *a: self.open_settings())
+        right.add_widget(self.settings_btn)
+        actionbar.add_widget(right)
+        root.add_widget(actionbar)
+
         # ---- 底部版本 ----
         bottom = AnchorLayout(size_hint_y=None, height=28)
         self._bottom = bottom
@@ -113,7 +115,6 @@ class HomeScreen(Screen):
         self.title.text = tr("app.name")
         self.subtitle.text = tr("home.subtitle")
         self._ver_label.text = tr("home.version", version=Config.app_version)
-        self.formula_btn.text = tr("formula.home")
         for n, card in getattr(self, "_cards", {}).items():
             try:
                 big, title_label = card._labels
@@ -166,10 +167,11 @@ class HomeScreen(Screen):
         layout = m.menu_grid_metrics(w, h)
         self._root_layout.padding = layout['padding']
         self._root_layout.spacing = layout['spacing']
-        self._topbar.height = self.settings_btn.width = layout['top_height']
+        self._actionbar.height = layout['top_height']
+        self.settings_btn.width = layout['top_height']
+        self.settings_btn.height = layout['top_height']
         self.camera_btn.height = self.camera_btn.width = layout['top_height']
-        self.formula_btn.height = layout['top_height']
-        self.formula_btn.width = layout['top_height'] * 1.45
+        self.formula_btn.height = self.formula_btn.width = layout['top_height']
         self._bottom.height = layout['bottom_height']
         self._head.height = layout['head_height']
         self._head.spacing = max(2, self._head.height * 0.025)

@@ -274,6 +274,8 @@ class DemoScreen(Screen):
         # 聚焦：只给被移动/参与公式的块上色，其余灰色
         self._highlight = None if "initial" in case or case.get('show_all') or self.mode == "mastermorphix" or isinstance(self.mode, tuple) else _changed_homes(cube)
         _set_demo_cube(self.view, cube, self._highlight)
+        if hasattr(self.view,'set_tutorial_targets'):
+            self.view.set_tutorial_targets(case.get('tutorial_targets',{}))
         if 'camera' in case:
             self.view.yaw, self.view.pitch, self.view.roll = case['camera']
             self.view.refresh()

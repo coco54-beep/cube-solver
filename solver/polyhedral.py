@@ -321,6 +321,24 @@ def solve_minx(cube,cancel=None,progress=None,optimize=True,optimize_budget=None
     return solution
 
 
+# 少数"低能量"魔方（如繁花五魔方为 180° 边转、面心固定）混色很慢，
+# 需要更长步数才能接近其打乱上限；否则看起来像没打乱。
+_SCRAMBLE_MIN = {
+    "blossom": 220,
+}
+
+
+def scramble_length(cube):
+    """按贴纸规模给打乱步数：小魔方维持 30，大魔方/高阶自动加长。
+
+    固定 30 步会让高阶五魔方、足球只动到最外层，看起来几乎没打乱。
+    以贴纸数近似需打乱的自由度，约每 5 张贴纸 1 步，上限 320。
+    """
+    stickers = len(cube.colors)
+    length = max(30, min(320, round(stickers / 5)))
+    return max(length, _SCRAMBLE_MIN.get(getattr(cube, "puzzle_kind", ""), 0))
+
+
 def scramble(cube,length=30,seed=None):
     rng=random.Random(seed)
     moves=cube.moves()
@@ -482,6 +500,8 @@ def _optimize_plan(cube):
 
 def solve_polyhedral(cube,cancel=None,progress=None):
     solution=_solve_and_optimize(cube,cancel,progress)
+    from solver.cycle_finishes import shorten_cycle_finish
+    solution=shorten_cycle_finish(cube,solution,cancel)
     from solver.solution_loops import shorten_polyhedral_word
     return shorten_polyhedral_word(cube,solution,cancel)
 

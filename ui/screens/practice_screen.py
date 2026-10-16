@@ -15,13 +15,15 @@ from app.formula_i18n import msg, puzzle_label
 from app.i18n import current_language
 from demo.algorithm_library import MODES, groups, lesson, title, prerequisite
 from demo.practice import DEFAULT_SETS, PRACTICE_PUZZLES, PracticeSession, format_time
-from demo.learning import FILTERS, LearningProgress
+from demo.learning import FILTERS
+from ui.widgets.progress import load_learning_progress, save_learning_progress
 from renderer.cube_view import CubeView
 from ui.screens.demo_screen import _demo_view_for, _set_demo_cube
 from ui.widgets import metrics as m
 from ui.widgets.buttons import PrimaryButton, UIButton
 from ui.widgets.dialogs import theme_popup
 from ui.widgets.layouts import AdaptiveSceneLayout, ResponsiveBoxLayout
+from ui.widgets.scroll_list import wrap_scroll
 
 
 def autoheight(label):
@@ -35,7 +37,7 @@ class PracticeScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.session = PracticeSession(history=prefs.get('practice_history', []),
-                                       progress=LearningProgress(prefs.get('formula_progress', {})))
+                                       progress=load_learning_progress())
         self._executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix='practice-setup')
         self._setup_cancel = Event()
         self._setup_future = None
@@ -54,11 +56,15 @@ class PracticeScreen(Screen):
         self.heading = Label(font_size='19sp')
         top.add_widget(back)
         top.add_widget(self.heading)
+        self.help_button=UIButton(text='?',size_hint_x=.12)
+        self.help_button.bind(on_release=self.show_help)
+        top.add_widget(self.help_button)
         self._root_layout.add_widget(top)
         choose = ResponsiveBoxLayout(height_px=44, gap_px=6)
         self.puzzle_select = Spinner(size_hint_x=.35, font_size='15sp')
         self.puzzle_select.bind(text=self._puzzle_changed)
         self.set_button = UIButton(size_hint_x=.65, font_size='15sp')
+        self.set_button.bind(width=lambda widget,width:setattr(widget,'text_size',(max(1,width-m.h(16)),None)))
         self.set_button.bind(on_release=self.choose_sets)
         choose.add_widget(self.puzzle_select)
         choose.add_widget(self.set_button)
@@ -102,8 +108,8 @@ class PracticeScreen(Screen):
         self.history_button.bind(on_release=self.show_history)
         results.add_widget(self.history_button)
         self.keys = autoheight(Label(font_size='12sp', halign='center'))
-        for widget in (self.selection, self.question_label, self.scramble, self.timer, self.timer_button, self.status,
-                       self.answer, actions, results, self.statistics, self.keys):
+        for widget in (self.question_label, self.scramble, self.timer, self.timer_button, self.status,
+                       self.answer, actions, results, self.statistics):
             panel.add_widget(widget)
         self._root_layout.set_content(self.view, panel)
         self.add_widget(self._root_layout)
@@ -111,7 +117,7 @@ class PracticeScreen(Screen):
         self.retranslate()
 
     def on_pre_enter(self, *_):
-        progress = LearningProgress(prefs.get('formula_progress', {}))
+        progress = load_learning_progress()
         changed = progress.records != self.session.progress.records
         self.session.progress = progress
         if not self.session.question:
@@ -171,11 +177,8 @@ class PracticeScreen(Screen):
     def choose_sets(self, *_):
         selected = set(self.session.selected)
         content = BoxLayout(orientation='vertical', spacing=m.h(8))
-        scroll = ScrollView(do_scroll_x=False)
-        listing = BoxLayout(orientation='vertical', size_hint_y=None, spacing=m.h(6))
-        listing.bind(minimum_height=listing.setter('height'))
-        scroll.add_widget(listing)
-        content.add_widget(scroll)
+        listing = BoxLayout(orientation='vertical', spacing=m.h(6))
+        content.add_widget(wrap_scroll(listing, do_scroll_x=False))
         confirm = PrimaryButton(text=msg('confirm'), size_hint_y=None, height=m.h(46))
         for group in groups(self.puzzle):
             button = UIButton(text=title(group, current_language()) + f" ({len(group['cases'])})",
@@ -207,6 +210,25 @@ class PracticeScreen(Screen):
         popup.bind(on_dismiss=lambda *_: setattr(self, '_popup', None))
         theme_popup(popup, self._theme())
         popup.open()
+
+    def show_help(self,*_):
+        if self.session.state=='running':
+            return
+        content=BoxLayout(orientation='vertical',spacing=m.h(8))
+        text=BoxLayout(orientation='vertical',spacing=m.h(12))
+        scroll=wrap_scroll(text, do_scroll_x=False)
+        lines=[self.selection.text,msg('keys'),msg('penalty_help'),msg('progress_help')]
+        if self.session.question:
+            lines.append(prerequisite(self.session.question['group'],current_language()))
+        for line in lines:
+            text.add_widget(autoheight(Label(text=line,font_size='14sp')))
+        scroll.add_widget(text)
+        content.add_widget(scroll)
+        close=UIButton(text=msg('confirm'),size_hint_y=None,height=m.h(44))
+        popup=Popup(title=msg('practice_help'),content=content,size_hint=(.9,.65))
+        close.bind(on_release=popup.dismiss)
+        content.add_widget(close)
+        self._open_popup(popup)
 
     def next_question(self, *_):
         if self.session.state == 'running':
@@ -279,7 +301,7 @@ class PracticeScreen(Screen):
         if not self.session.question or not self._answer_shown or self.session.state == 'running':
             return
         self.session.progress.cycle(self.puzzle, self.session.question['item'])
-        prefs.set('formula_progress', self.session.progress.records)
+        save_learning_progress(self.session.progress)
         try:
             self.session.set_filter(self.session.filter)
         except ValueError:
@@ -295,11 +317,8 @@ class PracticeScreen(Screen):
         if self.session.state == 'running':
             return
         content = BoxLayout(orientation='vertical', spacing=m.h(6))
-        scroll = ScrollView(do_scroll_x=False)
-        listing = BoxLayout(orientation='vertical', size_hint_y=None, spacing=m.h(4))
-        listing.bind(minimum_height=listing.setter('height'))
-        scroll.add_widget(listing)
-        content.add_widget(scroll)
+        listing = BoxLayout(orientation='vertical', spacing=m.h(4))
+        content.add_widget(wrap_scroll(listing, do_scroll_x=False))
         for record in reversed(self.session.records()[-50:]):
             value = self.session._time_value(record)
             text = record.get('case', '') + ' · ' + ('DNF' if value is None else format_time(value))
@@ -359,6 +378,7 @@ class PracticeScreen(Screen):
         self.replay_button.disabled = running
         self.filter_select.disabled = running
         self.history_button.disabled = running
+        self.help_button.disabled = running
         self.learning_button.disabled = running or not self._answer_shown
         self.learning_button.text = msg(self.session.progress.status(self.puzzle, self.session.question['item'])) if self._answer_shown else msg('learning_status')
         self._updating = True
@@ -368,14 +388,16 @@ class PracticeScreen(Screen):
             button.disabled = running or self.session.last_record is None
             button.active = bool(self.session.last_record and self.session.last_record.get('penalty', 'OK') == penalty)
         self.question_label.text = msg('number', number=self.session.number)
-        self.scramble.text = msg('generating') if self._setup_busy else msg('scramble') + '\n' + self.session.setup_text()
-        self.status.text = msg({'ready': 'ready', 'running': 'running', 'stopped': 'finished', 'assisted': 'assisted'}[state])
-        self.answer.text = (self.session.question['item']['name'] + '\n' + self.session.question['case']['text']) if self._answer_shown else msg('hidden')
-        self.answer.text += '\n' + prerequisite(self.session.question['group'], current_language())
+        self.scramble.text = msg('generating') if self._setup_busy else self.session.setup_text()
+        self.status.text = msg('practice_'+state)
+        self.answer.text = (self.session.question['item']['name'] + '\n' + self.session.question['case']['text']) if self._answer_shown else ''
         self.selection.text = msg('selected', sets=' / '.join(self.session.selected), count=len(self.session.pool))
+        self.set_button.text=' / '.join(self.session.selected)
+        self.set_button.shorten=True
+        self.set_button.shorten_from='right'
         stats = self.session.stats()
-        self.statistics.text = msg('stats', count=stats['count'], best=format_time(stats['best']), mean=format_time(stats['mean']))
-        self.statistics.text += '\n' + msg('averages', ao5=format_time(self.session.average(5)), ao12=format_time(self.session.average(12)))
+        self.statistics.text = msg('practice_stats',count=stats['count'],best=format_time(stats['best']),
+                                   ao5=format_time(self.session.average(5)),ao12=format_time(self.session.average(12)))
 
     def _key_down(self, _window, key, *_):
         if key != 32 or not self.manager or self.manager.current != self.name or self._popup:

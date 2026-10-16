@@ -4,6 +4,18 @@
 
 [下载 Windows / Android 版](https://github.com/coco54-beep/cube-solver/releases/latest) · [English technical overview](README.md) · [日本語](README.ja.md) · [源代码](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.25 更新
+
+- **拍照识别**按录入页的面顺序（F→R→U→B→L→D）逐面扫描：切换时提示魔方转动方向，叠加取景框，支持未拍完就应用；相机预览按设备方向自动校正。
+- 各输入页把多余的**校验**按钮换成**赋予初始值**：一键把魔方还原为初始态；形状／镜子／镜子魔塔输入页预置中心块，方便对位。
+- 首页新增底部操作栏（Σ 公式库 · 相机 · 设置），图标风格统一；使用说明弹窗字号自适应，并补充公式库、练习、拍照识别说明。
+- 打乱步数随魔方规模放大（高阶五魔方／足球），繁花五魔方加长打乱；求解失败提示本地化。
+- 工程：应用内 UI 冒烟自检 + 截图基线回归、adb 真机自检、i18n 覆盖审计。
+
+**下载：** [Android arm64-v8a APK](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.25/cubesolver-1.2.25-arm64-v8a-release.apk) · [Windows x64 便携 ZIP](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.25/CubeSolver-1.2.25-windows-x64.zip)。Windows 须完整解压并保留 `_internal`。
+
+[1.2.25 发布说明](docs/release-1.2.25.md) · [全部发布](https://github.com/coco54-beep/cube-solver/releases/latest)
+
 ## 1.2.24 更新
 
 - 新增离线进阶公式库：覆盖普通 2–5 阶、SQ1、斜转、金字塔、三阶五魔方，合并为 **43 个公式集、6,060 个可演示情况**。提供阶段前提、备选公式和原生模型演示，来源显示为普通标签。
@@ -21,6 +33,7 @@
 - 接入斜转、恐龙／格子、四叶草、八叶花、常春藤、空心三阶、潘多拉、金字塔、魔塔／空心魔塔、转面八面体、**二十面体 2–5 阶**、五魔方、繁花及 32 面足球。按模型真实色块轮廓取色，跳过空洞。
 - 拖动顶点对齐面和切线，跟随小模型动画整体翻面，点模型逐块修正。取色校准会更新已拍各面并保留手动改色；二十面体、足球分别提供 20 色、32 色编号。
 - Android 改用系统照片选择器，修正相机预览与识别框的对应关系。**新增异形模板尚未验证实拍准确率**；镜面、明显变形、曲面外壳及错层玩法不使用固定平面模板。
+- **提示：** 打开某个魔方，点相机图标，把一个整面正对取景框拍照（或导入照片）。Android 使用系统照片选择器，无需相册权限；不确定的贴纸可在小模型上修正后再应用。
 
 **Android arm64-v8a：** [下载 1.2.23 试用 APK](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.23/cubesolver-1.2.23-arm64-v8a-debug.apk)。**Windows 64 位：** [1.2.23 发布资产](https://github.com/coco54-beep/cube-solver/releases/tag/v1.2.23)提供便携 ZIP，须完整解压并保留 `_internal`。
 
@@ -37,7 +50,7 @@
 
 [发布说明](docs/release-1.2.22.md) · [Windows 构建说明](docs/windows.md)
 
-> **异形魔方版本 1.2.22：** 异形目录以卡片图展示，涵盖金字塔、斜转、五魔方、魔塔、镜面、粽子、恐龙/格子、转面八面体、足球、二十面体、繁花、枫叶、四叶草、八叶花、空心、SQ1、镜面塔、战鼓、五面体与形状魔方等，均有独立的模型、转动和 3D 回放入口。
+> **异形魔方版本 1.2.24：** 异形目录以卡片图展示，涵盖金字塔、斜转、五魔方、魔塔、镜面、粽子、恐龙/格子、转面八面体、足球、二十面体、繁花、枫叶、四叶草、八叶花、空心、SQ1、镜面塔、战鼓、五面体与形状魔方等，均有独立的模型、转动和 3D 回放入口。
 
 ## 摘要
 

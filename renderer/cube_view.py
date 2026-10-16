@@ -39,6 +39,10 @@ class CubeView(Widget):
 		self._anim = None
 		self._anim_event = None
 
+		# 层转动动画期间缓存"参考场景"顶点（用于稳定取景包围盒）。
+		# 动画中基准魔方不变，无需每帧重建整只魔方（高阶尤其明显）。
+		self._ref_vertices = None
+
 		# 显示整体旋转（输入界面用于把某面转到正对相机）。
 		# 逻辑魔方状态不随其变化；渲染时对顶点额外施加该变换。
 		self._whole_world = None
@@ -306,14 +310,18 @@ class CubeView(Widget):
 		# 动画（输入页切面）期间旋转后的包围盒会变化，导致画面缩放抖动，并误报
 		# 「三轴尺寸不一致」。
 		if self._anim is not None:
-			reference_vertices, _reference_indices, _reference_face_info = scene_mod.build_scene(
-				self.cube,
-				moving_positions=None,
-				rotation=None,
-				highlight=getattr(self, "_highlight", None),
-			)
+			# 动画期间基准魔方不变，只建一次参考场景，避免每帧重建整只魔方。
+			if self._ref_vertices is None:
+				self._ref_vertices, _ri, _rf = scene_mod.build_scene(
+					self.cube,
+					moving_positions=None,
+					rotation=None,
+					highlight=getattr(self, "_highlight", None),
+				)
+			reference_vertices = self._ref_vertices
 		else:
 			reference_vertices = list(vertices)
+			self._ref_vertices = None
 
 		# 施加显示整体旋转（输入界面用于把某面转到正对相机）。
 		if self._whole_world is not None and len(vertices) >= 7:

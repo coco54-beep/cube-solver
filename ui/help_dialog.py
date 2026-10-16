@@ -68,8 +68,9 @@ def show_help():
     holder = AnchorLayout(anchor_x="center", anchor_y="center")
     holder.size_hint = (1, 1)
     panel = BoxLayout(orientation="vertical", spacing=0, size_hint=(None, None))
-    panel.width = min(760, Window.width * 0.9)
-    panel.height = min(560, Window.height * 0.88)
+    # 上限也要随屏幕缩放：手机上原始像素上限会让弹窗只占很小一块。
+    panel.width = min(Window.width * 0.92, m.h(760))
+    panel.height = min(Window.height * 0.90, m.h(560))
     panel._bg = InstructionGroup()
     panel.canvas.before.add(panel._bg)
 

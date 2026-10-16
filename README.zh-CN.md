@@ -4,6 +4,14 @@
 
 [下载 Windows / Android 版](https://github.com/coco54-beep/cube-solver/releases/latest) · [English technical overview](README.md) · [日本語](README.ja.md) · [源代码](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.26 更新
+
+- 修复手机上的**使用说明**弹窗：面板尺寸改为随屏幕缩放（原来被限制在约 760×560 原始像素，手机上只占一小块），文字改用密度感知字号（18/21/26sp），高分辨率手机上可正常阅读。
+
+**下载：** [Android arm64-v8a APK](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.26/cubesolver-1.2.26-arm64-v8a-release.apk) · [Windows x64 便携 ZIP](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.26/CubeSolver-1.2.26-windows-x64.zip)。Windows 须完整解压并保留 `_internal`。
+
+[1.2.26 发布说明](docs/release-1.2.26.md) · [全部发布](https://github.com/coco54-beep/cube-solver/releases/latest)
+
 ## 1.2.25 更新
 
 - **拍照识别**按录入页的面顺序（F→R→U→B→L→D）逐面扫描：切换时提示魔方转动方向，叠加取景框，支持未拍完就应用；相机预览按设备方向自动校正。

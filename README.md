@@ -4,6 +4,14 @@
 
 [Windows and Android downloads](https://github.com/coco54-beep/cube-solver/releases/latest) · [中文技术说明](README.zh-CN.md) · [日本語](README.ja.md) · [Source code](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.26 update
+
+- Fixes the **Help** dialog on phones: the panel now scales with the screen (it was capped at ~760×560 raw pixels) and the text uses density-aware sizes (18/21/26 sp), so it is readable on high-resolution devices.
+
+**Downloads:** [Android arm64-v8a APK](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.26/cubesolver-1.2.26-arm64-v8a-release.apk) · [Windows x64 portable ZIP](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.26/CubeSolver-1.2.26-windows-x64.zip). Extract the Windows ZIP completely and retain `_internal`.
+
+[1.2.26 release notes](docs/release-1.2.26.md) · [All releases](https://github.com/coco54-beep/cube-solver/releases/latest)
+
 ## 1.2.25 update
 
 - **Photo scan** now follows the input page's face order (F→R→U→B→L→D), shows which way to turn the cube, overlays an alignment guide, and lets you apply a partial scan; the camera preview is auto-oriented to the device.

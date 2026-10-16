@@ -4,6 +4,14 @@
 
 [Windows / Android 版](https://github.com/coco54-beep/cube-solver/releases/latest) · [English](README.md) · [中文技术说明](README.zh-CN.md) · [ソースコード](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.26 の更新
+
+- スマートフォンの**使い方**ダイアログを修正：パネルサイズが画面に応じて拡大（従来は約760×560の生ピクセル上限で、高解像度端末では小さく表示）し、文字は密度対応のサイズ（18/21/26sp）にしました。
+
+**ダウンロード：** [Android arm64-v8a APK](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.26/cubesolver-1.2.26-arm64-v8a-release.apk) · [Windows x64 ポータブル ZIP](https://github.com/coco54-beep/cube-solver/releases/download/v1.2.26/CubeSolver-1.2.26-windows-x64.zip)。Windows版は全体を展開し `_internal` を残してください。
+
+[1.2.26 リリースノート](docs/release-1.2.26.md) · [すべてのリリース](https://github.com/coco54-beep/cube-solver/releases/latest)
+
 ## 1.2.25 の更新
 
 - **写真読み取り**が入力画面の面順（F→R→U→B→L→D）に従い、切り替え時にキューブの回転方向を案内、ガイド枠を重ね、未撮影でも適用できます。カメラ映像は端末の向きに自動補正します。

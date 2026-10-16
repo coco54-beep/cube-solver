@@ -42,12 +42,13 @@ def polyhedral_target(cube, move):
     if getattr(move, 'rotation_axis', None) is not None:
         return (0., 0., 0.)
     g = cube.geometry
-    target = mean(tuple(g.centres[p] for p in g.layers[move.axis][move.layer]))
-    # 魔塔是四面体、顶点转：转动层质心方向是"角"，镜头对上去会被近处的面挡住。
-    # 取反（180°）改为对"面"，动画就看得见了。仅改魔塔，其它魔方不动。
+    # 魔塔是四面体、绕角转：转动层质心方向就是"正在转的那个角"，正对上去会被
+    # 近处的曲面挡住。改为对准"另一个角"（相邻角之一），动画就看得见。
+    # 仅改魔塔，其它魔方不动。
     if getattr(cube, 'puzzle_kind', None) == 'moyu':
-        return tuple(-v for v in target)
-    return target
+        normals = g.spec.normals
+        return unit(tuple(normals[(move.axis + 1) % len(normals)]))
+    return mean(tuple(g.centres[p] for p in g.layers[move.axis][move.layer]))
 
 
 def layer_target(axis, layers):

@@ -300,8 +300,20 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
         from solver.polyhedral import scramble, scramble_length
         self._remember()
         self._cube.colors=[s.face for s in self._cube.geometry.stickers]
-        scramble(self._cube,scramble_length(self._cube))
-        self._refresh()
+        try:
+            scramble(self._cube,scramble_length(self._cube))
+            self._refresh()
+        except Exception:
+            import os, traceback
+            note=traceback.format_exc()
+            try:
+                base=os.environ.get('ANDROID_PRIVATE') or os.environ.get('ANDROID_APP_PATH') or os.getcwd()
+                with open(os.path.join(base,'scramble_error.log'),'w',encoding='utf-8') as fh:
+                    fh.write('kind=%s n=%s\n'% (getattr(self._cube,'puzzle_kind','?'),getattr(self._cube,'n','?')))
+                    fh.write(note)
+            except Exception:
+                pass
+            self.status.text='随机打乱失败：'+note.strip().splitlines()[-1]
 
     def undo(self):
         if self._history:

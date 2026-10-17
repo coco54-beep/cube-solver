@@ -13,7 +13,7 @@ from app.i18n import tr
 from cube.polyhedral import dot, cross
 from renderer.mastermorphix_view import MastermorphixView
 from renderer.turn import decompose_move
-from renderer.camera_follow import follow_turn, layer_target, cancel_follow
+from renderer.camera_follow import follow_turn, layer_target, cancel_follow, FOLLOW_SETTINGS, reset_camera_view
 from ui.widgets.camera_follow import follow_panel
 from ui.widgets.buttons import UIButton, PrimaryButton
 from ui.widgets.layouts import AdaptiveSceneLayout, ResponsiveBoxLayout
@@ -179,7 +179,7 @@ class MorphixTwistScreen(Screen):
         self.hint.bind(size=lambda w, *_: setattr(w, 'text_size', w.size))
         panel.add_widget(self.hint)
         self.panel = panel
-        panel, self.follow_control = follow_panel(panel)
+        panel, self.follow_control = follow_panel(panel,self.view,show_lock=False)
         root.set_content(self.view, panel)
         self.add_widget(root)
 
@@ -189,11 +189,11 @@ class MorphixTwistScreen(Screen):
         self._work = src._cube.clone()
         self._recorded = set(src._recorded)
         view = _make_twist_view(self._work, size_hint_y=1)
-        view.lock_rotation = True
         view.show_axes = True
         view.on_twist = self.twist
         self._root_layout.replace_scene(view)
         self.view = view
+        self.follow_control.bind_view(view,self._camera_lock_changed)
         self.view.set_cube(self._work)
         self.view.recorded = self._recorded
         self._queue = []
@@ -227,16 +227,18 @@ class MorphixTwistScreen(Screen):
         self.btn_wide.icon_name = 'wide' if self.view.wide else 'single'
         self.btn_wide.active = self.view.wide
 
+    def _camera_lock_changed(self,locked):
+        self.btn_lock.icon_name='lock' if locked else 'unlock'
+        self.btn_lock.active=locked
+        self.hint.text=tr('poly.twist_hint_on') if locked else tr('poly.twist_hint_off')
+
     def toggle_lock(self):
-        if self._busy:
-            return
-        self.view.cancel_touch()
-        self.view.lock_view = not self.view.lock_view
-        self.view.lock_rotation = self.view.lock_view
-        self._update_controls()
-        self.retranslate()
+        if not self._busy:
+            FOLLOW_SETTINGS.locked=not FOLLOW_SETTINGS.locked
 
     def toggle_wide(self):
+        if self._busy:
+            return
         self.view.cancel_touch()
         self.view.wide = not self.view.wide
         self._update_controls()
@@ -245,7 +247,7 @@ class MorphixTwistScreen(Screen):
         if self._busy:
             return
         self.view.cancel_touch()
-        self.view.reset_camera()
+        reset_camera_view(self.view)
 
     def twist(self, move):
         if self._busy or self._work is None:
@@ -307,6 +309,8 @@ class MorphixTwistScreen(Screen):
             return
         try:
             src = self.manager.get_screen(self._source)
+            if self._history:
+                src._remember()
             src._cube = self._work
             src._recorded = set(self._recorded)
         except Exception:

@@ -4,6 +4,16 @@
 
 [下载 Windows / Android 版](https://github.com/coco54-beep/cube-solver/releases/latest) · [English technical overview](README.md) · [日本語](README.ja.md) · [源代码](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.27 更新
+
+- **求解界面统一**：普通魔方、异形和 SQ1 使用同一求解页，显示模型、阶段进度和取消按钮；取消返回原输入，失败统一提示，忽略旧任务的迟到结果。
+- **镜头控制统一**：输入、拧动、还原共用锁定与跟随设置；锁定视角会将跟随设为 0，开启跟随会自动解锁，复位视角保留设置。
+- **操作行为整理**：动画中避免重复操作，手动走步暂停自动播放，跳转或返回前暂停；批量输入、打乱和拧动返回保留撤销记录。
+- **Android 修复**：随机打乱改用独立的轻量模块并保留失败前输入；补齐 APK 中遗漏的 `twophase` 求解代码，避免 `No module named 'twophase.defs'`。
+- 本次新界面改动完成语法及包内容核对，尚未进行手机回归。此前模块修复在模拟器上完成三阶与七阶金字塔求解回放核对。
+
+[1.2.27 更新说明](docs/release-1.2.27.md) · [下载 Windows / Android](https://github.com/coco54-beep/cube-solver/releases/latest)
+
 ## 1.2.26 更新
 
 - 修复手机上的**使用说明**弹窗：面板尺寸改为随屏幕缩放（原来被限制在约 760×560 原始像素，手机上只占一小块），文字改用密度感知字号（18/21/26sp），高分辨率手机上可正常阅读。

@@ -22,6 +22,15 @@
 class EntryActionsMixin:
     entry_twist_screen = None
 
+    def entry_can_edit(self):
+        """Reject conflicting edits while a turn, camera move or solve runs."""
+        view=getattr(self,'view',None)
+        return not (getattr(self,'_job',None) is not None or
+                    getattr(self,'_busy_turn',False) or getattr(self,'_view_busy',False) or
+                    getattr(self,'_busy',False) or getattr(self,'_pending_move',None) is not None or
+                    getattr(view,'_move',None) is not None or getattr(view,'camera_busy',False) or
+                    getattr(view,'_camera_follow_active',False))
+
     # ---- 钩子（默认实现，供子类覆盖）----
     def entry_can_assign(self):
         return True
@@ -47,14 +56,14 @@ class EntryActionsMixin:
     # ---- 共性动作（只写一次）----
     def assign_initial(self):
         """一键把当前魔方设为已还原态（不跳转，成功不提示）。"""
-        if not self.entry_can_assign():
+        if not self.entry_can_edit() or not self.entry_can_assign():
             return
         self.entry_reset_solved()
         self.entry_commit_state()
         self.entry_set_status("")
 
     def open_twist(self):
-        if not self.entry_twist_screen or not self.entry_can_twist():
+        if not self.entry_twist_screen or not self.entry_can_edit() or not self.entry_can_twist():
             return
         self.entry_prepare_twist()
         self.manager.current = self.entry_twist_screen

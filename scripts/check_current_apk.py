@@ -15,13 +15,15 @@ def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('apk',type=Path)
     parser.add_argument('--source-root',type=Path)
+    parser.add_argument('--abi',choices=('arm64-v8a','x86_64'),default='arm64-v8a')
     parser.add_argument('--output',default='reports/android-test/1.2.21/package-check.json')
     args=parser.parse_args()
     workspace=Path(__file__).resolve().parents[1]
     root=args.source_root or workspace
     stage=workspace/'.buildozer/android/app'
     expected={}
-    for folder in ('app','cube','demo','renderer','services','solver','ui','vision','twophase'):
+    for folder in ('app','cube','demo','renderer','services','solver','ui','vision','twophase',
+                   'kociemba-src/package_src/twophase'):
         for source in (root/folder).rglob('*.py'):
             relative=source.relative_to(root)
             assert digest(source.read_bytes())==digest((stage/relative).read_bytes()),relative
@@ -43,7 +45,7 @@ def main():
                 expected[source.relative_to(root).as_posix()]=digest(source.read_bytes())
     verified=[]
     with zipfile.ZipFile(args.apk) as apk:
-        assert any(n.startswith('lib/arm64-v8a/') for n in apk.namelist())
+        assert any(n.startswith('lib/'+args.abi+'/') for n in apk.namelist())
         with tarfile.open(fileobj=apk.open('assets/private.tar'),mode='r|*') as archive:
             for member in archive:
                 name=member.name.removeprefix('./')

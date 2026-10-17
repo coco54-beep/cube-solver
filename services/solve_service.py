@@ -54,14 +54,6 @@ class SolveService:
         self._thread.start()
 
     def _run(self, cube, on_done, on_progress, cancel):
-        from cube.cube2 import Cube2
-        from cube.cube3 import Cube3
-        from cube.cube5 import Cube5
-        from solver.solver2 import solve_2x2
-        from solver.solver3 import solve_3x3
-        from solver.solver4 import solve_4x4
-        from solver.solver5 import solve_5x5
-
         def cb(payload):
             if on_progress is not None:
                 try:
@@ -70,6 +62,11 @@ class SolveService:
                     pass
 
         try:
+            if cancel.is_set():
+                raise InterruptedError()
+            from cube.cube2 import Cube2
+            from cube.cube3 import Cube3
+            from cube.cube5 import Cube5
             from cube.polyhedral import PolyhedralPuzzle
             if isinstance(cube,PolyhedralPuzzle) or getattr(cube,'puzzle_kind',None)=='mirror_tower':
                 from time import perf_counter
@@ -97,18 +94,22 @@ class SolveService:
                 from solver.mastermorphix import solve_mastermorphix
                 result = solve_mastermorphix(cube, cancel_event=cancel, progress_callback=cb)
             elif isinstance(cube, Cube2):
+                from solver.solver2 import solve_2x2
                 result = solve_2x2(cube, cancel_event=cancel)
             elif isinstance(cube, Cube3):
+                from solver.solver3 import solve_3x3
                 # 3x3: 用 facelets 路径，复用 solver3
                 from cube.conversion import cubies_to_facelets
                 facelets = cubies_to_facelets(cube.cubies, 3)
                 result = solve_3x3(facelets)
             elif isinstance(cube, Cube5):
+                from solver.solver5 import solve_5x5
                 result = solve_5x5(cube, cancel_event=cancel, progress_callback=cb)
             elif cube.n >= 6:
                 from solver.solver_n import solve_nxn
                 result = solve_nxn(cube, cancel_event=cancel, progress_callback=cb)
             else:
+                from solver.solver4 import solve_4x4
                 result = solve_4x4(
                     cube,
                     cancel_event=cancel,

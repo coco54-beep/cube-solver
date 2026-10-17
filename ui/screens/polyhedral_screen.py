@@ -19,7 +19,7 @@ from cube.polyhedral import Move
 from renderer.polyhedral_view import PolyhedralView, PolyhedralTwistView, default_palette
 from renderer.cube_orientation import CubeOrientation
 from renderer.mat4 import Mat4
-from renderer.camera_follow import follow_turn, polyhedral_target, cancel_follow
+from renderer.camera_follow import follow_turn, polyhedral_target, cancel_follow, FOLLOW_SETTINGS, reset_camera_view
 from ui.widgets.camera_follow import follow_panel
 from ui.screens.mastermorphix_screen import _Swatch
 from ui.widgets.buttons import UIButton,PrimaryButton,DangerButton
@@ -121,6 +121,7 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
         self.status.bind(size=lambda w,*_:setattr(w,'text_size',w.size))
         panel.add_widget(self.status)
         self.panel=panel
+        panel,self.follow_control=follow_panel(panel,self.view)
         root.set_content(self.view,panel)
         self.add_widget(root)
 
@@ -297,30 +298,37 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
         return self._job is None
 
     def randomize(self):
-        from solver.polyhedral import scramble, scramble_length
-        self._remember()
-        self._cube.colors=[s.face for s in self._cube.geometry.stickers]
+        if self._cube is None or self._job is not None or self._view_busy:
+            return
         try:
-            scramble(self._cube,scramble_length(self._cube))
-            self._refresh()
+            from cube.polyhedral_scramble import scramble, scramble_length
+            # Prepare on a separate state. Failed imports or moves must not
+            # erase the user's painted stickers or partially scramble them.
+            work=self._cube.clone()
+            work.colors=[s.face for s in work.geometry.stickers]
+            scramble(work,scramble_length(work))
         except Exception:
-            import os, traceback
-            note=traceback.format_exc()
-            try:
-                base=os.environ.get('ANDROID_PRIVATE') or os.environ.get('ANDROID_APP_PATH') or os.getcwd()
-                with open(os.path.join(base,'scramble_error.log'),'w',encoding='utf-8') as fh:
-                    fh.write('kind=%s n=%s\n'% (getattr(self._cube,'puzzle_kind','?'),getattr(self._cube,'n','?')))
-                    fh.write(note)
-            except Exception:
-                pass
-            self.status.text='随机打乱失败：'+note.strip().splitlines()[-1]
+            from kivy.logger import Logger
+            Logger.exception('Polyhedral: random scramble failed (%s, order %s)',
+                             self._cube.puzzle_kind,self._cube.n)
+            self.status.text=tr('poly.scramble_failed')
+            return
+        self._remember()
+        self._cube.colors=list(work.colors)
+        self.view.selected=None
+        self._refresh()
 
     def undo(self):
+        if not self.entry_can_edit():
+            return
         if self._history:
             self._cube.colors=list(self._history.pop())
+            _app().polyhedral_solution=None
             self._refresh()
 
     def clear(self):
+        if not self.entry_can_edit():
+            return
         box=ResponsiveBoxLayout(orientation='vertical',gap_px=8)
         actions=ResponsiveBoxLayout(height_px=44,gap_px=8)
         cancel=UIButton(text=tr('poly.cancel'))
@@ -330,6 +338,9 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
         box.add_widget(actions)
         popup=self._popup(tr('poly.clear'),box,(.8,.26))
         def confirm(*args):
+            if not self.entry_can_edit():
+                popup.dismiss()
+                return
             self._remember()
             self._cube.colors=[-1]*len(self._cube.colors)
             popup.dismiss()
@@ -338,6 +349,8 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
         cancel.bind(on_release=lambda *_:popup.dismiss())
 
     def validate(self):
+        if not self.entry_can_edit():
+            return
         from solver.polyhedral import identify
         try:
             identify(self._cube)
@@ -363,50 +376,18 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
         self.status.text=text
 
     def solve(self):
+        if not self.entry_can_edit():
+            return
         if self._job is not None:
             return
-        self._cancel=threading.Event()
-        cancellation=self._cancel
-        job=object()
-        self._job=job
         entered=self._cube.entered()
-        self.panel.disabled=True
-        cancel=UIButton(text=tr('poly.cancel'),height=m.h(44),size_hint_y=None)
-        message=Label(text=tr('poly.solving'))
-        box=ResponsiveBoxLayout(orientation='vertical',gap_px=8)
-        box.add_widget(message)
-        box.add_widget(cancel)
-        popup=self._popup(tr('poly.solving'),box,(.8,.28),auto_dismiss=False)
-        self._solve_popup=popup
-        cancel.bind(on_release=lambda *_:cancellation.set())
-        def progress(done,total):
-            text=tr('poly.optimizing') if done<0 else tr('poly.stage',done=done,total=total)
-            Clock.schedule_once(lambda dt,text=text:setattr(message,'text',text),0)
-        def finish(solution=None,error=None):
-            if self._job is not job:
-                return
-            self._job=None
-            self.panel.disabled=False
-            popup.dismiss()
-            self._solve_popup=None
-            if cancellation.is_set():
-                return
-            if error is not None:
-                self.error(error)
-            else:
-                _app().polyhedral_solution=(entered,solution,tuple(self.view.palette))
-                self.manager.current='PolyhedralPlaybackScreen'
-        def worker():
-            try:
-                from solver.polyhedral import solve_polyhedral
-                solution=solve_polyhedral(entered,cancellation.is_set,progress)
-                Clock.schedule_once(lambda dt:finish(solution),0)
-            except InterruptedError:
-                Clock.schedule_once(lambda dt:finish(),0)
-            except Exception as exc:
-                error=str(exc)
-                Clock.schedule_once(lambda dt:finish(error=error),0)
-        threading.Thread(target=worker,daemon=True).start()
+        palette=tuple(self.view.palette)
+        def solved(result):
+            _app().polyhedral_solution=(entered,result.moves,palette)
+            self.manager.current='PolyhedralPlaybackScreen'
+        screen=self.manager.get_screen('SolvingScreen')
+        screen.configure(entered,self.name,solved,_view_for(entered),palette)
+        self.manager.current='SolvingScreen'
 
     def customize(self):
         picker=ColorPicker(color=self.view.palette[self._color])
@@ -496,6 +477,7 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
             self._solve_popup=None
 
     def retranslate(self):
+        self.follow_control.retranslate()
         if self._cube:
             self.title.text=f'{_puzzle_title(self._cube)} · {tr("directory.order",order=self._cube.n)}'
             if self._cube.puzzle_kind in ('blossom','ivy'):
@@ -574,7 +556,7 @@ class PolyhedralPlaybackScreen(Screen):
         row.add_widget(self.hold_label)
         row.add_widget(self.hold)
         panel.add_widget(row)
-        panel,self.follow_control=follow_panel(panel)
+        panel,self.follow_control=follow_panel(panel,self.view)
         root.set_content(self.view,panel)
         self.add_widget(root)
 
@@ -644,6 +626,10 @@ class PolyhedralPlaybackScreen(Screen):
             label.color=_app().theme.text
 
     def next(self,*args):
+        self.stop()
+        self._advance()
+
+    def _advance(self,*args):
         if self.view._move is not None or self._pending_move is not None or self._seek_job is not None:
             return
         if self._index>=len(self._moves):
@@ -655,7 +641,7 @@ class PolyhedralPlaybackScreen(Screen):
                 self._checkpoints[self._index]=tuple(self._work.colors)
             self._refresh()
             if self._playing:
-                self._hold=Clock.schedule_once(self.next,self._hold_time)
+                self._hold=Clock.schedule_once(self._advance,self._hold_time)
         self._animate_followed(self._moves[self._index],done)
         self._refresh()
 
@@ -693,7 +679,7 @@ class PolyhedralPlaybackScreen(Screen):
 
     def reset_view(self):
         if self._pending_move is None:
-            self.view.reset_camera()
+            reset_camera_view(self.view)
 
     def play(self):
         if self._seek_job is not None:
@@ -703,7 +689,7 @@ class PolyhedralPlaybackScreen(Screen):
         else:
             self._playing=True
             self._refresh()
-            self.next()
+            self._advance()
 
     def stop(self):
         self._playing=False
@@ -755,6 +741,7 @@ class PolyhedralPlaybackScreen(Screen):
         self._confirm_playback(tr('playback.confirm.back'),self.back)
 
     def _confirm_playback(self,message,on_confirm):
+        self.stop()
         content=BoxLayout(orientation='vertical',spacing=12,padding=16)
         label=Label(text=message,halign='center',font_size='18sp',size_hint_y=1)
         buttons=BoxLayout(orientation='horizontal',spacing=8,size_hint_y=None,height=m.h(52))
@@ -830,7 +817,7 @@ class PolyhedralTwistScreen(Screen):
         self.btn_lock=UIButton(icon_name='lock')
         self.btn_lock.bind(on_release=lambda *_:self.toggle_lock())
         reset=UIButton(icon_name='reset')
-        reset.bind(on_release=lambda *_:self.view.reset_camera())
+        reset.bind(on_release=lambda *_:reset_camera_view(self.view))
         nxt=UIButton(icon_name='next')
         nxt.bind(on_release=lambda *_:self.change_view(1))
         for widget in (prev,self.btn_lock,reset,nxt):
@@ -853,7 +840,7 @@ class PolyhedralTwistScreen(Screen):
         self.hint.bind(size=lambda w,*_:setattr(w,'text_size',w.size))
         panel.add_widget(self.hint)
         self.panel=panel
-        panel,self.follow_control=follow_panel(panel)
+        panel,self.follow_control=follow_panel(panel,self.view,self._camera_lock_changed,show_lock=False)
         root.set_content(self.view,panel)
         self.add_widget(root)
 
@@ -867,7 +854,9 @@ class PolyhedralTwistScreen(Screen):
             self._build()
         self.view.cancel_touch()
         self.view.set_cube(self._cube)
-        self.view.lock_view=True
+        self.follow_control.bind_view(self.view,self._camera_lock_changed)
+        self._entry_snapshot=(tuple(self._cube.colors)
+                              if self._cube.puzzle_kind!='mirror_tower' else None)
         self._history=[]
         self._future=[]
         self._face=0
@@ -985,11 +974,17 @@ class PolyhedralTwistScreen(Screen):
         self.btn_lock.icon_name='lock' if self.view.lock_view else 'unlock'
         self.btn_lock.active=self.view.lock_view
 
+    def _camera_lock_changed(self,locked):
+        self.btn_lock.icon_name='lock' if locked else 'unlock'
+        self.btn_lock.active=locked
+        kind=self._cube.puzzle_kind if self._cube else ''
+        if kind in ('clover','eight_petals','football','blossom','ivy','dino','war_drum','pentahedron'):
+            self.hint.text=tr('poly.'+kind+'_twist')
+        else:
+            self.hint.text=tr('poly.twist_hint_on') if locked else tr('poly.twist_hint_off')
+
     def toggle_lock(self):
-        self.view.cancel_touch()
-        self.view.lock_view=not self.view.lock_view
-        self._update_controls()
-        self.retranslate()
+        FOLLOW_SETTINGS.locked=not FOLLOW_SETTINGS.locked
 
     def twist(self,move):
         if self._cube is None or self.view._move is not None or self.view.camera_busy:
@@ -1050,6 +1045,12 @@ class PolyhedralTwistScreen(Screen):
     def back(self):
         if self.view._move is not None or self.view.camera_busy:
             return
+        initial=getattr(self,'_entry_snapshot',None)
+        if initial is not None and tuple(self._cube.colors)!=initial:
+            entry=self.manager.get_screen('PolyhedralScreen')
+            entry._history.append(initial)
+            entry._history=entry._history[-40:]
+            self._entry_snapshot=None
         self.view.cancel_touch()
         self.view.cancel_animation()
         self.panel.disabled=False

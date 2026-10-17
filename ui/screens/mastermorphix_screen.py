@@ -23,6 +23,7 @@ from ui.widgets.layouts import ResponsiveBoxLayout
 from ui.widgets import metrics as m
 from ui.widgets.dialogs import theme_popup
 from ui.widgets.mastermorphix_net import MastermorphixNet
+from ui.widgets.camera_follow import CameraFollowControl
 
 
 def _app():
@@ -145,6 +146,9 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
         controls.add_widget(actions)
         self.progress = Label(size_hint_y=None, height=m.h(24), font_size="13sp")
         controls.add_widget(self.progress)
+        self.follow_control=CameraFollowControl()
+        self.follow_control.bind_view(self.view)
+        controls.add_widget(self.follow_control)
         self.add_widget(root)
         self.bind(size=lambda *_: self._resize())
         controls.bind(minimum_height=lambda *_: self._resize())
@@ -381,8 +385,11 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
         self._refresh()
 
     def undo(self):
+        if not self.entry_can_edit():
+            return
         if self._history:
             self._cube, self._recorded = self._history.pop()
+            _app().solve_result=None
             self._refresh()
 
     def _popup(self, title, content, size=(.9, .8)):
@@ -392,6 +399,8 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
         return popup
 
     def confirm_clear(self):
+        if not self.entry_can_edit():
+            return
         content = ResponsiveBoxLayout(orientation="vertical", gap_px=12, padding_px=16)
         content.add_widget(Label(text=tr("morphix.clear_confirm")))
         row = ResponsiveBoxLayout(height_px=48, gap_px=8)
@@ -401,7 +410,16 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
         content.add_widget(row)
         popup = self._popup(tr("confirm.title"), content, (.86, .32))
         cancel.bind(on_release=lambda *_: popup.dismiss())
-        ok.bind(on_release=lambda *_: (self._blank(self._cube.palette), self._refresh(), popup.dismiss()))
+        ok.bind(on_release=lambda *_: (self._clear_entries(), popup.dismiss()))
+
+    def _clear_entries(self):
+        if not self.entry_can_edit() or self._cube is None:
+            return
+        self._remember()
+        history=list(self._history)
+        self._blank(self._cube.palette)
+        self._history=history
+        self._refresh()
 
     def open_demo(self):
         if self._busy_turn or self._cube is None or self._cube.n > 5:
@@ -446,9 +464,10 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
             return
         from cube.scramble import random_scramble
         moves = random_scramble(self._cube.n, puzzle_kind="mastermorphix")
+        work=MastermorphixCube.solved(self._cube.palette,self._cube.n)
+        work.apply_moves(moves)
         self._remember()
-        self._cube = MastermorphixCube.solved(self._cube.palette, self._cube.n)
-        self._cube.apply_moves(moves)
+        self._cube=work
         self._recorded = set(self._all_positions())
         self._refresh()
         self.hint.text = tr("morphix.random_loaded", k=len(moves), total=len(self._all_positions()))
@@ -542,7 +561,10 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
         return self._cube is not None and not getattr(self, "_busy_turn", False)
 
     def entry_reset_solved(self):
+        self._remember()
+        history=list(self._history)
         self._blank(getattr(self._cube, "palette", None))
+        self._history=history
         # 还原态即全部块都已录入并归位，否则视图会显示成「未录入」。
         self._recorded = set(self._all_positions())
 
@@ -563,6 +585,8 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
         return {p for p in self._cube.positions if position_kind(p) == "center"}
 
     def start_solve(self):
+        if not self.entry_can_edit():
+            return
         cube = self.check()
         if cube is None:
             return
@@ -571,8 +595,10 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
         app.n = cube.n
         app.puzzle_kind = "mastermorphix"
         app.solve_result = None
+        self.manager.get_screen('SolvingScreen').configure(_app().cube,self.name)
         self.manager.current = "SolvingScreen"
 
     def retranslate(self):
+        self.follow_control.retranslate()
         self.title.text = tr("morphix.title")
         self._refresh()

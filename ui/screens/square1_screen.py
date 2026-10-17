@@ -13,7 +13,7 @@ from app.i18n import tr
 from cube.square1 import Square1Cube
 from cube.square1_entry import Square1Entry
 from renderer.square1_view import Square1View
-from renderer.camera_follow import follow_turn, square1_target, cancel_follow
+from renderer.camera_follow import follow_turn, square1_target, cancel_follow, reset_camera_view
 from ui.widgets.camera_follow import follow_panel
 from ui.widgets.square1_entry import Square1Ring,Square1ColorButton
 from ui.widgets import metrics as m
@@ -168,7 +168,7 @@ class Square1Screen(EntryActionsMixin, Screen):
         self._button(row,'next',lambda:self.view.turn_view(1))
         panel.add_widget(row)
         self.panel=panel
-        panel,self.follow_control=follow_panel(panel)
+        panel,self.follow_control=follow_panel(panel,self.view)
         root.set_content(self.view,panel)
         self.add_widget(root)
 
@@ -274,8 +274,8 @@ class Square1Screen(EntryActionsMixin, Screen):
     def randomize(self):
         if self._job is not None or self.view._move is not None:
             return
-        self._remember()
         generated=Square1Cube().scramble()
+        self._remember()
         self._entry=Square1Entry(generated,colored=True)
         self._slot=self._entry.block_start(0)
         self._field=0
@@ -301,6 +301,8 @@ class Square1Screen(EntryActionsMixin, Screen):
         popup.open()
 
     def _clear_now(self):
+        if not self.entry_can_edit():
+            return
         self._remember()
         self._entry=Square1Entry()
         self._slot=self._field=0
@@ -321,6 +323,8 @@ class Square1Screen(EntryActionsMixin, Screen):
         self._refresh()
 
     def validate(self):
+        if not self.entry_can_edit():
+            return
         try:
             entered=self._entry.to_cube()
             self._cube.slots,self._cube.middle=entered.slots,entered.middle
@@ -354,50 +358,24 @@ class Square1Screen(EntryActionsMixin, Screen):
         if self._job is not None or self.view._move is not None or not self.validate():
             return
         initial=self._cube.clone()
-        job=object()
-        self._job=job
-        cancel=threading.Event()
-        self._cancel=cancel
-        content=ResponsiveBoxLayout(orientation='vertical',gap_px=8)
-        message=Label(text=tr('poly.solving'))
-        content.add_widget(message)
-        button=UIButton(text=tr('poly.cancel'))
-        button.bind(on_release=lambda *_:cancel.set())
-        content.add_widget(button)
-        popup=Popup(title=tr('poly.solving'),content=content,size_hint=(.8,.3),auto_dismiss=False)
-        theme_popup(popup,_app().theme)
-        popup.open()
-        self._popup=popup
-        def progress(done,total):
-            Clock.schedule_once(lambda dt:setattr(message,'text',tr('poly.stage',done=done,total=total)),0)
-        def done(solution,error):
-            if self._job is not job:
-                return
-            self._job=None
-            popup.dismiss()
-            if cancel.is_set():
-                return
-            if error:
-                self._refresh(tr(error))
-                return
+        def solved(result):
             self._initial=initial
-            self._moves=tuple(solution)
+            self._moves=tuple(result.moves)
             self._work=initial.clone()
             self._index=0
             self._playback=True
             self._build()
             self._refresh()
-        def worker():
-            try:
-                from solver.square1 import solve_square1
-                result=solve_square1(initial,cancel.is_set,progress)
-                Clock.schedule_once(lambda dt:done(result,None),0)
-            except Exception as exc:
-                detail=str(exc)
-                Clock.schedule_once(lambda dt:done(None,detail),0)
-        threading.Thread(target=worker,daemon=True).start()
+            self.manager.current=self.name
+        screen=self.manager.get_screen('SolvingScreen')
+        screen.configure(initial,self.name,solved,Square1View)
+        self.manager.current='SolvingScreen'
 
     def next(self):
+        self.stop()
+        self._advance()
+
+    def _advance(self):
         if self.view._move is not None or self._pending_move is not None:
             return
         if self._index>=len(self._moves):
@@ -407,7 +385,7 @@ class Square1Screen(EntryActionsMixin, Screen):
             self._index+=1
             self._refresh()
             if self._playing:
-                self._hold=Clock.schedule_once(lambda dt:self.next(),self._hold_time)
+                self._hold=Clock.schedule_once(lambda dt:self._advance(),self._hold_time)
         self._animate_followed(self._moves[self._index],done)
 
     def prev(self):
@@ -438,13 +416,15 @@ class Square1Screen(EntryActionsMixin, Screen):
         else:
             self._playing=True
             self._refresh()
-            self.next()
+            self._advance()
 
     def stop(self):
         self._playing=False
         if self._hold:
             self._hold.cancel()
         self._hold=None
+        if self._work is not None:
+            self._refresh()
 
     def seek(self,index):
         self.stop()
@@ -467,14 +447,15 @@ class Square1Screen(EntryActionsMixin, Screen):
         self._confirm_seek(tr('playback.confirm.end'),len(self._moves))
 
     def confirm_back(self):
+        self.stop()
         self._confirm_action(tr('playback.confirm.back'),self._return_to_input)
 
     def _confirm_seek(self,message,index):
+        self.stop()
         self._confirm_action(message,lambda:self.seek(index))
 
     def _confirm_action(self,message,action):
-        if self._pending_move is not None or self.view._move is not None:
-            return
+        self.stop()
         content=ResponsiveBoxLayout(orientation='vertical',gap_px=8)
         label=Label(text=message,halign='center',valign='middle')
         label.bind(size=lambda w,*_:setattr(w,'text_size',w.size))
@@ -494,7 +475,7 @@ class Square1Screen(EntryActionsMixin, Screen):
     def reset_view(self):
         if self._pending_move is not None:
             return
-        self.view.reset_camera()
+        reset_camera_view(self.view)
 
     def back(self):
         if self._playback:

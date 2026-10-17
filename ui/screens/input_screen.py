@@ -34,6 +34,7 @@ from cube.colors import DEFAULT_COLORS
 from ui.widgets.color_picker import ColorSelector
 from ui.widgets import metrics as m
 from ui.widgets.layouts import AdaptiveSceneLayout, ResponsiveBoxLayout
+from ui.widgets.camera_follow import follow_panel
 
 
 def _axis_of(normal):
@@ -311,6 +312,7 @@ class InputScreen(EntryActionsMixin, Screen):
                          color=(1, 0.55, 0.55, 1), halign="center")
         self.msg.bind(size=lambda widget, *_: setattr(widget, "text_size", widget.size))
         panel.add_widget(self.msg)
+        panel,self.follow_control=follow_panel(panel,self.view)
         root.set_content(self.view, panel)
         self._root_layout = root
         self._responsive_height_specs = [
@@ -346,6 +348,7 @@ class InputScreen(EntryActionsMixin, Screen):
         """语言切换后重设静态文案。"""
         if not hasattr(self, "title"):
             return
+        self.follow_control.retranslate()
         self.title.text = tr("input.title", n=self._n())
         self._update_turn_hints()
         self._update_progress()
@@ -600,6 +603,8 @@ class InputScreen(EntryActionsMixin, Screen):
 
     # ---- 撤销 / 重做 ----
     def undo(self):
+        if not self.entry_can_edit():
+            return
         if not self._history:
             return
         action = self._history.pop()
@@ -614,6 +619,8 @@ class InputScreen(EntryActionsMixin, Screen):
         self._update_progress()
 
     def redo(self):
+        if not self.entry_can_edit():
+            return
         if not self._redo:
             return
         action = self._redo.pop()
@@ -684,17 +691,25 @@ class InputScreen(EntryActionsMixin, Screen):
     def collect_facelets(self):
         return {f: [row[:] for row in self._data.get(f, [])] for f in FACES}
 
-    def set_facelets(self, facelets):
+    def set_facelets(self, facelets, remember=False):
         self.reset_interaction()
-        n = self._n()
-        for f in FACES:
-            if f in facelets:
-                grid = facelets[f]
-                self._data[f] = [[grid[r][c] for c in range(n)]
-                                 for r in range(n)]
-        self._reset_edits()
+        n=self._n()
+        data={f:([[facelets[f][r][c] for c in range(n)] for r in range(n)]
+                 if f in facelets else [row[:] for row in self._data[f]]) for f in FACES}
+        if remember:
+            action=[(f,r,c,self._data[f][r][c],data[f][r][c])
+                    for f in FACES for r in range(n) for c in range(n)
+                    if self._data[f][r][c]!=data[f][r][c]]
+            if action:
+                self._history.append(action)
+                self._redo=[]
+        else:
+            self._reset_edits()
+        self._data=data
+        self._valid=None
         self._error_cells.clear()
         self._refresh_view()
+        self._update_edit_buttons()
         self._update_progress()
 
     def on_cell(self, r, c, face):
@@ -702,6 +717,8 @@ class InputScreen(EntryActionsMixin, Screen):
         self._fill_cell(face, r, c, col)
 
     def random_load(self):
+        if not self.entry_can_edit():
+            return
         from cube.conversion import cubies_to_facelets
         from cube.scramble import random_scramble
         import random as _random
@@ -714,10 +731,12 @@ class InputScreen(EntryActionsMixin, Screen):
         cube = _new_solved_cube(n)
         cube.apply_moves(moves)
         facelets = cubies_to_facelets(cube.cubies, n)
-        self.set_facelets(facelets)
+        self.set_facelets(facelets,remember=True)
         self.msg.text = tr("input.random_loaded", k=len(moves))
 
     def open_scramble(self):
+        if not self.entry_can_edit():
+            return
         """弹出输入框，让用户粘贴打乱公式（如 "R U R' U'"）。"""
         from kivy.uix.popup import Popup
         from kivy.uix.textinput import TextInput
@@ -746,7 +765,9 @@ class InputScreen(EntryActionsMixin, Screen):
         self.load_scramble(text)
 
     def load_scramble(self, text):
-        """解析打乱公式并载入对应状态；失败时在状态栏提示。返回是否成功。"""
+        """解析打乱公式并载入对应状态；失败时保留原录入。"""
+        if not self.entry_can_edit():
+            return False
         from cube.conversion import cubies_to_facelets
         from cube.scramble import text_to_moves
         n = self._n()
@@ -764,11 +785,13 @@ class InputScreen(EntryActionsMixin, Screen):
         except Exception:
             self.msg.text = tr("input.scramble.error", tok="?")
             return False
-        self.set_facelets(cubies_to_facelets(cube.cubies, n))
+        self.set_facelets(cubies_to_facelets(cube.cubies, n),remember=True)
         self.msg.text = tr("input.scramble.loaded", k=len(moves))
         return True
 
     def confirm_clear(self):
+        if not self.entry_can_edit():
+            return
         from kivy.uix.popup import Popup
         content = BoxLayout(orientation="vertical", spacing=12, padding=16)
         label = Label(text=tr("input.clear.msg"), halign="center",
@@ -789,18 +812,14 @@ class InputScreen(EntryActionsMixin, Screen):
         popup.open()
 
     def clear_all(self):
-        self.reset_interaction()
-        n = self._n()
-        for face in FACES:
-            self._data[face] = [[""] * n for _ in range(n)]
-        self._ori = CubeOrientation(n)
-        self._busy_turn = False
-        self._pending_dir = None
-        self._reset_edits()
-        self._error_cells.clear()
-        self._valid = None
+        if not self.entry_can_edit():
+            return
+        n=self._n()
+        self.set_facelets({face:[[""]*n for _ in range(n)] for face in FACES},remember=True)
+        self._ori=CubeOrientation(n)
         self._refresh_view()
-        self.msg.text = tr("input.cleared")
+        self._update_turn_hints()
+        self.msg.text=tr('input.cleared')
 
     def reset_all(self):
         self._init_for_n()
@@ -831,7 +850,10 @@ class InputScreen(EntryActionsMixin, Screen):
             # 切回某一阶时恢复该阶上次录入的状态（而不是空白）。
             saved = getattr(app, "facelets_cache", {}).get(n)
         if saved is not None:
-            self.set_facelets(saved)
+            if saved!=self.collect_facelets():
+                self.set_facelets(saved)
+            else:
+                self._refresh_view()
             self.msg.text = tr("input.resumed")
         else:
             self._refresh_view()
@@ -841,8 +863,13 @@ class InputScreen(EntryActionsMixin, Screen):
         try:
             app = _app()
             cache = getattr(app, "facelets_cache", None)
-            if cache is not None and getattr(self, "_data", None):
-                cache[app.n] = self.collect_facelets()
+            if getattr(self, "_data", None):
+                current=self.collect_facelets()
+                if app.facelets_input!=current:
+                    app.solve_result=None
+                app.facelets_input=current
+                if cache is not None:
+                    cache[app.n]=current
         except Exception:
             pass
         self.reset_interaction()
@@ -911,7 +938,7 @@ class InputScreen(EntryActionsMixin, Screen):
     def entry_reset_solved(self):
         from cube.conversion import cubies_to_facelets
         n = self._n()
-        self.set_facelets(cubies_to_facelets(_new_solved_cube(n).cubies, n))
+        self.set_facelets(cubies_to_facelets(_new_solved_cube(n).cubies, n),remember=True)
 
     def entry_commit_state(self):
         self._commit_cube(self.collect_facelets())
@@ -921,6 +948,8 @@ class InputScreen(EntryActionsMixin, Screen):
         self.msg.color = _app().theme.danger if error else _app().theme.accent
 
     def start_solve(self):
+        if not self.entry_can_edit():
+            return
         self.check()
         if not getattr(self, "_valid", False):
             return
@@ -934,6 +963,7 @@ class InputScreen(EntryActionsMixin, Screen):
             app.solve_result = prev_result
             self.manager.current = "PlaybackScreen"
         else:
+            self.manager.get_screen('SolvingScreen').configure(_app().cube,self.name)
             self.manager.current = "SolvingScreen"
 
     def _commit_cube(self, facelets):

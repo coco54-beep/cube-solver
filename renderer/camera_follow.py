@@ -1,9 +1,10 @@
 """Bring an obscured turn into view before the layer animation starts."""
 import math
+import weakref
 
 from kivy.clock import Clock
 from kivy.event import EventDispatcher
-from kivy.properties import NumericProperty
+from kivy.properties import NumericProperty, BooleanProperty
 
 from app.prefs import get, set as save
 from cube.polyhedral import dot, mean, unit
@@ -16,26 +17,81 @@ MAX_RATE = 360
 class CameraFollowSettings(EventDispatcher):
     """One persisted rate shared by every turn and playback control; zero is off."""
     rate = NumericProperty(DEFAULT_RATE)
+    locked = BooleanProperty(False)
 
     def __init__(self):
         value = get('camera_follow_rate', DEFAULT_RATE)
         if not isinstance(value, (int, float)) or not math.isfinite(value):
             value = DEFAULT_RATE
         enabled = get('camera_follow_enabled', True) is True
-        super().__init__(rate=max(MIN_RATE, min(MAX_RATE, value)) if enabled else 0)
+        locked = get('camera_view_locked', False) is True
+        super().__init__(rate=max(MIN_RATE, min(MAX_RATE, value)) if enabled and value>0 and not locked else 0,
+                         locked=locked)
         self.bind(rate=self._save)
+        self.bind(locked=self._lock_changed)
 
     def _save(self, _instance, rate):
+        if rate>0 and self.locked:
+            self.locked=False
+            return  # The lock handler persists the complete new mode.
         save('camera_follow_enabled', rate > 0)
         save('camera_follow_rate', rate)
+
+    def _lock_changed(self,_instance,locked):
+        save('camera_view_locked',locked)
+        if locked and self.rate!=0:
+            self.rate=0
+        else:
+            save('camera_follow_enabled',self.rate>0)
+            save('camera_follow_rate',self.rate)
 
 
 FOLLOW_SETTINGS = CameraFollowSettings()
 
 
+class _ViewSettings:
+    """Weak subscriptions survive as long as their view, including replacements."""
+    def __init__(self,view,on_change=None):
+        self.view=weakref.ref(view)
+        self.on_change=weakref.WeakMethod(on_change) if on_change is not None else None
+        FOLLOW_SETTINGS.bind(locked=self.sync)
+        self.sync(FOLLOW_SETTINGS,FOLLOW_SETTINGS.locked)
+
+    def sync(self,_settings,locked):
+        view=self.view()
+        if view is None:
+            return
+        if hasattr(view,'cancel_touch'):
+            view.cancel_touch()
+        view.lock_rotation=locked
+        if hasattr(view,'lock_view'):
+            view.lock_view=locked
+        callback=self.on_change() if self.on_change is not None else None
+        if callback is not None:
+            callback(locked)
+
+
+def bind_camera_settings(view,on_change=None):
+    previous=getattr(view,'_view_settings',None)
+    if previous is not None:
+        FOLLOW_SETTINGS.unbind(locked=previous.sync)
+    view._view_settings=_ViewSettings(view,on_change)
+
+
+def reset_camera_view(view):
+    """Reset only the angle; never interrupt a pending turn or change modes."""
+    if (getattr(view,'_camera_follow_active',False) or
+            getattr(view,'_move',None) is not None or getattr(view,'camera_busy',False)):
+        return False
+    if hasattr(view,'cancel_touch'):
+        view.cancel_touch()
+    view.reset_camera()
+    return True
+
+
 def preferences():
     rate = FOLLOW_SETTINGS.rate
-    return rate > 0, max(MIN_RATE, min(MAX_RATE, rate))
+    return rate > 0 and not FOLLOW_SETTINGS.locked, max(MIN_RATE, min(MAX_RATE, rate))
 
 
 def polyhedral_target(cube, move):

@@ -102,10 +102,13 @@ class MirrorTowerScreen(PolyhedralScreen):
         self._refresh()
 
     def randomize(self):
-        from solver.polyhedral import scramble
+        if not self.entry_can_edit():
+            return
+        from cube.polyhedral_scramble import scramble
+        work=MirrorTowerCube()
+        scramble(work,24)
         self._remember()
-        self._cube.pieces=MirrorTowerCube().pieces
-        scramble(self._cube,24)
+        self._cube.pieces=work.pieces
         self._recorded=set(range(14))
         self._refresh()
 
@@ -129,14 +132,19 @@ class MirrorTowerScreen(PolyhedralScreen):
         popup.open()
 
     def _clear_now(self):
+        if not self.entry_can_edit():
+            return
         self._remember()
         self._recorded=set()
         self._cube.pieces=MirrorTowerCube().pieces
         self._refresh()
 
     def undo(self):
+        if not self.entry_can_edit():
+            return
         if self._history:
             self._cube.pieces,self._recorded=self._history.pop()
+            _app().polyhedral_solution=None
             self._refresh()
 
     def entry_reset_solved(self):
@@ -154,6 +162,8 @@ class MirrorTowerScreen(PolyhedralScreen):
         return {i for i in range(len(pieces)) if len(pieces[i])==1}
 
     def validate(self):
+        if not self.entry_can_edit():
+            return
         if len(self._recorded)!=14:
             self.error('Please enter every sticker')
             return False
@@ -166,6 +176,8 @@ class MirrorTowerScreen(PolyhedralScreen):
         return True
 
     def solve(self):
+        if not self.entry_can_edit():
+            return
         if self.validate():
             super().solve()
 

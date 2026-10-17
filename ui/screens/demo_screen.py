@@ -23,7 +23,7 @@ from renderer.polyhedral_view import PolyhedralView
 from demo.irregular_cases import lessons, token
 from demo.solutions import build_example, inverse_demo_move
 from demo.cases import TEACHING_COLORS
-from renderer.camera_follow import follow_turn,layer_target,polyhedral_target,square1_target,cancel_follow
+from renderer.camera_follow import follow_turn,layer_target,polyhedral_target,square1_target,cancel_follow,reset_camera_view
 from ui.widgets.camera_follow import CameraFollowControl
 from ui.widgets import metrics as m
 from ui.widgets.layouts import ResponsiveBoxLayout, AdaptiveSceneLayout
@@ -199,12 +199,13 @@ class DemoScreen(Screen):
         self.btn_next = ArrowButton(direction="right")
         self.btn_next.bind(on_release=lambda *a: self.next_move())
         self.btn_reset = UIButton(text="", icon_name="reset")
-        self.btn_reset.bind(on_release=lambda *a: self.view.reset_camera() if not self._busy else None)
+        self.btn_reset.bind(on_release=lambda *a: reset_camera_view(self.view) if not self._busy else None)
         for b in (self.btn_start, self.btn_prev, self.btn_play,
                   self.btn_next, self.btn_reset):
             control.add_widget(b)
         panel.add_widget(control)
         self.follow_control=CameraFollowControl()
+        self.follow_control.bind_view(self.view)
         panel.add_widget(self.follow_control)
         root.set_content(self.view, panel, portrait_fraction=.5)
 
@@ -267,6 +268,7 @@ class DemoScreen(Screen):
             self._root_layout.replace_scene(self.view)
         if isinstance(cube, MastermorphixCube):
             self.view.show_axes = True
+        self.follow_control.bind_view(self.view)
         self._work = cube
         self._initial = cube.clone()
         self._moves = list(case["moves"])

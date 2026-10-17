@@ -13,7 +13,7 @@ from kivy.uix.slider import Slider
 from app.i18n import tr
 from renderer.mastermorphix_view import cube_view_for
 from renderer.turn import decompose_move
-from renderer.camera_follow import follow_turn, layer_target, cancel_follow
+from renderer.camera_follow import follow_turn, layer_target, cancel_follow, reset_camera_view
 from ui.widgets import metrics as m
 from ui.widgets.layouts import ResponsiveBoxLayout, AdaptiveSceneLayout
 from ui.widgets.camera_follow import follow_panel
@@ -143,7 +143,7 @@ class PlaybackScreen(Screen):
         hold_row.add_widget(self.hold_slider)
         panel.add_widget(speed_row)
         panel.add_widget(hold_row)
-        panel, self.follow_control = follow_panel(panel)
+        panel, self.follow_control = follow_panel(panel,self.view)
         root.set_content(self.view, panel)
 
         self.add_widget(root)
@@ -170,7 +170,7 @@ class PlaybackScreen(Screen):
         self._work = app.cube.clone()
         self.view.set_cube(self._work)
         if self._puzzle_kind == "mastermorphix":
-            self.view.reset_camera()
+            reset_camera_view(self.view)
         self._moves = list(result.moves) if result else []
         self._idx = -1
         self._queue = []
@@ -211,6 +211,7 @@ class PlaybackScreen(Screen):
 
     def next(self):
         self._playing = False
+        self._cancel_hold()
         self._update_buttons()
         self._advance()
 
@@ -361,7 +362,7 @@ class PlaybackScreen(Screen):
         """把 3D 视角还原到默认。"""
         if getattr(self.view,'_camera_follow_active',False):
             return
-        self.view.reset_camera()
+        reset_camera_view(self.view)
 
     def on_leave(self,*args):
         self._stop_all()
@@ -383,7 +384,10 @@ class PlaybackScreen(Screen):
             getattr(_app(), 'puzzle_kind', 'cube'), 'InputScreen')
 
     def _confirm(self, msg, on_ok):
-        """二次确认弹窗；确定后执行 on_ok。"""
+        """二次确认期间暂停播放，取消后保持暂停。"""
+        self._playing=False
+        self._cancel_hold()
+        self._update_buttons()
         from kivy.uix.popup import Popup
         content = BoxLayout(orientation="vertical", spacing=12, padding=16)
         label = Label(text=msg, halign="center", font_size="18sp", size_hint_y=1)

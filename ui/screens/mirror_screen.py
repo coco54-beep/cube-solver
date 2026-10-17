@@ -23,7 +23,7 @@ class MirrorScreen(MastermorphixScreen):
         self.view=self.view_class()
         self.view.camera.azimuth=0.0
         self.view.camera.elevation=0.0
-        self.view.lock_rotation=True
+        self.follow_control.bind_view(self.view)
         self.view.on_pick_piece=self.select_position
         index=self.main.children.index(old)
         self.main.remove_widget(old)
@@ -113,10 +113,13 @@ class MirrorScreen(MastermorphixScreen):
         self._refresh()
 
     def random_load(self):
+        if not self.entry_can_edit():
+            return
         from cube.scramble import random_scramble
+        work=self.cube_class.solved(palette=self._cube.palette,n=self._cube.n)
+        work.apply_moves(random_scramble(self._cube.n))
         self._remember()
-        self._cube=self.cube_class.solved(palette=self._cube.palette,n=self._cube.n)
-        self._cube.apply_moves(random_scramble(self._cube.n))
+        self._cube=work
         self._recorded=set(self._all_positions())
         self._refresh()
 
@@ -132,9 +135,12 @@ class MirrorScreen(MastermorphixScreen):
         return self._cube.clone()
 
     def start_solve(self):
+        if not self.entry_can_edit():
+            return
         cube=self.check()
         if cube is not None:
             _app().cube=cube
             _app().puzzle_kind=self._cube.puzzle_kind
             _app().solve_result=None
+            self.manager.get_screen('SolvingScreen').configure(_app().cube,self.name)
             self.manager.current='SolvingScreen'

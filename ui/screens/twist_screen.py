@@ -21,7 +21,7 @@ from app.constants import FACES
 from app.i18n import tr
 from renderer.cube_view import CubeView
 from renderer.twist import resolve_twist, apply_layer_turn
-from renderer.camera_follow import follow_turn, layer_target, cancel_follow
+from renderer.camera_follow import follow_turn, layer_target, cancel_follow, FOLLOW_SETTINGS, reset_camera_view
 from ui.widgets.camera_follow import follow_panel
 from cube.conversion import cubies_to_facelets
 from cube.cube2 import Cube2
@@ -193,7 +193,7 @@ class TwistScreen(Screen):
         self.btn_wide = UIButton(text="", icon_name="single", size_hint_x=1)
         self.btn_wide.bind(on_release=lambda *a: self.toggle_wide())
         self.btn_reset = UIButton(text="", icon_name="reset", size_hint_x=1)
-        self.btn_reset.bind(on_release=lambda *a: self.view.reset_camera() if not self._busy else None)
+        self.btn_reset.bind(on_release=lambda *a: reset_camera_view(self.view) if not self._busy else None)
         toggle_row.add_widget(self.btn_lock)
         toggle_row.add_widget(self.btn_wide)
         toggle_row.add_widget(self.btn_reset)
@@ -207,7 +207,7 @@ class TwistScreen(Screen):
         self.msg.bind(size=lambda widget, *_: setattr(widget, "text_size", widget.size))
         panel.add_widget(self.msg)
         panel.bind(size=lambda *_: setattr(self.msg, "height", m.h(34)))
-        panel, self.follow_control = follow_panel(panel)
+        panel, self.follow_control = follow_panel(panel,self.view,self._camera_lock_changed,show_lock=False)
         root.set_content(self.view, panel)
 
         self.add_widget(root)
@@ -240,12 +240,12 @@ class TwistScreen(Screen):
         self._history = []
         self._future = []
         self._was_solved = cube.is_solved()
-        self.view.lock_view = True
+        self.follow_control.bind_view(self.view,self._camera_lock_changed)
         self._update_toggle_texts()
         self._update_history_buttons()
         self.view.reset_camera()
         self._refresh_view()
-        self.msg.text = tr("twist.hint_lock_on")
+        self.msg.text = tr("twist.hint_lock_on") if self.view.lock_view else tr("twist.hint_lock_off")
 
     def _input_screen(self):
         try:
@@ -257,15 +257,16 @@ class TwistScreen(Screen):
         self.view.set_cube(self._work)
 
     # ---- 交互 ----
-    def toggle_lock(self):
-        self.view.lock_view = not self.view.lock_view
+    def _camera_lock_changed(self,locked):
         self._update_toggle_texts()
-        if self.view.lock_view:
-            self.msg.text = tr("twist.hint_lock_on")
-        else:
-            self.msg.text = tr("twist.hint_lock_off")
+        self.msg.text=tr('twist.hint_lock_on') if locked else tr('twist.hint_lock_off')
+
+    def toggle_lock(self):
+        FOLLOW_SETTINGS.locked=not FOLLOW_SETTINGS.locked
 
     def toggle_wide(self):
+        if self._busy:
+            return
         self._wide = not self._wide
         self.view._wide = self._wide
         self._update_toggle_texts()
@@ -359,7 +360,7 @@ class TwistScreen(Screen):
         for f in FACES:
             grid = facelets.get(f, [])
             clean[f] = [[(g if g else "") for g in row] for row in grid]
-        input_screen.set_facelets(clean)
+        input_screen.set_facelets(clean,remember=True)
         # 同步刷新应用记录的布局，避免回到录入页时 on_enter
         # 用拧动前的旧 facelets_input 覆盖刚拧好的分布。
         app = _app()

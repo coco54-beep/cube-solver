@@ -321,38 +321,8 @@ def solve_minx(cube,cancel=None,progress=None,optimize=True,optimize_budget=None
     return solution
 
 
-# 少数"低能量"魔方（如繁花五魔方为 180° 边转、面心固定）混色很慢，
-# 需要更长步数才能接近其打乱上限；否则看起来像没打乱。
-_SCRAMBLE_MIN = {
-    "blossom": 220,
-}
-
-
-def scramble_length(cube):
-    """按贴纸规模给打乱步数：小魔方维持 30，大魔方/高阶自动加长。
-
-    固定 30 步会让高阶五魔方、足球只动到最外层，看起来几乎没打乱。
-    以贴纸数近似需打乱的自由度，约每 5 张贴纸 1 步，上限 320。
-    """
-    stickers = len(cube.colors)
-    length = max(30, min(320, round(stickers / 5)))
-    return max(length, _SCRAMBLE_MIN.get(getattr(cube, "puzzle_kind", ""), 0))
-
-
-def scramble(cube,length=30,seed=None):
-    rng=random.Random(seed)
-    moves=cube.moves()
-    last=-1
-    word=[]
-    for _ in range(length):
-        options=[m for m in moves if m.axis!=last]
-        move=rng.choice(options)
-        spec=cube.geometry.spec
-        move=Move(move.axis,move.layer,spec.step(move.axis)*rng.randrange(1,spec.order(move.axis)))
-        cube.apply_move(move)
-        word.append(move)
-        last=move.axis
-    return tuple(word)
+# Keep solver callers compatible; entry screens import the lightweight model module.
+from cube.polyhedral_scramble import scramble, scramble_length
 
 
 class Word:

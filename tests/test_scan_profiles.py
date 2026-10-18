@@ -1,6 +1,7 @@
 """Synthetic irregular-face recognition with known guide corners."""
 import numpy as np
 import pytest
+pytest.importorskip("PIL")
 from PIL import Image, ImageDraw
 
 from vision.scan_profiles import SUPPORTED, ScanProfile, detect_surface

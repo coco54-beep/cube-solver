@@ -3,7 +3,7 @@
 All moves act on the entered stickers. No scramble log is needed to reconstruct
 a state. Geometry is expressed in units of the body's inradius.
 """
-from collections import defaultdict
+from collections import Counter, defaultdict
 from dataclasses import dataclass
 from functools import lru_cache
 from itertools import combinations
@@ -143,13 +143,67 @@ def body_faces(spec):
     return body(tuple(scale(n,1/d) for n,d in zip(spec.normals,spec.bounds))) if spec.bounds else body(spec.normals)
 
 
+# Four-colour Dino: white and yellow on opposite face pairs, red and blue on
+# the remaining opposite pair. Face order is CUBE (U,R,F,D,L,B); the palette
+# order is the one used by the entry screen (yellow, red, blue, white).
+DINO4_FACE_COLORS=(3,0,1,3,0,2)
+
+
+def solved_colors(cube):
+    """Solved sticker colours, honouring the four-colour Dino mapping."""
+    if getattr(cube,'puzzle_kind',None)=='dino4':
+        return tuple(DINO4_FACE_COLORS[sticker.face] for sticker in cube.geometry.stickers)
+    return tuple(sticker.face for sticker in cube.geometry.stickers)
+
+
+@lru_cache(maxsize=1)
+def _skewb_ultimate_axes():
+    """The eight dodecahedron vertices forming Skewb Ultimate's inscribed cube.
+
+    The puzzle turns around the cube corners; those eight directions are a
+    subset of the dodecahedron's twenty vertices, but are not axis-aligned.
+    Find the subset whose pairwise distances form a cube: twelve edges,
+    twelve face diagonals and four body diagonals.
+    """
+    vertices=[]
+    seen=set()
+    for face in body(DODECA):
+        for vertex in face:
+            k=key(vertex)
+            if k not in seen:
+                seen.add(k)
+                vertices.append(unit(vertex))
+    for subset in combinations(range(len(vertices)),8):
+        counts=Counter(round(sum((a-b)**2 for a,b in zip(vertices[i],vertices[j])),6)
+                       for i,j in combinations(subset,2))
+        if len(counts)==3 and sorted(counts.values())==[4,12,12]:
+            return tuple(vertices[i] for i in subset)
+    raise ValueError('No inscribed cube found for the Skewb Ultimate axes')
+
+
 def specification(kind, n):
+    if kind in ('petal_tetrahedron', 'petal_tetrahedron_nocentre') and n == 3:
+        from cube.petal_icosahedron import petal_geometry
+        return petal_geometry(kind == 'petal_tetrahedron', solid='tetrahedron').spec
+    if kind in ('petal_icosahedron', 'petal_icosahedron_nocentre') and n == 3:
+        from cube.petal_icosahedron import petal_geometry
+        return petal_geometry(kind == 'petal_icosahedron').spec
     if kind == 'war_drum':
         from cube.war_drum import drum_specification
         return drum_specification(n)
     if kind == 'pentahedron':
         from cube.prism import prism_specification
         return prism_specification(n)
+    if kind == 'void_minx' and n == 3:
+        # Void Megaminx: the ordinary third-order Megaminx with its twelve
+        # single-sticker centres removed. The retained pieces keep the exact
+        # Megaminx move orbits.
+        return Spec(kind, n, DODECA, DODECA, (.7,), 5)
+    if kind == 'skewb_ultimate' and n == 3:
+        # Skewb Ultimate: a dodecahedron turned around the eight inscribed-cube
+        # corners. The zero-depth cuts give eight three-sticker corners and
+        # six four-sticker centres.
+        return Spec(kind, n, DODECA, _skewb_ultimate_axes(), (0.,)*8, 3)
     if kind == 'ivy' and n == 3:
         from cube.ivy import ivy_specification
         return ivy_specification()
@@ -181,6 +235,10 @@ def specification(kind, n):
         return Spec(kind, n, CUBE, OCTA, (1/math.sqrt(3),), 3)
     if kind == 'dino' and n == 2:
         # Dino: twelve two-colour edges, all eight corner axes, no corners.
+        return Spec(kind, n, CUBE, OCTA, (1/math.sqrt(3),), 3)
+    if kind == 'dino4' and n == 2:
+        # Four-colour Dino: the same twelve-edge mechanism as the Dino, with
+        # white/yellow on opposite face pairs and red/blue on the third pair.
         return Spec(kind, n, CUBE, OCTA, (1/math.sqrt(3),), 3)
     if kind == 'dino' and n in (4,6):
         # Lattice/Master Dino: retain the eight Dino axes. Subdivide the
@@ -234,6 +292,7 @@ class Geometry:
 
     def __post_init__(self):
         object.__setattr__(self, "_perm_cache", {})
+        object.__setattr__(self, "_inv_cache", {})
 
     def permutation(self, move):
         order = self.spec.turn_order
@@ -249,6 +308,22 @@ class Geometry:
             result = tuple(range(len(perm)))
             for _ in range(amount//step):
                 result = tuple(map(perm.__getitem__, result))
+            cache[key] = result
+        return result
+
+    def inverse_permutation(self, move):
+        """Destination-indexed permutation, cached alongside ``permutation``."""
+        order = self.spec.turn_order
+        amount = move.amount % order
+        key = (move.axis, move.layer, amount)
+        cache = self._inv_cache
+        result = cache.get(key)
+        if result is None:
+            perm = self.permutation(move)
+            inv = [0] * len(perm)
+            for source, destination in enumerate(perm):
+                inv[destination] = source
+            result = tuple(inv)
             cache[key] = result
         return result
 
@@ -392,9 +467,17 @@ def _even_geometry(n,kind='megaminx'):
 
 @lru_cache(maxsize=4)
 def geometry(kind,n):
+    if kind in ('petal_tetrahedron', 'petal_tetrahedron_nocentre') and n == 3:
+        from cube.petal_icosahedron import petal_geometry
+        return petal_geometry(kind == 'petal_tetrahedron', solid='tetrahedron')
+    if kind in ('petal_icosahedron', 'petal_icosahedron_nocentre') and n == 3:
+        from cube.petal_icosahedron import petal_geometry
+        return petal_geometry(kind == 'petal_icosahedron')
     spec=specification(kind,n)
     if kind == 'void_tower':
         return _without_centres(geometry('moyu', n), spec)
+    if kind == 'void_minx':
+        return _without_centres(geometry('megaminx', n), spec)
     if spec.even_minx:
         return _even_geometry(n)
     if kind=='moyu' and n in (4,6):
@@ -671,8 +754,7 @@ class PolyhedralPuzzle:
         self.geometry=geometry(kind,n)
         self.puzzle_kind=kind
         self.n=n
-        self.colors=list(colors if colors is not None else
-                         (s.face for s in self.geometry.stickers))
+        self.colors=list(colors if colors is not None else solved_colors(self))
         if len(self.colors)!=len(self.geometry.stickers):
             raise ValueError('Wrong sticker count')
 
@@ -684,15 +766,19 @@ class PolyhedralPuzzle:
         return type(self)(self.puzzle_kind,self.n,self.colors)
 
     def apply_move(self,move):
-        perm=self.geometry.permutation(move)
-        colors=self.colors
-        result=[0]*len(colors)
-        for source,destination in enumerate(perm):
-            result[destination]=colors[source]
-        self.colors=result
+        inverse=self.geometry.inverse_permutation(move)
+        self.colors=list(map(self.colors.__getitem__,inverse))
         return self
 
+    @property
+    def color_count(self):
+        return 4 if self.puzzle_kind == 'dino4' else len(self.geometry.spec.normals)
+
     def is_solved(self):
+        if self.puzzle_kind == 'dino4':
+            return (len(self.colors)==len(self.geometry.stickers) and
+                    all(color==DINO4_FACE_COLORS[sticker.face]
+                        for color,sticker in zip(self.colors,self.geometry.stickers)))
         if self.puzzle_kind == 'void_cube':
             from solver.polyhedral import _body_frames, _transform
             faces={key(normal):i for i,normal in enumerate(self.geometry.spec.normals)}

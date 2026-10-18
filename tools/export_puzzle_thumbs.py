@@ -22,24 +22,56 @@ from kivy.clock import Clock  # noqa: E402
 from kivy.uix.floatlayout import FloatLayout  # noqa: E402
 
 from cube.polyhedral import PolyhedralPuzzle  # noqa: E402
+from cube.cube3 import Cube3  # noqa: E402
 from cube.mastermorphix import MastermorphixCube  # noqa: E402
 from cube.mirror import MirrorCube  # noqa: E402
 from cube.shape_cube import AxisCube, PandoraCube, WindmillCube, FisherCube  # noqa: E402
+from cube.mirror_shape import MirrorAxisCube, MirrorFisherCube, MirrorWindmillCube  # noqa: E402
+from cube.mirror_shape import (MirrorUnequalWindmillCube, MirrorUnequalFisherCube,
+                               MirrorOffsetWindmillCube, MirrorOffsetFisherCube)  # noqa: E402
 from cube.square1 import Square1Cube  # noqa: E402
+from cube.square_family import SquareFamilyCube  # noqa: E402
 from cube.mirror_tower import MirrorTowerCube  # noqa: E402
+from cube.mirror_pyraminx import MirrorPyraminxCube  # noqa: E402
+from cube.mirror_skewb import MirrorSkewbCube  # noqa: E402
+from cube.ghost import GhostCube  # noqa: E402
 from renderer.polyhedral_view import PolyhedralView, default_palette  # noqa: E402
+from renderer.cube_view import CubeView  # noqa: E402
 from renderer.mastermorphix_view import MastermorphixView  # noqa: E402
 from renderer.mirror_view import MirrorView  # noqa: E402
 from renderer.shape_cube_view import AxisView, PandoraView, WindmillView, FisherView  # noqa: E402
+from renderer.mirror_shape_view import (MirrorAxisView, MirrorFisherView,  # noqa: E402
+                                        MirrorWindmillView, MirrorUnequalWindmillView,
+                                        MirrorUnequalFisherView, MirrorOffsetWindmillView, MirrorOffsetFisherView)
 from renderer.square1_view import Square1View  # noqa: E402
+from renderer.square_family_view import SquareFamilyView  # noqa: E402
 from renderer.mirror_tower_view import MirrorTowerView  # noqa: E402
+from renderer.mirror_pyraminx_view import MirrorPyraminxView  # noqa: E402
+from renderer.mirror_skewb_view import MirrorSkewbView  # noqa: E402
+from renderer.ghost_view import GhostView  # noqa: E402
 
 P = PolyhedralPuzzle
 JOBS = [
+    ('cube', CubeView, lambda: Cube3.solved()),
+    ('axis_4',AxisView,lambda:AxisCube.solved(n=4)),
+    ('windmill_4',WindmillView,lambda:WindmillCube.solved(n=4)),
+    ('fisher_4',FisherView,lambda:FisherCube.solved(n=4)),
+    ('sq_family',SquareFamilyView,lambda:SquareFamilyCube('super_square1')),
+    ('square0',SquareFamilyView,lambda:SquareFamilyCube('square0')),
+    ('square2',SquareFamilyView,lambda:SquareFamilyCube('square2')),
+    ('super_square1',SquareFamilyView,lambda:SquareFamilyCube('super_square1')),
+    ("ghost", GhostView, lambda: GhostCube.solved(n=3)),
+    ("ghost_1", GhostView, lambda: GhostCube.solved(n=1)),
+    ("ghost_2", GhostView, lambda: GhostCube.solved(n=2)),
+    ("ghost_4", GhostView, lambda: GhostCube.solved(n=4)),
+    ("mirror_skewb", MirrorSkewbView, lambda: MirrorSkewbCube.solved()),
+    ("mirror_pyraminx", MirrorPyraminxView, lambda: MirrorPyraminxCube.solved(n=3)),
+    ("mirror_pyraminx_4", MirrorPyraminxView, lambda: MirrorPyraminxCube.solved(n=4)),
     ("pyraminx", PolyhedralView, lambda: P("pyraminx", 3)),
     ("mastermorphix", MastermorphixView, lambda: MastermorphixCube.solved(n=3)),
     ("skewb", PolyhedralView, lambda: P("skewb", 3)),
     ("dino", PolyhedralView, lambda: P("dino", 2)),
+    ("dino4", PolyhedralView, lambda: P("dino4", 2)),
     ("megaminx", PolyhedralView, lambda: P("megaminx", 3)),
     ("moyu", PolyhedralView, lambda: P("moyu", 3)),
     ("mirror", MirrorView, lambda: MirrorCube.solved(n=3)),
@@ -51,16 +83,31 @@ JOBS = [
     ("eight_petals", PolyhedralView, lambda: P("eight_petals", 3)),
     ("clover", PolyhedralView, lambda: P("clover", 3)),
     ("blossom", PolyhedralView, lambda: P("blossom", 3)),
+    ("edge_family", PolyhedralView, lambda: P("blossom", 3)),
+    ("petal_tetrahedron", PolyhedralView, lambda: P("petal_tetrahedron", 3)),
+    ("petal_tetrahedron_nocentre", PolyhedralView, lambda: P("petal_tetrahedron_nocentre", 3)),
+    ("petal_icosahedron", PolyhedralView, lambda: P("petal_icosahedron", 3)),
+    ("petal_icosahedron_nocentre", PolyhedralView, lambda: P("petal_icosahedron_nocentre", 3)),
     ("square1", Square1View, lambda: Square1Cube.solved()),
     ("void_cube", PolyhedralView, lambda: P("void_cube", 3)),
     ("void_tower", PolyhedralView, lambda: P("void_tower", 3)),
+    ("void_minx", PolyhedralView, lambda: P("void_minx", 3)),
     ("mirror_tower", MirrorTowerView, lambda: MirrorTowerCube.solved()),
     ("axis", AxisView, lambda: AxisCube.solved(n=3)),
     ("pandora", PandoraView, lambda: PandoraCube.solved(n=3)),
     ("windmill", WindmillView, lambda: WindmillCube.solved(n=3)),
     ("fisher", FisherView, lambda: FisherCube.solved(n=3)),
+    ("mirror_windmill", MirrorWindmillView, lambda: MirrorWindmillCube.solved()),
+    ("mirror_axis", MirrorAxisView, lambda: MirrorAxisCube.solved()),
+    ("mirror_fisher", MirrorFisherView, lambda: MirrorFisherCube.solved()),
+    ("mirror_windmill_unequal", MirrorUnequalWindmillView, lambda: MirrorUnequalWindmillCube.solved()),
+    ("mirror_fisher_unequal", MirrorUnequalFisherView, lambda: MirrorUnequalFisherCube.solved()),
+    ("mirror_windmill_offset", MirrorOffsetWindmillView, lambda: MirrorOffsetWindmillCube.solved()),
+    ("mirror_fisher_offset", MirrorOffsetFisherView, lambda: MirrorOffsetFisherCube.solved()),
     ("ivy", PolyhedralView, lambda: P("ivy", 3)),
+    ("skewb_ultimate", PolyhedralView, lambda: P("skewb_ultimate", 3)),
 ]
+ONLY=set(sys.argv[1:])
 
 OUT = os.path.join(BASE, "assets", "puzzles")
 os.makedirs(OUT, exist_ok=True)
@@ -95,7 +142,7 @@ def _normalize(path):
 class ThumbApp(App):
     def build(self):
         self.root = FloatLayout()
-        self._q = list(JOBS)
+        self._q = [job for job in JOBS if not ONLY or job[0] in ONLY]
         Clock.schedule_once(self._next, 0.6)
         return self.root
 
@@ -117,6 +164,8 @@ class ThumbApp(App):
             # standard 3/4 camera and a little zoom-out so nothing is clipped.
             if hasattr(view, "reset_camera"):
                 view.reset_camera()
+            if name in ('mirror_fisher_unequal','mirror_fisher_offset'):
+                view.camera.azimuth = 22.5
             if hasattr(view, "_display_zoom"):
                 view._display_zoom = 0.75
                 if hasattr(view, "_redraw"):

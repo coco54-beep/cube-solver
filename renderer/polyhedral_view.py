@@ -26,6 +26,8 @@ PALETTE=((.98,.98,.98,1),(.02,.65,.18,1),(.9,.05,.06,1),(.51,.12,.73,1),
          (.97,.31,.61,1),(1,.47,.02,1),(.05,.2,.91,1),(.62,.86,.12,1),
          (1,.85,.02,1),(.02,.73,.83,1),(.58,.6,.64,1),(.2,.08,.47,1))
 TETRA_PALETTE=((.91,.04,.04,1),(1,.85,0,1),(.06,.19,.9,1),(.01,.65,.18,1))
+# Four-colour Dino palette, matching the entry swatch order.
+DINO4_PALETTE=((1,.85,0,1),(.9,.04,.05,1),(.06,.19,.9,1),(.98,.98,.98,1))
 CUBE_PALETTE=((.98,.98,.98,1),(.9,.04,.05,1),(.01,.65,.18,1),
               (1,.85,0,1),(1,.46,.01,1),(.06,.19,.9,1))
 ICOSA_PALETTE=PALETTE+((.46,.22,.1,1),(.94,.63,.46,1),(.49,.78,.97,1),
@@ -45,6 +47,8 @@ def default_palette(cube):
     if cube.puzzle_kind=='war_drum':
         return (CUBE_PALETTE[4],PALETTE[3],CUBE_PALETTE[1],CUBE_PALETTE[5],
                 CUBE_PALETTE[3],CUBE_PALETTE[2],CUBE_PALETTE[0],PALETTE[7])
+    if cube.puzzle_kind=='dino4':
+        return DINO4_PALETTE
     count=len(cube.geometry.spec.normals)
     return {4:TETRA_PALETTE,6:CUBE_PALETTE,20:ICOSA_PALETTE,32:TUTT_PALETTE}.get(count,PALETTE)
 
@@ -90,7 +94,7 @@ def _outlines(sticker,normal):
 def outlines(kind,n):
     from cube.polyhedral import geometry
     g=geometry(kind,n)
-    if kind in ('eight_petals','clover','blossom','ivy'):
+    if kind in ('eight_petals','clover','blossom','petal_icosahedron','petal_icosahedron_nocentre','petal_tetrahedron','petal_tetrahedron_nocentre','ivy'):
         # Ear-clipped patches share the original concave outline. Walking the
         # source boundary avoids discovering internal triangle edges again.
         return tuple(tuple(zip(s.polygon,s.polygon[1:]+s.polygon[:1])) for s in g.stickers)

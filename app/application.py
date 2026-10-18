@@ -67,14 +67,36 @@ class CubeApp(App):
             Builder.load_file(_KV_PATH)
             self._kv_loaded = True
         sm = ScreenManager()
-        for name in ("HomeScreen", "IrregularDirectoryScreen", "SpecialIrregularScreen", "InputScreen", "CameraScreen", "MastermorphixScreen", "MirrorScreen", "MorphixTwistScreen", "PolyhedralScreen", "PolyhedralTwistScreen", "PolyhedralPlaybackScreen", "SolvingScreen", "PlaybackScreen",
-                     "DemoScreen", "DemoMenuScreen", "FormulaLibraryScreen", "PracticeScreen", "TwistScreen", "SettingsScreen", "Square1Screen", "ShapeCubeScreen", "MirrorTowerScreen"):
+        for name in ("HomeScreen", "InputScreen", "CameraScreen", "MastermorphixScreen", "MirrorScreen", "MorphixTwistScreen", "PolyhedralScreen", "PolyhedralTwistScreen", "PolyhedralPlaybackScreen", "SolvingScreen", "PlaybackScreen",
+                     "DemoScreen", "DemoMenuScreen", "FormulaLibraryScreen", "PracticeScreen",                      "TwistScreen", "SettingsScreen", "Square1Screen", "ShapeCubeScreen", "MirrorTowerScreen",
+                     "MirrorWindmillScreen", "MirrorAxisScreen", "MirrorFisherScreen", "MirrorUnequalWindmillScreen", "MirrorUnequalFisherScreen", "MirrorOffsetWindmillScreen", "MirrorOffsetFisherScreen", "MirrorPyraminxScreen", "MirrorSkewbScreen", "GhostScreen", "GhostTwistScreen", "SquareFamilyScreen"):
             scr = _screen(name)
             scr.name = name
             sm.add_widget(scr)
         return sm
 
     def on_start(self):
+        # 设备端求解基准（adb extra / 环境变量），跑完即退出。
+        try:
+            from app.device_bench import requested as bench_spec, run as bench_run
+            spec=bench_spec()
+            if spec:
+                from kivy.clock import Clock
+                def _bench(_dt):
+                    try:
+                        bench_run(spec)
+                    except Exception:
+                        try:
+                            from kivy.logger import Logger
+                            Logger.exception("device_bench failed")
+                        except Exception:
+                            pass
+                    finally:
+                        self.stop()
+                Clock.schedule_once(_bench, 0.5)
+                return
+        except Exception:
+            pass
         # 若请求了 UI 自检（adb extra / 环境变量），跑完即退出，不做求解预热。
         try:
             from app.ui_self_check import requested, default_output_dir, UISelfCheck
@@ -102,6 +124,11 @@ class CubeApp(App):
                 Logger.error("ui_selfcheck setup failed:\n" + traceback.format_exc())
             except Exception:
                 pass
+        from app.session import SessionStore
+        from kivy.clock import Clock
+        self._session_store = SessionStore(self)
+        self._session_store.restore()
+        self._autosave_event = Clock.schedule_interval(lambda _dt: self._session_store.save(), 5)
         # 后台预热求解器资源（kociemba 表 / 中心 setup 表等），消除首解长等待。
         try:
             from app.warmup import warmup_solvers
@@ -114,20 +141,62 @@ class CubeApp(App):
         sm = getattr(self, "root", None)
         if sm is not None:
             for name in ("InputScreen", "MastermorphixScreen", "MirrorScreen", "PolyhedralScreen",
-                         "MorphixTwistScreen", "PolyhedralTwistScreen", "Square1Screen", "ShapeCubeScreen", "MirrorTowerScreen"):
+                         "MorphixTwistScreen", "GhostTwistScreen", "PolyhedralTwistScreen", "Square1Screen", "SquareFamilyScreen", "ShapeCubeScreen", "MirrorTowerScreen", "MirrorPyraminxScreen", "MirrorSkewbScreen"):
                 if sm.has_screen(name):
-                    sm.get_screen(name).reset_interaction()
+                    self._screen_lifecycle(sm.get_screen(name), "reset_interaction")
+
+    @staticmethod
+    def _screen_lifecycle(screen, method):
+        callback = getattr(screen, method, None)
+        if callback is None:
+            return
+        try:
+            callback()
+        except Exception:
+            from kivy.logger import Logger
+            Logger.exception("Lifecycle: %s.%s failed", screen.name, method)
 
     def on_pause(self):
+        store = getattr(self, '_session_store', None)
+        if store is not None: store.save(synchronous=True)
         self._reset_input_interaction()
         if self.root is not None and self.root.has_screen("CameraScreen"):
-            self.root.get_screen("CameraScreen").pause_camera()
+            self._screen_lifecycle(self.root.get_screen("CameraScreen"), "pause_camera")
+        import gc
+        gc.collect()
+        # A failed cleanup must never make Kivy treat backgrounding as an exit.
         return True
 
     def on_resume(self):
         self._reset_input_interaction()
         if self.root is not None and self.root.has_screen("CameraScreen"):
-            self.root.get_screen("CameraScreen").resume_camera()
+            self._screen_lifecycle(self.root.get_screen("CameraScreen"), "resume_camera")
+        # A static photo may produce no new frames after SDL resumes. Reattach
+        # the retained screen canvas to refresh SDL's surface instructions;
+        # asking for a redraw alone can leave this screen entirely black.
+        from kivy.clock import Clock
+        def redraw(_dt):
+            if self.root is not None:
+                screen = getattr(self.root, 'current_screen', None)
+                transition = getattr(self.root, 'transition', None)
+                if screen is not None and not getattr(transition, 'is_active', False):
+                    canvas = screen.canvas
+                    if canvas in self.root.canvas.children:
+                        index = self.root.canvas.children.index(canvas)
+                        self.root.canvas.remove(canvas)
+                        self.root.canvas.insert(index, canvas)
+                self.root.canvas.ask_update()
+            from kivy.core.window import Window
+            Window.canvas.ask_update()
+        # Timers queued during pause may all fire on the first resumed tick.
+        # Cross a frame boundary after that tick before remounting the canvas.
+        Clock.schedule_once(lambda _dt: Clock.schedule_once(redraw, 0), .3)
+
+    def on_stop(self):
+        event = getattr(self, '_autosave_event', None)
+        if event is not None: event.cancel()
+        store = getattr(self, '_session_store', None)
+        if store is not None: store.save(synchronous=True)
 
     def new_cube(self, n: int):
         """新建一个已还原的 n 阶魔方，重置求解结果。"""
@@ -191,6 +260,13 @@ class CubeApp(App):
         self.cube=Square1Cube.solved()
         self.solve_result=None
 
+    def new_square_family(self, kind='square0'):
+        from cube.square_family import SquareFamilyCube
+        self.n=3
+        self.puzzle_kind=kind
+        self.cube=SquareFamilyCube.solved(kind)
+        self.solve_result=None
+
     def new_mirror_tower(self):
         from cube.mirror_tower import MirrorTowerCube
         self.n=3
@@ -198,11 +274,50 @@ class CubeApp(App):
         self.cube=MirrorTowerCube.solved()
         self.polyhedral_solution=None
 
+    def new_mirror_pyraminx(self, n=3):
+        from cube.mirror_pyraminx import MirrorPyraminxCube
+        self.cube=MirrorPyraminxCube.solved(n=n)
+        self.n=n
+        self.puzzle_kind='mirror_pyraminx'
+        self.polyhedral_solution=None
+
+    def new_mirror_skewb(self):
+        from cube.mirror_skewb import MirrorSkewbCube
+        self.cube=MirrorSkewbCube.solved()
+        self.n=3
+        self.puzzle_kind='mirror_skewb'
+        self.polyhedral_solution=None
+
+    def new_ghost(self, n=3):
+        from cube.ghost import GhostCube
+        self.cube=GhostCube.solved(n=n)
+        self.n=n
+        self.puzzle_kind='ghost'
+        self.solve_result=None
+
     def new_shape_cube(self,kind='axis',n=3):
         from cube.shape_cube import AxisCube,PandoraCube,WindmillCube,FisherCube
         factories={'axis':AxisCube,'pandora':PandoraCube,'windmill':WindmillCube,'fisher':FisherCube}
         if kind not in factories:
             raise ValueError('Unsupported shape modification')
+        self.n=n
+        self.puzzle_kind=kind
+        self.cube=factories[kind].solved(n=n)
+        self.solve_result=None
+
+    def new_mirror_shape(self,kind='mirror_windmill',n=3):
+        from cube.mirror_shape import (MirrorAxisCube, MirrorFisherCube, MirrorWindmillCube,
+                                       MirrorUnequalWindmillCube, MirrorUnequalFisherCube,
+                                       MirrorOffsetWindmillCube, MirrorOffsetFisherCube)
+        factories={'mirror_windmill':MirrorWindmillCube,
+                   'mirror_axis':MirrorAxisCube,
+                   'mirror_fisher':MirrorFisherCube,
+                   'mirror_windmill_unequal':MirrorUnequalWindmillCube,
+                   'mirror_fisher_unequal':MirrorUnequalFisherCube,
+                   'mirror_windmill_offset':MirrorOffsetWindmillCube,
+                   'mirror_fisher_offset':MirrorOffsetFisherCube}
+        if kind not in factories:
+            raise ValueError('Unsupported mirror shape modification')
         self.n=n
         self.puzzle_kind=kind
         self.cube=factories[kind].solved(n=n)

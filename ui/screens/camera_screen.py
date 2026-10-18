@@ -11,6 +11,11 @@
 识别核心见 vision 包（纯 numpy，无 OpenCV 依赖）。
 """
 
+import threading
+from copy import deepcopy
+from dataclasses import replace
+from time import perf_counter
+
 import numpy as np
 from kivy.graphics import Color, Line
 from kivy.uix.boxlayout import BoxLayout
@@ -34,12 +39,28 @@ from vision.capture import (
     load_image_file_rgb,
     make_kivy_camera_widget,
 )
-from vision.detect import detect_face_grid
+from vision.detect import detect_face_grid, _cell_color
+from vision.params import DEFAULT as VISION_DEFAULT
+from vision.colors import COLOR_CODES, rgb_to_hsv
 from vision.imageops import project_quad
-from vision.scan_profiles import ScanProfile, detect_surface, project_controls
+from vision.scan_profiles import ScanProfile, detect_surface, project_controls, _read_color
 
 _EMPTY = (0.20, 0.23, 0.30, 1)
 _BORDER = (0.05, 0.05, 0.05, 1)
+
+class _CalibrationSwatch(UIButton):
+    def __init__(self, rgba, **kwargs):
+        self.rgba = tuple(rgba)
+        super().__init__(**kwargs)
+        luminance = .2126*rgba[0] + .7152*rgba[1] + .0722*rgba[2]
+        self.color = (.03, .03, .03, 1) if luminance > .48 else (1, 1, 1, 1)
+
+    def _button_color(self):
+        return self.rgba
+
+    def _pressed_color(self):
+        return tuple(c*.8 for c in self.rgba[:3])+(1,)
+
 
 class _GuideOverlay(Widget):
     """顶点始终相对实际照片定位，框线与取色共用同一映射。"""
@@ -170,6 +191,12 @@ class CameraScreen(Screen):
         self._ori = CubeOrientation(4)
         self._data = {}
         self._source_image = None
+        import os
+        self._parked_image_path = os.path.join(_app().user_data_dir, 'camera-last.npy')
+        self._parked_quad = None
+        self._parked_face = None
+        self._parked_digest = None
+        self._photo_dirty = False
         self._session = None
         self._camera_widget = None
         self._preview_image = None
@@ -185,9 +212,14 @@ class CameraScreen(Screen):
         self._n_for_screen = None
         self._cube_for_screen = None
         self._profile = None
-        self._photo_cache = {}
+        self._standard_params = replace(VISION_DEFAULT)
+        self._standard_palette = tuple(COLOR_INFO[c][1] for c in COLOR_CODES)
+        self._calibrated_codes = set()
+        self._color_samples = {}
         self._manual_cells = set()
         self._calibration_slot = None
+        self._recognizing = False
+        self._scan_job = None
         self.build_ui()
 
     # ---- UI ----
@@ -240,13 +272,25 @@ class CameraScreen(Screen):
         controls.add_widget(self.btn_rotate)
         controls.add_widget(self.btn_recheck)
         controls.add_widget(self.btn_calibrate)
-        for button in (self.btn_rotate, self.btn_recheck, self.btn_calibrate):
+        self.btn_reset_calibration = UIButton(text=tr("camera.reset_calibration"))
+        self.btn_reset_calibration.bind(on_release=lambda *_: self.reset_calibration())
+        controls.add_widget(self.btn_reset_calibration)
+        for button in (self.btn_rotate, self.btn_recheck, self.btn_calibrate, self.btn_reset_calibration):
             button.font_size='12sp'
             button.halign='center'
             button.bind(size=lambda w, *_: setattr(w, 'text_size', w.size))
         tools.add_widget(controls)
         self.grid_box.add_widget(tools)
         root.add_widget(self.grid_box)
+
+        from kivy.uix.progressbar import ProgressBar
+        self.scan_progress = ProgressBar(max=1, value=0)
+        self.scan_cancel = UIButton(text=tr('camera.cancel_scan'), size_hint_x=.22)
+        self.scan_cancel.bind(on_release=lambda *_: self.cancel_recognition())
+        self.scan_progress_row = BoxLayout(size_hint_y=None, height=0, opacity=0, spacing=m.h(8))
+        self.scan_progress_row.add_widget(self.scan_progress)
+        self.scan_progress_row.add_widget(self.scan_cancel)
+        root.add_widget(self.scan_progress_row)
 
         # 面导航：< 当前面 >
         nav = BoxLayout(size_hint_y=None, height=m.h(48), spacing=m.h(10))
@@ -306,7 +350,7 @@ class CameraScreen(Screen):
             self._n_for_screen = n
             self._cube_for_screen = cube
             self._initialized = True
-        elif self._profile and self._profile.kind != 'pandora':
+        elif self._profile and self._profile.kind != 'pandora' and getattr(_app(), 'input_from_camera', False):
             # Keep corrections made on the full-size input model when returning.
             updated = self._profile.from_cube(cube)
             for face, values in updated.items():
@@ -315,6 +359,7 @@ class CameraScreen(Screen):
             self._data = updated
         self.retranslate()
         self._apply_heights()
+        self._restore_parked_photo()
         if self._source_image is None:
             self._ensure_source()
         else:
@@ -323,18 +368,31 @@ class CameraScreen(Screen):
 
     def on_leave(self, *args):
         self._active = False
+        self._scan_job = None
+        self._set_recognizing(False)
         self.pause_camera()
 
     def pause_camera(self):
         self._suspended = True
+        self._scan_job = None
+        self._set_recognizing(False)
         self._cancel_turn()
         self._release_source()
+        self._park_photo(drop=True)
+        if hasattr(self.grid, '_textures'): self.grid._textures.clear()
 
     def resume_camera(self):
         self._suspended = False
-        if self._active and not self._picker_pending and self._source_image is None:
-            from kivy.clock import Clock
-            Clock.schedule_once(lambda *_: self._ensure_source(), .2)
+        # Android dispatches App.on_resume before SDL has finished restoring
+        # its GL context. Creating the photo texture there can block resume.
+        from kivy.clock import Clock
+        def restore(_dt):
+            if self._suspended or not self._active or self._picker_pending:
+                return
+            self._restore_parked_photo()
+            if self._source_image is None:
+                self._ensure_source()
+        Clock.schedule_once(restore, .2)
 
     def _cancel_turn(self):
         if self._turning:
@@ -351,7 +409,7 @@ class CameraScreen(Screen):
             self._guide_editable = self.guide.editable
             self.guide.editable = False
             self._button_states = {b: b.disabled for b in (self.btn_prev, self.btn_next, self.btn_capture,
-                                  self.btn_import, self.btn_apply, self.btn_rotate, self.btn_recheck, self.btn_calibrate)}
+                                  self.btn_import, self.btn_apply, self.btn_rotate, self.btn_recheck, self.btn_calibrate, self.btn_reset_calibration)}
             for button in self._button_states:
                 button.disabled = True
         else:
@@ -389,6 +447,8 @@ class CameraScreen(Screen):
         self.btn_rotate.text = tr("camera.rotate")
         self.btn_recheck.text = tr("camera.recheck")
         self.btn_calibrate.text = tr('camera.calibrate')
+        self.btn_reset_calibration.text = tr("camera.reset_calibration")
+        self.scan_cancel.text = tr("camera.cancel_scan")
         self._update_face_ui()
 
     def refresh_theme(self):
@@ -404,6 +464,7 @@ class CameraScreen(Screen):
         self.preview.add_widget(self.guide)
         self._preview_image = None
         self._source_image = None
+        self._parked_quad = self._parked_face = self._parked_digest = None
         kind = getattr(_app(), 'puzzle_kind', 'cube')
         self._profile = None
         if kind != 'cube':
@@ -428,15 +489,19 @@ class CameraScreen(Screen):
             self._data = {}
         self.grid.on_cell = self.edit_cell
         self.grid_box.add_widget(self.grid, index=len(self.grid_box.children))
-        self._photo_cache = {}
+        self._color_samples = {}
+        self._standard_params = replace(VISION_DEFAULT)
+        self._standard_palette = tuple(COLOR_INFO[c][1] for c in COLOR_CODES)
+        self._calibrated_codes = set()
         self._manual_cells = set()
         self._calibration_slot = None
         self.guide.set_template()
         self.guide.editable = False
         self.guide.set_image(None)
         self.btn_rotate.disabled = self.btn_recheck.disabled = self.btn_calibrate.disabled = True
-        self.btn_calibrate.opacity = 1 if self._profile else 0
-        self.btn_calibrate.size_hint_x = 1 if self._profile else .001
+        self.btn_calibrate.opacity = 1
+        self.btn_calibrate.size_hint_x = 1
+        self._load_calibration()
         self._update_face_ui()
 
     # ---- 取帧来源 ----
@@ -549,7 +614,7 @@ class CameraScreen(Screen):
         if self._session is None:
             return
         ready = self._session.is_available()
-        self.btn_capture.disabled = not ready or self._turning
+        self.btn_capture.disabled = not ready or self._turning or self._recognizing
         if self._camera_widget is not None:
             self._camera_widget.opacity = 0 if self._source_image is not None else 1
             if ready and self._source_image is None:
@@ -573,8 +638,16 @@ class CameraScreen(Screen):
         if self._camera_widget is not None:
             self._camera_widget.opacity = 0
         h, w = rgb.shape[:2]
-        tex = Texture.create(size=(w, h), colorfmt="rgb")
-        tex.blit_buffer(np.ascontiguousarray(rgb).tobytes(), colorfmt="rgb", bufferfmt="ubyte")
+        # Only the displayed preview is bounded; recognition keeps original pixels.
+        shown = rgb
+        if max(w, h) > 1280:
+            scale = 1280 / max(w, h)
+            pw, ph = max(1, round(w*scale)), max(1, round(h*scale))
+            xs = np.rint(np.linspace(0, w-1, pw)).astype(int)
+            ys = np.rint(np.linspace(0, h-1, ph)).astype(int)
+            shown = rgb[ys[:, None], xs[None, :]]
+        tex = Texture.create(size=(shown.shape[1], shown.shape[0]), colorfmt="rgb")
+        tex.blit_buffer(np.ascontiguousarray(shown).tobytes(), colorfmt="rgb", bufferfmt="ubyte")
         tex.flip_vertical()
         self._preview_image.texture = tex
         self._preview_image.opacity = 1
@@ -584,17 +657,21 @@ class CameraScreen(Screen):
 
     def _show_photo(self, img, search_quad=None):
         self._source_image = img
+        self._photo_dirty = True
         self.guide.n = self._n()
         self.guide.set_image((img.shape[1], img.shape[0]))
         self.guide.editable = True
         self.btn_rotate.disabled = False
         self.btn_recheck.disabled = False
-        self.btn_calibrate.disabled = self._profile is None
+        self.btn_calibrate.disabled = False
         self._set_preview(img)
         self.btn_capture.disabled = False
         self._detect_into_current(img, search_quad=search_quad)
 
     def rotate_photo(self):
+        if self._recognizing:
+            return
+        self._photo_dirty = True
         if self._source_image is not None:
             height = self._source_image.shape[0]
             quad = self.guide.image_quad()
@@ -611,11 +688,14 @@ class CameraScreen(Screen):
             self._detect_into_current(self._source_image, quad=rotated)
 
     def recheck(self):
+        if self._recognizing:
+            return
         if self._source_image is not None:
             self._detect_into_current(self._source_image, quad=self.guide.image_quad())
 
     # ---- 面导航 ----
     def _resume_live(self):
+        self._parked_quad = self._parked_face = self._parked_digest = None
         self._source_image = None
         self._calibration_slot = None
         self.guide.editable = False
@@ -629,7 +709,7 @@ class CameraScreen(Screen):
             self._ensure_source()
 
     def navigate(self, direction):
-        if self._turning or self._picker_pending:
+        if self._turning or self._recognizing or self._picker_pending:
             return
         previous = direction == "prev"
         d = self._ori.prev_dir() if previous else self._ori.next_dir()
@@ -672,7 +752,7 @@ class CameraScreen(Screen):
 
     # ---- 采集 ----
     def capture(self):
-        if self._turning or self._picker_pending:
+        if self._turning or self._recognizing or self._picker_pending:
             return
         if self._source_image is not None:
             self._resume_live()
@@ -691,7 +771,7 @@ class CameraScreen(Screen):
         self._show_photo(img, search_quad=q)
 
     def open_import(self):
-        if self._turning or self._picker_pending:
+        if self._turning or self._recognizing or self._picker_pending:
             return
         from kivy.utils import platform
         if platform == "android":
@@ -754,53 +834,130 @@ class CameraScreen(Screen):
             return
         self._show_photo(img)
 
-    def _detect_into_current(self, img, quad=None, search_quad=None):
-        if self._profile:
-            face = self._ori.current_face()
-            self._calibration_slot = None
-            # The live frame is already aligned by the user; imported photos
-            # may be located automatically, with manual alignment as fallback.
-            controls = quad if quad is not None else search_quad
-            det = detect_surface(img, self._profile, face, self._ori.world, controls=controls)
-            self._manual_cells = {key for key in self._manual_cells if key[0] != face}
-            self._data[face] = det.values
-            if det.image_quad is not None:
-                self.guide.set_image((img.shape[1], img.shape[0]), det.image_quad)
-                self._cache_photo(face, img, det.image_quad)
-            else:
-                self._photo_cache.pop(face, None)
-            self._update_face_ui()
-            self.msg.text = (tr('camera.detected', face=self._face_name(face)) if det.ok else
-                             tr('camera.detect_failed', reason=tr('camera.surface_partial')))
-            self.msg.color = _app().theme.accent if det.ok else _app().theme.danger
+    def _set_recognizing(self, busy):
+        if busy == self._recognizing:
             return
+        self._recognizing = busy
+        self.scan_progress_row.height = m.h(30) if busy else 0
+        self.scan_progress_row.opacity = 1 if busy else 0
+        self.scan_cancel.disabled = not busy
+        self.btn_reset_calibration.disabled = busy
+        if busy:
+            self.scan_progress.value = 0
+            self._scan_editable = self.guide.editable
+            self.guide.editable = False
+            buttons = (self.btn_prev, self.btn_next, self.btn_capture, self.btn_import,
+                       self.btn_apply, self.btn_rotate, self.btn_recheck, self.btn_calibrate)
+            self._scan_buttons = {button: button.disabled for button in buttons}
+            for button in buttons:
+                button.disabled = True
+        else:
+            self.guide.editable = getattr(self, '_scan_editable', False)
+            for button, disabled in getattr(self, '_scan_buttons', {}).items():
+                button.disabled = disabled
+            self._scan_buttons = {}
+
+    def _start_recognition(self, compute, apply):
+        if self._recognizing:
+            return
+        from kivy.clock import Clock
+        job = self._scan_job = object()
+        self._set_recognizing(True)
+        self.msg.text = tr('camera.processing')
+        self.msg.color = _app().theme.accent
+        def finish(result, error):
+            if self._scan_job is not job or not self._active:
+                return
+            self._scan_job = None
+            self._set_recognizing(False)
+            if error is not None:
+                self.msg.text = tr('camera.processing_failed')
+                self.msg.color = _app().theme.danger
+                return
+            apply(result)
+        def report(stage, done, total):
+            if self._scan_job is not job:
+                raise InterruptedError()
+            def update(_dt):
+                if self._scan_job is job:
+                    self.msg.text = tr(stage)+" "+str(done)+"/"+str(total)
+                    self.scan_progress.value = max(0, min(1, done/max(1,total)))
+            Clock.schedule_once(update, 0)
+        def worker():
+            started = perf_counter()
+            try:
+                result = compute(report)
+            except InterruptedError:
+                return
+            except Exception as exc:
+                from kivy.logger import Logger
+                Logger.exception('PhotoScan: recognition failed')
+                Clock.schedule_once(lambda dt, error=str(exc): finish(None, error), 0)
+            else:
+                Clock.schedule_once(lambda dt: finish(result, None), 0)
+            finally:
+                from kivy.logger import Logger
+                Logger.info('PhotoScan: recognition %.0f ms', (perf_counter()-started)*1000)
+        # Give the processing message a frame before starting CPU work.
+        def start(_dt):
+            if self._scan_job is job and self._active:
+                threading.Thread(target=worker, daemon=True).start()
+        Clock.schedule_once(start, 0)
+
+    def _detect_into_current(self, img, quad=None, search_quad=None):
+        if self._recognizing:
+            return
+        profile, face, world = self._profile, self._ori.current_face(), self._ori.world
         n = self._n()
-        if search_quad is not None:
-            q = np.asarray(search_quad)
-            pad = .12 * max(np.ptp(q[:, 0]), np.ptp(q[:, 1]))
-            x0, y0 = np.maximum(0, np.floor(q.min(axis=0)-pad)).astype(int)
-            x1, y1 = np.minimum([img.shape[1], img.shape[0]], np.ceil(q.max(axis=0)+pad+1)).astype(int)
-            det = detect_face_grid(img[y0:y1, x0:x1], n)
-            if det.image_quad is not None:
-                det.image_quad = (np.asarray(det.image_quad)+[x0, y0]).tolist()
-        else:
-            det = detect_face_grid(img, n, quad=quad)
-        face = self._ori.current_face()
-        view_grid = det.grid() if det.cells else empty_grid(n)
-        self._data[face] = orient_grid(view_grid, self._ori)
-        if det.image_quad is not None:
-            self.guide.set_image((img.shape[1], img.shape[0]), det.image_quad)
-        self._update_face_ui()
-        if det.ok:
-            self.msg.text = tr("camera.detected", face=tr("face." + face))
-            self.msg.color = _app().theme.accent
-        else:
-            reason = tr("camera.reason.partial" if det.cells else "camera.reason.adjust")
-            self.msg.text = tr("camera.detect_failed", reason=reason)
-            self.msg.color = _app().theme.danger
+        params, orientation = self._standard_params, None if profile else deepcopy(self._ori)
+        self._calibration_slot = None
+        def compute(progress):
+            if profile:
+                controls = quad if quad is not None else search_quad
+                det = detect_surface(img, profile, face, world, controls=controls, progress=progress)
+                return det
+            if search_quad is not None:
+                q = np.asarray(search_quad)
+                pad = .12 * max(np.ptp(q[:, 0]), np.ptp(q[:, 1]))
+                x0, y0 = np.maximum(0, np.floor(q.min(axis=0)-pad)).astype(int)
+                x1, y1 = np.minimum([img.shape[1], img.shape[0]], np.ceil(q.max(axis=0)+pad+1)).astype(int)
+                det = detect_face_grid(img[y0:y1, x0:x1], n, params=params, progress=progress)
+                if det.image_quad is not None:
+                    det.image_quad = (np.asarray(det.image_quad)+[x0, y0]).tolist()
+            else:
+                det = detect_face_grid(img, n, params=params, quad=quad, progress=progress)
+            return det
+        def apply(det):
+            if det.samples is not None:
+                self._color_samples[face] = (det.samples, orientation)
+            if profile:
+                previous = self._data.get(face, {})
+                if det.samples is not None:
+                    self._data[face] = {i: previous.get(i, v) if (face,i) in self._manual_cells else v for i,v in det.values.items()}
+                if det.image_quad is not None:
+                    self.guide.set_image((img.shape[1], img.shape[0]), det.image_quad)
+
+                self.msg.text = (tr('camera.detected', face=self._face_name(face)) if det.ok else
+                                 tr('camera.detect_failed', reason=tr('camera.surface_partial')))
+            else:
+                view_grid = det.grid() if det.cells else empty_grid(n)
+                if det.cells:
+                    grid = orient_grid(view_grid, orientation)
+                    previous = self._data.get(face, empty_grid(n))
+                    self._data[face] = [[previous[r][c] if (face,r,c) in self._manual_cells else grid[r][c]
+                                        for c in range(n)] for r in range(n)]
+                if det.image_quad is not None:
+                    self.guide.set_image((img.shape[1], img.shape[0]), det.image_quad)
+                reason = tr('camera.reason.partial' if det.cells else 'camera.reason.adjust')
+                self.msg.text = (tr('camera.detected', face=tr('face.'+face)) if det.ok else
+                                 tr('camera.detect_failed', reason=reason))
+            self._update_face_ui()
+            self._show_uncertain(det.ok)
+            self.msg.color = _app().theme.accent if det.ok else _app().theme.danger
+        self._start_recognition(compute, apply)
 
     def edit_cell(self, r, c):
-        if self._turning:
+        if self._turning or self._recognizing:
             return
         if self._profile:
             face = self._ori.current_face()
@@ -811,6 +968,8 @@ class CameraScreen(Screen):
                 self._manual_cells.add((face, r))
                 self._update_face_ui()
                 self.msg.text = tr('camera.corrected')
+                self._show_uncertain(True)
+                self.msg.color = _app().theme.accent
             self._palette_popup(tr('camera.edit_color'), choose, allow_unknown=True)
             return
         from kivy.uix.button import Button
@@ -829,11 +988,13 @@ class CameraScreen(Screen):
                 return
             grid = [row[:] for row in self._data.get(face, empty_grid(self._n()))]
             grid[r][c] = code
+            self._manual_cells.add((face, r, c))
             self._data[face] = grid
             self._update_face_ui()
             complete = all(value for row in grid for value in row)
             self.msg.text = tr("camera.corrected" if complete else "camera.reason.partial")
             self.msg.color = _app().theme.accent if complete else _app().theme.text_muted
+            self._show_uncertain(True)
             popup.dismiss()
         for code in ("W", "Y", "R", "O", "B", "G"):
             rgba = COLOR_INFO[code][1]
@@ -844,25 +1005,34 @@ class CameraScreen(Screen):
             choices.add_widget(button)
         popup.open()
 
-    def _palette_popup(self, title, callback, allow_unknown=False):
-        from kivy.uix.button import Button
+    def _palette_popup(self, title, callback, allow_unknown=False, indices=None):
         from kivy.uix.gridlayout import GridLayout
         from kivy.uix.scrollview import ScrollView
         from kivy.uix.popup import Popup
         from ui.widgets.dialogs import theme_popup
-        choices = GridLayout(cols=4 if len(self._profile.palette)>8 else 3, spacing=m.h(8),
+        palette = self._profile.palette if self._profile else self._standard_palette
+        choices = GridLayout(cols=4 if len(palette)>8 else 3, spacing=m.h(8),
                              padding=m.h(8), size_hint_y=None)
         choices.bind(minimum_height=choices.setter('height'))
         scroll = ScrollView(do_scroll_x=False)
         scroll.add_widget(choices)
-        popup = Popup(title=title, content=scroll, size_hint=(.9, .7))
+        content = BoxLayout(orientation='vertical', spacing=m.h(8), padding=m.h(6))
+        hint = Label(text=tr('camera.palette_hint'), size_hint_y=None, height=m.h(42),
+                     font_size='14sp', halign='center', valign='middle')
+        hint.bind(size=lambda w, *_: setattr(w, 'text_size', w.size))
+        content.add_widget(hint)
+        content.add_widget(scroll)
+        popup = Popup(title=title, content=content, size_hint=(.9, .7))
         theme_popup(popup, _app().theme)
         def selected(value):
             popup.dismiss()
             callback(value)
-        for i, rgba in enumerate(self._profile.palette):
-            button = Button(text=str(i+1), size_hint_y=None, height=m.h(52), background_normal='',
-                            background_color=rgba, color=(0,0,0,1) if sum(rgba[:3])>1.7 else (1,1,1,1))
+        for i, rgba in enumerate(palette):
+            if indices is not None and i not in indices:
+                continue
+            label = tr("camera.color_number", number=i+1) if self._profile else tr("camera.color_" + COLOR_CODES[i])
+            button = _CalibrationSwatch(rgba, text=label, size_hint_y=None, height=m.h(64),
+                                        font_size="18sp")
             button.bind(on_release=lambda _, value=i: selected(value))
             choices.add_widget(button)
         if allow_unknown:
@@ -872,28 +1042,19 @@ class CameraScreen(Screen):
         popup.open()
 
     def calibrate(self):
-        if not self._profile or self._source_image is None or self._turning:
+        if self._recognizing:
+            return
+        if self._source_image is None or self._turning:
             return
         def selected(index):
             self._calibration_slot = index
-            self.msg.text = tr('camera.sample_prompt', number=index+1)
+            self.msg.text = (tr('camera.sample_prompt', number=index+1) if self._profile else
+                             tr('camera.sample_color_prompt', color=tr('camera.color_' + COLOR_CODES[index])))
             self.msg.color = _app().theme.accent
         self._palette_popup(tr('camera.calibrate_choose'), selected)
 
-    def _cache_photo(self, face, img, controls):
-        from vision.imageops import fit_max_dim
-        q = np.asarray(controls)
-        lo = np.maximum(0, np.floor(q.min(axis=0)-3)).astype(int)
-        hi = np.minimum([img.shape[1], img.shape[0]], np.ceil(q.max(axis=0)+4)).astype(int)
-        crop = img[lo[1]:hi[1], lo[0]:hi[0]]
-        if min(crop.shape[:2]) < 2:
-            return
-        scaled, _ = fit_max_dim(crop, 900)
-        factor = (np.array([scaled.shape[1], scaled.shape[0]])-1)/(np.array([crop.shape[1], crop.shape[0]])-1)
-        self._photo_cache[face] = (scaled.copy(), (q-lo)*factor, self._ori.world)
-
     def sample_color(self, x, y):
-        if self._calibration_slot is None or self._source_image is None:
+        if self._recognizing or self._calibration_slot is None or self._source_image is None:
             return False
         x, y = int(round(x)), int(round(y))
         img = self._source_image
@@ -901,24 +1062,194 @@ class CameraScreen(Screen):
         if max(rgb) < 60:
             self.msg.text = tr('camera.sample_dark')
             return True
+        if self._profile is None:
+            return self._sample_standard_color(x, y)
         palette = list(self._profile.palette)
         palette[self._calibration_slot] = tuple(rgb/255)+(1,)
         self._profile.palette = tuple(palette)
+        self._save_calibration()
         self._calibration_slot = None
-        if self._ori.current_face() not in self._photo_cache:
-            self._cache_photo(self._ori.current_face(), img, self.guide.image_quad())
-        for face, (photo, controls, world) in self._photo_cache.items():
-            detected = detect_surface(photo, self._profile, face, world, controls=controls)
-            for index, color in detected.values.items():
-                if (face,index) not in self._manual_cells:
-                    self._data[face][index] = color
-        self._update_face_ui()
-        self.msg.text = tr('camera.calibrated')
-        self.msg.color = _app().theme.accent
+        self._reclassify_samples()
         return True
+
+    def _sample_standard_color(self, x, y):
+        img = self._source_image
+        patch = img[max(0,y-3):y+4, max(0,x-3):x+4]
+        _, sat, val = rgb_to_hsv(patch)
+        code = COLOR_CODES[self._calibration_slot]
+        usable = (val >= VISION_DEFAULT.val_min)
+        usable &= sat <= 120 if code == 'W' else sat >= 70
+        if np.count_nonzero(usable) < max(1, sat.size*.6):
+            self.msg.text = tr('camera.calibration_retry')
+            self.msg.color = _app().theme.danger
+            return True
+        rgb = np.median(patch[usable], axis=0)/255
+        palette = list(self._standard_palette)
+        palette[self._calibration_slot] = tuple(rgb)+(1,)
+        hsv = rgb_to_hsv(np.array(palette)[:, :3])
+        refs = tuple(tuple(float(channel[i]) for channel in hsv) for i in range(len(COLOR_CODES)))
+        calibrated = self._calibrated_codes | {code}
+        # Reject indistinguishable learned color anchors; avoid forcing a wrong label.
+        for i, first in enumerate(COLOR_CODES[1:], 1):
+            for j in range(i+1, len(COLOR_CODES)):
+                if first in calibrated and COLOR_CODES[j] in calibrated:
+                    dh = abs(refs[i][0]-refs[j][0])
+                    if min(dh, 180-dh) < 4:
+                        self.msg.text = tr('camera.calibration_retry')
+                        self.msg.color = _app().theme.danger
+                        return True
+        self._standard_palette = tuple(palette)
+        self._calibrated_codes = calibrated
+        self._calibration_slot = None
+        params = replace(self._standard_params, color_reference_hsv=refs)
+        self._standard_params = params
+        self._save_calibration()
+        self._reclassify_samples()
+        return True
+
+    def _reclassify_samples(self):
+        samples, profile, params, n = tuple(self._color_samples.items()), self._profile, self._standard_params, self._n()
+        if not samples:
+            if self._source_image is not None: self.recheck()
+            return
+        def compute(progress):
+            results = {}
+            for index, (face, (pixels, ori)) in enumerate(samples):
+                progress('camera.recalibrating', index, len(samples))
+                if profile:
+                    results[face] = {key: _read_color(rgb, profile.palette) for key,rgb in pixels.items()}
+                else:
+                    grid = [[_cell_color(*pixels[r,c], params) or '' for c in range(n)] for r in range(n)]
+                    results[face] = orient_grid(grid, ori)
+            return results
+        def apply(results):
+            for face, values in results.items():
+                if profile:
+                    for index, color in values.items():
+                        if (face,index) not in self._manual_cells: self._data[face][index] = color
+                else:
+                    previous = self._data.get(face, empty_grid(n))
+                    self._data[face] = [[previous[r][c] if (face,r,c) in self._manual_cells else values[r][c]
+                                         for c in range(n)] for r in range(n)]
+            self._update_face_ui()
+            self.msg.text = tr('camera.calibrated')
+            self._show_uncertain(True)
+            self.msg.color = _app().theme.accent
+        self._start_recognition(compute, apply)
+
+    def _park_photo(self, drop=False):
+        img = self._source_image
+        if img is None: return
+        try:
+            import os
+            if self._photo_dirty or not os.path.isfile(self._parked_image_path):
+                h,w = img.shape[:2]
+                scale = min(1.,1280/max(h,w))
+                xs = np.rint(np.linspace(0,w-1,max(1,round(w*scale)))).astype(int)
+                ys = np.rint(np.linspace(0,h-1,max(1,round(h*scale)))).astype(int)
+                photo = np.ascontiguousarray(img[ys[:,None],xs[None,:]])
+                with open(self._parked_image_path+'.tmp','wb') as stream:
+                    np.save(stream,photo,allow_pickle=False)
+                os.replace(self._parked_image_path+'.tmp',self._parked_image_path)
+                import hashlib
+                self._parked_digest = hashlib.sha256(photo).hexdigest()
+                self._photo_dirty = False
+            self._parked_quad = self.guide.quad.tolist()
+            self._parked_face = self._ori.current_face()
+            if drop:
+                self._source_image = None
+                if self._preview_image is not None:
+                    self._preview_image.texture = None
+        except Exception:
+            from kivy.logger import Logger
+            Logger.exception('PhotoScan: could not park photograph')
+
+    def _restore_parked_photo(self):
+        if self._source_image is not None or self._parked_quad is None or self._parked_face != self._ori.current_face():
+            return
+        try:
+            img = np.load(self._parked_image_path,allow_pickle=False)
+            if img.dtype != np.uint8 or img.ndim != 3 or img.shape[2] != 3 or max(img.shape[:2])>1280:
+                raise ValueError('Invalid parked photograph')
+            import hashlib
+            if self._parked_digest and hashlib.sha256(np.ascontiguousarray(img)).hexdigest()!=self._parked_digest:
+                raise ValueError('Photograph does not match checkpoint')
+            self._release_source()
+            self._source_image = img
+            self._set_preview(img)
+            quad = np.asarray(self._parked_quad)*[img.shape[1]-1,img.shape[0]-1]
+            self.guide.set_image((img.shape[1],img.shape[0]),quad)
+            self.guide.editable = True
+            self.btn_rotate.disabled = self.btn_recheck.disabled = self.btn_calibrate.disabled = False
+            self.btn_capture.disabled = False
+        except Exception:
+            self._parked_quad = self._parked_face = self._parked_digest = None
+            from kivy.logger import Logger
+            Logger.exception('PhotoScan: could not restore photograph')
+
+    def _calibration_key(self):
+        return 'photo_calibration_'+(self._profile.kind if self._profile else 'cube')
+
+    def _save_calibration(self):
+        from app.prefs import set as save_pref
+        palette = self._profile.palette if self._profile else self._standard_palette
+        save_pref(self._calibration_key(), {'palette': [list(c) for c in palette],
+                  'codes': sorted(self._calibrated_codes) if not self._profile else []})
+
+    def _load_calibration(self):
+        from app.prefs import get
+        saved = get(self._calibration_key(), {})
+        if not isinstance(saved, dict): return
+        palette = saved.get('palette')
+        size = len(self._profile.palette) if self._profile else 6
+        if not (isinstance(palette,list) and len(palette)==size and all(isinstance(c,list) and len(c)==4 and
+                all(isinstance(v,(int,float)) and 0<=v<=1 for v in c) for c in palette)):
+            return
+        if self._profile:
+            self._profile.palette = tuple(tuple(c) for c in palette)
+        else:
+            self._standard_palette = tuple(tuple(c) for c in palette)
+            self._calibrated_codes = set(saved.get('codes', [])) & set(COLOR_CODES)
+            hsv = rgb_to_hsv(np.asarray(palette)[:,:3])
+            refs = tuple(tuple(float(channel[i]) for channel in hsv) for i in range(6))
+            if self._calibrated_codes:
+                self._standard_params = replace(VISION_DEFAULT, color_reference_hsv=refs)
+
+    def reset_calibration(self):
+        if self._recognizing or self._turning: return
+        from app.prefs import set as save_pref
+        save_pref(self._calibration_key(), {})
+        if self._profile:
+            self._profile.palette = ScanProfile(self._profile.kind, self._n()).palette
+        else:
+            self._standard_palette = tuple(COLOR_INFO[c][1] for c in COLOR_CODES)
+            self._calibrated_codes = set()
+            self._standard_params = replace(VISION_DEFAULT)
+        self._calibration_slot = None
+        if self._color_samples: self._reclassify_samples()
+        elif self._source_image is not None: self.recheck()
+        else: self.msg.text = tr('camera.calibration_reset')
+
+    def cancel_recognition(self):
+        self._scan_job = None
+        self._set_recognizing(False)
+        self.msg.text = tr('camera.scan_cancelled')
+
+    def _show_uncertain(self, success=False):
+        face = self._ori.current_face()
+        if self._profile:
+            count = sum(c<0 for c in self._data.get(face, {}).values())
+        else:
+            count = sum(not c for row in self._data.get(face, empty_grid(self._n())) for c in row)
+        if count:
+            self.msg.text = tr('camera.uncertain', count=count)
+        elif not success:
+            self.msg.text = tr('camera.processing_failed')
 
     # ---- 应用 ----
     def apply_to_input(self):
+        if self._recognizing:
+            return
         if self._profile:
             app = _app()
             try:

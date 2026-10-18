@@ -1,6 +1,6 @@
 """Pure three-cycle reduction for the movable orbits of high-order minxes."""
 from array import array
-from collections import deque
+from collections import OrderedDict, deque
 from functools import lru_cache
 from math import gcd
 import random
@@ -16,6 +16,27 @@ from solver.nxn_orbits import three_cycles
 
 # A pure three-cycle commutator is eight moves before cancellations.
 _SHORT_PRIMITIVE = 8
+
+# Optional per-orbit trace used by the benchmarks; disabled by default.
+_STAGE_TRACE = None
+
+
+def begin_stage_trace():
+    global _STAGE_TRACE
+    _STAGE_TRACE = []
+    return _STAGE_TRACE
+
+
+def end_stage_trace():
+    global _STAGE_TRACE
+    log = _STAGE_TRACE
+    _STAGE_TRACE = None
+    return log
+
+
+def _trace_orbit(orbit, word):
+    if _STAGE_TRACE is not None:
+        _STAGE_TRACE.append({"orbit": len(orbit), "moves": len(word)})
 
 
 def _outside_order(perm,target,cycle_order=3):
@@ -156,7 +177,10 @@ def primitives(cube,targets,cancel=None,progress=None,anchor_axis=0,use_prepared
             break
     if not pending:
         return found
-    bp_cache={}
+    bp_cache=OrderedDict()
+    # A record can hold both forward/inverse piece arrays and full sticker
+    # permutations. Thousands of inner words otherwise retain hundreds of MB.
+    bp_limit=max(1,min(128,8*1024*1024//max(1,16*(npices+len(g.stickers)))))
     # Two centre families can belong to opposite sets of faces. Searching with
     # one face as the outer commutator turn misses its opposite family, so the
     # antipode of the anchor is included for FTO and for the offline deep scan.
@@ -168,7 +192,7 @@ def primitives(cube,targets,cancel=None,progress=None,anchor_axis=0,use_prepared
         # Pentagon and hexagon turns have different orders. Centre cycles
         # in one family cannot all be discovered with the other's anchor.
         anchors.update((0,12))
-    elif cube.puzzle_kind=='blossom':
+    elif cube.puzzle_kind in ('blossom', 'petal_icosahedron', 'petal_icosahedron_nocentre','petal_tetrahedron','petal_tetrahedron_nocentre'):
         # Each edge turn reaches only two of the six ten-petal orbits.
         anchors.update(range(len(g.spec.axes)))
     adjacent={i:{j for j,axis in enumerate(g.spec.axes)
@@ -185,29 +209,30 @@ def primitives(cube,targets,cancel=None,progress=None,anchor_axis=0,use_prepared
     # isolates some orbits (e.g. a deep centre band) that no conjugated
     # three-move inner word reaches in eight moves. Length two and the
     # conjugated three-move word keep the original coverage.
-    candidates=[]
-    for outer in outers:
-        last_axis=outer[-1].axis
-        for b in atoms:
-            if b.axis not in adjacent[last_axis]:
-                continue
-            candidates.append((outer,(b,)))
-            for c in atoms:
-                # A two-move inner word may keep both turns on one axis; deep
-                # centre bands of seventh-order towers need exactly that.
-                candidates.append((outer,(b,c)))
-                if c.axis==b.axis:
+    def candidates():
+        for outer in outers:
+            last_axis=outer[-1].axis
+            for b in atoms:
+                if b.axis not in adjacent[last_axis]:
                     continue
-                for power in range(1,g.spec.order(b.axis)):
-                    amount=power*g.spec.step(b.axis)
-                    candidates.append((outer,(Move(b.axis,b.layer,amount),c,
-                                          Move(b.axis,b.layer,turn_order-amount))))
-    for step,(outer,bw) in enumerate(candidates):
+                yield outer,(b,)
+                for c in atoms:
+                    # Same-axis inner pairs are needed by deep centre bands.
+                    yield outer,(b,c)
+                    if c.axis==b.axis:
+                        continue
+                    for power in range(1,g.spec.order(b.axis)):
+                        amount=power*g.spec.step(b.axis)
+                        yield outer,(Move(b.axis,b.layer,amount),c,
+                                     Move(b.axis,b.layer,turn_order-amount))
+    candidate_count=sum(1+len(atoms)+sum(c.axis!=b.axis for c in atoms)*(g.spec.order(b.axis)-1)
+                        for outer in outers for b in atoms if b.axis in adjacent[outer[-1].axis])
+    for step,(outer,bw) in enumerate(candidates()):
         if step%32==0:
             if cancel and cancel():
                 raise InterruptedError()
             if progress:
-                progress(step,len(candidates))
+                progress(step,candidate_count)
         orec=outer_cache.get(outer)
         if orec is None:
             opp_np=_word_piece(outer)
@@ -218,7 +243,11 @@ def primitives(cube,targets,cancel=None,progress=None,anchor_axis=0,use_prepared
         if brec is None:
             bpp_np=_word_piece(bw)
             brec=[bpp_np,_inv_np(bpp_np),None,None]
+            if len(bp_cache)>=bp_limit:
+                bp_cache.popitem(last=False)
             bp_cache[bw]=brec
+        else:
+            bp_cache.move_to_end(bw)
         bpp_np,invbpp_np,bp,invbp=brec
         # Screen with the cheap piece-level commutator first; the full sticker
         # word is only built for candidates that actually cycle a target orbit.
@@ -247,6 +276,7 @@ def primitives(cube,targets,cancel=None,progress=None,anchor_axis=0,use_prepared
             brec[3]=inverse(brec[2])
         bp,invbp=brec[2],brec[3]
         p=compose(compose(compose(op,bp),invop),invbp)
+        packed=None
         for index in tuple(pending):
             orbit=targets[index]
             moved=[i for i in orbit if point_perm[i]!=i]
@@ -257,7 +287,12 @@ def primitives(cube,targets,cancel=None,progress=None,anchor_axis=0,use_prepared
             macro=outer+bw+inverse_word(outer,turn_order)+inverse_word(bw,turn_order)
             if not order:
                 if cycle_order==3 and not custom:
-                    deferred.append((index,p,macro))
+                    # Deferred full permutations dominated mobile RAM: each
+                    # tuple also kept thousands of boxed inverse indices alive.
+                    # A compact array preserves every candidate and its order.
+                    if packed is None:
+                        packed=array('H' if len(p)<=65536 else 'I',p)
+                    deferred.append((index,packed,macro))
                 continue
             powered=identity
             for _ in range(order):
@@ -339,8 +374,10 @@ def primitives(cube,targets,cancel=None,progress=None,anchor_axis=0,use_prepared
                       any(powered[s]!=s for home in orbit for s in g.pieces[home])}
             outside={s for s in range(len(p)) if powered[s]!=s and
                      s not in target_stickers[index]}
-            if not affected.issubset(found) or any(
-                s not in set().union(*(target_stickers[i] for i in affected)) for s in outside):
+            if not affected.issubset(found):
+                continue
+            allowed=set().union(*(target_stickers[i] for i in affected))
+            if not outside.issubset(allowed):
                 continue
             corrected=list(word*power)
             for other in affected:
@@ -353,6 +390,11 @@ def primitives(cube,targets,cancel=None,progress=None,anchor_axis=0,use_prepared
                 cycles=three_cycles(destination)
                 primitive,base=found[other]
                 if other not in transports:
+                    # A predecessor tree scales cubically with orbit size.
+                    # Keep only two trees while discovering centre macros,
+                    # rather than one for every high-order centre orbit.
+                    if len(transports)>=2:
+                        transports.pop(next(iter(transports)))
                     transports[other]=Transports(cube,orbit,base,cancel)
                 for cycle in cycles:
                     path=transports[other].path(tuple(orbit[j] for j in cycle))
@@ -427,7 +469,7 @@ class Transports:
         self.via=np.full(total,-1,dtype=np.int16)
         for root in self.roots:
             self.parents[root]=root
-        self._maps_np=[np.asarray(m,dtype=np.int64) for m in maps]
+        self._maps_np=np.asarray(maps,dtype=np.int64)
         self._frontier=np.asarray(list(self.roots),dtype=np.int64)
 
     def _expand(self):
@@ -444,6 +486,8 @@ class Transports:
         c=frontier%size
         chunks=[]
         for j,perm in enumerate(self._maps_np):
+            if self.cancel is not None and self.cancel():
+                raise InterruptedError()
             pa=perm[a]; pb=perm[b]; pc=perm[c]
             e0=pa*size2+pb*size+pc
             e1=pb*size2+pc*size+pa
@@ -473,6 +517,8 @@ class Transports:
         code=self._canon(*(index[p] for p in target))
         layers=0
         while parents[code]<0:
+            if self.cancel is not None and self.cancel():
+                raise InterruptedError()
             if not self._expand():
                 raise ValueError('The requested three-cycle is not in this orbit')
             layers+=1
@@ -495,12 +541,43 @@ class Transports:
             raise ValueError('Use conjugate() when both cycle directions are enabled')
         return self._transport(target)[0]
 
-    def conjugate(self,target,primitive,deadline=None):
-        """Choose a shortest setup to either orientation of the base cycle."""
+    def conjugate(self,target,primitive,deadline=None,simplify_result=True):
+        """Choose a shortest setup to either orientation of the base cycle.
+
+        ``simplify_result`` can be disabled by callers that simplify the whole
+        concatenated plan once; the concatenation is equivalent and avoids a
+        per-cycle simplify pass.
+        """
         path,reverse=self._transport(target,deadline)
         order=self.order
         macro=inverse_word(primitive,order) if reverse else primitive
-        return simplify(inverse_word(path,order)+macro+path,order)
+        word=inverse_word(path,order)+macro+path
+        return simplify(word,order) if simplify_result else word
+
+
+def joined_length(prefix,suffix,order):
+    """Exact simplified join length for two already simplified move words.
+
+    Only the touching axis blocks can change. Fully cancelled blocks expose
+    the next boundary; untouched prefixes need no copying or rescanning.
+    """
+    left=len(prefix)
+    right=0
+    while left and right<len(suffix) and prefix[left-1].axis==suffix[right].axis:
+        axis=prefix[left-1].axis
+        layers={}
+        while left and prefix[left-1].axis==axis:
+            left-=1
+            move=prefix[left]
+            layers[move.layer]=(layers.get(move.layer,0)+move.amount)%order
+        while right<len(suffix) and suffix[right].axis==axis:
+            move=suffix[right]
+            layers[move.layer]=(layers.get(move.layer,0)+move.amount)%order
+            right+=1
+        count=sum(bool(amount) for amount in layers.values())
+        if count:
+            return left+count+len(suffix)-right
+    return left+len(suffix)-right
 
 
 def orbit_word(transports,orbit,destination,primitive,prefix=(),alternatives=True,
@@ -516,9 +593,11 @@ def orbit_word(transports,orbit,destination,primitive,prefix=(),alternatives=Tru
     order=transports.order
     cancel=transports.cancel
 
-    def plan(labels,deadline=None):
+    def plan(labels,deadline=None,reverse=False):
         ids={old:new for new,old in enumerate(labels)}
         permutation=[ids[destination[old]] for old in labels]
+        if reverse:
+            permutation=inverse(permutation)
         word=[]
         for cycle in three_cycles(permutation):
             if cancel and cancel():
@@ -526,14 +605,18 @@ def orbit_word(transports,orbit,destination,primitive,prefix=(),alternatives=Tru
             if deadline is not None and monotonic()>=deadline:
                 raise TimeoutError('Optional orbit planning budget reached')
             target=tuple(orbit[labels[i]] for i in cycle)
-            word.extend(transports.conjugate(target,primitive,deadline))
+            word.extend(transports.conjugate(target,primitive,deadline,
+                                             simplify_result=False))
+        if reverse:
+            word=inverse_word(word,order)
         return simplify(word,order)
 
     labels=tuple(range(size))
     best=plan(labels)
     if not alternatives or not best:
         return best
-    best_cost=len(simplify(tuple(prefix)+best,order))
+    prefix=simplify(prefix,order)
+    best_cost=joined_length(prefix,best,order)
     deadline=monotonic()+max(0.0,search_budget)
     variants=(tuple(reversed(labels)),labels[size//3:]+labels[:size//3],
               labels[2*size//3:]+labels[:2*size//3])
@@ -548,11 +631,23 @@ def orbit_word(transports,orbit,destination,primitive,prefix=(),alternatives=Tru
             candidate=plan(variant,deadline)
         except TimeoutError:
             break
-        cost=len(simplify(tuple(prefix)+candidate,order))
+        cost=joined_length(prefix,candidate,order)
         if cost<best_cost:
             best,best_cost=candidate,cost
         if cost<current_cost:
             current,current_cost=variant,cost
+
+    # Decomposing the inverse permutation and then reversing the whole word
+    # gives the same target action with different pivot/setup cancellations.
+    # Compare within the existing time budget and keep only an improvement.
+    for variant in (labels,current):
+        try:
+            candidate=plan(variant,deadline,reverse=True)
+        except TimeoutError:
+            break
+        cost=joined_length(prefix,candidate,order)
+        if cost<best_cost:
+            best,best_cost=candidate,cost
 
     # A different relabelling changes how the same permutation is split into
     # three-cycles. Search nearby relabellings so adjacent conjugates can
@@ -582,13 +677,14 @@ def orbit_word(transports,orbit,destination,primitive,prefix=(),alternatives=Tru
             candidate=plan(variant,deadline)
         except TimeoutError:
             break
-        cost=len(simplify(tuple(prefix)+candidate,order))
+        cost=joined_length(prefix,candidate,order)
         if cost<best_cost:
             best,best_cost=candidate,cost
         # A modest annealing chance prevents the search from stopping at the
         # first local minimum while preserving a strict best-so-far result.
         if cost<=current_cost or rng.random()<0.08:
             current,current_cost=variant,cost
+    _trace_orbit(orbit,best)
     return best
 
 
@@ -597,37 +693,61 @@ def _macro_cost(macros):
     return sum(len(word) for word,_ in macros.values())
 
 
-def solve_high_minx(cube,cancel=None,progress=None):
-    """Prefer the native-ring reduction; fall back to the legacy solve.
+def _beam_probe(cube,cancel=None):
+    """Run the native-ring beam once and report unsolved stickers vs movable set.
 
-    The reduced pipeline (``solver.high_minx_reduction``) places most pieces
-    with native ring turns and is markedly shorter for orders of six and up.
-    It verifies its own replay and raises on any failure, so a broken or
-    unsupported state always falls through to the legacy three-cycle solve.
-    For the small orders where the two methods are close, the shorter verified
-    result wins.
+    The beam is cheap (well under a second) and leaves almost nothing behind on
+    shallow states, while deep scrambles leave most of the movable pieces
+    untouched. That gap makes it a reliable depth probe.
     """
-    reduced=None
+    from solver.high_minx_reduction import native_beam, _BEAM_WIDTH
+    work=cube.entered()
+    g=work.geometry
+    orbits=piece_orbits(cube.puzzle_kind,cube.n)
+    positions=[p for o in orbits if len(o)>1 for p in o]
+    if not positions:
+        return work,(),0,0
+    m=len(positions)
+    width=_BEAM_WIDTH if m<=900 else max(24,49152//m)
+    word=native_beam(work,positions,cancel,None,width=width)
+    unsolved=sum(1 for i,s in enumerate(g.stickers) if work.colors[i]!=s.face)
+    return work,tuple(word),unsolved,m
+
+
+def _beam_remaining(cube,cancel=None):
+    """Compatibility for benchmark callers that only need depth statistics."""
+    _,_,unsolved,movable=_beam_probe(cube,cancel)
+    return unsolved,movable
+
+
+def solve_high_minx(cube,cancel=None,progress=None):
+    """Choose the pipeline that suits the state depth.
+
+    The native-ring reduction's beam search is excellent on shallow states
+    (a twelve-move scramble of order six becomes 39 moves), while the
+    three-cycle pipeline is two to five times faster and shorter on deep
+    scrambles. A cheap beam probe distinguishes the two cases without running
+    the expensive reduction on every state.
+    """
+    from solver.high_minx_reduction import solve_reduced
+    if cube.n<=8:
+        try:
+            work,beam_word,unsolved,movable=_beam_probe(cube,cancel)
+        except (InterruptedError,MemoryError):
+            raise
+        except Exception:
+            unsolved=None
+        if unsolved is not None and unsolved<=max(24,movable//4):
+            return solve_reduced(cube,cancel,progress,_beam=(work,beam_word))
+        # The deep-state pipeline does not use the probe's working copy.
+        work=None
+        beam_word=()
     try:
-        from solver.high_minx_reduction import solve_reduced
-        reduced=solve_reduced(cube,cancel,progress)
-    except InterruptedError:
+        return _solve_high_minx_legacy(cube,cancel,progress)
+    except (InterruptedError,MemoryError):
         raise
     except Exception:
-        reduced=None
-    if reduced is not None and cube.n>5:
-        return reduced
-    try:
-        legacy=_solve_high_minx_legacy(cube,cancel,progress)
-    except InterruptedError:
-        raise
-    except Exception:
-        if reduced is not None:
-            return reduced
-        raise
-    if reduced is None or len(legacy)<len(reduced):
-        return legacy
-    return reduced
+        return solve_reduced(cube,cancel,progress)
 
 
 def _solve_high_minx_legacy(cube,cancel=None,progress=None):
@@ -660,8 +780,10 @@ def _solve_high_minx_legacy(cube,cancel=None,progress=None):
     # High-order minx has many large independent piece orbits. Give the
     # equivalent three-cycle planner more time than the generic default, but
     # cap the combined search so 11th/13th-order puzzles stay responsive.
-    orbit_search_budget=min(0.45,3.0/max(1,len(targets)))
-    baseline=primitives(work,targets,cancel)
+    orbit_search_budget=min(0.45,1.0/max(1,len(targets)))
+    from solver.minx_plans import core_orbit_plan
+    prepared=core_orbit_plan(work,targets)
+    baseline=prepared[0] if prepared is not None else primitives(work,targets,cancel)
     # Odd orders have orbits whose isolating commutator is long. Solving the
     # hardest orbit first and protecting the orbits already solved lets those
     # macros be built with fewer fixed stickers, so they become short. The
@@ -671,7 +793,10 @@ def _solve_high_minx_legacy(cube,cancel=None,progress=None):
     # are invariant under every turn, a macro that fixes a solved orbit stays
     # valid under any setup, so a solved orbit is never disturbed again.
     staged=None
-    if any(len(baseline[i][0])>_SHORT_PRIMITIVE for i in baseline):
+    if prepared is not None and prepared[2]:
+        staged=baseline
+        order=prepared[1]
+    if prepared is None and any(len(baseline[i][0])>_SHORT_PRIMITIVE for i in baseline):
         order=sorted(targets,key=lambda i:-len(baseline[i][0]))
         guarded=set()
         for index in core_orbits:
@@ -684,7 +809,7 @@ def _solve_high_minx_legacy(cube,cancel=None,progress=None):
             staged=primitives(work,targets,cancel,protected=protected)
         except ValueError:
             staged=None
-    if staged is not None and _macro_cost(staged)<_macro_cost(baseline):
+    if staged is not None and (prepared is not None or _macro_cost(staged)<_macro_cost(baseline)):
         for stage,index in enumerate(order):
             if cancel and cancel():
                 raise InterruptedError()
@@ -692,7 +817,7 @@ def _solve_high_minx_legacy(cube,cancel=None,progress=None):
                 progress(stage,len(order))
             orbit=targets[index]
             primitive,base=staged[index]
-            state=identify(work)
+            state=identify(work,only=(index,))
             indexes={p:i for i,p in enumerate(orbit)}
             destination=[None]*len(orbit)
             for home in orbit:
@@ -738,15 +863,15 @@ def _solve_high_minx_legacy(cube,cancel=None,progress=None):
     # sequence shortest; this captures cancellations across orbit boundaries.
     pending=list(plans)
     ordered=[]
-    prefix=list(solution)
+    prefix=simplify(solution,5)
     while pending:
         if cancel and cancel():
             raise InterruptedError()
         choice=min(range(len(pending)),
-                   key=lambda i:len(simplify(tuple(prefix)+pending[i][1],5)))
+                   key=lambda i:joined_length(prefix,pending[i][1],5))
         _,word=pending.pop(choice)
         ordered.append(word)
-        prefix.extend(word)
+        prefix=simplify(prefix+word,5)
     for word in ordered:
         for move in word:
             work.apply_move(move)
@@ -762,9 +887,19 @@ def solve_tetrahedral(cube,cancel=None,progress=None):
     work=cube.entered()
     g=work.geometry
     identify(work)
+    if cube.puzzle_kind == 'pyraminx' and cube.n == 5:
+        from solver.pyraminx_high import short_solution
+        short = short_solution(work, cancel)
+        if short is not None:
+            return short
     if cube.puzzle_kind=='skewb' and cube.n in (5,7):
         from solver.skewb import solve_high_order_core
         solution=list(solve_high_order_core(work,cancel,progress))
+    elif cube.puzzle_kind=='skewb_ultimate':
+        # The oriented four-colour centres make the exact core search time out
+        # on almost every scramble. The constructive core is fast and leaves
+        # the saved seconds to the improvement search, which shortens the word.
+        solution=list(solve_core(work,cancel,progress,exact=False))
     else:
         solution=list(solve_core(work,cancel,progress))
     for move in solution:
@@ -786,6 +921,11 @@ def solve_tetrahedral(cube,cancel=None,progress=None):
                 raise ValueError('The entered core has an impossible orientation')
     orbits=piece_orbits(cube.puzzle_kind,cube.n)
     targets={i:o for i,o in enumerate(orbits) if len(o)>6 and len(g.pieces[o[0]])<3}
+    if cube.puzzle_kind == 'pyraminx' and cube.n == 5:
+        # Fully restored orbits need no primitive discovery or transport BFS.
+        targets = {i: orbit for i, orbit in targets.items()
+                   if any(work.colors[s] != g.stickers[s].face
+                          for piece in orbit for s in g.pieces[piece])}
     if targets:
         baseline=primitives(work,targets,cancel)
         macros=baseline
@@ -842,16 +982,16 @@ def solve_tetrahedral(cube,cancel=None,progress=None):
                 plans.append((index,word))
             pending=list(plans)
             ordered=[]
-            prefix=list(solution)
+            prefix=simplify(solution,g.spec.turn_order)
             while pending:
                 if cancel and cancel():
                     raise InterruptedError()
                 choice=min(range(len(pending)),
-                           key=lambda i:len(simplify(tuple(prefix)+pending[i][1],
-                                                     g.spec.turn_order)))
+                           key=lambda i:joined_length(prefix,pending[i][1],
+                                                     g.spec.turn_order))
                 _,word=pending.pop(choice)
                 ordered.append(word)
-                prefix.extend(word)
+                prefix=simplify(prefix+word,g.spec.turn_order)
             for word in ordered:
                 for move in word:
                     work.apply_move(move)

@@ -58,13 +58,41 @@ def rgb_to_hsv(rgb: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     return H, S, V
 
 
+def _classify_reference(h, s, v, params):
+    refs = params.color_reference_hsv
+    _, white_s, white_v = refs[0]
+    if s <= max(params.sat_white, min(params.sat_color-1, white_s+15)):
+        return "W" if v >= max(params.val_min, white_v*.5) else None
+    if s < min(params.sat_color, max(50, min(ref[1] for ref in refs[1:])*.65)):
+        return None
+    scores = []
+    hue_distances = {}
+    for i, (rh, rs, rv) in enumerate(refs[1:], 1):
+        dh = abs(h-rh)
+        dh = min(dh, 180-dh)
+        hue_distances[i] = dh
+        score = 4*(dh/90)**2 + .10*((s-rs)/255)**2 + .05*((v-rv)/255)**2
+        scores.append((score, i))
+    scores.sort()
+    best, index = scores[0]
+    if best > .5 or scores[1][0]-best < .004:
+        return None
+    if {index, scores[1][1]} == {1, 3} and abs(hue_distances[1]-hue_distances[3]) <= 2*params.hue_oy_margin:
+        return None
+    return COLOR_CODES[index]
+
+
 def classify_hsv(h: int, s: int, v: int, params=_P) -> Optional[str]:
     """单个像素 HSV -> 颜色编码；返回 None 表示黑框/背景。"""
     if v < params.val_min:
         return None
+    if params.color_reference_hsv is not None:
+        return _classify_reference(h, s, v, params)
     if s <= params.sat_white and v >= params.val_white:
         return "W"
     if s < params.sat_color:
+        return None
+    if abs(h - params.hue_orange_h) <= params.hue_oy_margin:
         return None
     if params.hue_red_end <= h < params.hue_orange_h:
         return "O"

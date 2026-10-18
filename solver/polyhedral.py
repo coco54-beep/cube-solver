@@ -9,7 +9,8 @@ from pathlib import Path
 import re
 import random
 
-from cube.polyhedral import Move, PolyhedralPuzzle, key, rotate, dot, unit
+from cube.polyhedral import (Move, PolyhedralPuzzle, key, rotate, dot, unit,
+                             solved_colors)
 import math
 
 
@@ -87,16 +88,28 @@ def piece_orbits(kind,n):
     return tuple(orbits)
 
 
-def identify(cube):
-    """Recover home sticker labels from painted piece colors and legal orbits."""
+def identify(cube,only=None):
+    """Recover home sticker labels from painted piece colors and legal orbits.
+
+    ``only`` restricts the scan to a subset of piece-orbit indices. Callers that
+    already validated the state once use this to re-identify a single orbit
+    between reduction stages instead of rescanning every piece.
+    """
     g=cube.geometry
-    if any(not isinstance(c,int) or not 0<=c<len(g.spec.normals) for c in cube.colors):
-        raise ValueError('Please enter every sticker')
-    if Counter(cube.colors)!=Counter(s.face for s in g.stickers):
-        raise ValueError('The color counts do not match this puzzle')
+    if cube.puzzle_kind=='dino4':
+        if Counter(cube.colors)!=Counter(solved_colors(cube)):
+            raise ValueError('The colour counts do not match this puzzle')
+        return tuple(range(len(cube.colors)))
+    if only is None:
+        if any(not isinstance(c,int) or not 0<=c<len(g.spec.normals) for c in cube.colors):
+            raise ValueError('Please enter every sticker')
+        if Counter(cube.colors)!=Counter(s.face for s in g.stickers):
+            raise ValueError('The color counts do not match this puzzle')
     state=[None]*len(g.stickers)
     oriented=_oriented_identities(cube.puzzle_kind,cube.n)
-    for orbit in piece_orbits(cube.puzzle_kind,cube.n):
+    for orbit_index,orbit in enumerate(piece_orbits(cube.puzzle_kind,cube.n)):
+        if only is not None and orbit_index not in only:
+            continue
         available=defaultdict(deque)
         for home in orbit:
             available[tuple(sorted(g.stickers[i].face for i in g.pieces[home]))].append(home)
@@ -150,7 +163,7 @@ def identify(cube):
                 if pair:
                     a,b=pair
                     state[a],state[b]=state[b],state[a]
-    if len(set(state))!=len(state):
+    if only is None and len(set(state))!=len(state):
         raise ValueError('Duplicate piece')
     return tuple(state)
 
@@ -173,7 +186,7 @@ def _parity(perm):
 @lru_cache(maxsize=4)
 def _body_frames(kind,n=3):
     g=PolyhedralPuzzle(kind,n).geometry
-    axes=list(enumerate(g.spec.axes if kind in ('clover','blossom') else g.spec.axes[:2]))
+    axes=list(enumerate(g.spec.axes if kind in ('clover','blossom','petal_icosahedron','petal_icosahedron_nocentre','petal_tetrahedron','petal_tetrahedron_nocentre') else g.spec.axes[:2]))
     identity=((1.,0.,0.),(0.,1.,0.),(0.,0.,1.))
     frames=[identity]
     seen={tuple(key(v) for v in identity)}
@@ -459,6 +472,8 @@ _OPTIMIZE_TARGETS={('pentahedron',4):600,('pentahedron',5):750}
 
 
 def _optimize_plan(cube):
+    if cube.puzzle_kind == 'skewb_ultimate':
+        return 1.5, 16
     if cube.puzzle_kind=='pentahedron' and cube.n>=4:
         return _OPTIMIZE_HEAVY_BUDGET,_OPTIMIZE_TARGETS.get((cube.puzzle_kind,cube.n))
     if cube.puzzle_kind=='war_drum':
@@ -469,6 +484,12 @@ def _optimize_plan(cube):
 
 
 def solve_polyhedral(cube,cancel=None,progress=None):
+    if cube.puzzle_kind == 'mirror_skewb':
+        from solver.mirror_skewb import solve_mirror_skewb
+        return solve_mirror_skewb(cube,cancel,progress)
+    if cube.puzzle_kind == 'mirror_pyraminx':
+        from solver.mirror_pyraminx import solve_mirror_pyraminx
+        return solve_mirror_pyraminx(cube,cancel,progress)
     solution=_solve_and_optimize(cube,cancel,progress)
     from solver.cycle_finishes import shorten_cycle_finish
     solution=shorten_cycle_finish(cube,solution,cancel)
@@ -481,6 +502,8 @@ def _solve_and_optimize(cube,cancel=None,progress=None):
     if cube.is_solved():
         return ()
     solution=_solve_polyhedral_raw(cube,cancel,progress)
+    if cube.puzzle_kind == 'skewb_ultimate' and len(solution) <= 16:
+        return solution
     if cube.puzzle_kind=='pentahedron' and cube.n>=4 and len(solution)>1:
         from solver.polyhedral_optimize import optimize_solution
         from solver.pentahedron_reduce import core_injection
@@ -511,9 +534,9 @@ def _solve_and_optimize(cube,cancel=None,progress=None):
     if plan and len(solution)>1:
         from solver.polyhedral_optimize import optimize_solution
         budget,target=plan
-        if cube.puzzle_kind=='clover':
+        if cube.puzzle_kind in ('clover', 'skewb_ultimate'):
             # Re-solve constructively: the exact search is too slow to repeat.
-            resolver=lambda work:_solve_clover_core(work,cancel)
+            resolver=lambda work:_solve_constructive_core(work,cancel)
         else:
             resolver=lambda work:_solve_polyhedral_raw(work,cancel)
         solution=optimize_solution(cube,solution,resolver,budget=budget,
@@ -521,7 +544,7 @@ def _solve_and_optimize(cube,cancel=None,progress=None):
     return solution
 
 
-def _solve_clover_core(cube,cancel=None,progress=None):
+def _solve_constructive_core(cube,cancel=None,progress=None):
     from solver.polyhedral_search import solve_core
     identify(cube)
     return solve_core(cube,cancel,progress,exact=False)
@@ -537,6 +560,9 @@ def _solve_polyhedral_raw(cube,cancel=None,progress=None):
             return solve_pentahedron(cube,cancel,progress)
         from solver.drum_prism import solve_drum_prism
         return solve_drum_prism(cube,cancel,progress)
+    if cube.puzzle_kind=='dino4':
+        from solver.dino4 import solve_dino4
+        return solve_dino4(cube,cancel,progress)
     if cube.puzzle_kind=='dino' and cube.n==2:
         from solver.dino import solve_dino
         return solve_dino(cube,cancel,progress)
@@ -552,6 +578,12 @@ def _solve_polyhedral_raw(cube,cancel=None,progress=None):
     if cube.puzzle_kind=='blossom':
         from solver.blossom import solve_blossom
         return solve_blossom(cube,cancel,progress)
+    if cube.puzzle_kind in ('petal_tetrahedron','petal_tetrahedron_nocentre'):
+        from solver.petal_tetrahedron import solve_petal_tetrahedron
+        return solve_petal_tetrahedron(cube,cancel,progress)
+    if cube.puzzle_kind in ('petal_icosahedron','petal_icosahedron_nocentre'):
+        from solver.blossom import solve_petal_icosahedron
+        return solve_petal_icosahedron(cube,cancel,progress)
     if cube.puzzle_kind=='ivy':
         from solver.ivy import solve_ivy
         return solve_ivy(cube,cancel,progress)
@@ -571,6 +603,12 @@ def _solve_polyhedral_raw(cube,cancel=None,progress=None):
     if cube.puzzle_kind=='void_cube':
         from solver.void_cube import solve_void_cube
         return solve_void_cube(cube,cancel,progress)
+    if cube.puzzle_kind=='void_minx':
+        from solver.void_minx import solve_void_minx
+        return solve_void_minx(cube,cancel,progress)
+    if cube.puzzle_kind=='skewb_ultimate':
+        from solver.skewb_ultimate import solve_skewb_ultimate
+        return solve_skewb_ultimate(cube,cancel,progress)
     if cube.puzzle_kind=='icosahedron':
         from solver.icosahedron import solve_icosahedron
         return solve_icosahedron(cube,cancel,progress)
@@ -579,7 +617,7 @@ def _solve_polyhedral_raw(cube,cancel=None,progress=None):
             return solve_minx(cube,cancel,progress)
         from solver.polyhedral_reduction import solve_high_minx
         return solve_high_minx(cube,cancel,progress)
-    if cube.puzzle_kind in ('pyraminx','moyu','skewb','dino','fto','eight_petals','void_tower'):
+    if cube.puzzle_kind in ('pyraminx','moyu','skewb','dino','fto','eight_petals','void_tower','skewb_ultimate'):
         from solver.polyhedral_reduction import solve_tetrahedral
         return solve_tetrahedral(cube,cancel,progress)
     raise ValueError('Unsupported puzzle family')

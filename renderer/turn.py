@@ -71,6 +71,19 @@ def decompose_move(move_str, n):
     180 / 270 度不拆成多个 90°，而是作为一次动画转完，
     避免中间 set_cube 造成的颜色跳变。
     """
+    if move_str.startswith('@'):
+        from cube.ghost import custom_move
+        kind, index, angle = custom_move(move_str)
+        if kind == 'phase':
+            if n < 2 or not 0 <= index < n:
+                raise ValueError('Invalid Ghost alignment layer')
+            return [MoveStep('U', 1, (coord_values(n)[index],), angle, 1, False, angle < 0, move_str)]
+        if kind == 'band':
+            axis, layers = index
+            return [MoveStep(('R','U','F')[axis],axis,layers,angle,1,len(layers)>1,angle<0,move_str)]
+        if n != 1:
+            raise ValueError('Floppy turns require the first-order Ghost')
+        return [MoveStep(str(index+1), index+3, (0,), 180., 1, False, False, move_str)]
     if move_str and move_str[0] in SLICE_TOKENS:
         axis_letter, count = slice_turns(move_str)
         base = _SLICE_FACE[axis_letter]

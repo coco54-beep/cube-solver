@@ -27,6 +27,7 @@ class FaceDetection:
     rect: Optional[dict] = None
     confidence: float = 0.0
     image_quad: Optional[list] = None
+    samples: object = None
 
     def grid(self) -> List[List[str]]:
         """未确认的格子保留为空，供用户校正。"""
@@ -116,7 +117,7 @@ def _axis_bands(mask: np.ndarray, rect: dict, axis: int, n: int,
     return [float((a[s] + a[e]) / 2.0) for s, e in merged]
 
 
-def _sample_grid(hsv, mask, rect: dict, n: int, params: VisionParams):
+def _sample_grid(hsv, mask, rect: dict, n: int, params: VisionParams, samples=None):
     cx, cy = rect["center"]
     ux, uy = rect["axes"]
     w_, h_ = rect["size"]
@@ -151,7 +152,9 @@ def _sample_grid(hsv, mask, rect: dict, n: int, params: VisionParams):
                            for da in offs for db in offs])
             xi = np.clip(np.round(xs).astype(np.int64), 0, H.shape[1] - 1)
             yi = np.clip(np.round(ys).astype(np.int64), 0, H.shape[0] - 1)
-            row.append(_cell_color(H[yi, xi], S[yi, xi], V[yi, xi], params))
+            values = np.stack((H[yi, xi], S[yi, xi], V[yi, xi])).astype(np.uint8)
+            if samples is not None: samples.append(values)
+            row.append(_cell_color(*values, params))
         cells.append(row)
     return cells
 
@@ -221,14 +224,15 @@ def _read_quad(img, n, quad, params, rect=None):
     sampling = dict(center=(side/2, side/2), axes=(np.array([1, 0]), np.array([0, 1])),
                     size=(side, side))
     hsv = rgb_to_hsv(patch)
-    cells = _sample_grid(hsv, _foreground_mask(*hsv, params), sampling, n, params)
+    samples = []
+    cells = _sample_grid(hsv, _foreground_mask(*hsv, params), sampling, n, params, samples)
     known = sum(bool(c) for row in cells for c in row)
     return FaceDetection(n, cells, known == n*n,
                          "" if known == n*n else "partial", rect=rect,
-                         confidence=known/(n*n), image_quad=np.asarray(quad).tolist())
+                         confidence=known/(n*n), image_quad=np.asarray(quad).tolist(), samples=np.asarray(samples, dtype=np.uint8).reshape(n,n,3,-1))
 
 
-def detect_face_grid(image_rgb, n: int, params: VisionParams = _P, quad=None) -> FaceDetection:
+def detect_face_grid(image_rgb, n: int, params: VisionParams = _P, quad=None, progress=None) -> FaceDetection:
     """自动定位一个面，或按用户给出的 TL/TR/BR/BL 四角识别。"""
     if n < 2 or n > 17:
         return FaceDetection(n, [], False, reason="invalid order")
@@ -244,7 +248,10 @@ def detect_face_grid(image_rgb, n: int, params: VisionParams = _P, quad=None) ->
             return FaceDetection(n, [], False, reason="invalid corners")
         if np.any(q < 0) or np.any(q[:, 0] > img.shape[1]-1) or np.any(q[:, 1] > img.shape[0]-1):
             return FaceDetection(n, [], False, reason="invalid corners")
-        return _read_quad(img, n, q, params)
+        if progress: progress("camera.reading", 0, 1)
+        result = _read_quad(img, n, q, params)
+        if progress: progress("camera.reading", 1, 1)
+        return result
 
     work, _ = imageops.fit_max_dim(img, params.work_max_dim)
     hsv = rgb_to_hsv(work)
@@ -256,9 +263,13 @@ def detect_face_grid(image_rgb, n: int, params: VisionParams = _P, quad=None) ->
     seen = set()
     # 先桥接细切缝，逐步扩大，避免一次膨胀把界面按钮和背景并进魔方面。
     radii = sorted(set(min(params.component_dilate_max, r) for r in (2, 4, 7, 12, 18, 24)))
-    for radius in radii:
+    expanded, previous_radius = clean, 0
+    for pass_index, radius in enumerate(radii):
+        if progress: progress("camera.locating", pass_index, len(radii))
+        expanded = imageops.dilate(expanded, radius-previous_radius)
+        previous_radius = radius
         candidates = []
-        for comp in imageops.component_masks(imageops.dilate(clean, radius)):
+        for comp in imageops.component_masks(expanded):
             ys, xs = np.nonzero(comp & mask)
             if len(xs) < 80:
                 continue
@@ -266,7 +277,7 @@ def detect_face_grid(image_rgb, n: int, params: VisionParams = _P, quad=None) ->
             if signature in seen:
                 continue
             seen.add(signature)
-            pts = np.stack([xs, ys], axis=1).astype(float)
+            pts = imageops.row_extrema_points(xs, ys)
             try:
                 rect = _canonical_rect(imageops.min_area_rect(pts))
                 w, h = rect["size"]
@@ -281,6 +292,7 @@ def detect_face_grid(image_rgb, n: int, params: VisionParams = _P, quad=None) ->
             evidence = _grid_evidence(patch, n)
             if evidence < .08:
                 continue
+            if progress: progress("camera.reading", pass_index, len(radii))
             det = _read_quad(img, n, q*scale_xy, params, rect)
             candidates.append((det.confidence, w*h, det))
         if candidates:

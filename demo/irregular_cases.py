@@ -344,7 +344,9 @@ def lessons(kind,n):
                 '适用于模型展示的反向排列。对照尺寸和朝向，确认与当前情况一致后再执行。',
                 'Use for the reversed arrangement shown. Compare the sizes and orientations before applying it.',
                 '表示された逆向きの配置に使います。大きさと向きが現在の状態に合うことを確認してください。'))])]
-    if kind=='mirror':
+    if kind in ('mirror', 'mirror_axis', 'mirror_windmill', 'mirror_fisher',
+                'mirror_windmill_unequal', 'mirror_fisher_unequal',
+                'mirror_windmill_offset', 'mirror_fisher_offset'):
         originals={2:CASE_2X2,3:CASE_3X3,4:CASE_4X4,5:CASE_5X5}[n]
         result=[]
         for index, original in enumerate(originals):
@@ -393,6 +395,51 @@ def lessons(kind,n):
 
     cube=PolyhedralPuzzle(kind,n)
     g=cube.geometry
+    if kind in ('petal_tetrahedron','petal_tetrahedron_nocentre'):
+        from solver.petal_tetrahedron import prepared
+        with_centres=kind=='petal_tetrahedron'
+        cases=[]
+        for i,example in enumerate(prepared(kind).get('examples',())):
+            word=tuple(Move(*move) for move in example['word'])
+            affected=tuple(example['affected'])
+            item=case(text(f'联动错位 {i+1}',f'Coupled case {i+1}',f'連動ケース {i+1}'),word,text(
+                f'适用：图示的 {len(affected)} 块联动错位，其余块已归位。拿法与图一致时，完整执行 {len(word)} 步；反向情况用逆公式。',
+                f'Use when the {len(affected)} highlighted pieces match this case and the rest are solved. Match the grip and complete all {len(word)} moves. Use the inverse for the opposite case.',
+                f'表示の{len(affected)}ピースが同じ状態で、他が揃っている場合。同じ持ち方で{len(word)}手を実行。逆の場合は逆手順。'))
+            item['tutorial_targets']={p:str(j+1) for j,p in enumerate(affected)}
+            item['show_all']=True
+            item['camera']=_cycle_camera(g,affected)
+            cases.append(item)
+        return [step(text('典型情况：花瓣与中心联动' if with_centres else '典型情况：花瓣联动换位',
+                          'Typical cases: coupled petals and centres' if with_centres else 'Typical cases: coupled petals',
+                          '典型例：花びらと中心の連動' if with_centres else '典型例：花びらの連動'),text(
+            '先对照模型的错位位置与方向，再使用对应公式。相关块的换位需要一起考虑。',
+            'Match the shown positions and orientations before choosing a formula. The affected piece permutations are coupled.',
+            '位置と向きを模型に合わせて公式を選びます。関係するピースの交換は連動します。'),cases)]
+    if kind in ('petal_icosahedron','petal_icosahedron_nocentre'):
+        from solver.blossom import _assets
+        from solver.polyhedral import piece_orbits
+        orbits=piece_orbits(kind,n)
+        lessons=[]
+        petal_group=0
+        for index,macro in _assets(kind)['cycles'].items():
+            orbit=orbits[int(index)]
+            is_centre=len(orbit)==20
+            if not is_centre:
+                petal_group+=1
+            name=text('三角中心三循环' if is_centre else f'花瓣组 {petal_group} 三循环',
+                      'Triangle centre three-cycle' if is_centre else f'Petal group {petal_group} three-cycle',
+                      '三角中心の三循環' if is_centre else f'花びら組 {petal_group} の三循環')
+            word=tuple(Move(*move) for move in macro['word'])
+            lessons.append(step(name,text(
+                '适用：模型标出的三个同组块需要循环换位，其余块已归位。按所示拿法，完整执行公式；反向情况执行逆公式。仅支持整棱半转状态。',
+                'Use when the three shown pieces need a cycle and all other pieces are solved. Match the shown grip and finish the whole formula; reverse it for the opposite cycle. Edge half-turn states only.',
+                '表示された同じ組の3ピースを循環させ、他が揃っている場合。表示の持ち方で全手順を実行。逆循環は逆手順。辺の半回転状態のみ対応。'),[
+                    case(name,word,text(
+                        f'完整执行 {len(word)} 步后，其他块保持原状。',
+                        f'After all {len(word)} moves, every other piece is unchanged.',
+                        f'{len(word)}手をすべて実行すると他のピースは元に戻ります。'))]))
+        return lessons
     if kind=='blossom':
         from cube.polyhedral import dot
         from solver.blossom import _assets

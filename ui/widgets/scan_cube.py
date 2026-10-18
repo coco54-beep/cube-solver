@@ -1,6 +1,6 @@
 """拍照页的小型立体预览：展示整块翻面，并允许点当前面改色。"""
 from kivy.core.text import Label as CoreLabel
-from kivy.graphics import Color, InstructionGroup, Rectangle
+from kivy.graphics import Color, InstructionGroup, Rectangle, Line
 
 from cube.coordinates import FACE_NORMALS, get_d_maxc, rc_from_pos
 from renderer.cube_view import CubeView
@@ -14,6 +14,7 @@ class ScanCubeView(CubeView):
         self._press = None
         self.on_cell = None
         self.current_face = "F"
+        self._faces = {}
         super().__init__(**kwargs)
         self.lock_rotation = True
         # 与录入页一致：停稳后当前面正对镜头，立体效果由整体翻面动画呈现。
@@ -25,6 +26,7 @@ class ScanCubeView(CubeView):
     def set_faces(self, faces, n, world, current_face):
         from ui.screens.input_screen import _build_partial_cube
         self.current_face = current_face
+        self._faces = faces
         self.set_cube(_build_partial_cube(faces, n))
         self.set_whole_world(world)
 
@@ -39,6 +41,14 @@ class ScanCubeView(CubeView):
         self._labels.clear()
         if self.cube is None or self._last_proj is None or self._whole_world is None:
             return
+        grid = self._faces.get(self.current_face)
+        if grid:
+            for vertices, pos, face in getattr(self, '_last_quads', ()):
+                if face != self.current_face: continue
+                r,c = rc_from_pos(self.cube.n,face,pos)
+                if not grid[r][c]:
+                    self._labels.add(Color(1,.56,.12,1))
+                    self._labels.add(Line(points=[v for point in vertices for v in (point['x'],point['y'])],close=True,width=1.5))
         p = self._last_proj
         eye, right, up, forward = p["basis"]
         d, extent = get_d_maxc(self.cube.n)

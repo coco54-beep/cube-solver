@@ -14,7 +14,20 @@ from ui.widgets.layouts import ResponsiveBoxLayout
 
 class MirrorTowerScreen(PolyhedralScreen):
     view_class=MirrorTowerView
+    cube_class=MirrorTowerCube
+    hint_key='mirror_tower.hint'
     customize_icon='reset'
+
+    def _new_cube(self, pieces=None):
+        if self.cube_class is MirrorTowerCube:
+            return self.cube_class(pieces)
+        return self.cube_class(pieces, n=_app().n)
+
+    def _placements(self, home, position):
+        return placements(home, position)
+
+    def _gallery_homes(self):
+        return range(len(self._cube.geometry.pieces))
 
     def __init__(self,**kwargs):
         self._recorded=set()
@@ -50,20 +63,20 @@ class MirrorTowerScreen(PolyhedralScreen):
             self.view.set_cube(self._cube)
         self.demo_button.disabled=self._cube.n>5
         self.demo_button.opacity=0 if self._cube.n>5 else 1
-        self.status.text=tr('poly.progress',done=len(self._recorded),total=14)
-        self.hint.text=tr('mirror_tower.hint')
+        self.status.text=tr('poly.progress',done=len(self._recorded),total=len(self._cube.geometry.pieces))
+        self.hint.text=tr(self.hint_key)
         self.gallery.clear_widgets()
-        for home in range(14):
-            possible=placements(home,self._position)
+        for home in self._gallery_homes():
+            possible=self._placements(home,self._position)
             if not possible:
                 continue
             piece=self._cube.pieces[self._position]
             active=self._position in self._recorded and piece.home==home
             frame=piece.frame if active else possible[0]
             button=UIButton(active=active)
-            preview=MirrorTowerView(size_hint=(None,None))
+            preview=self.view_class(size_hint=(None,None))
             preview.fit_piece=True
-            preview.set_cube(MirrorTowerCube({self._position:Piece(home,frame)}))
+            preview.set_cube(self._new_cube({self._position:Piece(home,frame)}))
             preview.yaw,preview.pitch=self.view.yaw,self.view.pitch
             preview.roll=self.view.roll
             button.add_widget(preview)
@@ -95,7 +108,7 @@ class MirrorTowerScreen(PolyhedralScreen):
             return
         self._remember()
         piece=self._cube.pieces[self._position]
-        options=placements(piece.home,self._position)
+        options=self._placements(piece.home,self._position)
         from cube.mirror_tower import frame_key
         index=next(i for i,f in enumerate(options) if frame_key(f)==frame_key(piece.frame))
         self._cube.pieces[self._position]=Piece(piece.home,options[(index+1)%len(options)])
@@ -105,11 +118,11 @@ class MirrorTowerScreen(PolyhedralScreen):
         if not self.entry_can_edit():
             return
         from cube.polyhedral_scramble import scramble
-        work=MirrorTowerCube()
+        work=self._new_cube()
         scramble(work,24)
         self._remember()
         self._cube.pieces=work.pieces
-        self._recorded=set(range(14))
+        self._recorded=set(range(len(self._cube.geometry.pieces)))
         self._refresh()
 
     def clear(self):
@@ -136,7 +149,7 @@ class MirrorTowerScreen(PolyhedralScreen):
             return
         self._remember()
         self._recorded=set()
-        self._cube.pieces=MirrorTowerCube().pieces
+        self._cube.pieces=self._new_cube().pieces
         self._refresh()
 
     def undo(self):
@@ -149,8 +162,8 @@ class MirrorTowerScreen(PolyhedralScreen):
 
     def entry_reset_solved(self):
         self._remember()
-        self._cube.pieces=MirrorTowerCube().pieces
-        self._recorded=set(range(14))
+        self._cube.pieces=self._new_cube().pieces
+        self._recorded=set(range(len(self._cube.geometry.pieces)))
 
     def entry_commit_state(self):
         _app().cube=self._cube
@@ -164,7 +177,7 @@ class MirrorTowerScreen(PolyhedralScreen):
     def validate(self):
         if not self.entry_can_edit():
             return
-        if len(self._recorded)!=14:
+        if len(self._recorded)!=len(self._cube.geometry.pieces):
             self.error('Please enter every sticker')
             return False
         try:
@@ -183,7 +196,7 @@ class MirrorTowerScreen(PolyhedralScreen):
 
     def retranslate(self):
         super().retranslate()
-        self.hint.text=tr('mirror_tower.hint')
+        self.hint.text=tr(self.hint_key)
 
     def _face_roll(self,index):
         return 180 if self._cube.geometry.spec.normals[index][1]>0 else 0

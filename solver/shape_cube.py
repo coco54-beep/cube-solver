@@ -31,6 +31,25 @@ def _side_centres(twists,cancelled):
 
 def solve_shape_cube(cube,cancel_event=None,progress_callback=None,optimize_budget=1.0):
     started=time.perf_counter()
+    if cube.n == 4:
+        from cube.high_shape import normalize_high_shape_input
+        from solver.solver_n import solve_nxn
+        cancelled=lambda:cancel_event is not None and cancel_event.is_set()
+        try:
+            work=normalize_high_shape_input(cube,cancelled)
+        except ValueError as exc:
+            return SolveResult(False,[],str(exc),int((time.perf_counter()-started)*1000),0,[])
+        result=solve_nxn(work,cancel_event,progress_callback)
+        if result.success:
+            replay=cube.clone()
+            for move in result.moves:
+                if cancelled():
+                    raise InterruptedError()
+                replay.apply_move(move)
+            if not replay.is_solved():
+                return SolveResult(False,[],'shape.error.replay',int((time.perf_counter()-started)*1000),0,[])
+        result.elapsed_ms=int((time.perf_counter()-started)*1000)
+        return result
     baseline=_solve_shape_cube(cube,cancel_event,progress_callback)
     if not baseline.success or cube.n!=3 or cube.puzzle_kind=='pandora' or not baseline.moves:
         return baseline

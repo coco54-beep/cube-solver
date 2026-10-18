@@ -178,7 +178,7 @@ def _load_tables():
         return None
 
 
-def solve_square1(cube,cancel=None,progress=None,optimize_budget=.2):
+def solve_square1(cube,cancel=None,progress=None,optimize_budget=.2,failed_limit=100000,hard_deadline=None):
     cube.validate()
     if cube.is_solved():
         return ()
@@ -207,7 +207,7 @@ def solve_square1(cube,cancel=None,progress=None,optimize_budget=.2):
     visits=0
     deadline=None
     total_limit=None
-    failed=set()
+    failed={}
 
     class SearchBudgetExpired(Exception):pass
 
@@ -216,6 +216,8 @@ def solve_square1(cube,cancel=None,progress=None,optimize_budget=.2):
         visits+=1
         if visits%1024==0:
             _check(cancel)
+            if hard_deadline is not None and monotonic()>=hard_deadline:
+                raise TimeoutError()
             if deadline is not None and monotonic()>=deadline:
                 raise SearchBudgetExpired()
 
@@ -225,8 +227,9 @@ def solve_square1(cube,cancel=None,progress=None,optimize_budget=.2):
             return edge==corner==mid==0 and not te and be
         if max(pd[(edge<<1)|mid],pd[(corner<<1)|mid])>remaining:
             return False
-        state=(edge,corner,te,be,mid,remaining,last)
-        if state in failed:return False
+        state=(edge<<21)|(corner<<5)|(te<<4)|(be<<3)|(mid<<2)|last
+        seen=failed.get(state)
+        if seen is not None and remaining<=seen:return False
         if last!=0 and te==be:
             e,c,m=ps[edge],ps[corner],1-mid
             if max(pd[(e<<1)|m],pd[(c<<1)|m])<remaining:
@@ -254,7 +257,7 @@ def solve_square1(cube,cancel=None,progress=None,optimize_budget=.2):
                 else:
                     c=table[c]
                     amount+=2
-        if len(failed)<100000:failed.add(state)
+        if len(failed)<failed_limit and (seen is None or remaining>seen):failed[state]=remaining
         return False
 
     def start_phase2():

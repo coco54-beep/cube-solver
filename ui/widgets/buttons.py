@@ -42,6 +42,9 @@ class UIButton(Button):
         self._rebuild()
 
     # ---- 配色 ----
+    def refresh_theme(self):
+        self._rebuild()
+
     def _button_color(self):
         theme = self._theme()
         if theme is None:

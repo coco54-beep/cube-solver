@@ -28,7 +28,7 @@ def test_write_back_invalidates_stale_solve_result(monkeypatch):
     captured = {}
 
     class _FakeInputScreen:
-        def set_facelets(self, facelets):
+        def set_facelets(self, facelets, remember=False):
             captured["facelets"] = facelets
 
     fake_self = types.SimpleNamespace(

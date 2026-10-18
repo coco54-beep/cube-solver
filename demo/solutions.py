@@ -22,6 +22,19 @@ def solved_demo_cube(mode):
     if kind=='mirror':
         from cube.mirror import MirrorCube
         return MirrorCube.solved(n=n)
+    if kind in ('mirror_axis', 'mirror_windmill', 'mirror_fisher',
+                'mirror_windmill_unequal', 'mirror_fisher_unequal',
+                'mirror_windmill_offset', 'mirror_fisher_offset'):
+        from cube.mirror_shape import (MirrorAxisCube, MirrorWindmillCube, MirrorFisherCube,
+                                       MirrorUnequalWindmillCube, MirrorUnequalFisherCube,
+                                       MirrorOffsetWindmillCube, MirrorOffsetFisherCube)
+        factories = {'mirror_axis': MirrorAxisCube, 'mirror_windmill': MirrorWindmillCube,
+                     'mirror_fisher': MirrorFisherCube,
+                     'mirror_windmill_unequal': MirrorUnequalWindmillCube,
+                     'mirror_fisher_unequal': MirrorUnequalFisherCube,
+                     'mirror_windmill_offset': MirrorOffsetWindmillCube,
+                     'mirror_fisher_offset': MirrorOffsetFisherCube}
+        return factories[kind].solved(n=n)
     if kind in ('axis','pandora','windmill','fisher'):
         from cube.shape_cube import AxisCube,PandoraCube,WindmillCube,FisherCube
         return {'axis':AxisCube,'pandora':PandoraCube,'windmill':WindmillCube,'fisher':FisherCube}[kind].solved(n=n)

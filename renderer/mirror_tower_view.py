@@ -2,9 +2,10 @@
 import math
 from cube.mirror_tower import piece_faces,SHELL_OFFSET
 from cube.mastermorphix import transform
-from cube.polyhedral import add,scale,cross,dot,unit,rotate,mean,clip
+from cube.polyhedral import add,scale,cross,dot,unit,rotate
 from renderer.square1_view import Square1View
 from renderer.polyhedral_view import PolyhedralTwistView
+from renderer.mirror_material import SILVER, PANEL_BORDER, inset_panel, shade_surface
 
 
 class MirrorTowerView(Square1View):
@@ -13,14 +14,16 @@ class MirrorTowerView(Square1View):
         return points
     def set_cube(self,cube):
         super().set_cube(cube)
-        self.palette=((.83,.84,.85,1),)*4
+        self.palette=(SILVER,)*max(4,len(cube.geometry.spec.normals))
+
+    def _surface_shade(self, normal, eye, light, rgba, color, recorded):
+        return shade_surface(normal,eye,color>=0,recorded)
 
     @staticmethod
     def _surfaces(cube):
         result=[]
         for pos,piece in cube.pieces.items():
-            faces=piece_faces(piece.home)
-            centre=mean(tuple(p for vertices,color in faces for p in vertices))
+            faces=(cube.piece_faces(piece.home) if hasattr(cube,'piece_faces') else piece_faces(piece.home))
             for vertices,color in faces:
                 normal=(0.,0.,0.)
                 for a,b in zip(vertices,vertices[1:]+vertices[:1]):
@@ -29,7 +32,7 @@ class MirrorTowerView(Square1View):
                     continue
                 normal=unit(normal)
                 def placed(p):
-                    return scale(transform(piece.frame,add(centre,scale(add(p,scale(centre,-1)),.997))),.64)
+                    return scale(transform(piece.frame,p),.64)
                 points=tuple(placed(p) for p in vertices)
                 world_normal=transform(piece.frame,normal)
                 # Black housing surrounds each inset silver panel. Keep a
@@ -38,20 +41,9 @@ class MirrorTowerView(Square1View):
                                cube.geometry.pieces[pos][0],0,pos,1))
                 if color<0:
                     continue
-                face_centre=mean(vertices)
-                edges=[]
-                for a,b in zip(vertices,vertices[1:]+vertices[:1]):
-                    delta=add(b,scale(a,-1))
-                    if dot(delta,delta)<1e-14:
-                        continue
-                    inward=unit(cross(normal,delta))
-                    edges.append((inward,dot(inward,a)))
-                border=min(.045,min(dot(n,face_centre)-bound for n,bound in edges)*.18)
-                panel=vertices
-                for inward,bound in edges:
-                    panel=clip(panel,scale(inward,-1),-bound-border)
+                panel=inset_panel(tuple(vertices),normal,PANEL_BORDER/.64)
                 if panel:
-                    result.append((tuple(placed(add(p,scale(normal,.002))) for p in panel),
+                    result.append((tuple(placed(p) for p in panel),
                                    world_normal,color,cube.geometry.pieces[pos][0],0,pos,1))
         return tuple(result)
 

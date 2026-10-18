@@ -84,8 +84,8 @@ def _demo_view_class(cube):
         from renderer.shape_cube_view import AxisView,PandoraView,WindmillView,FisherView
         return {'axis':AxisView,'pandora':PandoraView,'windmill':WindmillView,'fisher':FisherView}[kind]
     if isinstance(cube,MirrorCube):
-        from renderer.mirror_view import MirrorView
-        return MirrorView
+        from renderer.mastermorphix_view import cube_view_class_for
+        return cube_view_class_for(cube)
     return MastermorphixView if isinstance(cube,MastermorphixCube) else CubeView
 
 

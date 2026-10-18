@@ -11,7 +11,7 @@ from kivy.uix.screenmanager import Screen
 from kivy.uix.slider import Slider
 
 from app.i18n import tr
-from renderer.mastermorphix_view import cube_view_for
+from renderer.mastermorphix_view import cube_view_for, cube_view_class_for
 from renderer.turn import decompose_move
 from renderer.camera_follow import follow_turn, layer_target, cancel_follow, reset_camera_view
 from ui.widgets import metrics as m
@@ -160,7 +160,8 @@ class PlaybackScreen(Screen):
         if not hasattr(self, "view"):
             self.build_ui()
         elif (getattr(self, "_simple", None) != bool(getattr(_app(), "simple_input", False))
-              or self._puzzle_kind != getattr(_app().cube, "puzzle_kind", "cube")):
+              or self._puzzle_kind != getattr(_app().cube, "puzzle_kind", "cube")
+              or type(self.view) is not cube_view_class_for(_app().cube)):
             self._stop_all()
             self.clear_widgets()
             self.build_ui()
@@ -311,15 +312,22 @@ class PlaybackScreen(Screen):
                 dur,
                 on_done=lambda: self._after_turn(step),
                 layer_positions=step.layers,
-                include_fixed_centers=step.move_str[:1] in ('x','y','z'),
+                include_fixed_centers=step.move_str[:1] in ('x','y','z') or step.move_str.startswith(('@G','@F')),
             )
         follow_turn(self.view,layer_target(step.axis,step.layers),begin)
 
     def _after_turn(self, step):
         # 动画结束：应用 step 表示的一次转动（可能 90/180/270 度）到逻辑状态。
-        mv = _single_turn_string(step)
-        for _ in range(step.count):
-            self._work.apply_move(mv)
+        if step.move_str.startswith('@'):
+            from cube.ghost import custom_move, phase_token, band_token
+            kind, index, _ = custom_move(step.move_str)
+            token = (phase_token(index, step.angle) if kind == 'phase' else
+                     band_token(index[0],index[1],step.angle) if kind == 'band' else step.move_str)
+            self._work.apply_move(token)
+        else:
+            mv = _single_turn_string(step)
+            for _ in range(step.count):
+                self._work.apply_move(mv)
         self.view.set_cube(self._work)
         self._step_queue()
 
@@ -347,6 +355,11 @@ class PlaybackScreen(Screen):
         self.lbl_move.text = tr("playback.step", i=max(0, self._idx + 1),
                                 t=len(self._moves))
         move = self._moves[self._idx] if 0 <= self._idx < len(self._moves) else tr("playback.ready")
+        if move.startswith('@'):
+            from cube.ghost import custom_move
+            kind, index, angle = custom_move(move)
+            move = (tr('ghost.layer_angle', layer=index+1, angle=f'{angle:g}') if kind == 'phase'
+                    else tr('ghost.body') if kind == 'band' else tr('ghost.floppy_turn', face=index+1))
         result = getattr(_app(), "solve_result", None)
         failed = result is not None and not result.success
         self.lbl_stage.text = result.message if failed else tr("playback.current", move=move)
@@ -380,6 +393,14 @@ class PlaybackScreen(Screen):
         self.manager.current = {'mastermorphix': 'MastermorphixScreen', 'mirror': 'MirrorScreen',
                                 'axis':'ShapeCubeScreen','pandora':'ShapeCubeScreen','windmill':'ShapeCubeScreen',
                                 'fisher':'ShapeCubeScreen',
+                                'mirror_fisher':'MirrorFisherScreen',
+                                'mirror_fisher_unequal':'MirrorUnequalFisherScreen',
+                                'mirror_fisher_offset':'MirrorOffsetFisherScreen',
+                                'mirror_windmill_offset':'MirrorOffsetWindmillScreen',
+                                'mirror_windmill_unequal':'MirrorUnequalWindmillScreen',
+                                'mirror_windmill':'MirrorWindmillScreen',
+                                'mirror_axis':'MirrorAxisScreen',
+                                'ghost':'GhostScreen',
                                 'football':'ShapeCubeScreen'}.get(
             getattr(_app(), 'puzzle_kind', 'cube'), 'InputScreen')
 

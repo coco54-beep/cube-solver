@@ -174,7 +174,7 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
         self._refresh()
 
     def go_back(self):
-        self.manager.current = 'IrregularDirectoryScreen'
+        self.manager.current = 'HomeScreen'
 
     def on_enter(self, *args):
         self.view.cancel_touch()

@@ -27,9 +27,12 @@ def _app():
 
 
 class Square1Screen(EntryActionsMixin, Screen):
+    view_class = Square1View
+    demo_mode = True
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
         self._cube=None
+        self._work=None
         self._history=[]
         self._slot=0
         self._field=0
@@ -62,13 +65,14 @@ class Square1Screen(EntryActionsMixin, Screen):
         self._button(top,'back',self.back)
         self.title=Label(text=tr('directory.square1'),size_hint_x=4,font_size='20sp')
         top.add_widget(self.title)
-        demo=UIButton(icon_name='demo')
-        demo.bind(on_release=lambda *_:self.open_demo())
-        top.add_widget(demo)
+        if self.demo_mode:
+            demo=UIButton(icon_name='demo')
+            demo.bind(on_release=lambda *_:self.open_demo())
+            top.add_widget(demo)
         if not self._playback:
             self._button(top,'reset',self.reset_view)
         root.add_widget(top)
-        self.view=Square1View()
+        self.view=self.view_class()
         self._simple=bool(getattr(_app(),'simple_input',False))
         self.view.lock_rotation=not self._playback or self._simple
         self.view.on_pick=self.select_surface
@@ -368,7 +372,7 @@ class Square1Screen(EntryActionsMixin, Screen):
             self._refresh()
             self.manager.current=self.name
         screen=self.manager.get_screen('SolvingScreen')
-        screen.configure(initial,self.name,solved,Square1View)
+        screen.configure(initial,self.name,solved,self.view_class)
         self.manager.current='SolvingScreen'
 
     def next(self):
@@ -482,7 +486,7 @@ class Square1Screen(EntryActionsMixin, Screen):
             self.confirm_back()
         else:
             self.reset_interaction()
-            self.manager.current='SpecialIrregularScreen'
+            self.manager.current='HomeScreen'
 
     def _return_to_input(self):
         self.reset_interaction()

@@ -48,6 +48,21 @@ def texture_to_rgb(texture) -> Optional[np.ndarray]:
         # Texture UV 顺序为 BL/BR/TR/TL，像素缓冲行序不一定等同屏幕行序。
         uv = np.asarray(getattr(texture, "tex_coords", (0, 0, 1, 0, 1, 1, 0, 1))).reshape(4, 2)
         tl, tr, bl = uv[3], uv[2], uv[0]
+        # Camera/image textures normally use only flips or quarter turns.
+        # These are array views, avoiding several full-resolution float grids.
+        rounded = np.rint(np.array([tl, tr, bl])).astype(int)
+        if np.allclose([tl, tr, bl], rounded, atol=1e-7) and np.all((rounded >= 0) & (rounded <= 1)):
+            origin, right, down = rounded
+            du, dv = right-origin, down-origin
+            if np.sum(abs(du)) == 1 and np.sum(abs(dv)) == 1 and np.dot(du, dv) == 0:
+                if du[0]:
+                    return rgb[::int(dv[1]), ::int(du[0])].copy()
+                # Match the existing output dimensions for non-square textures.
+                xs = np.rint(np.linspace(0, width-1, height)).astype(int)
+                ys = np.rint(np.linspace(0, height-1, width)).astype(int)
+                if dv[0] < 0: xs = width-1-xs
+                if du[1] < 0: ys = height-1-ys
+                return rgb[ys[None, :], xs[:, None]].copy()
         u, v = np.meshgrid(np.linspace(0, 1, width), np.linspace(0, 1, height))
         coords = tl + u[..., None]*(tr-tl) + v[..., None]*(bl-tl)
         xs = np.clip(np.rint(coords[..., 0]*(width-1)).astype(int), 0, width-1)

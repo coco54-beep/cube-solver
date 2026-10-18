@@ -14,8 +14,17 @@ from ui.widgets import metrics as m
 class MirrorScreen(MastermorphixScreen):
     cube_class=MirrorCube
     view_class=MirrorView
+
+    def _placements(self, home, pos):
+        return placements(home, pos)
+
+    def _card_camera(self, view, pos):
+        _thumbnail_camera_for(view, pos)
+
+    def _preview_cube(self, pos, piece):
+        return self.cube_class({pos:piece}, palette=self._cube.palette, n=self._cube.n)
     def go_back(self):
-        self.manager.current='IrregularDirectoryScreen'
+        self.manager.current='HomeScreen'
 
     def build_ui(self):
         super().build_ui()
@@ -86,17 +95,18 @@ class MirrorScreen(MastermorphixScreen):
         self.gallery_page_prev.disabled=self._gallery_page==0
         self.gallery_page_next.disabled=self._gallery_page==pages-1
         for home in homes[self._gallery_page*page_size:(self._gallery_page+1)*page_size]:
-            frame=placements(home,self._pos)[0]
+            frame=self._placements(home,self._pos)[0]
             current=self._cube.cubies[self._pos]
-            active=self._pos in self._recorded and current.home==home
+            active=self._pos in self._recorded and self._same_piece(current.home,home)
             if active:
+                home=current.home
                 frame=current.frame
             button=UIButton(active=active)
             view=self.view_class(size_hint=(None,None))
             view.lock_rotation=True
             view.fit_piece=True
-            view.set_cube(self.cube_class({self._pos:make_piece(home,self._pos,frame,self._cube.n)},palette=self._cube.palette,n=self._cube.n))
-            _thumbnail_camera_for(view,self._pos)
+            view.set_cube(self._preview_cube(self._pos,self._make_piece(home,self._pos,frame)))
+            self._card_camera(view,self._pos)
             button.add_widget(view)
             button.bind(pos=lambda b,*_:setattr(b.children[0],'pos',(b.x+b.width*.05,b.y+b.height*.05)),
                         size=lambda b,*_:setattr(b.children[0],'size',(b.width*.9,b.height*.9)))
@@ -104,11 +114,17 @@ class MirrorScreen(MastermorphixScreen):
             self.gallery.add_widget(button)
 
     def available_homes(self,pos):
-        return [p for p in self._cube.positions if placements(p,pos)]
+        return [p for p in self._cube.positions if self._placements(p,pos)]
+
+    def _make_piece(self,home,pos,frame):
+        return make_piece(home,pos,frame,self._cube.n)
+
+    def _same_piece(self,left,right):
+        return left==right
 
     def choose_piece(self,home,frame=None):
         self._remember()
-        self._cube.cubies[self._pos]=make_piece(home,self._pos,frame or placements(home,self._pos)[0],self._cube.n)
+        self._cube.cubies[self._pos]=self._make_piece(home,self._pos,frame or self._placements(home,self._pos)[0])
         self._recorded.add(self._pos)
         self._refresh()
 

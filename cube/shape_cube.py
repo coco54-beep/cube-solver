@@ -1,10 +1,11 @@
-"""Oriented three-layer shape modifications with real rigid piece surfaces."""
+"""Oriented three/four-layer shape modifications with rigid piece surfaces."""
 from functools import lru_cache
 from itertools import product
 from math import sqrt
 
 from cube.mastermorphix import MastermorphixCube,IDENTITY,make_piece,positions_for_order,transform,_clip
 from cube.polyhedral import CUBE,body,mean,cross,add,scale,dot,unit,key
+from cube.coordinates import coord_values
 
 PALETTE=('W','R','G','Y','O','B')
 # A 180 degree rotation around (1,1,1) gives the same shell as a 60 degree
@@ -12,55 +13,112 @@ PALETTE=('W','R','G','Y','O','B')
 AXIS_FRAME=((-1/3,2/3,2/3),(2/3,-1/3,2/3),(2/3,2/3,-1/3))
 
 
-@lru_cache(maxsize=128)
-def axis_faces(home):
-    normals=tuple(transform(AXIS_FRAME,n) for n in CUBE)
-    polygons=[(list(face),color) for color,face in enumerate(body(normals))]
+def _cut_shell(polygons,home,n,core_half=1.):
+    values = coord_values(n)
     for axis,coordinate in enumerate(home):
-        if coordinate<1:
-            polygons=_clip(polygons,axis,1,(coordinate+.5)*2/3)
-        if coordinate>-1:
-            polygons=_clip(polygons,axis,-1,(-coordinate+.5)*2/3)
+        index = values.index(coordinate)
+        if index < n-1:
+            polygons = _clip(polygons,axis,1,core_half*(2*(index+1)/n-1))
+        if index > 0:
+            polygons = _clip(polygons,axis,-1,-core_half*(2*index/n-1))
     return tuple((tuple(points),color) for points,color in polygons)
 
 
-def faces_for(kind,home):
+@lru_cache(maxsize=256)
+def axis_faces(home,n=3):
+    normals=tuple(transform(AXIS_FRAME,n) for n in CUBE)
+    polygons=[(list(face),color) for color,face in enumerate(body(normals))]
+    return _cut_shell(polygons,home,n)
+
+
+def faces_for(kind,home,n=3):
+    if kind in ('windmill_unequal', 'fisher_unequal', 'windmill_offset', 'fisher_offset'):
+        return unequal_height_faces(kind, home, n)
     if kind=='axis':
-        return axis_faces(home)
+        return axis_faces(home,n)
     if kind=='football':
         return football_faces(home)
     if kind=='pandora':
         return pandora_faces(home)
     if kind=='windmill':
-        return windmill_faces(home)
+        return windmill_faces(home,n)
     if kind=='fisher':
-        return fisher_faces(home)
+        return fisher_faces(home,n)
     raise ValueError('Unsupported shape modification')
+
+
+@lru_cache(maxsize=104)
+def unequal_height_faces(kind, home, n=3):
+    """Photo-based mirror variants: offset shell, fixed cubic mechanism.
+
+    Both the diagonal-face centre and the extrusion lengths are asymmetric.
+    Offset the exterior without enlarging Fisher's central cutting square.
+    Its middle band and diagonal-face centre retain the ordinary Fisher cut
+    spacing; the different outer-piece sizes come from the shell offset.
+    Dimensions approximate the reference photographs, not manufacturer data.
+    Shape the exterior BEFORE clipping; internal cut spacing remains equal
+    along every mechanism axis, so quarter turns move closed rigid solids.
+    """
+    if n != 3:
+        raise ValueError('Unequal-height mirror variants require order three')
+    base = kind.split('_', 1)[0]
+    if base == 'windmill':
+        frame = ((sqrt(3)/2,0,-.5),(0,1,0),(.5,0,sqrt(3)/2))
+        core_half = 3*(sqrt(3)-1)/2
+        height = .96
+        # The opposite shell edges have x = +/-(sqrt(3)-1)/2.
+        # A z-only lateral offset keeps both x cuts passing through those
+        # edges; only the other parallel cut family becomes eccentric.
+        offset = (0., -.10, -.08)
+    elif base == 'fisher':
+        s = sqrt(.5)
+        frame = ((s,0,-s),(0,1,0),(s,0,s))
+        core_half = 1.
+        height = 1.
+        # Only one diagonal cut family is offset relative to the exterior.
+        # Keep the x-normal parallel pair at its original face position;
+        # the z-normal pair supplies the eccentricity. Y controls height only.
+        offset = (0., .15, .16)
+    else:
+        raise ValueError('Unsupported unequal-height shell')
+    if kind.endswith('_unequal'):
+        # Independent variant: retain the original diagonal-face cuts, and
+        # change only the outer lengths along the extrusion axis.
+        core_half = 3*(sqrt(3)-1)/2 if base == 'windmill' else 1.
+        height = 1.
+        offset = (0., -.22, 0.)
+    normals = tuple(transform(frame, normal) for normal in CUBE)
+    polygons = [([(x+offset[0], y*height+offset[1], z+offset[2])
+                 for x,y,z in face], color)
+                for color,face in enumerate(body(normals))]
+    return _cut_shell(polygons, home, n, core_half)
 
 
 def physical_signature(cube):
     return tuple(sorted((color,tuple(sorted(tuple(round(v,6) for v in transform(piece.frame,p)) for p in points)))
-                        for piece in cube.cubies.values() for points,color in faces_for(cube.puzzle_kind,piece.home)
+                        for piece in cube.cubies.values() for points,color in faces_for(cube.puzzle_kind,piece.home,cube.n)
                         if color>=0))
 
 
 class AxisCube(MastermorphixCube):
     puzzle_kind='axis'
+    supported_orders=(3,4)
+    distinct_piece_shapes=True
 
     def __init__(self,cubies,palette=PALETTE,n=3):
-        if n!=3 or len(palette)!=6 or len(set(palette))!=6:
-            raise ValueError('Axis cube requires order three and six colors')
+        if n not in self.supported_orders or len(palette)!=6 or len(set(palette))!=6:
+            raise ValueError('Unsupported shape order or palette')
         self.cubies=cubies
         self.palette=tuple(palette)
-        self.n=self.size=3
-        self.positions=positions_for_order(3)
+        self.n=self.size=n
+        self.positions=positions_for_order(n)
 
     @classmethod
     def solved(cls,palette=PALETTE,n=3):
-        return cls({p:make_piece(p,p,IDENTITY,3) for p in positions_for_order(3)},palette,n)
+        return cls({p:make_piece(p,p,IDENTITY,n) for p in positions_for_order(n)},palette,n)
 
     def is_solved(self):
-        return set(self.cubies)==set(self.positions) and physical_signature(self)==physical_signature(type(self).solved(self.palette))
+        return set(self.cubies)==set(self.positions) and physical_signature(self)==physical_signature(type(self).solved(self.palette,self.n))
 
 @lru_cache(maxsize=8)
 def football_faces(home):
@@ -128,10 +186,11 @@ def pandora_faces(home):
 
 class PandoraCube(AxisCube):
     puzzle_kind='pandora'
+    supported_orders=(3,)
 
 
-@lru_cache(maxsize=26)
-def windmill_faces(home):
+@lru_cache(maxsize=128)
+def windmill_faces(home,n=3):
     """A cube shell offset 30 degrees around the vertical mechanism axis.
 
     The inner cuts pass through the shell's four vertical edges. This leaves
@@ -144,20 +203,15 @@ def windmill_faces(home):
     normals=tuple(transform(frame,normal) for normal in CUBE)
     polygons=[(list(face),color) for color,face in enumerate(body(normals))]
     bound=(sqrt(3)-1)/2
-    for axis,coordinate in enumerate(home):
-        if coordinate<1:
-            polygons=_clip(polygons,axis,1,bound if coordinate==0 else -bound)
-        if coordinate>-1:
-            polygons=_clip(polygons,axis,-1,bound if coordinate==0 else -bound)
-    return tuple((tuple(points),color) for points,color in polygons)
+    return _cut_shell(polygons,home,n,3*bound)
 
 
 class WindmillCube(AxisCube):
     puzzle_kind='windmill'
 
 
-@lru_cache(maxsize=26)
-def fisher_faces(home):
+@lru_cache(maxsize=128)
+def fisher_faces(home,n=3):
     """Fisher shell: a cubic exterior rotated 45 degrees about vertical.
 
     Equatorial mechanical centres span two exterior colours at a shell edge;
@@ -168,12 +222,7 @@ def fisher_faces(home):
     frame=((s,0,-s),(0,1,0),(s,0,s))
     normals=tuple(transform(frame,normal) for normal in CUBE)
     polygons=[(list(face),color) for color,face in enumerate(body(normals))]
-    for axis,coordinate in enumerate(home):
-        if coordinate<1:
-            polygons=_clip(polygons,axis,1,(coordinate+.5)*2/3)
-        if coordinate>-1:
-            polygons=_clip(polygons,axis,-1,(-coordinate+.5)*2/3)
-    return tuple((tuple(points),color) for points,color in polygons)
+    return _cut_shell(polygons,home,n)
 
 
 class FisherCube(AxisCube):

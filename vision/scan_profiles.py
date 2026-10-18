@@ -16,7 +16,9 @@ SUPPORTED = {
     'icosahedron': (2, 3, 4, 5),
     'megaminx': (2, 3, 4, 5), 'football': (3, 5), 'blossom': (3,),
     'moyu': (3, 4, 5), 'void_tower': (3,),
+    'skewb_ultimate': (3,), 'void_minx': (3,), 'dino4': (2,),
 }
+DINO4_SCAN_PALETTE=((1,.85,0,1),(.9,.04,.05,1),(.06,.19,.9,1),(.98,.98,.98,1))
 CUBE_CODES = ('W', 'R', 'G', 'Y', 'O', 'B')
 DEFAULT_PALETTES = {
     6: ((.98,.98,.98,1),(.9,.04,.05,1),(.01,.65,.18,1),(1,.85,0,1),(1,.46,.01,1),(.06,.19,.9,1)),
@@ -144,7 +146,8 @@ class ScanProfile:
             self.surfaces=tuple(Surface(i,s.face,s.polygon,s.patches or (s.polygon,)) for i,s in enumerate(g.stickers))
         self.cubic=len(self.normals)==6 and tuple(self.normals)==CUBE
         self.face_keys=tuple(next(f for f,v in FACE_NORMALS.items() if tuple(v)==normal) for normal in self.normals) if self.cubic else tuple(str(i+1) for i in range(len(self.normals)))
-        self.palette=tuple(tuple(c) for c in (palette or DEFAULT_PALETTES[len(self.normals)]))
+        default=DINO4_SCAN_PALETTE if kind=='dino4' else DEFAULT_PALETTES[len(self.normals)]
+        self.palette=tuple(tuple(c) for c in (palette or default))
         self._templates={}
 
     def new_orientation(self):
@@ -287,15 +290,22 @@ def _read_color(rgb,palette):
     rh,rs,rv=(a.ravel() for a in refs)
     dh=np.abs(h[:,None]-rh[None,:]);dh=np.minimum(dh,180-dh)/90
     distances=4*dh**2+.15*((s[:,None]-rs[None,:])/255)**2+.10*((v[:,None]-rv[None,:])/255)**2
-    white=rs<=65
+    # Pastel stickers in 20/32-colour puzzles still carry useful hue. Only
+    # genuinely neutral references should lose their hue distance.
+    white=rs<=25
     if np.any(white):
         distances[:,white]=.6*((s[:,None]-rs[None,white])/255)**2+((v[:,None]-rv[None,white])/255)**2
-    distances[:,~white]+=np.where(s[:,None]<70,2.,0.)
-    distances[:,white]+=np.where(s[:,None]>80,2.,0.)
+    distances[:,~white]+=np.where(s[:,None]<np.maximum(20,rs[None,~white]*.45),2.,0.)
+    distances[:,white]+=np.where(s[:,None]>np.maximum(35,rs[None,white]+20),2.,0.)
     ranked=np.sort(distances,axis=1)
     nearest=np.argmin(distances,axis=1)
-    neutral=(rs[nearest]<=65)&(v>=np.maximum(60,rv[nearest]*.7))
-    valid=(v>=60)&((s>=80)|neutral)&(ranked[:,0]<.5)&((ranked[:,1]-ranked[:,0])>.004)
+    neutral=white[nearest]&(v>=np.maximum(60,rv[nearest]*.7))
+    chromatic=s>=np.maximum(30,rs[nearest]*.65)
+    # Dense palettes contain close shades. A near-exact calibrated match is
+    # usable when its error is much smaller than the runner-up's, even if
+    # their absolute gap is small. Equal/ambiguous matches still get rejected.
+    separated=((ranked[:,1]-ranked[:,0])>.004)|((ranked[:,0]<.01)&(ranked[:,0]<ranked[:,1]*.35))
+    valid=(v>=60)&(chromatic|neutral)&(ranked[:,0]<.5)&separated
     votes=nearest[valid]
     if len(votes)<max(1,len(rgb)*.45):return -1
     counts=np.bincount(votes,minlength=len(palette))
@@ -307,6 +317,7 @@ class SurfaceDetection:
     values: dict
     image_quad: object
     ok: bool
+    samples: object = None
 
 
 def _read_surface(image,profile,face,world,controls):
@@ -315,11 +326,13 @@ def _read_surface(image,profile,face,world,controls):
     xy=project_controls(canonical,controls,np.concatenate([samples for _,_,_,samples in templates]))
     rgb=imageops.sample_points(image,xy[:,0],xy[:,1])
     values={}
+    samples={}
     start=0
     for (index,_,_,_),length in zip(templates,lengths):
         values[index]=_read_color(rgb[start:start+length],profile.palette)
+        samples[index]=np.clip(np.rint(rgb[start:start+length]),0,255).astype(np.uint8)
         start+=length
-    return SurfaceDetection(values,np.asarray(controls).tolist(),all(v>=0 for v in values.values()))
+    return SurfaceDetection(values,np.asarray(controls).tolist(),all(v>=0 for v in values.values()),samples)
 
 
 def _boundary_score(image,profile,face,world,controls):
@@ -341,7 +354,7 @@ def _boundary_score(image,profile,face,world,controls):
     return float(np.mean((jump>40)|(dark>22)))
 
 
-def detect_surface(image,profile,face,world,controls=None):
+def detect_surface(image,profile,face,world,controls=None,progress=None):
     image=imageops.as_uint8_rgb(image)
     canonical,templates=profile.templates(face,world)
     blank={index:-1 for index,_,_,_ in templates}
@@ -349,7 +362,10 @@ def detect_surface(image,profile,face,world,controls=None):
         try:
             controls=np.asarray(controls,float)
             if np.any(controls<0) or np.any(controls[:,0]>image.shape[1]-1) or np.any(controls[:,1]>image.shape[0]-1):raise ValueError()
-            return _read_surface(image,profile,face,world,controls)
+            if progress: progress("camera.reading",0,1)
+            result=_read_surface(image,profile,face,world,controls)
+            if progress: progress("camera.reading",1,1)
+            return result
         except (ValueError,np.linalg.LinAlgError):return SurfaceDetection(blank,None,False)
     from vision.detect import _foreground_mask
     from vision.params import DEFAULT
@@ -358,15 +374,19 @@ def detect_surface(image,profile,face,world,controls=None):
     clean=imageops.erode(mask,1)
     scale=np.array([(image.shape[1]-1)/max(work.shape[1]-1,1),(image.shape[0]-1)/max(work.shape[0]-1,1)])
     seen=set();best=None
-    for radius in (2,5,9,15,22):
+    expanded, previous_radius = clean, 0
+    for pass_index,radius in enumerate((2,5,9,15,22)):
+        if progress: progress("camera.locating",pass_index,5)
+        expanded = imageops.dilate(expanded, radius-previous_radius)
+        previous_radius = radius
         candidates=[]
-        for component in imageops.component_masks(imageops.dilate(clean,radius),limit=5):
+        for component in imageops.component_masks(expanded,limit=5):
             ys,xs=np.nonzero(component&mask)
             if len(xs)<100:continue
             signature=(int(xs.min()),int(xs.max()),int(ys.min()),int(ys.max()),len(xs))
             if signature in seen:continue
             seen.add(signature)
-            hull=imageops.convex_hull(np.column_stack((xs,ys)))
+            hull=imageops.convex_hull(imageops.row_extrema_points(xs,ys))
             while len(hull)>len(canonical):
                 a=np.roll(hull,1,axis=0)-hull;b=np.roll(hull,-1,axis=0)-hull
                 hull=np.delete(hull,np.argmin(abs(a[:,0]*b[:,1]-a[:,1]*b[:,0])),axis=0)

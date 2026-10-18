@@ -82,8 +82,9 @@ class ScanSurfaceView(Widget):
                     points,_depth=project(patch)
                     for i in range(1,len(points)-1):
                         Triangle(points=[*points[0],*points[i],*points[i+1]])
-                Color(.035,.045,.06,1)
-                Line(points=outline.flatten().tolist(),close=True,width=1)
+                uncertain = value<0 and self.profile.face_keys[s.face]==self.current_face
+                Color(*( (1,.56,.12,1) if uncertain else (.035,.045,.06,1) ))
+                Line(points=outline.flatten().tolist(),close=True,width=1.5 if uncertain else 1)
                 self._polygons.append((outline,s.index,self.profile.face_keys[s.face]))
             for i,normal in enumerate(self.profile.normals):
                 n=self.world.transform(*normal)

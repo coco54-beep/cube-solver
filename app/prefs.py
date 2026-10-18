@@ -1,35 +1,79 @@
-"""用户偏好持久化（浅层 key-value，JSON 文件）。
-
-集中管理 ~/.cubesolver_prefs.json，避免各模块各自覆写整个文件而互相冲掉
-彼此的键（历史上主题保存会覆盖同文件里的其他偏好）。
-"""
+"""Shared preferences with atomic writes and Android-private persistence."""
 
 import json
+import logging
 import os
+import tempfile
+import threading
 
-_PREFS_FILE = os.path.join(os.path.expanduser("~"), ".cubesolver_prefs.json")
+_FILENAME = ".cubesolver_prefs.json"
+_LEGACY_FILE = os.path.join(os.path.expanduser("~"), _FILENAME)
+# python-for-android sets this to Context.getFilesDir() before importing Python.
+# Keep preferences outside the extracted app directory, which upgrades replace.
+_PRIVATE_DIR = os.environ.get("ANDROID_PRIVATE")
+_PREFS_FILE = os.path.join(_PRIVATE_DIR, _FILENAME) if _PRIVATE_DIR else _LEGACY_FILE
+_LOCK = threading.RLock()
+_LOG = logging.getLogger(__name__)
+
+
+def _read(path):
+    with open(path, "r", encoding="utf-8") as stream:
+        data = json.load(stream)
+    if not isinstance(data, dict):
+        raise ValueError("Preferences must be a JSON object")
+    return data
+
+
+def _write(data):
+    directory = os.path.dirname(os.path.abspath(_PREFS_FILE))
+    os.makedirs(directory, exist_ok=True)
+    descriptor, temporary = tempfile.mkstemp(prefix=".prefs-", suffix=".tmp", dir=directory)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            json.dump(data, stream, ensure_ascii=False)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, _PREFS_FILE)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
 
 
 def load() -> dict:
-    """读取全部偏好；文件缺失/损坏时返回空 dict。"""
-    try:
-        with open(_PREFS_FILE, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        return data if isinstance(data, dict) else {}
-    except Exception:
-        return {}
+    """Load preferences, migrating a readable legacy file on first use."""
+    with _LOCK:
+        try:
+            return _read(_PREFS_FILE)
+        except FileNotFoundError:
+            if _PREFS_FILE != _LEGACY_FILE:
+                try:
+                    data = _read(_LEGACY_FILE)
+                except FileNotFoundError:
+                    return {}
+                except (OSError, ValueError):
+                    _LOG.warning("Could not read legacy preferences", exc_info=True)
+                    return {}
+                try:
+                    _write(data)
+                except OSError:
+                    _LOG.warning("Could not migrate preferences", exc_info=True)
+                return data
+            return {}
+        except (OSError, ValueError):
+            _LOG.warning("Could not read preferences", exc_info=True)
+            return {}
 
 
 def get(key: str, default=None):
     return load().get(key, default)
 
 
-def set(key: str, value):  # noqa: A001 - 语义即「设置偏好」
-    """合并写入单个偏好键，保留文件中其他键。"""
-    data = load()
-    data[key] = value
-    try:
-        with open(_PREFS_FILE, "w", encoding="utf-8") as f:
-            json.dump(data, f)
-    except Exception:
-        pass
+def set(key: str, value):  # noqa: A001
+    """Merge one preference, keeping other keys and the previous file on failure."""
+    with _LOCK:
+        data = load()
+        data[key] = value
+        try:
+            _write(data)
+        except (OSError, TypeError, ValueError):
+            _LOG.warning("Could not save preference %s", key, exc_info=True)

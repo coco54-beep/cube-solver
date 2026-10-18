@@ -46,6 +46,13 @@ _VERTEX_FORMAT = [(b'surface_position', 3, 'float'), (b'surface_color', 4, 'floa
 class MastermorphixView(CubeView):
     _piece_geometry = staticmethod(oriented_piece_geometry)
 
+    def _render_piece_geometry(self, home, frame, subdivisions, n):
+        return self._piece_geometry(home, frame, subdivisions, n)
+
+    def _surface_shade(self, rgba, normal, eye, light, finish, recorded):
+        brightness = .82 + .18 * max(0., dot(normal, light))
+        return tuple(c*brightness for c in rgba[:3]) + (rgba[3],)
+
     def _piece_color(self,color):
         return COLOR_INFO[self.cube.palette[color]][1]
     def __init__(self, **kwargs):
@@ -181,7 +188,7 @@ class MastermorphixView(CubeView):
             subdivisions = max(4, round(subdivisions * 3 / self.cube.n))
         if self.fit_piece:
             points = [p for piece in self.cube.cubies.values()
-                      for vertices, _, _, _, _ in self._piece_geometry(piece.home, piece.frame, subdivisions, self.cube.n)
+                      for vertices, _, _, _, _ in self._render_piece_geometry(piece.home, piece.frame, subdivisions, self.cube.n)
                       for p in vertices]
             xs, ys = [dot(p, right) for p in points], [dot(p, up) for p in points]
             offset_x, offset_y = (min(xs)+max(xs))/2, (min(ys)+max(ys))/2
@@ -197,7 +204,7 @@ class MastermorphixView(CubeView):
         animation = self._anim
         moving = None
         if animation is not None:
-            axis = tuple(1 if i == animation["axis"] else 0 for i in range(3))
+            axis = animation.get('axis_vector', tuple(1 if i == animation["axis"] else 0 for i in range(3)))
             moving = Mat4.rotation_axis(animation["angle_current"], axis)
         light = (-.30, .80, .52)
         light_length = math.sqrt(dot(light, light))
@@ -207,6 +214,7 @@ class MastermorphixView(CubeView):
         fx, fy, fz = forward
         center_x = self.center_x-offset_x*scale
         center_y = self.center_y-offset_y*scale
+        eye_direction = tuple(-v for v in forward)
         self._mm_proj = (right, up, forward, scale, center_x, center_y)
 
         def project(point):
@@ -230,7 +238,7 @@ class MastermorphixView(CubeView):
 
         for pos, piece in self.cube.cubies.items():
             rotating = moving if moving is not None and pos in animation["positions"] else None
-            for points, normal, color, finish, outline in self._piece_geometry(piece.home, piece.frame, subdivisions, self.cube.n):
+            for points, normal, color, finish, outline in self._render_piece_geometry(piece.home, piece.frame, subdivisions, self.cube.n):
                 if rotating is not None:
                     normal = rotating.transform(*normal)
                 if self._whole_world is not None:
@@ -249,8 +257,8 @@ class MastermorphixView(CubeView):
                     rgba = (.38, .45, .52, 1)
                 else:
                     rgba = self._piece_color(color)
-                brightness = .82 + .18 * max(0., dot(normal, light))
-                rgba = tuple(c*brightness for c in rgba[:3]) + (rgba[3],)
+                rgba = self._surface_shade(rgba, normal, eye_direction, light, finish,
+                                           self.recorded is None or pos in self.recorded)
                 polygon = tuple(project(p) for p in points)
                 # A small depth bias keeps coplanar stickers above the shell.
                 # Android FBOs may have only a 16-bit depth buffer. The old
@@ -258,7 +266,11 @@ class MastermorphixView(CubeView):
                 # fight with stickers. Leave several depth units of margin.
                 append_polygon(polygon, rgba, -.0005 if finish == "sticker" else 0.)
                 self._polygons.append((polygon, pos, color))
-                if (self.cube.n > 3 or getattr(self.cube,'puzzle_kind',None) in ('mirror','axis','pandora','football','windmill','fisher')) and finish == "sticker":
+                if (self.cube.n > 3 or getattr(self.cube,'puzzle_kind',None) in
+                ('mirror','axis','pandora','football','windmill','fisher',
+                 'mirror_windmill','mirror_axis','mirror_fisher','ghost',
+                                  'mirror_windmill_unequal','mirror_fisher_unequal',
+                                  'mirror_windmill_offset','mirror_fisher_offset')) and finish == "sticker" and not getattr(self, 'inset_silver_panels', False):
                     seams.extend((polygon[a], polygon[b]) for a, b in outline)
                 if pos == self.selected_pos and finish in ("sticker", "internal"):
                     borders.extend((polygon[a], polygon[b]) for a, b in outline)
@@ -279,7 +291,10 @@ class MastermorphixView(CubeView):
             # disappear between pixel centers and make flat seams look dotted.
             draw_edge(a, b, .75, ((.22,.26,.32,1)
                                  if getattr(self.cube,'puzzle_kind',None) in
-                                 ('mirror','axis','pandora','windmill','fisher')
+                                 ('mirror','axis','pandora','windmill','fisher',
+                                  'mirror_windmill','mirror_axis','mirror_fisher','ghost',
+                                  'mirror_windmill_unequal','mirror_fisher_unequal',
+                                  'mirror_windmill_offset','mirror_fisher_offset')
                                  else (.94, .955, .975, 1)))
         for a, b in borders:
             draw_edge(a, b, 1.6, (.18, .88, 1, 1))
@@ -368,24 +383,44 @@ class MastermorphixView(CubeView):
         return handled
 
 
-def cube_view_for(cube=None, **kwargs):
+def cube_view_class_for(cube=None):
+    kind = getattr(cube, 'puzzle_kind', None)
+    if kind == 'ghost':
+        from renderer.ghost_view import GhostView
+        return GhostView
+    if kind in ('mirror_fisher_offset', 'mirror_windmill_offset'):
+        from renderer.mirror_shape_view import MirrorOffsetFisherView, MirrorOffsetWindmillView
+        return {'mirror_fisher_offset': MirrorOffsetFisherView,
+                'mirror_windmill_offset': MirrorOffsetWindmillView}[kind]
+    if kind in ('mirror_fisher_unequal', 'mirror_windmill_unequal'):
+        from renderer.mirror_shape_view import MirrorUnequalFisherView, MirrorUnequalWindmillView
+        return {'mirror_fisher_unequal': MirrorUnequalFisherView,
+                'mirror_windmill_unequal': MirrorUnequalWindmillView}[kind]
+    if kind in ('mirror_fisher', 'mirror_windmill', 'mirror_axis'):
+        from renderer.mirror_shape_view import MirrorFisherView, MirrorWindmillView, MirrorAxisView
+        return {'mirror_fisher': MirrorFisherView, 'mirror_windmill': MirrorWindmillView,
+                'mirror_axis': MirrorAxisView}[kind]
     if getattr(cube,'puzzle_kind',None)=='fisher':
         from renderer.shape_cube_view import FisherView
-        return FisherView(**kwargs)
+        return FisherView
     if getattr(cube,'puzzle_kind',None)=='windmill':
         from renderer.shape_cube_view import WindmillView
-        return WindmillView(**kwargs)
+        return WindmillView
     if getattr(cube,'puzzle_kind',None)=='pandora':
         from renderer.shape_cube_view import PandoraView
-        return PandoraView(**kwargs)
+        return PandoraView
     if getattr(cube,'puzzle_kind',None)=='football':
         from renderer.shape_cube_view import FootballView
-        return FootballView(**kwargs)
+        return FootballView
     if getattr(cube,'puzzle_kind',None)=='axis':
         from renderer.shape_cube_view import AxisView
-        return AxisView(**kwargs)
+        return AxisView
     if getattr(cube, 'puzzle_kind', None) == 'mirror':
         from renderer.mirror_view import MirrorView
-        return MirrorView(**kwargs)
+        return MirrorView
     cls = MastermorphixView if getattr(cube, "puzzle_kind", None) == "mastermorphix" else CubeView
-    return cls(**kwargs)
+    return cls
+
+
+def cube_view_for(cube=None, **kwargs):
+    return cube_view_class_for(cube)(**kwargs)

@@ -118,10 +118,15 @@ def _search_core(cube,cancel=None,progress=None,max_seconds=2):
                     group_max=value
             mean=(group_sum+affected-1)//affected
             total+=group_max if group_max>mean else mean
-        hcache[state]=total
+        if cube.puzzle_kind != 'skewb_ultimate' or len(hcache) < 20000:
+            hcache[state]=total
         return total
 
     path=[]
+    # Ultimate's four-colour centres expose orientation, unlike plain Skewb.
+    # Different move orders often revisit exactly the same oriented state.
+    # Cache failed subtrees per IDA bound, retaining at most ~20k entries.
+    failed = {} if cube.puzzle_kind == 'skewb_ultimate' else None
     def search(state,remaining,last):
         nonlocal count
         count+=1
@@ -137,6 +142,9 @@ def _search_core(cube,cancel=None,progress=None,max_seconds=2):
             return True
         if not remaining:
             return False
+        marker = (state, last)
+        if failed is not None and failed.get(marker, -1) >= remaining:
+            return False
         for i,(move,perm) in enumerate(zip(moves,maps)):
             if last is not None and (move.axis,move.layer)==last:
                 # Two inverse generators can require a double turn on minx;
@@ -146,9 +154,13 @@ def _search_core(cube,cancel=None,progress=None,max_seconds=2):
             if search(bytes(map(state.__getitem__, perm)),remaining-1,(move.axis,move.layer)):
                 return True
             path.pop()
+        if failed is not None and len(failed) < 20000:
+            failed[marker] = remaining
         return False
 
     for depth in range(heuristic(state),23):
+        if failed is not None:
+            failed.clear()
         if progress:
             progress(depth,22)
         if search(state,depth,None):

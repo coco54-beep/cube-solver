@@ -131,7 +131,7 @@ def rotations():
 
 def wing_permutation(cube, positions):
     """Wings with identical colors are distinguished by their orientation."""
-    if getattr(cube, "puzzle_kind", None) == "mastermorphix":
+    if getattr(cube, "puzzle_kind", None) == "mastermorphix" or getattr(cube, 'distinct_piece_shapes', False):
         indexes = {home: i for i, home in enumerate(positions)}
         try:
             result = [indexes[cube.cubies[p].home] for p in positions]
@@ -164,7 +164,7 @@ def wing_permutation(cube, positions):
 
 
 def center_permutation(cube, positions):
-    if getattr(cube, "puzzle_kind", None) == "mastermorphix":
+    if getattr(cube, "puzzle_kind", None) == "mastermorphix" or getattr(cube, 'distinct_piece_shapes', False):
         indexes = {home: i for i, home in enumerate(positions)}
         try:
             result = [indexes[cube.cubies[p].home] for p in positions]

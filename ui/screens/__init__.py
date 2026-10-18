@@ -1,7 +1,6 @@
 """UI 屏幕包。"""
 
 from ui.screens.home_screen import HomeScreen  # noqa: F401
-from ui.screens.irregular_directory_screen import IrregularDirectoryScreen, SpecialIrregularScreen  # noqa: F401
 from ui.screens.polyhedral_screen import PolyhedralScreen, PolyhedralPlaybackScreen, PolyhedralTwistScreen
 from ui.screens.mirror_screen import MirrorScreen
 from ui.screens.square1_screen import Square1Screen
@@ -19,3 +18,11 @@ from ui.screens.practice_screen import PracticeScreen  # noqa: F401
 from ui.screens.twist_screen import TwistScreen  # noqa: F401
 from ui.screens.settings_screen import SettingsScreen  # noqa: F401
 from .mirror_tower_screen import MirrorTowerScreen
+from .mirror_pyraminx_screen import MirrorPyraminxScreen
+from .mirror_skewb_screen import MirrorSkewbScreen
+from .ghost_screen import GhostScreen
+from .ghost_twist_screen import GhostTwistScreen
+from .square_family_screen import SquareFamilyScreen
+from .mirror_shape_screen import (MirrorAxisScreen, MirrorFisherScreen,
+                                  MirrorWindmillScreen, MirrorUnequalWindmillScreen, MirrorUnequalFisherScreen,
+                                  MirrorOffsetWindmillScreen, MirrorOffsetFisherScreen)

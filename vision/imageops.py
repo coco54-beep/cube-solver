@@ -94,39 +94,50 @@ def dilate(mask: np.ndarray, iterations: int = 1) -> np.ndarray:
 
 def component_masks(mask: np.ndarray, connect: int = 8, limit: int = 6):
     """按面积从大到小返回前 limit 个连通区域，跳过微小噪点。"""
-    from collections import deque
-
+    # Label horizontal runs instead of visiting every foreground pixel in Python.
+    # Runs in adjacent rows overlap for 4-connectivity, or touch for 8-connectivity.
     mask = np.asarray(mask, dtype=bool)
     h, w = mask.shape
-    visited = np.zeros((h, w), dtype=bool)
-    components = []
-    if connect == 8:
-        nbrs = ((-1, -1), (-1, 0), (-1, 1), (0, -1),
-                (0, 1), (1, -1), (1, 0), (1, 1))
-    else:
-        nbrs = ((-1, 0), (1, 0), (0, -1), (0, 1))
+    parents, runs = [], []
+    previous_starts = previous_ends = np.empty(0, dtype=int)
+    previous_ids = []
+    margin = 1 if connect == 8 else 0
 
-    ys_all, xs_all = np.nonzero(mask)
-    for sy, sx in zip(ys_all.tolist(), xs_all.tolist()):
-        if visited[sy, sx]:
+    def root(label):
+        while parents[label] != label:
+            parents[label] = parents[parents[label]]
+            label = parents[label]
+        return label
+
+    for y in range(h):
+        changes = np.flatnonzero(np.diff(np.pad(mask[y].astype(np.int8), (1, 1))))
+        starts, ends = changes[::2], changes[1::2]
+        ids = []
+        lower = np.searchsorted(previous_ends, starts-margin, side="right")
+        upper = np.searchsorted(previous_starts, ends+margin, side="left")
+        for start, end, lo, hi in zip(starts, ends, lower, upper):
+            label = len(parents)
+            parents.append(label)
+            runs.append((y, int(start), int(end)))
+            for prior in previous_ids[int(lo):int(hi)]:
+                left, right = root(label), root(prior)
+                if left != right:
+                    parents[max(left, right)] = min(left, right)
+            ids.append(label)
+        previous_starts, previous_ends, previous_ids = starts, ends, ids
+    groups = {}
+    for label, (_, start, end) in enumerate(runs):
+        group = groups.setdefault(root(label), [0, []])
+        group[0] += end-start
+        group[1].append(label)
+    ranked = sorted(groups.values(), key=lambda group: group[0], reverse=True)
+    for area, labels in ranked[:limit]:
+        if area < 20:
             continue
-        pixels = []
-        dq = deque([(sy, sx)])
-        visited[sy, sx] = True
-        while dq:
-            y, x = dq.popleft()
-            pixels.append((y, x))
-            for dy, dx in nbrs:
-                ny, nx = y + dy, x + dx
-                if 0 <= ny < h and 0 <= nx < w and mask[ny, nx] and not visited[ny, nx]:
-                    visited[ny, nx] = True
-                    dq.append((ny, nx))
-        if len(pixels) >= 20:
-            components.append(pixels)
-    for pixels in sorted(components, key=len, reverse=True)[:limit]:
         out = np.zeros((h, w), dtype=bool)
-        by, bx = zip(*pixels)
-        out[np.array(by), np.array(bx)] = True
+        for label in labels:
+            y, start, end = runs[label]
+            out[y, start:end] = True
         yield out
 
 
@@ -164,6 +175,16 @@ def warp_quad(img: np.ndarray, quad, side: int) -> np.ndarray:
     u, v = np.meshgrid(np.linspace(0, 1, side), np.linspace(0, 1, side))
     x, y = project_quad(quad, u, v)
     return np.clip(sample_points(img, x, y), 0, 255).astype(np.uint8)
+
+
+def row_extrema_points(xs, ys):
+    """Exact hull input for row-ordered nonzero pixels, at most two per row."""
+    if not len(xs):
+        return np.empty((0, 2), dtype=float)
+    starts = np.r_[0, np.flatnonzero(np.diff(ys))+1]
+    ends = np.r_[starts[1:]-1, len(xs)-1]
+    indices = np.unique(np.concatenate((starts, ends)))
+    return np.column_stack((xs[indices], ys[indices])).astype(float)
 
 
 def convex_hull(points: np.ndarray) -> np.ndarray:

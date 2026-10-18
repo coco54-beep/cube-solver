@@ -27,7 +27,7 @@ class ShapeCubeScreen(MirrorScreen):
 
     def entry_center_preset(self):
         # 和粽子魔方一致：预置中心块颜色，方便对位（足球无此中心概念）。
-        if self._cube is None or self._cube.puzzle_kind=='football':
+        if self._cube is None or self._cube.n != 3 or self._cube.puzzle_kind=='football':
             return set()
         return {p for p in self._all_positions() if position_kind(p)=='center'}
 
@@ -107,7 +107,7 @@ class ShapeCubeScreen(MirrorScreen):
         if getattr(_app(),'input_from_camera',False):
             self.manager.current='CameraScreen'
             return
-        self.manager.current='IrregularDirectoryScreen' if self._cube.puzzle_kind=='football' else 'SpecialIrregularScreen'
+        self.manager.current='HomeScreen'
 
     def _refresh(self):
         super()._refresh()
@@ -124,8 +124,8 @@ class ShapeCubeScreen(MirrorScreen):
                     chip=_Swatch(COLOR_INFO[color][1],text=str(i+1))
                     chip.bind(on_release=lambda *_,slot=i:self.open_color(slot))
                     self.palette_row.add_widget(chip)
-            self.demo_button.disabled=self._cube.n>5
-            self.demo_button.opacity=0 if self._cube.n>5 else 1
+            self.demo_button.disabled=self._cube.n>3
+            self.demo_button.opacity=0 if self._cube.n>3 else 1
             self.reference_label.text=tr('football.pattern_hint' if self._cube.puzzle_kind=='football' else 'shape.reference')
             self.hint.text=tr('shape.hint')
             if self._cube.puzzle_kind=='pandora' and position_kind(self._pos)=='center':
@@ -134,16 +134,57 @@ class ShapeCubeScreen(MirrorScreen):
                 self.hint.text=tr('shape.pandora_center')
             elif self._cube.puzzle_kind in ('windmill','fisher'):
                 self.reference_label.text=tr('shape.'+self._cube.puzzle_kind+'_reference')
-                if position_kind(self._pos)=='center' and self._pos[1]:
+                if self._cube.n == 3 and position_kind(self._pos)=='center' and self._pos[1]:
                     self.rotate.disabled=True
                     self.hint.text=tr('shape.pandora_center')
+            if self._cube.n == 4:
+                self.reference_label.text=tr('shape.four_reference')
+                piece=self._cube.cubies[self._pos]
+                self.rotate.disabled=self._pos not in self._recorded or len(self._placements(piece.home,self._pos))<=1
 
     def available_homes(self,pos):
+        if self._cube.n == 4:
+            from cube.high_shape import shape_groups
+            groups,_=shape_groups(self._cube.puzzle_kind,self._cube.n)
+            representatives={}
+            for home in super().available_homes(pos):
+                representatives.setdefault(groups[home],home)
+            return list(representatives.values())
         if position_kind(pos)=='center':
             return [pos]
         return super().available_homes(pos)
 
+    def _same_piece(self,left,right):
+        if self._cube.n == 4:
+            from cube.high_shape import shape_groups
+            groups,_=shape_groups(self._cube.puzzle_kind,self._cube.n)
+            return groups[left]==groups[right]
+        return super()._same_piece(left,right)
+
+    def choose_piece(self,home,frame=None):
+        if not self.entry_can_edit():
+            return
+        if self._cube.n == 4:
+            from cube.high_shape import equivalent_pieces
+            frame=frame or self._placements(home,self._pos)[0]
+            used={p.home for pos,p in self._cube.cubies.items() if pos in self._recorded and pos!=self._pos}
+            options=equivalent_pieces(self._cube,home,frame,self._pos)
+            home,frame=next(((h,f) for h,f in options if h not in used),(home,frame))
+        return super().choose_piece(home,frame)
+
     def check(self):
+        if self._cube.n == 4:
+            if self._recorded != set(self._cube.positions):
+                self.hint.text=tr('morphix.error.incomplete',total=len(self._cube.positions))
+                return None
+            from cube.high_shape import normalize_high_shape_input
+            try:
+                result=normalize_high_shape_input(self._cube)
+                self.hint.text=tr('poly.valid')
+                return result
+            except ValueError as exc:
+                self.hint.text=tr(str(exc))
+                return None
         if self._cube.puzzle_kind=='football':
             if len(self._recorded)!=8:
                 self.hint.text=tr('morphix.error.incomplete',total=8)

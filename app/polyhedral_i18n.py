@@ -272,4 +272,34 @@ JA={
  'poly.close':'閉じる', 'poly.help_title':'操作説明',
  'poly.help':'色パーツ：タップで色を入力。パレット：実際の配色を設定。\n左右の矢印：アニメーションで面を切り替え。軸と層：回す層を選択。\n回転矢印：選択層を正逆回転。ランダム：解法可能なスクランブルを生成。\nゴミ箱：入力を消去。元に戻す：直前の編集を復元。チェック：入力を検証。\n再生：解いて手順を開く。再生画面の左右矢印は前/次の一手。\n入力が不完全だと解けません。高次の解法はキャンセル可能で、最短を目指すものではありません。',
 }
+ZH.update({
+ 'poly.petal_tetrahedron_input':'每面7块，含可移动的小三角中心。绕棱转动180°；选色后点块录入，左右箭头翻面。',
+ 'poly.petal_tetrahedron_twist':'整棱转动180°，花瓣和三角中心联动换位。锁定后拖动拧棱，解锁后拖动观察。',
+ 'poly.petal_tetrahedron_nocentre_input':'每面6块，中央交点是切缝。绕棱转动180°；选色后点块录入，左右箭头翻面。',
+ 'poly.petal_tetrahedron_nocentre_twist':'整棱转动180°，带动相邻花瓣；没有三角中心块。锁定后拖动拧棱，解锁后拖动观察。',
+ 'poly.petal_icosahedron_input':'每面7块，含可移动的小三角中心。支持整棱半转的状态，不含变形打乱；选色后点块录入。',
+ 'poly.petal_icosahedron_twist':'绕棱转动180°，带动四片花瓣和两面的小三角中心块。锁定后拖动拧棱，解锁后拖动观察。',
+ 'poly.petal_icosahedron_nocentre_input':'每面6块，中央交点是切缝。支持整棱半转的状态，不含变形打乱；选色后点块录入。',
+ 'poly.petal_icosahedron_nocentre_twist':'绕棱转动180°，带动四片花瓣；中央交缝不算块。锁定后拖动拧棱，解锁后拖动观察。',
+})
+EN.update({
+ 'poly.petal_tetrahedron_input':'Seven stickers per face, including movable triangular centres. Edges turn 180°. Select a colour and tap stickers; arrows change faces.',
+ 'poly.petal_tetrahedron_twist':'Edges turn 180°, moving petals and triangular centres together. Lock to turn edges by dragging; unlock to orbit.',
+ 'poly.petal_tetrahedron_nocentre_input':'Six stickers per face; the central intersection is a seam. Edges turn 180°. Select a colour and tap stickers; arrows change faces.',
+ 'poly.petal_tetrahedron_nocentre_twist':'Edges turn 180°, moving adjacent petals. There are no centre pieces. Lock to turn edges by dragging; unlock to orbit.',
+ 'poly.petal_icosahedron_input':'Seven stickers per face, including a movable triangular centre. Enter edge half-turn states; jumbling is not supported. Select a colour and tap stickers.',
+ 'poly.petal_icosahedron_twist':'Edges turn 180°, moving four petals and swapping two triangular centres. Lock to turn edges by dragging; unlock to orbit.',
+ 'poly.petal_icosahedron_nocentre_input':'Six stickers per face; the central intersection is a seam. Enter edge half-turn states; jumbling is not supported. Select a colour and tap stickers.',
+ 'poly.petal_icosahedron_nocentre_twist':'Edges turn 180°, moving four petals. There is no centre piece. Lock to turn edges by dragging; unlock to orbit.',
+})
+JA.update({
+ 'poly.petal_tetrahedron_input':'各面7ピースで三角中心も動きます。辺は180°回転。色を選んで入力し、矢印で面を変更。',
+ 'poly.petal_tetrahedron_twist':'辺は180°回転し、花びらと三角中心が連動します。ロック中はドラッグで辺を回し、解除で視点を変更。',
+ 'poly.petal_tetrahedron_nocentre_input':'各面6ピースで中央の交点は隙間です。辺は180°回転。色を選んで入力し、矢印で面を変更。',
+ 'poly.petal_tetrahedron_nocentre_twist':'辺は180°回転し、隣の花びらが動きます。中心ピースはありません。ロック中はドラッグで辺を回し、解除で視点を変更。',
+ 'poly.petal_icosahedron_input':'各面7ピースで、三角中心も動きます。辺の半回転状態に対応し、変形スクランブルは未対応。色を選んで入力します。',
+ 'poly.petal_icosahedron_twist':'辺を180°回すと4枚の花びらと2面の三角中心が動きます。ロック中はドラッグで辺を回し、解除で視点を変更。',
+ 'poly.petal_icosahedron_nocentre_input':'各面6ピースで、中央の交点は隙間です。辺の半回転状態に対応。変形スクランブルは未対応。',
+ 'poly.petal_icosahedron_nocentre_twist':'辺を180°回すと4枚の花びらが動きます。中心ピースはありません。ロック中はドラッグで辺を回し、解除で視点を変更。',
+})
 MESSAGES={'zh':ZH,'en':EN,'ja':JA}

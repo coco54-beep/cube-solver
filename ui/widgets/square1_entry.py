@@ -52,11 +52,16 @@ class Square1Ring(Widget):
         self._hits=[]
         if self.entry is None:
             return
+        def ring_outline(layer,start,width,piece):
+            if hasattr(self.entry,'outline'):
+                return self.entry.outline(layer,start,width,piece)
+            return _ring(layer,start,width)
         extent=max((abs(value) for layer,start,width,piece in self.entry.groups() if layer==self.layer
-                    for point in _ring(layer,start,width) for value in point),default=1.)
+                    for point in ring_outline(layer,start,width,piece) for value in point),default=1.)
         radius=min(self.width,self.height)*.43/max(1.,extent)
         def project(points):
-            direction=-1 if self.layer==0 else 1
+            direction=-(self.entry.layer_direction(self.layer) if hasattr(self.entry,'layer_direction') else
+                        (1 if self.layer==0 else -1))
             return tuple((self.center_x+x*radius,self.center_y+y*radius*direction) for x,y in points)
         def polygon(points,color):
             with self.canvas:
@@ -66,7 +71,7 @@ class Square1Ring(Widget):
         for slot in range(12):
             if self.entry.slots[self.layer*12+slot]>=0:
                 continue
-            points=project(_ring(self.layer,slot,1))
+            points=project(ring_outline(self.layer,slot,1,-1))
             polygon(points,-2)
             with self.canvas:
                 Color(.25,.32,.38,.65)
@@ -76,7 +81,7 @@ class Square1Ring(Widget):
             if layer!=self.layer:
                 continue
             slot=layer*12+start
-            outline=_ring(layer,start,width)
+            outline=ring_outline(layer,start,width,piece)
             points=project(outline)
             inner=project(tuple((x*.80,y*.80) for x,y in outline))
             cap,sides=self.entry.piece_colors(piece)

@@ -17,7 +17,7 @@ class VisionParams:
     sat_color: int = 90          # S>=此值视为彩色贴纸
     # ---- 颜色分类（H 阈值，OpenCV 0-179）----
     hue_red_end: int = 6         # H<red_end 或 H>=hue_blue_h -> 红
-    hue_orange_h: int = 23
+    hue_orange_h: float = 23
     hue_yellow_h: int = 50
     hue_green_h: int = 100
     hue_blue_h: int = 160
@@ -29,6 +29,8 @@ class VisionParams:
     min_fill_ratio: float = 0.55  # 前景像素 / 外接矩形面积 下限
     max_aspect_err: float = 0.28  # |w-h|/max(w,h) 上限
     cell_inset: float = 0.62     # 每格取样窗口占格宽比例
+    color_reference_hsv: object = None  # 普通魔方六色实物校准参考（W/Y/R/O/B/G）
+    hue_oy_margin: float = 0.75   # 黄/橙分界附近保留不确定，支持实物取色校准
     min_cell_confident: int = 1  # 每格至少多少个可用像素
 
 

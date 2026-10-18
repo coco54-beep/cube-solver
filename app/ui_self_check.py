@@ -27,8 +27,6 @@ def _steps(app):
 
     return [
         ("HomeScreen", cube3),
-        ("IrregularDirectoryScreen", cube3),
-        ("SpecialIrregularScreen", cube3),
         ("InputScreen", cube3),
         ("CameraScreen", cube3),
         ("MastermorphixScreen", lambda: app.new_mastermorphix(3)),

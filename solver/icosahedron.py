@@ -162,7 +162,7 @@ def _edge_data():
         return {}
 
 
-@lru_cache(maxsize=8)
+@lru_cache(maxsize=2)
 def _edge_generators(order):
     """Short conjugate words that span the mod-2 edge-flip kernel.
 
@@ -216,6 +216,8 @@ def _sparse_edge_orientation(target,order,limit=900):
     no representation within the tabulated weight exists, in which case the
     caller falls back to the stored basis.
     """
+    if not any(target):
+        return []
     generators=_edge_generators(order)
     if not generators:
         return None
@@ -241,8 +243,16 @@ def _sparse_edge_orientation(target,order,limit=900):
         goal|=(value&1)<<i
     table={}
     size=len(vecs)
+    radix=size+1
+    stride=radix*radix
+    def decode(record):
+        code=record%stride
+        if code<radix:
+            return (code-1,)
+        first,second=divmod(code,radix)
+        return (first-1,second-1)
     for i in range(size):
-        table.setdefault(vecs[i],(lengths[i],(i,)))
+        table.setdefault(vecs[i],lengths[i]*stride+i+1)
     for i in range(size):
         vi=vecs[i]
         li=lengths[i]
@@ -250,21 +260,25 @@ def _sparse_edge_orientation(target,order,limit=900):
             key=vi^vecs[j]
             cost=li+lengths[j]
             current=table.get(key)
-            if current is None or cost<current[0]:
-                table[key]=(cost,(i,j))
+            if current is None or cost<current//stride:
+                table[key]=cost*stride+(i+1)*radix+j+1
     goal_hit=table.get(goal)
-    best=goal_hit[0] if goal_hit else None
-    choice=goal_hit[1] if goal_hit else None
-    for key,(cost,combination) in table.items():
+    best=goal_hit//stride if goal_hit is not None else None
+    choice=decode(goal_hit) if goal_hit is not None else None
+    for key,record in table.items():
         other=table.get(goal^key)
         if other is None:
             continue
-        if set(combination)&set(other[1]):
+        total=record//stride+other//stride
+        if best is not None and total>=best:
             continue
-        total=cost+other[0]
+        combination=decode(record)
+        other_combination=decode(other)
+        if set(combination)&set(other_combination):
+            continue
         if best is None or total<best:
             best=total
-            choice=combination+other[1]
+            choice=combination+other_combination
     if choice is None:
         return None
     return [words[i] for i in choice]
@@ -279,7 +293,7 @@ def _twist_data():
         return {}
 
 
-@lru_cache(maxsize=8)
+@lru_cache(maxsize=2)
 def _twist_generators(order):
     """Short sum-zero conjugates and the long sum-carrying twist relations.
 
@@ -315,6 +329,8 @@ def _sparse_twist_orientation(target,order,limit=150):
     it and the sum-zero remainder is solved in the short table. Returns None if
     the bundled generators are unavailable, so the caller keeps the basis.
     """
+    if not any(target):
+        return []
     short,longer=_twist_generators(order)
     if not short:
         return None

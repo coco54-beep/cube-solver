@@ -17,6 +17,7 @@
 任何异常都吞掉，绝不影响应用。
 """
 
+import os
 import threading
 import time
 
@@ -27,6 +28,8 @@ _lock = threading.Lock()
 
 def warmup_solvers():
     """启动通用求解资源后台预热（幂等）。返回线程对象，便于测试等待。"""
+    if os.environ.get("ANDROID_PRIVATE"):
+        return None  # Mobile: load solver tables only when Solve is requested.
     global _common_started
     with _lock:
         if _common_started:
@@ -39,6 +42,8 @@ def warmup_solvers():
 
 def warmup_5x5():
     """按需预热 5 阶专属资源（幂等）。进入 5 阶录入页时调用。"""
+    if os.environ.get("ANDROID_PRIVATE"):
+        return None
     global _5x5_started
     with _lock:
         if _5x5_started:

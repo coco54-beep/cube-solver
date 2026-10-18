@@ -70,8 +70,8 @@ CATALOG = {
         "settings.language": "语言",
         "settings.input_mode": "输入方式",
         "settings.about": "关于",
-        "settings.about_tagline": "从 2×2 到 5×5，全阶真实算法求解",
-        "settings.about_feature": "支持 2 / 3 / 4 / 5 阶魔方 · 三阶最优 ≤20 步 · 3D 动画演示还原过程",
+        "settings.about_tagline": "从 2×2 到 17×17，以及转棱、镜面、斜转、SQ、花瓣等异形魔方的真实算法求解",
+        "settings.about_feature": "支持 2–17 阶标准魔方 · 转棱/镜面/斜转/SQ/花瓣等异形 · 3D 动画回放",
 
         "inputmode.advanced": "高级输入",
         "inputmode.simple": "简洁输入",
@@ -80,9 +80,10 @@ CATALOG = {
         "help.close": "关闭",
         "help.select.title": "选择魔方",
         "help.select.body":
-            "首页用卡片选择魔方：2 / 3 / 4 / 5 阶、N 阶（6–17），以及「异形魔方」。\n"
-            "点卡片进入对应录入页；「异形魔方」进入异形目录——多阶魔方各占一张卡片，\n"
-            "其它单一规格魔方集中在「特殊异形」。随时点底部的「使用说明」可回到本页。",
+            "首页用卡片选择魔方：2–5 阶、N 阶（6–17），以及「异形魔方」。\n"
+            "异形目录包含转棱系列（四面体、二十面体、Blossom、四叶草、八叶花）、\n"
+            "SQ 系列、镜面/鬼魔/斜转终极/空心五魔方等；每种都有示意图，\n"
+            "均已接入录入、求解与 3D 回放。随时点底部的「使用说明」可回到本页。",
         "help.input.title": "录入布局",
         "help.input.body":
             "在展开图上逐格点色即可录入每个面的颜色：先从六色选择器选好颜色，\n"
@@ -147,7 +148,9 @@ CATALOG = {
             "2 阶与 3 阶用两阶段算法（Kociemba）求解，力求步数少；\n"
             "4 阶与 5 阶用降阶法：先还原中心块，再配对棱块，最后当作三阶还原。\n"
             "注：5 阶遇到特别复杂的随机打乱时，配棱阶段未必能完整还原，\n"
-            "此时会提示失败，而不会给出错误解法。",
+            "此时会提示失败，而不会给出错误解法。\n"
+            "异形魔方按几何使用专用求解器（转棱、SQ、镜面斜转、斜转终极、花瓣宏等），\n"
+            "解法会完整回放验证后再展示。",
 
         "input.back": "←返回",
         "input.title": "录入 {n}x{n}",
@@ -292,8 +295,8 @@ CATALOG = {
         "settings.language": "Language",
         "settings.input_mode": "Input mode",
         "settings.about": "About",
-        "settings.about_tagline": "Real algorithmic solving for every cube, 2×2 up to 5×5",
-        "settings.about_feature": "Solves 2 / 3 / 4 / 5 order cubes · 3×3 optimal ≤ 20 moves · animated 3D playback",
+        "settings.about_tagline": "Real algorithmic solving from 2×2 to 17×17 and a broad irregular catalog",
+        "settings.about_feature": "Standard cubes 2–17 · edge-turning, mirror, Skewb, SQ and petal puzzles · animated 3D playback",
 
         "inputmode.advanced": "Advanced",
         "inputmode.simple": "Simple",
@@ -302,9 +305,11 @@ CATALOG = {
         "help.close": "Close",
         "help.select.title": "Choose a puzzle",
         "help.select.body":
-            "Pick from the home cards: 2 / 3 / 4 / 5, N×N (6–17), or Shape Mods.\n"
-            "2–5 and N×N open their input pages; Shape Mods opens the irregular catalog\n"
-            "(multi-order families plus a separate special collection). Use Help below anytime.",
+            "Pick from the home cards: 2–5, N×N (6–17), or Shape Mods.\n"
+            "The irregular catalog includes the edge-turning series (tetrahedron,\n"
+            "icosahedron, Blossom, Clover, Eight-petals), the SQ family, Mirror/Ghost/\n"
+            "Skewb Ultimate/Void Megaminx and more. Every listed puzzle has a thumbnail\n"
+            "and supports input, solving and 3D playback. Use Help below anytime.",
         "help.input.title": "Enter the layout",
         "help.input.body":
             "Tap cells to set each facelet's color: first pick a color from the "
@@ -377,7 +382,10 @@ CATALOG = {
             "4×4 and 5×5 use reduction: solve centers, pair edges, then solve as a 3×3.\n"
             "Note: for very deep 5×5 scrambles the edge-pairing stage may not "
             "guarantee a full solution;\nit then reports failure instead of giving "
-            "a wrong solution.",
+            "a wrong solution.\n"
+            "Irregular puzzles use geometry-specific solvers (edge-turning, SQ,\n"
+            "Mirror Skewb, Skewb Ultimate, shortened petal macros); answers are\n"
+            "replayed completely before playback.",
 
         "input.back": "← Back",
         "input.title": "Enter {n}×{n}",
@@ -522,8 +530,8 @@ CATALOG = {
         "settings.language": "言語",
         "settings.input_mode": "入力方式",
         "settings.about": "アプリについて",
-        "settings.about_tagline": "2×2 から 5×5 まで、全段数の実アルゴリズム解法",
-        "settings.about_feature": "2 / 3 / 4 / 5 段キューブ対応 · 3段は最適 20 手以内 · 3D アニメーション再生",
+        "settings.about_tagline": "2×2～17×17 と、辺回転・ミラー・スキューブ・SQ・ペタルなどの異形パズルを実アルゴリズムで解決",
+        "settings.about_feature": "2～17段標準キューブ · 辺回転／ミラー／スキューブ／SQ／ペタル · 3Dアニメ再生",
 
         "inputmode.advanced": "詳細入力",
         "inputmode.simple": "シンプル入力",
@@ -532,9 +540,10 @@ CATALOG = {
         "help.close": "閉じる",
         "help.select.title": "魔方を選ぶ",
         "help.select.body":
-            "ホーム画面のカードから選びます：2 / 3 / 4 / 5、N×N（6–17）、変形キューブ。\n"
-            "2〜5 と N×N は入力ページへ、変形キューブは異形カタログへ移動します"
-            "（多段ファミリーと、特殊な単一規格のまとめ）。下の「使い方」でいつでも戻れます。",
+            "ホーム画面のカードから選びます：2～5段、N×N（6～17）、変形キューブ。\n"
+            "異形カタログには辺回転シリーズ（四面体、二十面体、Blossom、四葉、八花）、\n"
+            "SQシリーズ、ミラー／ゴースト／スキューブアルティメット／空洞メガミンクス\n"
+            "などがあります。各項目に図があり、入力・解法・3D再生に対応しています。",
         "help.input.title": "配置を入力",
         "help.input.body":
             "セルをタップして各面の色を入力します：先に6色セレクターで色を選び、\n"
@@ -606,7 +615,10 @@ CATALOG = {
             "最後に 3×3 として解きます。\n"
             "注：5×5 の非常に深いスクランブルでは、エッジのペアリング段階で\n"
             "完全な解法を保証できない場合があります。その際は誤った解法ではなく"
-            "失敗を通知します。",
+            "失敗を通知します。\n"
+            "異形パズルは形状ごとの専用ソルバー（辺回転、SQ、ミラースキューブ、\n"
+            "スキューブアルティメット、短縮ペタルマクロなど）を使い、\n"
+            "完全な再生検証後に手順を表示します。",
 
         "input.back": "← 戻る",
         "input.title": "入力 {n}×{n}",
@@ -727,6 +739,10 @@ for _language, _messages in _NXN_MESSAGES.items():
 
 from app.polyhedral_i18n import MESSAGES as _POLY_MESSAGES
 for _language, _messages in _POLY_MESSAGES.items():
+    CATALOG[_language].update(_messages)
+
+from app.square_family_i18n import MESSAGES as _SQ_MESSAGES
+for _language, _messages in _SQ_MESSAGES.items():
     CATALOG[_language].update(_messages)
 
 from app.demo_i18n import MESSAGES as _DEMO_MESSAGES

@@ -95,6 +95,13 @@ class Square1View(PolyhedralView):
     camera_target=(0.,0.,0.)
     _surfaces=staticmethod(surfaces)
 
+    def _surface_shade(self, normal, eye, light, rgba, color, recorded):
+        brightness=.82+.18*max(0,dot(normal,light))
+        return tuple(v*brightness for v in rgba[:3])+(1,)
+
+    def _surface_depth_bias(self,color):
+        return 0.
+
     def _inset(self,points):
         centre=mean(points)
         return tuple(add(centre,scale(add(p,scale(centre,-1)),.989)) for p in points)
@@ -168,7 +175,7 @@ class Square1View(PolyhedralView):
         cx,cy=self.width/2,self.height/2
         faces=self._surfaces(self.cube)
         if not self.show_middle:
-            faces=tuple(s for s in faces if s[4]<2)
+            faces=tuple(s for s in faces if s[4]<getattr(self.cube,'layer_count',2))
         if self.fit_piece and faces:
             points=[p for surface in faces for p in surface[0]]
             xs,ys=[dot(p,right) for p in points],[dot(p,up) for p in points]
@@ -196,11 +203,11 @@ class Square1View(PolyhedralView):
                 rgba=(.37,.43,.5,1)
             centre=mean(points)
             points=self._inset(points)
-            brightness=.82+.18*max(0,dot(normal,light))
-            shade=tuple(v*brightness for v in rgba[:3])+(1,)
+            shade=self._surface_shade(normal,eye,light,rgba,color,color<0 or self._is_recorded(slot))
             if slot==self.selected:
                 shade=tuple(.75*v+.25*c for v,c in zip(shade,(0.,.9,1.,1.)))
-            projected=tuple((cx+dot(p,right)*factor,cy+dot(p,up)*factor,-dot(p,eye)*.12) for p in points)
+            depth_bias=self._surface_depth_bias(color)
+            projected=tuple((cx+dot(p,right)*factor,cy+dot(p,up)*factor,-dot(p,eye)*.12+depth_bias) for p in points)
             if color>=0 or color==-2:
                 self._polygons.append((projected,slot))
             base=len(vertices)//7

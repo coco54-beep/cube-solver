@@ -4,6 +4,15 @@
 
 [Windows and Android downloads](https://github.com/coco54-beep/cube-solver/releases/latest) · [中文技术说明](README.zh-CN.md) · [日本語](README.ja.md) · [Source code](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.30 update
+
+- **New irregular families**: Petal Tetrahedron / Icosahedron (with and without centres), SQ-0, SQ-2, Super SQ-1, Mirror Windmill/Fisher unequal-height and offset-cut variants, Ghost Cube, Skewb Ultimate, Void Megaminx, Four-Colour Dino, plus order-4 Axis/Windmill/Fisher cubes.
+- **Solver improvements**: dedicated Skewb Ultimate (typically 9–12 moves), full-state Mirror Skewb (10–11), SQ-2 parity/layer-turn reduction (about 246 moves on average), Super SQ-1 multi-start alignment search, and shortened petal macros that solve petals first and centres last. Every solution is replay-checked.
+- **UI / i18n**: new cards, three-language labels, help and About text for the new families; safe theme access during screen construction and a UIButton refresh fix.
+- **Quality**: 1,413 tests passed and 4 skipped; the new solvers were benchmarked on desktop.
+
+[1.2.30 release notes](docs/release-1.2.30.md)
+
 ## 1.2.27 update
 
 - **Unified solving page** for standard cubes, irregular puzzles and Square-1: model, stage progress and Cancel; cancellation preserves input, errors use one presentation, and late results cannot redirect the UI.
@@ -70,7 +79,9 @@
 
 ## Abstract
 
-This project models entered puzzle states and produces move sequences with puzzle-specific validation and replay checks. In addition to conventional 2x2-5x5 cubes and an experimental 6x6-17x17 solver, the current release (1.2.27) covers a broad irregular catalog: the shape-modified Mastermorphix and Mirror Cube families (orders 2-9), Pyraminx (2-7), Skewb (3/5/7), Megaminx (2-13), Tower Cube (3-7), Dino/Lattice (2/4/6), Face-turning Octahedron (2-4), Football/Tuttminx (3/5), Icosahedron (2-5), Blossom, Ivy, Clover, and Eight-petals, Void Cube/Tower, Square-1, Mirror Tower, War Drum (2-5), Pentahedron (2-5), and the shape cubes (Axis, Pandora, Windmill, Fisher). Each family uses a geometry-aware state model rather than forcing every shape through a conventional 3x3 representation. The irregular catalog is presented as illustrated cards in a dedicated directory.
+This project models entered puzzle states and produces move sequences with puzzle-specific validation and replay checks. In addition to conventional 2x2-5x5 cubes and an experimental 6x6-17x17 solver, the current release (1.2.30) covers a broad irregular catalog: the shape-modified Mastermorphix and Mirror Cube families (orders 2-9), Pyraminx (2-7), Skewb (3/5/7), Megaminx (2-13), Tower Cube (3-7), Dino/Lattice (2/4/6), Face-turning Octahedron (2-4), Football/Tuttminx (3/5), Icosahedron (2-5), Blossom, Ivy, Clover, and Eight-petals, Void Cube/Tower, Square-1, Mirror Tower, War Drum (2-5), Pentahedron (2-5), and the shape cubes (Axis, Pandora, Windmill, Fisher). Each family uses a geometry-aware state model rather than forcing every shape through a conventional 3x3 representation. The irregular catalog is presented as illustrated cards in a dedicated directory.
+
+The 1.2.30 update adds the petal tetrahedron/icosahedron, SQ-0/SQ-2/Super SQ-1, unequal-height and offset-cut mirror variants, Ghost Cube, Skewb Ultimate, Void Megaminx, four-colour Dino and order-4 shape cubes.
 
 The engineering focus is the complete path from input to replay: geometric cubie representation, state validation, solver orchestration, move normalization, and solution checking. The project integrates established solving methods where appropriate; it does not claim a new general solution to the cube group or globally optimal solutions. Higher-order solving remains experimental and has not been comprehensively benchmarked across random states and Android devices.
 

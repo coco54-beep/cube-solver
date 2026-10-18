@@ -108,6 +108,10 @@ def polyhedral_target(cube, move):
 
 
 def layer_target(axis, layers):
+    if axis in range(3, 8):
+        from cube.ghost_floppy import AXES
+        x, y, _ = AXES[axis-3]
+        return (x*.4, y*.4, 1.)
     position = sum(layers) / len(layers)
     return tuple(position if i == axis else 0. for i in range(3))
 

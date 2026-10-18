@@ -15,6 +15,8 @@ MESSAGES = {
         "camera.dir.up": "向上",
         "camera.dir.down": "向下",
         "camera.detected": "已识别 {face} 面",
+        "camera.processing": "正在识别…",
+        "camera.processing_failed": "识别未完成，请调整取景框后重试",
         "camera.detect_failed": "识别失败：{reason}",
         "camera.no_image": "未能获取图像",
         "camera.loaded": "已载入图片",
@@ -37,6 +39,8 @@ MESSAGES = {
         "camera.dir.up": "up",
         "camera.dir.down": "down",
         "camera.detected": "Detected face {face}",
+        "camera.processing": "Recognizing…",
+        "camera.processing_failed": "Recognition failed. Adjust the guide and retry.",
         "camera.detect_failed": "Detection failed: {reason}",
         "camera.no_image": "No image captured",
         "camera.loaded": "Image loaded",
@@ -59,6 +63,8 @@ MESSAGES = {
         "camera.dir.up": "上",
         "camera.dir.down": "下",
         "camera.detected": "{face} 面を認識しました",
+        "camera.processing": "認識中…",
+        "camera.processing_failed": "認識できませんでした。枠を調整して再試行してください。",
         "camera.detect_failed": "認識に失敗: {reason}",
         "camera.no_image": "画像を取得できません",
         "camera.loaded": "画像を読み込みました",
@@ -124,7 +130,7 @@ for _lang, _text in {
         'camera.surface_turn': '跟随小模型整体翻转，对准{face}',
         'camera.surface_partial': '请对齐顶点和切线，再按框识别；不确定的颜色可取色校准或点模型修正',
         'camera.calibrate': '取色校准',
-        'camera.calibrate_choose': '选择要校准的颜色编号',
+        'camera.calibrate_choose': '选择要校准的颜色',
         'camera.sample_prompt': '点照片中属于 {number} 号颜色的色块内部',
         'camera.sample_dark': '这里太暗，请点色块内部，避开黑色切缝',
         'camera.calibrated': '已校准，并更新已拍各面；手动改色已保留',
@@ -142,7 +148,7 @@ for _lang, _text in {
         'camera.surface_turn': 'Follow the model turn to {face}',
         'camera.surface_partial': 'Align vertices and cuts, then scan. Calibrate colors or tap the model to correct them.',
         'camera.calibrate': 'Calibrate',
-        'camera.calibrate_choose': 'Choose a color number to calibrate',
+        'camera.calibrate_choose': 'Choose a color to calibrate',
         'camera.sample_prompt': 'Tap inside a sticker with color {number} in the photo',
         'camera.sample_dark': 'Too dark. Tap inside a sticker, away from black cuts.',
         'camera.calibrated': 'Colors updated on stored photos; manual edits kept.',
@@ -160,12 +166,75 @@ for _lang, _text in {
         'camera.surface_turn': 'モデルに合わせて全体を回し、{face}を正面に',
         'camera.surface_partial': '頂点と切れ目を合わせて認識。色の校正またはモデルで修正できます。',
         'camera.calibrate': '色を校正',
-        'camera.calibrate_choose': '校正する色番号を選択',
+        'camera.calibrate_choose': '校正する色を選択',
         'camera.sample_prompt': '写真内の{number}番の色のステッカー内部をタップ',
         'camera.sample_dark': '暗すぎます。黒い切れ目を避けて色面をタップしてください。',
         'camera.calibrated': '撮影済みの色を更新しました。手動修正は保持されます。',
         'camera.complete_first': 'パンドラの6面を完成してください。モデルで空欄を補えます。',
         'camera.invalid_input': '色またはピースの組合せが不正です。面の向きと色を確認してください。',
+    },
+}.items():
+    MESSAGES[_lang].update(_text)
+
+
+# Ordinary cubes calibrate all six colors using the actual stickers.
+for _lang, _text in {
+    'zh': {
+        'camera.sample_color_prompt': '点照片中{color}色块的内部，避开反光和切缝',
+        'camera.color_W': '白色', 'camera.color_Y': '黄色', 'camera.color_R': '红色',
+        'camera.color_O': '橙色', 'camera.color_B': '蓝色', 'camera.color_G': '绿色',
+    },
+    'en': {
+        'camera.sample_color_prompt': 'Tap inside a {color} sticker, away from glare and cuts',
+        'camera.color_W': 'white', 'camera.color_Y': 'yellow', 'camera.color_R': 'red',
+        'camera.color_O': 'orange', 'camera.color_B': 'blue', 'camera.color_G': 'green',
+    },
+    'ja': {
+        'camera.sample_color_prompt': '反射と切れ目を避け、写真の{color}ステッカー内部をタップ',
+        'camera.color_W': '白', 'camera.color_Y': '黄色', 'camera.color_R': '赤',
+        'camera.color_O': 'オレンジ', 'camera.color_B': '青', 'camera.color_G': '緑',
+    },
+}.items():
+    MESSAGES[_lang].update(_text)
+
+for _lang, _text in {
+    'zh': {
+        'camera.color_number': '{number}号色',
+        'camera.palette_hint': '按钮底色就是对应颜色',
+        'camera.calibration_retry': '样本不清楚或与其他颜色太接近，请避开反光和切缝重新取色',
+    },
+    'en': {
+        'camera.color_number': 'Color {number}',
+        'camera.palette_hint': 'Each button background shows its corresponding color.',
+        'camera.calibration_retry': 'Sample unclear or too similar to another color. Resample away from glare and cuts.',
+    },
+    'ja': {
+        'camera.color_number': '{number}番の色',
+        'camera.palette_hint': 'ボタンの背景が対応する色です。',
+        'camera.calibration_retry': '色が不明瞭か他の色に近すぎます。反射と切れ目を避けて再採取してください。',
+    },
+}.items():
+    MESSAGES[_lang].update(_text)
+
+
+for _lang, _text in {
+    'zh': {
+        'camera.reset_calibration': '恢复默认', 'camera.calibration_reset': '已恢复默认取色',
+        'camera.cancel_scan': '取消识别', 'camera.scan_cancelled': '已取消识别，照片与已确认颜色已保留',
+        'camera.locating': '正在定位', 'camera.reading': '正在取色', 'camera.recalibrating': '正在更新各面',
+        'camera.uncertain': '本面还有 {count} 块颜色不确定，已用橙色边框标出；点击小模型修正',
+    },
+    'en': {
+        'camera.reset_calibration': 'Reset colors', 'camera.calibration_reset': 'Default color references restored.',
+        'camera.cancel_scan': 'Cancel scan', 'camera.scan_cancelled': 'Scan cancelled. Photo and confirmed colors kept.',
+        'camera.locating': 'Locating face', 'camera.reading': 'Reading colors', 'camera.recalibrating': 'Updating faces',
+        'camera.uncertain': '{count} uncertain stickers on this face have orange outlines. Tap the model to correct.',
+    },
+    'ja': {
+        'camera.reset_calibration': '初期色に戻す', 'camera.calibration_reset': '標準の色基準に戻しました。',
+        'camera.cancel_scan': '認識を取消', 'camera.scan_cancelled': '認識を取消しました。写真と確定済みの色は保持されます。',
+        'camera.locating': '面を検出中', 'camera.reading': '色を認識中', 'camera.recalibrating': '各面を更新中',
+        'camera.uncertain': 'この面の{count}個の色が不確定です。オレンジの枠をモデル上でタップして修正してください。',
     },
 }.items():
     MESSAGES[_lang].update(_text)

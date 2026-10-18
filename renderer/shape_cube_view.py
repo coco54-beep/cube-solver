@@ -8,9 +8,9 @@ from renderer.mastermorphix_view import MastermorphixView
 
 
 @lru_cache(maxsize=1024)
-def _geometry(kind,home,frame):
+def _geometry(kind,home,frame,n=3):
     result=[]
-    for vertices,color in faces_for(kind,home):
+    for vertices,color in faces_for(kind,home,n):
         normal=(0.,0.,0.)
         for a,b in zip(vertices,vertices[1:]+vertices[:1]):
             normal=add(normal,cross(a,b))
@@ -29,12 +29,12 @@ def _geometry(kind,home,frame):
 class AxisView(MastermorphixView):
     @staticmethod
     def _piece_geometry(home,frame,subdivisions,n):
-        return _geometry('axis',home,frame)
+        return _geometry('axis',home,frame,n)
 
 class FootballView(MastermorphixView):
     @staticmethod
     def _piece_geometry(home,frame,subdivisions,n):
-        return _geometry('football',home,frame)
+        return _geometry('football',home,frame,n)
 
     def _piece_color(self,color):
         return ((.98,.98,.98,1),(.035,.04,.045,1))[color]
@@ -42,16 +42,16 @@ class FootballView(MastermorphixView):
 class PandoraView(MastermorphixView):
     @staticmethod
     def _piece_geometry(home,frame,subdivisions,n):
-        return _geometry('pandora',home,frame)
+        return _geometry('pandora',home,frame,n)
 
 
 class WindmillView(MastermorphixView):
     @staticmethod
     def _piece_geometry(home,frame,subdivisions,n):
-        return _geometry('windmill',home,frame)
+        return _geometry('windmill',home,frame,n)
 
 
 class FisherView(MastermorphixView):
     @staticmethod
     def _piece_geometry(home,frame,subdivisions,n):
-        return _geometry('fisher',home,frame)
+        return _geometry('fisher',home,frame,n)

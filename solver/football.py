@@ -54,20 +54,58 @@ def _assets():
     return json.loads(zlib.decompress((Path(__file__).parent/'data'/'football_cycles.bin').read_bytes()))
 
 
+def _solve_football_with_beam(cube,cancel=None,progress=None):
+    """Fix the outer layers with a native beam, then reduce the remainder.
+
+    On the fifth order the beam removes about a fifth of the stickers, and the
+    remaining reduction is both shorter and faster than solving the full state
+    with three-cycles directly.
+    """
+    from solver.high_minx_reduction import native_beam
+    work=cube.entered()
+    orbits=piece_orbits(cube.puzzle_kind,cube.n)
+    positions=[p for o in orbits if len(o)>1 for p in o]
+    beam=tuple(native_beam(work,positions,cancel,progress,width=64,max_depth=40))
+    remaining=cube.clone()
+    remaining.colors=list(work.colors)
+    tail=_solve_football(remaining,cancel,progress,improve_flips=True)
+    return tuple(beam)+tuple(tail)
+
+
 def solve_football(cube,cancel=None,progress=None,optimize_flips=True):
-    """Keep the shorter complete solve after comparing pair-flip and basis plans."""
+    """Keep the shortest verified solve; never longer than the plain baseline."""
+    import logging
     baseline=_solve_football(cube,cancel,progress)
-    if not optimize_flips or not baseline:
-        return baseline
-    try:
-        candidate=_solve_football(cube,cancel,progress,improve_flips=True)
-    except InterruptedError:
-        raise
-    except Exception as exc:
-        import logging
-        logging.getLogger(__name__).warning('Football flip optimization rejected: %s',exc)
-        candidate=None
-    return candidate if candidate is not None and len(candidate)<len(baseline) else baseline
+    best=baseline
+    if cube.n==5:
+        try:
+            candidate=_solve_football_with_beam(cube,cancel,progress)
+        except InterruptedError:
+            raise
+        except Exception as exc:
+            logging.getLogger(__name__).warning('Football beam solve rejected: %s',exc)
+            candidate=None
+        if candidate is not None and len(candidate)<len(best):
+            check=cube.entered()
+            for i,move in enumerate(candidate):
+                if i%128==0 and cancel and cancel():
+                    raise InterruptedError()
+                check.apply_move(move)
+            if check.is_solved():
+                best=candidate
+    # The beam candidate already uses the improved flip tail, so the separate
+    # flip plan is only worth running when the beam did not win.
+    if optimize_flips and best and best is baseline:
+        try:
+            improved=_solve_football(cube,cancel,progress,improve_flips=True)
+        except InterruptedError:
+            raise
+        except Exception as exc:
+            logging.getLogger(__name__).warning('Football flip optimization rejected: %s',exc)
+            improved=None
+        if improved is not None and len(improved)<len(best):
+            best=improved
+    return best
 
 
 def _solve_football(cube,cancel=None,progress=None,improve_flips=False):

@@ -30,7 +30,7 @@ from cube.polyhedral import Move
 from solver.polyhedral import (apply_word, compose, identify, inverse,
                                inverse_word, piece_orbits, simplify)
 from solver.polyhedral_reduction import (_SHORT_PRIMITIVE, Transports,
-                                         orbit_word, primitives)
+                                         joined_length, orbit_word, primitives)
 from solver.nxn_orbits import three_cycles
 
 #: Beam width/depth for the native-ring stage.
@@ -100,8 +100,14 @@ def native_beam(work, positions, cancel=None, progress=None,
         except ImportError:
             pass
     if np is not None:
-        indices=np.asarray(invs,dtype=np.intp)
+        indices=np.asarray(invs,dtype=np.uint16 if m<=65536 else np.uint32)
         reference=np.frombuffer(home,dtype=np.uint8)
+        # Release Python tuple/set copies once the compact lookup is ready.
+        invs_count=len(invs)
+        invs.clear()
+        seen.clear()
+    else:
+        invs_count=len(invs)
 
     def correct(state):
         return sum(map(eq,state,home))
@@ -116,7 +122,7 @@ def native_beam(work, positions, cancel=None, progress=None,
             if np is not None:
                 candidates=np.frombuffer(state,dtype=np.uint8)[indices]
                 scores=(candidates==reference).sum(axis=1)
-            for ai in range(len(invs)):
+            for ai in range(invs_count):
                 if np is not None:
                     ns=candidates[ai].tobytes()
                     next_score=int(scores[ai])
@@ -132,6 +138,13 @@ def native_beam(work, positions, cancel=None, progress=None,
                     # Delay constructing complete paths until a candidate
                     # survives the beam. Keep the original stable tie order.
                     nxt[ns]=(next_score,path,ai)
+            # Only the best ``width`` unique states can survive this level.
+            # Prune after each parent instead of retaining width * actions
+            # complete sticker states on high orders. Stable sorting preserves
+            # the original first-seen tie order; a discarded state cannot beat
+            # the retained threshold if encountered again later.
+            if len(nxt)>width:
+                nxt=dict(sorted(nxt.items(),key=lambda kv:-kv[1][0])[:width])
         ranked=sorted(nxt.items(),key=lambda kv:-kv[1][0])[:width]
         frontier={s:(path+(atoms[ai],),score) for s,(score,path,ai) in ranked}
         winner=next(iter(frontier.values()))
@@ -223,11 +236,12 @@ def solve_orbits(work, targets, cancel=None, progress=None, search_budget=0.3):
     solution, prefix, ordered = [], [], []
     pending = list(plans)
     while pending:
+        _checked(cancel)
         choice = min(range(len(pending)),
-                     key=lambda i: len(simplify(tuple(prefix) + pending[i][1], order)))
+                     key=lambda i: joined_length(prefix, pending[i][1], order))
         _, word = pending.pop(choice)
         ordered.append(word)
-        prefix.extend(word)
+        prefix=simplify(tuple(prefix)+word,order)
     for word in ordered:
         for mv in word:
             work.apply_move(mv)
@@ -435,8 +449,8 @@ def solve_twist(work, corners, gadget, cancel=None, progress=None,
     raise ValueError('corner twist was not reached')
 
 
-def solve_reduced(cube, cancel=None, progress=None):
-    work = cube.entered()
+def solve_reduced(cube, cancel=None, progress=None, *, _beam=None):
+    work = cube.entered() if _beam is None else _beam[0]
     g = work.geometry
     orbits = piece_orbits(cube.puzzle_kind, cube.n)
     corners = next((o for o in orbits if len(g.pieces[o[0]]) == 3), None)
@@ -448,7 +462,10 @@ def solve_reduced(cube, cancel=None, progress=None):
     m = len(positions)
     width = _BEAM_WIDTH if m <= 900 else max(24, 49152 // m)
     solution = []
-    solution.extend(native_beam(work, positions, cancel, progress, width=width))
+    if _beam is None:
+        solution.extend(native_beam(work, positions, cancel, progress, width=width))
+    else:
+        solution.extend(_beam[1])
     solution.extend(solve_orbits(work, targets, cancel, progress))
     if corners is not None:
         gadget = build_twist_gadget(work, corners)

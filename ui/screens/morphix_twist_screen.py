@@ -11,7 +11,7 @@ from kivy.uix.spinner import Spinner
 
 from app.i18n import tr
 from cube.polyhedral import dot, cross
-from renderer.mastermorphix_view import MastermorphixView
+from renderer.mastermorphix_view import MastermorphixView, cube_view_class_for
 from renderer.turn import decompose_move
 from renderer.camera_follow import follow_turn, layer_target, cancel_follow, FOLLOW_SETTINGS, reset_camera_view
 from ui.widgets.camera_follow import follow_panel
@@ -27,20 +27,7 @@ def _app():
 
 
 def _make_twist_view(cube, **kwargs):
-    if getattr(cube,'puzzle_kind',None)=='axis':
-        from renderer.shape_cube_view import AxisView as base
-    elif getattr(cube,'puzzle_kind',None)=='football':
-        from renderer.shape_cube_view import FootballView as base
-    elif getattr(cube,'puzzle_kind',None)=='pandora':
-        from renderer.shape_cube_view import PandoraView as base
-    elif getattr(cube,'puzzle_kind',None)=='windmill':
-        from renderer.shape_cube_view import WindmillView as base
-    elif getattr(cube,'puzzle_kind',None)=='fisher':
-        from renderer.shape_cube_view import FisherView as base
-    elif getattr(cube, 'puzzle_kind', None) == 'mirror':
-        from renderer.mirror_view import MirrorView as base
-    else:
-        base = MastermorphixView
+    base = cube_view_class_for(cube)
 
     class _MorphixTwistView(base):
         def __init__(self, **kw):
@@ -98,6 +85,8 @@ def _make_twist_view(cube, **kwargs):
             from renderer.twist import TwistSpec,_wide_positions
             if self.cube is None or not hasattr(self,'_mm_proj'):
                 return None
+            if getattr(self.cube,'puzzle_kind',None) == 'ghost' and self.cube.n == 1:
+                return self.resolve_floppy_twist(hit,drag)
             pos,point=hit
             right,up,_,_,_,_=self._mm_proj
             whole=self._whole_world

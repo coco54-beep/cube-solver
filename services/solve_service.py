@@ -68,13 +68,21 @@ class SolveService:
             from cube.cube3 import Cube3
             from cube.cube5 import Cube5
             from cube.polyhedral import PolyhedralPuzzle
-            if isinstance(cube,PolyhedralPuzzle) or getattr(cube,'puzzle_kind',None)=='mirror_tower':
+            if isinstance(cube,PolyhedralPuzzle) or getattr(cube,'puzzle_kind',None) in ('mirror_tower','mirror_pyraminx','mirror_skewb'):
                 from time import perf_counter
                 from solver.polyhedral import solve_polyhedral
                 from solver.result import SolveResult
                 started=perf_counter()
                 moves=solve_polyhedral(cube,cancel.is_set,
                                       lambda done,total:cb({'done':done,'total':total}))
+                result=SolveResult(True,list(moves),'',int((perf_counter()-started)*1000),len(moves),[])
+            elif getattr(cube,'puzzle_kind',None) in ('square0','square2','super_square1'):
+                from time import perf_counter
+                from solver.square_family import solve_square_family
+                from solver.result import SolveResult
+                started=perf_counter()
+                moves=solve_square_family(cube,cancel.is_set,
+                                          lambda done,total:cb({'done':done,'total':total}))
                 result=SolveResult(True,list(moves),'',int((perf_counter()-started)*1000),len(moves),[])
             elif getattr(cube,'puzzle_kind',None)=='square1':
                 from time import perf_counter
@@ -84,10 +92,15 @@ class SolveService:
                 moves=solve_square1(cube,cancel.is_set,
                                     lambda done,total:cb({'done':done,'total':total}))
                 result=SolveResult(True,list(moves),'',int((perf_counter()-started)*1000),len(moves),[])
+            elif getattr(cube,'puzzle_kind',None) == 'ghost':
+                from solver.ghost import solve_ghost
+                result=solve_ghost(cube,cancel_event=cancel,progress_callback=cb)
             elif getattr(cube,'puzzle_kind',None) in ('axis','pandora','windmill','fisher'):
                 from solver.shape_cube import solve_shape_cube
                 result=solve_shape_cube(cube,cancel_event=cancel,progress_callback=cb)
-            elif getattr(cube, 'puzzle_kind', None) == 'mirror':
+            elif getattr(cube, 'puzzle_kind', None) in ('mirror','mirror_windmill','mirror_axis','mirror_fisher',
+                                                                      'mirror_windmill_unequal','mirror_fisher_unequal',
+                                                                      'mirror_windmill_offset','mirror_fisher_offset'):
                 from solver.mirror import solve_mirror
                 result = solve_mirror(cube, cancel_event=cancel, progress_callback=cb)
             elif getattr(cube, "puzzle_kind", None) == "mastermorphix":

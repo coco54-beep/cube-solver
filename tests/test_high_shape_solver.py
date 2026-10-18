@@ -21,6 +21,7 @@ def test_high_order_shape_cube_solves(cube_class):
 
 
 def test_high_order_ghost_solves():
+    pytest.importorskip("kivy")
     cube = GhostCube.solved(n=4)
     cube.apply_moves(cube.alignment_moves())
     cube.apply_moves(random_scramble(4, random.Random(4), "ghost"))

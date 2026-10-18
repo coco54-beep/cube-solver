@@ -3,6 +3,8 @@ from types import SimpleNamespace
 
 import pytest
 
+pytest.importorskip("kivy")
+
 from cube.cube3 import Cube3
 from cube.cube4 import Cube4
 from cube.cube5 import Cube5

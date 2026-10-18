@@ -53,6 +53,7 @@ def test_unknown_checkpoint_type_rejected():
 
 
 def test_input_checkpoint_is_written_and_restored(monkeypatch, tmp_path):
+    pytest.importorskip("kivy")
     from types import SimpleNamespace
     from cube.cube3 import Cube3
     from app.session import ENTRY_NAMES, SessionStore

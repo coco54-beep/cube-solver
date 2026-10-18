@@ -3,6 +3,8 @@ import random
 
 import pytest
 
+pytest.importorskip("kivy")
+
 from demo.algorithm_library import groups, prepare_case, verify_case_scope
 from demo.formula_notation import FormulaCube, compile_algorithm, expand
 from demo.practice import PracticeSession, format_time

@@ -11,7 +11,7 @@ from solver.polyhedral import inverse_word,simplify
 
 
 def validate_circle(cube):
-    from app.i18n import tr
+    from solver.messages import tr
     goal=tuple(s.face for s in cube.geometry.stickers)
     if any(type(c) is not int or not 0<=c<6 for c in cube.colors) or Counter(cube.colors)!=Counter(goal):
         raise ValueError(tr('circle.count_error'))
@@ -80,5 +80,5 @@ def solve_circle(cube,cancel=None,progress=None):
             nxt=bytes(map(state.__getitem__,mapping))
             if nxt not in seen:
                 seen.add(nxt);pending.append((nxt,word+(move,)))
-    from app.i18n import tr
+    from solver.messages import tr
     raise ValueError(tr('circle.search_limit'))

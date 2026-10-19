@@ -246,7 +246,7 @@ def solve_mastermorphix(cube, cancel_event=None, progress_callback=None,
             replay.apply_moves(result.moves)
             if replay.is_solved():
                 return result
-            from app.i18n import tr
+            from solver.messages import tr
             return SolveResult(False, [], tr("morphix.error.orientation"),
                                result.elapsed_ms, 0, [])
 

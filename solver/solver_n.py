@@ -189,7 +189,7 @@ def _solve_nxn(cube, cancel_event=None, progress_callback=None,short_shape_cente
 
     def emit(key, progress, **values):
         if progress_callback:
-            from app.i18n import tr
+            from solver.messages import tr
             progress_callback({"stage": "nxn", "progress": progress,
                                "label": tr(key, **values)})
 
@@ -321,7 +321,7 @@ def _solve_nxn(cube, cancel_event=None, progress_callback=None,short_shape_cente
         message = key
         if key.startswith("nxn."):
             try:
-                from app.i18n import tr
+                from solver.messages import tr
             except ImportError:
                 # A solver-only process has no Kivy UI/translator installed.
                 pass

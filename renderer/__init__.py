@@ -1,4 +1,5 @@
-"""3D 渲染包。"""
+"""3D rendering package.
 
-from renderer.cube_view import CubeView  # noqa: F401
-from renderer.geometry import OrbitCamera  # noqa: F401
+Concrete views are imported from their modules so pure geometry and test
+helpers remain usable on machines without a Kivy installation.
+"""

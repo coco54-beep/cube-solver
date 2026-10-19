@@ -6,7 +6,7 @@ from solver.polyhedral import inverse_word,simplify
 
 
 def validate_cuboid(cube):
- from app.i18n import tr
+ from solver.messages import tr
  goal=CuboidCube.solved(cube.puzzle_kind)
  # Compare physical panels, rather than the virtual backing-cell counts.
  values=[cube.colors[i] for i in cube.panels()]
@@ -18,7 +18,7 @@ def validate_cuboid(cube):
 
 
 def solve_cuboid(cube,cancel=None,progress=None):
- from app.i18n import tr
+ from solver.messages import tr
  validate_cuboid(cube)
  if cube.puzzle_kind=='cuboid_133':
   from solver.super_floppy import solve_super_floppy

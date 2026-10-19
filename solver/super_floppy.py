@@ -96,7 +96,7 @@ def distances():
 
 
 def _message(part):
- from app.i18n import tr
+ from solver.messages import tr
  return tr('floppy.'+part+'_error')
 
 

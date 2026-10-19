@@ -186,6 +186,15 @@ class CubeView(Widget):
 		"""
 		if self._last_proj is None:
 			return None
+		from cube.appearance import kind_for
+		if kind_for(self.cube) is not None:
+			# Unequal strips and rounded surfaces cannot use equally spaced
+			# planar cell centres. Pick the actual rendered surface instead.
+			hit = self.pick_facelet(px, py)
+			if hit is None or hit[1] != face:
+				return None
+			from cube.coordinates import rc_from_pos
+			return rc_from_pos(n, face, hit[0])
 		proj = self._last_proj
 		eye, right, camera_up, forward = proj["basis"]
 		pixel_scale = proj["pixel_scale"]
@@ -264,7 +273,8 @@ class CubeView(Widget):
 		# quads 按 depth 从大到小排序（远处在前），因此逆序 = 近处优先。
 		for group, pos, fname in reversed(quads):
 			if _point_in_quad(px, py, group):
-				return (pos, fname)
+				# Exposed black cut walls occlude picking but are not stickers.
+				return (pos, fname) if fname is not None else None
 		return None
 
 	# ------------------------------------------------------------------
@@ -360,7 +370,9 @@ class CubeView(Widget):
 		# 而不是投影或 Widget 的宽高比。
 		size_difference = max(axis_sizes) - min(axis_sizes)
 
-		if size_difference > model_size * 0.01:
+		from cube.appearance import kind_for
+		is_variant = kind_for(self.cube) is not None
+		if size_difference > model_size * 0.01 and not is_variant:
 			print(
 				"警告：魔方模型三轴尺寸不一致："
 				f"x={size_x:.4f}, "
@@ -546,10 +558,18 @@ class CubeView(Widget):
 			# 任一顶点位于相机后方或相机平面上时，不绘制该面。
 			if any(vertex is None for vertex in group):
 				continue
+			if is_variant:
+				a, b, c = group[:3]
+				area = ((b['qx']-a['qx'])*(c['qy']-a['qy'])
+				        -(b['qy']-a['qy'])*(c['qx']-a['qx']))
+				if area <= 1e-12:
+					continue
 
 			# 该面片对应的 cubie 位置与面名（与 build_scene 的顶点段对齐）。
 			quad_no = index // 4
-			fpos, fname = face_info[quad_no]
+			info = face_info[quad_no]
+			fpos, fname = info[:2]
+			edges = info[2] if len(info) > 2 else (0, 1, 2, 3)
 
 			# camera_z 越大，表示沿相机前方向距离越远。
 			# 使用四个顶点的平均相机深度执行画家算法排序。
@@ -580,6 +600,7 @@ class CubeView(Widget):
 				screen_group,
 				fpos,
 				fname,
+				edges,
 			))
 
 		# 远处的面先绘制，近处的面后绘制。
@@ -590,7 +611,7 @@ class CubeView(Widget):
 		# 保存每个面片的屏幕坐标 + cubie 位置 + 面名，供小面拾取使用。
 		self._last_quads = [
 			(group, fpos, fname)
-			for (_depth, group, fpos, fname) in quads
+			for (_depth, group, fpos, fname, _edges) in quads
 		]
 
 		line_width = max(
@@ -606,7 +627,7 @@ class CubeView(Widget):
 		# 三角形1：0、1、2
 		# 三角形2：0、2、3
 		# --------------------------------------------------------------
-		for _depth, group, _fpos, _fname in quads:
+		for _depth, group, _fpos, _fname, edges in quads:
 			color = group[0]["color"]
 
 			self._mesh_group.add(
@@ -662,25 +683,15 @@ class CubeView(Widget):
 				)
 			)
 
-			self._mesh_group.add(
-				Line(
-					points=[
-						group[0]["x"],
-						group[0]["y"],
-
-						group[1]["x"],
-						group[1]["y"],
-
-						group[2]["x"],
-						group[2]["y"],
-
-						group[3]["x"],
-						group[3]["y"],
-					],
-					close=True,
-					width=line_width,
-				)
-			)
+			if edges == (0, 1, 2, 3):
+				self._mesh_group.add(Line(
+					points=[value for p in group for value in (p['x'], p['y'])],
+					close=True, width=line_width))
+			else:
+				for edge in edges:
+					a, b = group[edge], group[(edge+1) % 4]
+					self._mesh_group.add(Line(
+						points=(a['x'], a['y'], b['x'], b['y']), width=line_width))
 
 	def _get_camera_basis(self):
 		"""根据 OrbitCamera 的 eye 和 target 构造相机坐标系。

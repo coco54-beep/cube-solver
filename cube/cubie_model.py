@@ -33,6 +33,9 @@ class Cubie:
     home: Coord
     pos: Coord
     stickers: Dict[Tuple, str]
+    # Optional rigid shell frame for curved/unequal cube variants. Normal
+    # cubes leave this unset and keep the original lightweight turn path.
+    appearance_frame: tuple = None
 
     @property
     def piece_type(self) -> str:
@@ -51,6 +54,7 @@ class Cubie:
             home=self.home,
             pos=self.pos,
             stickers=dict(self.stickers),
+            appearance_frame=self.appearance_frame,
         )
 
 
@@ -128,7 +132,10 @@ class BaseCube:
     def clone(self):
         # 逐 cubie 浅复制（Cubie.clone 已复制其 stickers dict），
         # 避免 copy.deepcopy 的递归开销；在配棱/beam 大量克隆时收益明显。
-        return type(self)({k: c.clone() for k, c in self.cubies.items()})
+        result = type(self)({k: c.clone() for k, c in self.cubies.items()})
+        if hasattr(self, 'appearance_kind'):
+            result.appearance_kind = self.appearance_kind
+        return result
 
     # -- 转动引擎 --
     def apply_move(self, move_str: str) -> None:
@@ -168,6 +175,8 @@ class BaseCube:
                 c = c.clone()
                 c.pos = rot(*c.pos)
                 c.stickers = {rot(*d): col for d, col in c.stickers.items()}
+                if getattr(c, 'appearance_frame', None) is not None:
+                    c.appearance_frame = tuple(rot(*axis) for axis in c.appearance_frame)
             new_cubies[c.pos] = c
         self.cubies = new_cubies
 
@@ -178,6 +187,8 @@ class BaseCube:
             c = c.clone()
             c.pos = rot(*c.pos)
             c.stickers = {rot(*d): col for d, col in c.stickers.items()}
+            if getattr(c, 'appearance_frame', None) is not None:
+                c.appearance_frame = tuple(rot(*axis) for axis in c.appearance_frame)
             new_cubies[c.pos] = c
         self.cubies = new_cubies
 
@@ -198,6 +209,8 @@ class BaseCube:
                     c = c.clone()
                     c.pos = rot(*c.pos)
                     c.stickers = {rot(*d): col for d, col in c.stickers.items()}
+                    if getattr(c, 'appearance_frame', None) is not None:
+                        c.appearance_frame = tuple(rot(*axis) for axis in c.appearance_frame)
                 new_cubies[c.pos] = c
             self.cubies = new_cubies
 

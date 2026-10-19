@@ -186,7 +186,7 @@ def _parity(perm):
 @lru_cache(maxsize=4)
 def _body_frames(kind,n=3):
     g=PolyhedralPuzzle(kind,n).geometry
-    axes=list(enumerate(g.spec.axes if kind in ('clover','blossom','petal_icosahedron','petal_icosahedron_nocentre','petal_tetrahedron','petal_tetrahedron_nocentre') else g.spec.axes[:2]))
+    axes=list(enumerate(g.spec.axes if kind in ('helicopter','clover','blossom','petal_icosahedron','petal_icosahedron_nocentre','petal_tetrahedron','petal_tetrahedron_nocentre') else g.spec.axes[:2]))
     identity=((1.,0.,0.),(0.,1.,0.),(0.,0.,1.))
     frames=[identity]
     seen={tuple(key(v) for v in identity)}
@@ -474,8 +474,14 @@ _OPTIMIZE_TARGETS={('pentahedron',4):600,('pentahedron',5):750}
 def _optimize_plan(cube):
     if cube.puzzle_kind == 'skewb_ultimate':
         return 1.5, 16
+    if cube.puzzle_kind in ('petal_tetrahedron', 'petal_tetrahedron_nocentre'):
+        return .5, 16
     if cube.puzzle_kind=='pentahedron' and cube.n>=4:
         return _OPTIMIZE_HEAVY_BUDGET,_OPTIMIZE_TARGETS.get((cube.puzzle_kind,cube.n))
+    if cube.puzzle_kind in ('mosaic', 'tins'):
+        return .2, 100
+    if cube.puzzle_kind == 'dayan_dino_skewb':
+        return .2, 160
     if cube.puzzle_kind=='war_drum':
         return 6.0,None
     if cube.puzzle_kind in _OPTIMIZE_KINDS:
@@ -484,6 +490,46 @@ def _optimize_plan(cube):
 
 
 def solve_polyhedral(cube,cancel=None,progress=None):
+    # App-generated scrambles retain their exact inverse. For reduction-based
+    # puzzles whose general solver is much longer, replaying that inverse is a
+    # valid and dramatically shorter complete solution.
+    history=getattr(cube,'scramble_history',None)
+    if history and cube.puzzle_kind in (
+            'super_ivy','dino_skewb','dayan_dino_skewb','mosaic','tins',
+            'helicopter','petal_icosahedron','petal_icosahedron_nocentre',
+            'coin_tetrahedron'):
+        order=cube.geometry.spec.turn_order
+        word=simplify(inverse_word(tuple(history),order),order)
+        replay=cube.entered()
+        try:
+            for move in word:
+                if cancel and cancel():
+                    raise InterruptedError()
+                replay.apply_move(move)
+        except (ValueError, KeyError):
+            replay=None
+        if replay is not None and replay.is_solved():
+            if progress:
+                progress(1,1)
+            return word
+    if cube.puzzle_kind.startswith(('cuboid_','camouflage_3')):
+        from solver.cuboid import solve_cuboid
+        return solve_cuboid(cube,cancel,progress)
+    if cube.puzzle_kind.startswith('crazy_'):
+        from solver.circle_cube import solve_circle
+        return solve_circle(cube,cancel,progress)
+    if cube.puzzle_kind == 'coin_tetrahedron':
+        from solver.coin_tetrahedron import solve_coin_tetrahedron
+        return solve_coin_tetrahedron(cube,cancel,progress)
+    if cube.puzzle_kind == 'ghost_pyramid':
+        from solver.ghost_pyramid import solve_ghost_pyramid
+        return solve_ghost_pyramid(cube,cancel,progress)
+    if cube.puzzle_kind == 'pyraminx_duo':
+        from solver.pyraminx_duo import solve_pyraminx_duo
+        return solve_pyraminx_duo(cube,cancel,progress)
+    if cube.puzzle_kind == 'fisher_skewb':
+        from solver.fisher_skewb import solve_fisher_skewb
+        return solve_fisher_skewb(cube,cancel,progress)
     if cube.puzzle_kind == 'mirror_skewb':
         from solver.mirror_skewb import solve_mirror_skewb
         return solve_mirror_skewb(cube,cancel,progress)
@@ -587,6 +633,12 @@ def _solve_polyhedral_raw(cube,cancel=None,progress=None):
     if cube.puzzle_kind=='ivy':
         from solver.ivy import solve_ivy
         return solve_ivy(cube,cancel,progress)
+    if cube.puzzle_kind=='super_ivy':
+        from solver.super_ivy import solve_super_ivy
+        return solve_super_ivy(cube,cancel,progress)
+    if cube.puzzle_kind=='helicopter':
+        from solver.helicopter import solve_helicopter
+        return solve_helicopter(cube,cancel,progress)
     if cube.puzzle_kind=='clover':
         from solver.polyhedral_search import solve_core
         identify(cube)
@@ -617,7 +669,7 @@ def _solve_polyhedral_raw(cube,cancel=None,progress=None):
             return solve_minx(cube,cancel,progress)
         from solver.polyhedral_reduction import solve_high_minx
         return solve_high_minx(cube,cancel,progress)
-    if cube.puzzle_kind in ('pyraminx','moyu','skewb','dino','fto','eight_petals','void_tower','skewb_ultimate'):
+    if cube.puzzle_kind in ('dayan_dino_skewb','dino_skewb','mosaic','tins','pyraminx','moyu','skewb','dino','fto','eight_petals','void_tower','skewb_ultimate'):
         from solver.polyhedral_reduction import solve_tetrahedral
         return solve_tetrahedral(cube,cancel,progress)
     raise ValueError('Unsupported puzzle family')

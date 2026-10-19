@@ -67,8 +67,9 @@ class SolveService:
             from cube.cube2 import Cube2
             from cube.cube3 import Cube3
             from cube.cube5 import Cube5
+            from cube.bandaged_cube import BandagedCube
             from cube.polyhedral import PolyhedralPuzzle
-            if isinstance(cube,PolyhedralPuzzle) or getattr(cube,'puzzle_kind',None) in ('mirror_tower','mirror_pyraminx','mirror_skewb'):
+            if isinstance(cube,PolyhedralPuzzle) or getattr(cube,'puzzle_kind','').startswith(('cuboid_','camouflage_3')) or getattr(cube,'puzzle_kind',None) in ('mirror_tower','mirror_pyraminx','mirror_skewb','fisher_skewb','ghost_pyramid'):
                 from time import perf_counter
                 from solver.polyhedral import solve_polyhedral
                 from solver.result import SolveResult
@@ -106,6 +107,13 @@ class SolveService:
             elif getattr(cube, "puzzle_kind", None) == "mastermorphix":
                 from solver.mastermorphix import solve_mastermorphix
                 result = solve_mastermorphix(cube, cancel_event=cancel, progress_callback=cb)
+            elif isinstance(cube, BandagedCube):
+                from solver.bandaged_cube import solve_bandaged_cube
+                from solver.result import SolveResult
+                from time import perf_counter
+                started=perf_counter()
+                moves=solve_bandaged_cube(cube, cancel.is_set)
+                result=SolveResult(True,list(moves),'',int((perf_counter()-started)*1000),len(moves),[])
             elif isinstance(cube, Cube2):
                 from solver.solver2 import solve_2x2
                 result = solve_2x2(cube, cancel_event=cancel)

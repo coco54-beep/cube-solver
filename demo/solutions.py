@@ -44,6 +44,9 @@ def solved_demo_cube(mode):
     if kind=='mirror_tower':
         from cube.mirror_tower import MirrorTowerCube
         return MirrorTowerCube.solved()
+    if kind=='fisher_skewb':
+        from cube.fisher_skewb import FisherSkewbCube
+        return FisherSkewbCube.solved()
     from cube.polyhedral import PolyhedralPuzzle
     return PolyhedralPuzzle(kind,n)
 

@@ -23,6 +23,12 @@ from kivy.uix.floatlayout import FloatLayout  # noqa: E402
 
 from cube.polyhedral import PolyhedralPuzzle  # noqa: E402
 from cube.cube3 import Cube3  # noqa: E402
+from cube.cube2 import Cube2
+from cube.cube4 import Cube4
+from cube.appearance import with_appearance
+from cube.bandaged_cube import BandagedCube  # noqa: E402
+from cube.cuboid import CuboidCube
+from renderer.cuboid_view import CuboidView
 from cube.mastermorphix import MastermorphixCube  # noqa: E402
 from cube.mirror import MirrorCube  # noqa: E402
 from cube.shape_cube import AxisCube, PandoraCube, WindmillCube, FisherCube  # noqa: E402
@@ -34,6 +40,10 @@ from cube.square_family import SquareFamilyCube  # noqa: E402
 from cube.mirror_tower import MirrorTowerCube  # noqa: E402
 from cube.mirror_pyraminx import MirrorPyraminxCube  # noqa: E402
 from cube.mirror_skewb import MirrorSkewbCube  # noqa: E402
+from cube.fisher_skewb import FisherSkewbCube
+from renderer.fisher_skewb_view import FisherSkewbView
+from cube.ghost_pyramid import GhostPyramidCube
+from renderer.ghost_pyramid_view import GhostPyramidView
 from cube.ghost import GhostCube  # noqa: E402
 from renderer.polyhedral_view import PolyhedralView, default_palette  # noqa: E402
 from renderer.cube_view import CubeView  # noqa: E402
@@ -52,7 +62,20 @@ from renderer.ghost_view import GhostView  # noqa: E402
 
 P = PolyhedralPuzzle
 JOBS = [
+    ('cuboid_family', CuboidView, lambda: CuboidCube.solved('cuboid_224')),
+    ('circle_family', PolyhedralView, lambda: P('crazy_earth',3)),
     ('cube', CubeView, lambda: Cube3.solved()),
+    ('fused_cube', CubeView, lambda: BandagedCube.solved('fused_cube')),
+    ('two_bar_cube', CubeView, lambda: BandagedCube.solved('two_bar_cube')),
+    ('bandaged_c', CubeView, lambda: BandagedCube.solved('bandaged_c')),
+    ('bicube', CubeView, lambda: BandagedCube.solved('bicube')),
+    ('ai_cube', CubeView, lambda: BandagedCube.solved('ai_cube')),
+    ('burr_cube', CubeView, lambda: BandagedCube.solved('burr_cube')),
+    ('camouflage_3', CuboidView, lambda: CuboidCube.solved('camouflage_3')),
+    ('penrose_2', CubeView, lambda: with_appearance(Cube2.solved(), 'penrose_2')),
+    ('penrose_3', CubeView, lambda: with_appearance(Cube3.solved(), 'penrose_3')),
+    ('penrose_4', CubeView, lambda: with_appearance(Cube4.solved(), 'penrose_4')),
+    ('circle_2', CubeView, lambda: with_appearance(Cube2.solved(), 'circle_2')),
     ('axis_4',AxisView,lambda:AxisCube.solved(n=4)),
     ('windmill_4',WindmillView,lambda:WindmillCube.solved(n=4)),
     ('fisher_4',FisherView,lambda:FisherCube.solved(n=4)),
@@ -76,6 +99,7 @@ JOBS = [
     ("moyu", PolyhedralView, lambda: P("moyu", 3)),
     ("mirror", MirrorView, lambda: MirrorCube.solved(n=3)),
     ("fto", PolyhedralView, lambda: P("fto", 2)),
+    ("fto_5", PolyhedralView, lambda: P("fto", 5)),
     ("football", PolyhedralView, lambda: P("football", 3)),
     ("icosahedron", PolyhedralView, lambda: P("icosahedron", 3)),
     ("war_drum", PolyhedralView, lambda: P("war_drum", 3)),
@@ -105,8 +129,21 @@ JOBS = [
     ("mirror_windmill_offset", MirrorOffsetWindmillView, lambda: MirrorOffsetWindmillCube.solved()),
     ("mirror_fisher_offset", MirrorOffsetFisherView, lambda: MirrorOffsetFisherCube.solved()),
     ("ivy", PolyhedralView, lambda: P("ivy", 3)),
+    ("pyraminx_duo", PolyhedralView, lambda: P("pyraminx_duo", 3)),
+    ("coin_tetrahedron", PolyhedralView, lambda: P("coin_tetrahedron", 3)),
     ("skewb_ultimate", PolyhedralView, lambda: P("skewb_ultimate", 3)),
+    ("super_ivy", PolyhedralView, lambda: P("super_ivy", 3)),
+    ("helicopter", PolyhedralView, lambda: P("helicopter", 3)),
+    ("mosaic", PolyhedralView, lambda: P("mosaic", 4)),
+    ("tins", PolyhedralView, lambda: P("tins", 5)),
+    ("dino_skewb", PolyhedralView, lambda: P("dino_skewb", 4)),
+    ("dayan_dino_skewb", PolyhedralView, lambda: P("dayan_dino_skewb", 4)),
+    ("fisher_skewb", FisherSkewbView, lambda: FisherSkewbCube.solved()),
+    ("ghost_pyramid", GhostPyramidView, lambda: GhostPyramidCube.solved()),
 ]
+from cube.cuboid import MODELS as CUBOID_MODELS
+JOBS.extend((kind,CuboidView,lambda k=kind:CuboidCube.solved(k))
+            for kind in CUBOID_MODELS if kind.startswith('cuboid_'))
 ONLY=set(sys.argv[1:])
 
 OUT = os.path.join(BASE, "assets", "puzzles")
@@ -153,7 +190,7 @@ class ThumbApp(App):
         name, viewcls, factory = self._q.pop(0)
         try:
             cube = factory()
-            view = viewcls(size_hint=(None, None), size=(SIZE, SIZE), pos=(0, 0))
+            view = viewcls(size_hint=(None, None), size=(SIZE*2, SIZE*2), pos=(0, 0))
             if hasattr(view, "palette"):
                 try:
                     view.palette = default_palette(cube)
@@ -166,6 +203,8 @@ class ThumbApp(App):
                 view.reset_camera()
             if name in ('mirror_fisher_unequal','mirror_fisher_offset'):
                 view.camera.azimuth = 22.5
+            if name in ('penrose_2','penrose_3','penrose_4'):
+                view.camera.azimuth = -145
             if hasattr(view, "_display_zoom"):
                 view._display_zoom = 0.75
                 if hasattr(view, "_redraw"):
@@ -185,7 +224,7 @@ class ThumbApp(App):
                 kind = getattr(cube, "puzzle_kind", "")
                 view.fit_margin = 1.3 if kind in (
                     "war_drum", "pentahedron", "moyu", "blossom",
-                    "eight_petals", "clover", "ivy") else 1.0
+                    "eight_petals", "clover", "ivy", "super_ivy") else 1.0
                 if hasattr(view, "refresh"):
                     view.refresh()
             self.root.add_widget(view)

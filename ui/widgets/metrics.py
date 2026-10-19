@@ -10,6 +10,8 @@ Android 环境里窗口坐标是物理像素，若始终保持 52px，则在 108
 比例放大，保证触控目标足够大。
 """
 
+import math
+
 from kivy.core.window import Window
 
 # 基准窗口高度：当前 UI 在约 800px 高的窗口下手感最佳（按钮 52px 等）。
@@ -48,22 +50,39 @@ def scale_factor():
     return _scale()
 
 
-def menu_grid_metrics(width, height):
-    """Keep the six home and puzzle-directory cards identical in size."""
+def menu_grid_metrics(width, height, items=None, top_px=44, bottom_px=28):
+    """Pack home and puzzle-directory cards as tightly as the window allows.
+
+    Column count follows the available width; card height follows the height
+    left after the header and toolbars.  Passing the item count lets a short
+    catalogue grow its cards instead of leaving a large empty area below.
+    """
     wide = width > height
-    columns, rows = (3, 2) if wide else (2, 3)
-    padding = (h(20), h(10), h(20), h(10))
+    padding = (h(16), h(8), h(16), h(8))
     spacing = h(8)
-    gap = h(12)
-    top_height, bottom_height = h(44), h(28)
-    head_height = min(h(96 if wide else 132), height * .20)
-    reserved = (padding[1] + padding[3] + 7 * spacing
+    gap = h(10)
+    top_height, bottom_height = h(top_px), h(bottom_px)
+    head_height = min(h(88 if wide else 124), height * .20)
+    reserved = (padding[1] + padding[3] + 3 * spacing
                 + top_height + bottom_height + head_height)
+    available = max(1, height - reserved)
+    target_width = h(118 if wide else 140)
+    max_columns = 8 if wide else 6
+    columns = int(round(width / max(1, target_width)))
+    columns = min(max(columns, 2 if not wide else 3), max_columns)
     card_width = (width - padding[0] - padding[2] - (columns-1)*gap) / columns
-    card_height = max(1, min(card_width, (height-reserved-(rows-1)*gap) / rows))
+    # Aim for slightly landscape cards; round up so rows are not left half empty.
+    target_height = max(1, card_width * .9)
+    visible_rows = max(1, min(8, math.ceil(available / target_height)))
+    total_rows = (math.ceil(items / columns) if items
+                  else visible_rows)
+    rows = min(visible_rows, total_rows)
+    card_height = (available - (rows-1)*gap) / rows
+    card_height = max(1, min(card_height, card_width*1.2))
     return dict(columns=columns, padding=padding, spacing=spacing, gap=gap,
                 top_height=top_height, bottom_height=bottom_height,
-                head_height=head_height, grid_height=rows*card_height+(rows-1)*gap)
+                head_height=head_height, card_height=card_height,
+                grid_height=total_rows*card_height+(total_rows-1)*gap)
 
 
 def input_grid_metrics(rows, column_gap=8, row_gap=6):

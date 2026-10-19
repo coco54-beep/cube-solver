@@ -102,7 +102,16 @@ def primitives(cube,targets,cancel=None,progress=None,anchor_axis=0,use_prepared
     if cancel and cancel():
         raise InterruptedError()
     if use_prepared:
-        if cube.puzzle_kind=='fto':
+        if cube.puzzle_kind in ('dino_skewb','dayan_dino_skewb'):
+            from solver.dino_skewb import prepared_cycles
+            prepared=prepared_cycles(cube,targets)
+        elif cube.puzzle_kind in ('mosaic','tins'):
+            from solver.mosaic import prepared_cycles
+            prepared=prepared_cycles(cube,targets)
+        elif cube.puzzle_kind=='super_ivy':
+            from solver.super_ivy import prepared_cycles
+            prepared=prepared_cycles(cube,targets)
+        elif cube.puzzle_kind=='fto':
             from solver.fto import prepared_cycles
             prepared=prepared_cycles(cube,targets)
         else:
@@ -931,12 +940,18 @@ def solve_tetrahedral(cube,cancel=None,progress=None):
         macros=baseline
         order=list(targets)
         staged=None
+        if cube.puzzle_kind=='fto':
+            from solver.fto import prepared_stages
+            plan=prepared_stages(work,targets)
+            if plan is not None and _macro_cost(plan[0])<_macro_cost(baseline):
+                staged,order=plan
+                macros=staged
         # A hard orbit (long isolating commutator) can be built from far fewer
         # fixed stickers once the solved core is protected and the still
         # unsolved orbits may be disturbed. Solve hardest first so each such
         # orbit is guarded by the fewest solved stickers, and adopt the staged
         # plan only when it lowers the total macro cost.
-        if any(len(baseline[i][0])>_SHORT_PRIMITIVE for i in baseline):
+        if staged is None and any(len(baseline[i][0])>_SHORT_PRIMITIVE for i in baseline):
             deep_order=sorted(targets,key=lambda i:-len(baseline[i][0]))
             guarded={s for i,orbit in enumerate(orbits) if i not in targets
                      for p in orbit for s in g.pieces[p]}
@@ -981,17 +996,30 @@ def solve_tetrahedral(cube,cancel=None,progress=None):
                                 search_budget=search_budget)
                 plans.append((index,word))
             pending=list(plans)
-            ordered=[]
             prefix=simplify(solution,g.spec.turn_order)
-            while pending:
-                if cancel and cancel():
-                    raise InterruptedError()
-                choice=min(range(len(pending)),
-                           key=lambda i:joined_length(prefix,pending[i][1],
-                                                     g.spec.turn_order))
-                _,word=pending.pop(choice)
-                ordered.append(word)
-                prefix=simplify(prefix+word,g.spec.turn_order)
+            if len(plans) <= 4:
+                from itertools import permutations
+                best=None
+                best_order=None
+                for candidate in permutations(plans):
+                    text=prefix
+                    for _,word in candidate:
+                        text=simplify(text+word,g.spec.turn_order)
+                    if best is None or len(text)<len(best):
+                        best=text
+                        best_order=candidate
+                ordered=[word for _,word in best_order]
+            else:
+                ordered=[]
+                while pending:
+                    if cancel and cancel():
+                        raise InterruptedError()
+                    choice=min(range(len(pending)),
+                               key=lambda i:joined_length(prefix,pending[i][1],
+                                                         g.spec.turn_order))
+                    _,word=pending.pop(choice)
+                    ordered.append(word)
+                    prefix=simplify(prefix+word,g.spec.turn_order)
             for word in ordered:
                 for move in word:
                     work.apply_move(move)

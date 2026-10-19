@@ -38,7 +38,7 @@ def _mode_title(n):
     if n == "cfop":
         return tr("formula.title")
     if isinstance(n, tuple):
-        if n[0] in ('blossom','ivy'):
+        if n[0] in ('blossom','ivy','pyraminx_duo','coin_tetrahedron'):
             return tr('directory.'+n[0])
         if n[0]=='dino':
             kind='dinosaur' if n[1]==2 else 'lattice'
@@ -69,6 +69,9 @@ def _inverse_demo_move(move, cube):
 
 
 def _demo_view_class(cube):
+    if getattr(cube,'puzzle_kind',None)=='fisher_skewb':
+        from renderer.fisher_skewb_view import FisherSkewbView
+        return FisherSkewbView
     if isinstance(cube,PolyhedralPuzzle):
         return PolyhedralView
     from cube.square1 import Square1Cube
@@ -103,7 +106,7 @@ def _set_demo_cube(view, cube, highlight=None):
                         and all(isinstance(v, (int, float)) and 0 <= v <= 1 for v in c)
                         for c in palette)):
             view.palette = tuple(tuple(c) for c in palette)
-    elif cube.__class__.__name__ in ('Square1Cube','MirrorTowerCube'):
+    elif cube.__class__.__name__ in ('Square1Cube','MirrorTowerCube','FisherSkewbCube'):
         view.set_cube(cube)
     else:
         view.set_cube(cube, highlight=highlight)

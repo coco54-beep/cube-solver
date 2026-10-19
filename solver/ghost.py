@@ -11,7 +11,7 @@ def _floppy(cube, cancelled):
         return []
     # Search compact states from both ends, preserving every corner's facing.
     parents = ({start: None}, {goal: None})
-    fronts = ({start}, {goal})
+    fronts = [{start}, {goal}]
     while fronts[0] and fronts[1]:
         if cancelled():
             raise InterruptedError()

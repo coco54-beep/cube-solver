@@ -130,6 +130,13 @@ class GhostScreen(MirrorScreen):
         if any(piece.frame not in self._placements(piece.home, pos) for pos, piece in self._cube.cubies.items()):
             self.hint.text = tr('ghost.invalid')
             return None
+        if self._cube.n == 1:
+            from cube.ghost_floppy import state_key
+            try:
+                state_key(self._cube)
+            except ValueError:
+                self.hint.text = tr('ghost.invalid')
+                return None
         self.hint.text = tr('poly.valid')
         return self._cube.clone()
 

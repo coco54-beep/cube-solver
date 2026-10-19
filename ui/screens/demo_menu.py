@@ -35,7 +35,7 @@ def source_screen(mode):
     if mode == 'cfop':
         return 'HomeScreen'
     kind=mode[0] if isinstance(mode,tuple) else mode
-    return {'mastermorphix':'MastermorphixScreen','mirror':'MirrorScreen',
+    return {'fisher_skewb':'FisherSkewbScreen','mastermorphix':'MastermorphixScreen','mirror':'MirrorScreen',
             'axis':'ShapeCubeScreen','pandora':'ShapeCubeScreen',
             'windmill':'ShapeCubeScreen','fisher':'ShapeCubeScreen',
             'square1':'Square1Screen','mirror_tower':'MirrorTowerScreen'}.get(

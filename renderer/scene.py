@@ -90,6 +90,10 @@ def build_scene(cube, moving_positions=None, rotation=None, highlight=None):
           每项为 (pos, face_name)，标识该面片属于哪个 cubie 的哪个面，
           供屏幕拾取（pick_facelet）把触摸点还原成"接触的小面"。
     """
+    from cube.appearance import kind_for
+    if kind_for(cube) is not None:
+        from renderer.variant_scene import build_variant_scene
+        return build_variant_scene(cube, moving_positions, rotation, highlight)
     vertices = []
     indices = []
     face_info = []

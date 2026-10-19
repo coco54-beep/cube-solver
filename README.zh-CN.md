@@ -4,6 +4,16 @@
 
 [下载 Windows / Android 版](https://github.com/coco54-beep/cube-solver/releases/latest) · [English technical overview](README.md) · [日本語](README.ja.md) · [源代码](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.31 更新
+
+- **长方体系列**：3×3×2 多米诺、2×2×3 细塔、3×3×4、2×2×4 魔塔、4×4×2、2×3×4、1×3×3 Super Floppy、3×3×5、4×4×6。Super Floppy 使用完整的 3,041,280 状态最短距离表。
+- **新增系列**：Circle／疯狂星球（Circle 2×2 加 8 个星球）、捆绑/融合系列（Fused、Two-Bar、Bandaged C、BiCube、AI、Burr、迷彩）、Penrose 2×2/3×3/4×4、Circle 2×2。
+- **新增特殊魔方**：Super Ivy、Mosaic、Tins、恐龙斜转、大雁恐龙斜转、Fisher 斜转、金字塔双子、幽灵金字塔、硬币四面体、直升机、五阶转面八面体。
+- **算法与界面**：随机打乱保留合法逆解路径（长解魔方约 30 步，而不是 100–450 步）；Petal Tetrahedron 解法缩短；修复 SQ 回放/随机闪退；新变体补齐几何与外观层。
+- **验证**：新增求解器与界面回归测试；当前已知限制见发布说明。
+
+[1.2.31 更新说明](docs/release-1.2.31.md)
+
 ## 1.2.30 更新
 
 - **新增异形系列**：转棱四面体／二十面体（有中心块、无中心块）、SQ-0、SQ-2、Super SQ-1、镜面风车／移棱的仅高度不等与偏心切版本、鬼魔、斜转终极、空心五魔方、四色恐龙，以及 4 阶 Axis／Windmill／Fisher。

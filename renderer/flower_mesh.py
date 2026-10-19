@@ -64,7 +64,7 @@ def flower_edge(a,b,kind='eight_petals'):
 @lru_cache(maxsize=3)
 def flower_hubs(kind):
     """Small recessed openings at the shared tips, matching the flower cuts."""
-    if kind=='ivy':
+    if kind in ('ivy','super_ivy'):
         # Ivy's leaf is solid; it has no flower hub opening at the face centre.
         return ()
     lobes=8 if kind=='eight_petals' else 4

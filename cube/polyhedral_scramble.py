@@ -20,6 +20,8 @@ def scramble(cube,length=30,seed=None):
     word=[]
     spec=cube.geometry.spec
     for _ in range(length):
+        if cube.puzzle_kind.startswith(('cuboid_','camouflage_3')):
+            moves=cube.moves()
         options=[move for move in moves if move.axis!=last] or moves
         if not options:
             raise ValueError('This puzzle has no legal scramble moves')

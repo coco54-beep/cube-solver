@@ -21,7 +21,7 @@ from renderer.cube_orientation import CubeOrientation
 
 from app.constants import FACES
 from app.i18n import tr, current_language
-from cube.conversion import facelets_to_cubies
+from cube.conversion import facelets_to_cubies, cubies_to_facelets
 from cube.cubie_model import Cubie
 from cube.coordinates import FACE_NORMALS, pos_from_rc, get_d_maxc, rc_from_pos, coord_values
 from cube.validation import validate_2x2, validate_3x3, validate_4x4, validate_5x5
@@ -83,28 +83,58 @@ def _build_partial_cube(facelets, n):
                     cubies[pos] = Cubie(home=pos, pos=pos, stickers=stickers)
     if not cubies:
         return None
+    app = _app()
+    kind = getattr(app, 'puzzle_kind', None) if app is not None else None
+    from cube.appearance import VARIANTS, with_appearance, kind_for
+    if kind in VARIANTS:
+        from cube.conversion import cubies_to_facelets
+        saved = getattr(app, 'cube', None)
+        if saved is not None and saved.n == n and kind_for(saved) == kind:
+            result = saved.clone()
+            changed = cubies_to_facelets(saved.cubies, n) != facelets
+            # Painting changes the sticker, never the physical shell, glued
+            # identity or shell frame underneath it.
+            for face in FACES:
+                normal = FACE_NORMALS[face]
+                grid = facelets.get(face, [])
+                for r in range(n):
+                    for c in range(n):
+                        pos = pos_from_rc(n, face, r, c)
+                        result.cubies[pos].stickers[normal] = grid[r][c] if len(grid)>r and len(grid[r])>c else ''
+            if changed and hasattr(result, 'history'):
+                result.history = []
+            return with_appearance(result, kind)
+    from cube.bandaged_cube import KINDS, make_bandaged_cube
+    if kind in KINDS:
+        return make_bandaged_cube(cubies, kind)
     if n == 2:
-        return Cube2(cubies)
+        return with_appearance(Cube2(cubies), kind)
     if n == 4:
-        return Cube4(cubies)
+        return with_appearance(Cube4(cubies), kind)
     if n == 5:
         return Cube5(cubies)
     if n >= 6:
         return CubeN(cubies, n)
-    return Cube3(cubies)
+    return with_appearance(Cube3(cubies), kind)
 
 
 def _new_solved_cube(n):
     """按阶数创建已还原魔方（用于随机/公式打乱）。"""
+    app = _app()
+    kind = getattr(app, 'puzzle_kind', None) if app is not None else None
+    from cube.appearance import with_appearance
+    from cube.bandaged_cube import BandagedCube, KINDS
+    if kind in KINDS:
+        return BandagedCube.solved(kind)
     if n == 2:
-        return Cube2.solved()
+        return with_appearance(Cube2.solved(), kind)
     if n == 4:
-        return Cube4.solved()
+        return with_appearance(Cube4.solved(), kind)
     if n == 5:
         return Cube5.solved()
     if n >= 6:
         return CubeN.solved(n)
-    return Cube3.solved()
+    return with_appearance(Cube3.solved(), kind)
 
 
 class _InputCubeView(CubeView):
@@ -550,17 +580,25 @@ class InputScreen(EntryActionsMixin, Screen):
     # ---- 颜色填充 ----
     def _fill_cell(self, face, r, c, col, action=None):
         """填一个格子；若给定 action 字典则记录旧值（供连续拖动合并一次撤销）。"""
-        old = self._data[face][r][c]
-        if old == col:
+        cells = [(r, c)]
+        cube = getattr(getattr(self, 'view', None), 'cube', None)
+        if hasattr(cube, 'surface_group') and getattr(cube, 'puzzle_kind', None) != 'camouflage_3':
+            pos = pos_from_rc(self._n(), face, r, c)
+            cells = [rc_from_pos(self._n(), face, p)
+                     for p in cube.surface_group(pos, FACE_NORMALS[face])]
+        edits = {(row, column): self._data[face][row][column]
+                 for row, column in cells if self._data[face][row][column] != col}
+        if not edits:
             return
         if action is not None:
-            if (r, c) not in action:
-                action[(r, c)] = old
-        self._data[face][r][c] = col
+            for cell, old in edits.items():
+                action.setdefault(cell, old)
+        for row, column in edits:
+            self._data[face][row][column] = col
         self._error_cells.clear()
         self._valid = None
         if action is None:
-            self._commit_action({(r, c): old})
+            self._commit_action(edits)
         self._refresh_view()
         self._update_progress()
 
@@ -723,14 +761,25 @@ class InputScreen(EntryActionsMixin, Screen):
         from cube.scramble import random_scramble
         import random as _random
         n = self._n()
-        moves = random_scramble(n)
+        from cube.bandaged_cube import BandagedCube, KINDS
+        if getattr(_app(), 'puzzle_kind', None) in KINDS:
+            cube = BandagedCube.random_scramble(_app().puzzle_kind)
+            moves = list(cube.history)
+        else:
+            moves = random_scramble(n)
+            cube = None
         if n == 3:
             # 3 阶固定中心在纯面转下不变；追加一次整体翻转，让六面中心色也变化
             # （解法端会按当前中心色重贴色，仍能解成六面纯色）。
-            moves = moves + [_random.choice(["x", "x'", "y", "y'", "z", "z'"])]
-        cube = _new_solved_cube(n)
-        cube.apply_moves(moves)
+            if cube is None:
+                moves = moves + [_random.choice(["x", "x'", "y", "y'", "z", "z'"])]
+        if cube is None:
+            cube = _new_solved_cube(n)
+            cube.apply_moves(moves)
         facelets = cubies_to_facelets(cube.cubies, n)
+        from cube.appearance import VARIANTS
+        if getattr(_app(), 'puzzle_kind', None) in VARIANTS:
+            _app().cube = cube
         self.set_facelets(facelets,remember=True)
         self.msg.text = tr("input.random_loaded", k=len(moves))
 
@@ -785,6 +834,9 @@ class InputScreen(EntryActionsMixin, Screen):
         except Exception:
             self.msg.text = tr("input.scramble.error", tok="?")
             return False
+        from cube.appearance import VARIANTS
+        if getattr(_app(), 'puzzle_kind', None) in VARIANTS:
+            _app().cube = cube
         self.set_facelets(cubies_to_facelets(cube.cubies, n),remember=True)
         self.msg.text = tr("input.scramble.loaded", k=len(moves))
         return True
@@ -837,6 +889,12 @@ class InputScreen(EntryActionsMixin, Screen):
             self._initialized = True
         self.btn_demo.disabled = n >= 6
         self.btn_demo.opacity = 0 if n >= 6 else 1
+        from cube.appearance import PENROSE, PENROSE_RGB
+        from cube.colors import DEFAULT_COLORS
+        if getattr(_app(), 'puzzle_kind', None) in PENROSE:
+            self.picker.set_palette(PENROSE_RGB, {color:face for face,color in DEFAULT_COLORS.items()})
+        else:
+            self.picker.set_palette()
         # 5 阶专属重资源在用户填色期间后台预热，避免启动时无谓开销。
         if n == 5:
             try:
@@ -968,6 +1026,18 @@ class InputScreen(EntryActionsMixin, Screen):
 
     def _commit_cube(self, facelets):
         app = _app()
+        from cube.appearance import VARIANTS
+        from cube.bandaged_cube import KINDS
+        kind = getattr(app, 'puzzle_kind', None)
+        if kind in VARIANTS:
+            app.cube = _build_partial_cube(facelets, self._n())
+            if self._n() == 4 and kind not in KINDS:
+                from solver.solver4 import _rebuild_center_homes
+                _rebuild_center_homes(app.cube.cubies)
+            app.n = app.cube.n
+            app.puzzle_kind = kind
+            app.facelets_input = facelets
+            return
         cubies = facelets_to_cubies(facelets, self._n())
         if self._n() == 4:
             # 惰性导入：solver4 -> solver3（kociemba 表 ~7s），避免启动首帧前加载。
@@ -981,6 +1051,12 @@ class InputScreen(EntryActionsMixin, Screen):
         if getattr(app, "input_from_camera", False):
             app.input_from_camera = False
             self.manager.current = "CameraScreen"
+            return
+        series = getattr(app, "selection_series", None)
+        if series:
+            home = self.manager.get_screen("HomeScreen")
+            home.open_order_picker(series)
+            self.manager.current = "HomeScreen"
             return
         self.manager.current = "HomeScreen"
 

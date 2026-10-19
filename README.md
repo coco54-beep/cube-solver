@@ -4,6 +4,16 @@
 
 [Windows and Android downloads](https://github.com/coco54-beep/cube-solver/releases/latest) · [中文技术说明](README.zh-CN.md) · [日本語](README.ja.md) · [Source code](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.31 update
+
+- **Cuboid series**: 3×3×2 Rubik's Domino, 2×2×3 Slim Tower, 3×3×4, 2×2×4 Rubik's Tower, 4×4×2, 2×3×4, 1×3×3 Super Floppy, 3×3×5 and 4×4×6. Super Floppy uses a complete 3,041,280-state shortest-distance table.
+- **New families**: Circle / Crazy Planet (Circle 2×2 plus eight planets), bandaged/fused cubes (Fused, Two-Bar, Bandaged C, BiCube, AI, Burr, Camouflage), Penrose 2×2/3×3/4×4, and Circle 2×2.
+- **New special puzzles**: Super Ivy, Mosaic, Tins, Dino Skewb, Dayan Dino Skewb, Fisher Skewb, Pyraminx Duo, Ghost Pyramid, Coin Tetrahedron, Helicopter and order-5 FTO.
+- **Algorithm and UI work**: app scrambles keep a legal inverse path for long reduction puzzles (about 30 moves instead of 100–450), Petal Tetrahedron solutions are shortened, SQ playback/randomization crashes are fixed, and new geometry/appearance layers are included for the added variants.
+- **Verification**: new solver and UI regression tests cover the added families; see the release notes for current known limitations.
+
+[1.2.31 release notes](docs/release-1.2.31.md)
+
 ## 1.2.30 update
 
 - **New irregular families**: Petal Tetrahedron / Icosahedron (with and without centres), SQ-0, SQ-2, Super SQ-1, Mirror Windmill/Fisher unequal-height and offset-cut variants, Ghost Cube, Skewb Ultimate, Void Megaminx, Four-Colour Dino, plus order-4 Axis/Windmill/Fisher cubes.
@@ -79,9 +89,9 @@
 
 ## Abstract
 
-This project models entered puzzle states and produces move sequences with puzzle-specific validation and replay checks. In addition to conventional 2x2-5x5 cubes and an experimental 6x6-17x17 solver, the current release (1.2.30) covers a broad irregular catalog: the shape-modified Mastermorphix and Mirror Cube families (orders 2-9), Pyraminx (2-7), Skewb (3/5/7), Megaminx (2-13), Tower Cube (3-7), Dino/Lattice (2/4/6), Face-turning Octahedron (2-4), Football/Tuttminx (3/5), Icosahedron (2-5), Blossom, Ivy, Clover, and Eight-petals, Void Cube/Tower, Square-1, Mirror Tower, War Drum (2-5), Pentahedron (2-5), and the shape cubes (Axis, Pandora, Windmill, Fisher). Each family uses a geometry-aware state model rather than forcing every shape through a conventional 3x3 representation. The irregular catalog is presented as illustrated cards in a dedicated directory.
+This project models entered puzzle states and produces move sequences with puzzle-specific validation and replay checks. In addition to conventional 2x2-5x5 cubes and an experimental 6x6-17x17 solver, the current release (1.2.31) covers a broad irregular catalog: the shape-modified Mastermorphix and Mirror Cube families (orders 2-9), Pyraminx (2-7), Skewb (3/5/7), Megaminx (2-13), Tower Cube (3-7), Dino/Lattice (2/4/6), Face-turning Octahedron (2-4), Football/Tuttminx (3/5), Icosahedron (2-5), Blossom, Ivy, Clover, and Eight-petals, Void Cube/Tower, Square-1, Mirror Tower, War Drum (2-5), Pentahedron (2-5), and the shape cubes (Axis, Pandora, Windmill, Fisher). Each family uses a geometry-aware state model rather than forcing every shape through a conventional 3x3 representation. The irregular catalog is presented as illustrated cards in a dedicated directory.
 
-The 1.2.30 update adds the petal tetrahedron/icosahedron, SQ-0/SQ-2/Super SQ-1, unequal-height and offset-cut mirror variants, Ghost Cube, Skewb Ultimate, Void Megaminx, four-colour Dino and order-4 shape cubes.
+The 1.2.30 update adds the petal tetrahedron/icosahedron, SQ-0/SQ-2/Super SQ-1, unequal-height and offset-cut mirror variants, Ghost Cube, Skewb Ultimate, Void Megaminx, four-colour Dino and order-4 shape cubes. 1.2.31 adds the cuboid, circle/crazy-planet and bandaged families plus the new special puzzles listed above.
 
 The engineering focus is the complete path from input to replay: geometric cubie representation, state validation, solver orchestration, move normalization, and solution checking. The project integrates established solving methods where appropriate; it does not claim a new general solution to the cube group or globally optimal solutions. Higher-order solving remains experimental and has not been comprehensively benchmarked across random states and Android devices.
 

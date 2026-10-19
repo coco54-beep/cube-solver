@@ -118,6 +118,12 @@ class GhostCube(MastermorphixCube):
             raise ValueError('ghost.invalid')  # Reject checkpoints from the obsolete nine-piece model.
         self.cubies = (dict(cubies) if cubies is not None else
                        {p: ghost_piece(n, p, p, IDENTITY) for p in self.positions})
+        if n == 1 and cubies is not None:
+            from cube.ghost_floppy import migrate_legacy_frame
+            for pos, piece in tuple(self.cubies.items()):
+                frame = migrate_legacy_frame(piece.home, pos, piece.frame)
+                if frame != piece.frame:
+                    self.cubies[pos] = _floppy_piece(piece.home, frame, pos)
         self.phases = tuple(goal_phases(n) if phases is None else phases)
         if len(self.phases) != (0 if n == 1 else n) or any(not math.isfinite(a) for a in self.phases):
             raise ValueError('Invalid Ghost layer angles')

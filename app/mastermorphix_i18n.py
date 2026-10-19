@@ -41,6 +41,10 @@ ZH = {
     "directory.windmill": "风火轮魔方",
     "directory.fisher": "移棱魔方",
     "directory.skewb_ultimate": "斜转终极",
+    "directory.super_ivy": "超级枫叶", "directory.penrose_2": "彭罗斯二阶", "directory.penrose_3": "彭罗斯魔方（3阶）", "directory.penrose_4": "彭罗斯四阶", "directory.camouflage_3": "迷彩三阶", "directory.circle_2": "圆形二阶",
+    "poly.camouflage_input": "按实体色块录入；可进入拧动页调整形状。支持软件打乱还原，复杂手动求解尚未开放。",
+    "directory.fused_cube": "融合魔方", "directory.two_bar_cube": "双条魔方", "directory.bandaged_c": "C型绑块魔方", "directory.bicube": "BiCube 绑块魔方", "directory.ai_cube": "AI 魔方（4阶）", "directory.burr_cube": "Burr 魔方（4阶）",
+    "bandage.blocked": "绑块挡住了这次转动，请换一个面或层。",
     "directory.pending": "模型、录入和求解正在接入，暂不能使用。",
     "home.card.morphix.title": "三阶粽子魔方",
     "home.card.n.title": "N 阶魔方",
@@ -169,6 +173,10 @@ EN = {
     "directory.windmill": "Windmill Cube",
     "directory.fisher": "Fisher Cube",
     "directory.skewb_ultimate": "Skewb Ultimate",
+    "directory.super_ivy": "Super Ivy", "directory.penrose_2": "Penrose 2×2", "directory.penrose_3": "Penrose Cube · 3×3", "directory.penrose_4": "Penrose 4×4", "directory.camouflage_3": "Camouflage 3×3", "directory.circle_2": "Circle 2×2",
+    "poly.camouflage_input": "Paint physical panels; adjust shape in the turn screen. App scrambles can be restored; complex manual solving is not yet available.",
+    "directory.fused_cube": "Fused Cube", "directory.two_bar_cube": "Two-Bar Cube", "directory.bandaged_c": "Bandaged Cube C", "directory.bicube": "BiCube", "directory.ai_cube": "AI Cube · 4×4", "directory.burr_cube": "Burr Cube · 4×4",
+    "bandage.blocked": "A fused block prevents that turn. Try another face or layer.",
     "directory.pending": "Model, entry and solving support are being added and are not available yet.",
     "home.card.morphix.title": "Mastermorphix",
     "home.card.n.title": "N×N Cube",
@@ -370,6 +378,10 @@ JA = dict(EN, **{
     "directory.windmill": "ウィンドミルキューブ",
     "directory.fisher": "フィッシャーキューブ",
     "directory.skewb_ultimate": "スキューブアルティメット",
+    "directory.super_ivy": "スーパーアイビー", "directory.penrose_2": "ペンローズ2×2", "directory.penrose_3": "ペンローズキューブ 3×3", "directory.penrose_4": "ペンローズ4×4", "directory.camouflage_3": "カモフラージュ3×3", "directory.circle_2": "サークル2×2",
+    "poly.camouflage_input": "実際のパネルに入力し、回転画面で形状を調整します。アプリのスクランブルは復元可能。複雑な手動入力の求解は未対応です。",
+    "directory.fused_cube": "フューズドキューブ", "directory.two_bar_cube": "ツーバーキューブ", "directory.bandaged_c": "バンデージキューブ C", "directory.bicube": "BiCube", "directory.ai_cube": "AIキューブ 4×4", "directory.burr_cube": "バールキューブ 4×4",
+    "bandage.blocked": "ブロックが固定されているため回せません。別の面か層を選んでください。",
     "directory.pending": "モデル・入力・解法は準備中で、まだ利用できません。",
     "directory.not_ready": "{puzzle} · {order}段は一覧に追加しました。入力と解法は後から接続します。",
 })
@@ -378,6 +390,15 @@ ZH.update({
     'directory.edge_family': '转棱系列',
     'directory.edge_hint': '均绕棱转动180°；选择外形或版本',
     'edge.clover': '六面体·四叶草',
+    'directory.helicopter': '直升飞机魔方',
+    'directory.mosaic': '马赛克魔方 · Mosaic',
+    'directory.tins': 'Tins Cube',
+    'directory.dino_skewb': 'Dino Skewb · TomZ',
+    'directory.dayan_dino_skewb': 'Dino Skewb · 大雁',
+    'directory.fisher_skewb': '移棱斜转 · Fisher Skewb',
+    'directory.pyraminx_duo': '双子金字塔 · Pyraminx Duo',
+    'fisher_skewb.hint': '点选模型上的块，再按颜色和形状选择实物块；中央按钮调整方向。侧面中心也要接平，左右箭头逐面录入。',
+    'edge.helicopter': '六面体·直升飞机',
     'edge.petal_tetrahedron': '四面体·有中心块',
     'directory.petal_tetrahedron': '转棱四面体·有中心块',
     'edge.petal_tetrahedron_nocentre': '四面体·无中心块',
@@ -400,6 +421,15 @@ EN.update({
     'directory.edge_family': 'Edge-Turning Series',
     'directory.edge_hint': 'All edges turn 180°; choose a shape or version',
     'edge.clover': 'Cube · Clover',
+    'directory.helicopter': 'Helicopter Cube',
+    'directory.mosaic': 'Mosaic Cube / Fadi Cube',
+    'directory.tins': 'Tins Cube',
+    'directory.dino_skewb': 'Dino Skewb · TomZ',
+    'directory.dayan_dino_skewb': 'Dino Skewb · DaYan',
+    'directory.fisher_skewb': 'Fisher Skewb',
+    'directory.pyraminx_duo': 'Pyraminx Duo',
+    'fisher_skewb.hint': 'Pick a model piece, then match its colour and shape. The middle button changes its direction. Align side centres with the shell; arrows change faces.',
+    'edge.helicopter': 'Cube · Helicopter',
     'edge.petal_tetrahedron': 'Tetrahedron · With centres',
     'directory.petal_tetrahedron': 'Edge-Turning Tetrahedron · With centres',
     'edge.petal_tetrahedron_nocentre': 'Tetrahedron · Without centres',
@@ -422,6 +452,15 @@ JA.update({
     'directory.edge_family': '辺回転シリーズ',
     'directory.edge_hint': 'すべて辺を180°回転：形状・種類を選択',
     'edge.clover': '六面体・クローバー',
+    'directory.helicopter': 'ヘリコプターキューブ',
+    'directory.mosaic': 'モザイクキューブ',
+    'directory.tins': 'Tins Cube',
+    'directory.dino_skewb': 'Dino Skewb・TomZ',
+    'directory.dayan_dino_skewb': 'Dino Skewb・DaYan',
+    'directory.fisher_skewb': 'フィッシャースキューブ',
+    'directory.pyraminx_duo': 'ピラミンクス・デュオ',
+    'fisher_skewb.hint': 'モデルのパーツを選び、実物と同じ色・形を選択。中央ボタンで向きを変更。側面中心も外形に合わせ、矢印で面を変更します。',
+    'edge.helicopter': '六面体・ヘリコプター',
     'edge.petal_tetrahedron': '四面体・中心あり',
     'directory.petal_tetrahedron': '辺回転四面体・中心あり',
     'edge.petal_tetrahedron_nocentre': '四面体・中心なし',
@@ -441,8 +480,8 @@ JA.update({
 })
 ZH.update({
     'directory.ghost': '魔鬼魔方',
-    'ghost.first_order': '一阶鬼魔 · 五轴薄片',
-    'ghost.floppy': '中央五边形固定；五个棱块原地翻转，每边带动相邻两个角块翻转 180°。',
+    'ghost.first_order': '一阶鬼魔 · 五轴直切薄片',
+    'ghost.floppy': '等厚直切薄片，前后切线一致。中央五边形固定；五个棱块原地翻转，每边带动相邻两个角块翻转 180°。',
     'ghost.floppy_input': '点选模型上的块，匹配形状并调整翻面方向。中央块固定；棱块 1—5 对应拧动轴。',
     'ghost.floppy_core': '固定中央五边形',
     'ghost.floppy_edge': '棱块 {i} · 原地翻转',
@@ -458,8 +497,8 @@ ZH.update({
     'ghost.floppy_turn': '{face} 边 · 翻转 180°',
 })
 EN.update({
-    'directory.ghost': 'Ghost Cube', 'ghost.first_order': 'Ghost 1 · Five-axis floppy',
-    'ghost.floppy': 'The central pentagon stays fixed. Each of five edges flips 180°, exchanging its two neighbouring corners.',
+    'directory.ghost': 'Ghost Cube', 'ghost.first_order': 'Ghost 1 · Straight-cut five-axis floppy',
+    'ghost.floppy': 'A constant-thickness slab with straight cuts and matching front/back outlines. The central pentagon stays fixed. Each edge flips 180°, exchanging its two neighbouring corners.',
     'ghost.floppy_input': 'Tap a piece, match its shape and facing. The centre stays fixed; edges 1–5 identify the turn axes.',
     'ghost.floppy_core': 'Fixed central pentagon',
     'ghost.floppy_edge': 'Edge {i} · flips in place', 'ghost.floppy_corner': 'Corner {i}',
@@ -472,8 +511,8 @@ EN.update({
     'ghost.layer_angle': 'Layer {layer} · turn {angle}°', 'ghost.floppy_turn': '{face} edge · flip 180°',
 })
 JA.update({
-    'directory.ghost': 'ゴーストキューブ', 'ghost.first_order': 'ゴースト1 · 5軸フロッピー',
-    'ghost.floppy': '中央の五角形は固定。5つの辺を180°回すと、隣接する2つの角が入れ替わります。',
+    'directory.ghost': 'ゴーストキューブ', 'ghost.first_order': 'ゴースト1 · 直切り5軸フロッピー',
+    'ghost.floppy': '厚さが一定で、表裏の切断線が一致する直切り板です。中央の五角形は固定。5つの辺を180°回すと隣接する2つの角が入れ替わります。',
     'ghost.floppy_input': 'パーツを選び、形と表裏を合わせます。中央は固定。辺の1～5が回転軸に対応します。',
     'ghost.floppy_core': '固定の中央五角形',
     'ghost.floppy_edge': '辺{i} · その場で反転', 'ghost.floppy_corner': '角{i}',
@@ -518,3 +557,171 @@ JA.update({
     'directory.variant_hint': '段数またはバージョンを選択',
 })
 MESSAGES = {"zh": ZH, "en": EN, "ja": JA}
+
+ZH.update({'directory.ghost_pyramid': '鬼魔金字塔 · Ghost Pyramid', 'ghost_pyramid.input': '按实物块形与朝向录入14个块。先点“错层对齐”进入可转状态；所有块归位后还要收回错层。', 'ghost_pyramid.open': '错层对齐 · 开始拧动', 'ghost_pyramid.close': '收回错层 · 金字塔外形', 'ghost_pyramid.align_first': '请先点“错层对齐”，再绕角拧动。', 'poly.ghost_pyramid_twist': '先错层对齐，再绕角转120°；完成还原后收回错层。锁定后拖动拧转，解锁后拖动观察。', 'poly.ghost_pyramid_input': '按真实块形和朝向录入；可切换错层状态观察，中心方向也需匹配。', 'ghost_pyramid.align_move': '错层调整 {angle:+g}°'})
+
+EN.update({'directory.ghost_pyramid': 'Ghost Pyramid', 'ghost_pyramid.input': 'Enter all 14 pieces by shape and direction. Open the alignment before turning; close it after all pieces are restored.', 'ghost_pyramid.open': 'Align cuts · enable turns', 'ghost_pyramid.close': 'Close alignment · pyramid shape', 'ghost_pyramid.align_first': 'Align the cuts before turning a corner.', 'poly.ghost_pyramid_twist': 'Align cuts, then turn corners by 120°. Close the shell after restoring pieces. Lock to twist; unlock to orbit.', 'poly.ghost_pyramid_input': 'Enter actual shapes and directions, including centres. Toggle alignment to inspect pieces.', 'ghost_pyramid.align_move': 'Alignment {angle:+g}°'})
+
+JA.update({'directory.ghost_pyramid': 'ゴーストピラミッド', 'ghost_pyramid.input': '形と向きで14パーツを入力します。切れ目を合わせてから回し、全部揃ったらずれを戻します。', 'ghost_pyramid.open': '切れ目を合わせる', 'ghost_pyramid.close': 'ずれを戻す・ピラミッド形', 'ghost_pyramid.align_first': '先に切れ目を合わせてから角を回してください。', 'poly.ghost_pyramid_twist': '切れ目を合わせて120°回します。パーツが揃ったらずれを戻します。ロック中は回転、解除で視点変更。', 'poly.ghost_pyramid_input': '実物の形と向きで入力。中心の向きも合わせます。切れ目の状態を切り替えて確認できます。', 'ghost_pyramid.align_move': '切れ目調整 {angle:+g}°'})
+
+ZH.update({'directory.coin_tetrahedron': '硬币金字塔 · Coin Tetrahedron', 'poly.coin_tetrahedron_input': '4个角块、12片椭圆叶片、4个面中心。选色后点块录入，圆盘与角块分开转动。', 'poly.coin_tetrahedron_twist': '圆盘C1–C4与角V1–V4均转120°。圆盘交换本面叶片，转角带动相邻三片叶片；锁定后拖动拧转。', 'coin.disc': '圆盘 C{face} · 120°', 'coin.corner': '角 V{axis} · 120°'})
+
+EN.update({'directory.coin_tetrahedron': 'Coin Tetrahedron', 'poly.coin_tetrahedron_input': 'Four corners, twelve oval leaves and four face centres. Select colours and tap stickers. Face discs and corners turn separately.', 'poly.coin_tetrahedron_twist': 'Discs C1–C4 and corners V1–V4 turn 120°. Discs cycle leaves on one face; corners move three adjacent leaves. Lock to twist by dragging.', 'coin.disc': 'Disc C{face} · 120°', 'coin.corner': 'Corner V{axis} · 120°'})
+
+JA.update({'directory.coin_tetrahedron': 'コインテトラヘドロン', 'poly.coin_tetrahedron_input': '角4個、楕円の葉12個、面中心4個。色を選んで入力します。円盤と角は別々に回せます。', 'poly.coin_tetrahedron_twist': '円盤C1–C4と角V1–V4は120°回転。円盤は同じ面の葉を交換し、角は隣接する葉3個を動かします。ロック中はドラッグで回転。', 'coin.disc': '円盤 C{face} · 120°', 'coin.corner': '角 V{axis} · 120°'})
+
+ZH.update({'directory.fto_5':'5 阶 · 八面体'})
+EN.update({'directory.fto_5':'5 · FTO'})
+JA.update({'directory.fto_5':'5段 · 八面体'})
+
+# Circle family shares one catalogue card; the planets differ by disc rules.
+for _messages, _family, _hint, _names in (
+    (ZH, '圆圈魔方系列', '选择型号；三阶行星的圆圈规则不同：0 不随本面转动，1 随本面转动。', ('水星','金星','地球','火星','木星','土星','天王星','海王星')),
+    (EN, 'Circle Cube Series', 'Choose a model. Planet discs: 0 stays fixed during its own face turn; 1 turns with it.', ('Mercury','Venus','Earth','Mars','Jupiter','Saturn','Uranus','Neptune')),
+    (JA, 'サークルキューブシリーズ', '種類を選択。三段の円盤は0なら面を回しても固定、1なら面と一緒に回転。', ('水星','金星','地球','火星','木星','土星','天王星','海王星')),
+):
+    _messages['directory.circle_family'] = _family
+    _messages['directory.circle_hint'] = _hint
+    for _planet, _name in zip(('mercury','venus','earth','mars','jupiter','saturn','uranus','neptune'), _names):
+        _messages['directory.crazy_'+_planet] = '3×3 · '+_name
+
+ZH.update({'poly.circle_input':'圈内、圈外分别录入；面号后的0为圆圈固定，1为圆圈跟转。当前支持软件打乱还原和短状态搜索，复杂手动录入尚不支持完整求解。', 'poly.circle_twist':'每次转90°；0面圆圈保持不动，1面圆圈跟转。面号后的0/1表示当前型号规则。', 'circle.search_limit':'此手动状态超出当前短搜索范围；八大行星的完整手动求解尚未开放。', 'circle.count_error':'请录入所有色块，并检查各颜色数量。'})
+EN.update({'poly.circle_input':'Paint inside and outside separately. Face labels: 0=fixed disc, 1=turning disc. App scrambles and short states can be solved; full manual-state solving is not yet supported.', 'poly.circle_twist':'Turn 90°. A 0-face holds its disc fixed; a 1-face turns its disc. Labels show the selected model rules.', 'circle.search_limit':'This manual state exceeds the current short search. Full manual-state solving for the planets is not available yet.', 'circle.count_error':'Enter every sticker and check the colour counts.'})
+JA.update({'poly.circle_input':'円の内外を別々に入力。0は円盤固定、1は連動。アプリのスクランブルと短い状態を解けます。複雑な手入力の完全求解は未対応です。', 'poly.circle_twist':'90°回転。0面の円盤は固定、1面の円盤は連動。面番号の後に規則を表示。', 'circle.search_limit':'短い探索の範囲を超えています。行星の複雑な手入力の完全求解は未対応です。', 'circle.count_error':'全ての色を入力し、各色の数を確認してください。'})
+
+ZH.update({'circle.counts_only':'颜色数量正确；尚未确认完整可解性。'})
+EN.update({'circle.counts_only':'Colour counts match; full reachability has not been verified.'})
+JA.update({'circle.counts_only':'色の数は一致。完全な可解性は未確認です。'})
+
+ZH['directory.circle_fixed']='固定圆圈：{faces}'
+EN['directory.circle_fixed']='Fixed discs: {faces}'
+JA['directory.circle_fixed']='固定円盤：{faces}'
+
+ZH['poly.circle_input']='圈内外分别录入；0固定，1跟转。支持软件打乱还原；复杂手动求解未开放。'
+EN['poly.circle_input']='Paint inner and outer pieces. 0=fixed; 1=turning. App scrambles supported; complex manual solves unavailable.'
+JA['poly.circle_input']='円の内外を入力。0固定、1連動。アプリのスクランブルに対応。複雑な手入力の完全求解は未対応。'
+
+# Rectangular cuboids are grouped separately from the tetrahedral Tower family.
+for _messages, _family, _hint in (
+    (ZH,'长方体／塔形系列','选择尺寸。可变形型号会按实体块限制拧动。'),
+    (EN,'Cuboid / Tower Series','Choose a size. Shape changes respect rigid pieces.'),
+    (JA,'直方体・タワーシリーズ','サイズを選択。変形後も部品を分断する回転はできません。'),
+):
+    _messages['directory.cuboid_family']=_family
+    _messages['directory.cuboid_hint']=_hint
+    for _key,_label in {
+        '332':"3×3×2 · Rubik’s Domino", '223':'2×2×3 · Slim Tower',
+        '334':'3×3×4 · Cuboid', '224':"2×2×4 · Rubik’s Tower",
+        '442':'4×4×2 · Cuboid', '234':'2×3×4 · Cuboid',
+        '133':'1×3×3 · Super Floppy', '335':'3×3×5 · Cuboid',
+        '446':'4×4×6 · Cuboid',
+    }.items():
+        _messages['directory.cuboid_'+_key]=_label
+ZH.update({'poly.cuboid_input':'按实体色块录入。支持软件打乱还原；复杂手动求解未开放。', 'poly.cuboid_twist':'轴标明90°或180°；选择层后转动，阻挡实体块的切层不可转。锁定后拖动拧层。', 'cuboid.blocked':'这条切层会切开实体块，当前不能转；请选择其他层。', 'cuboid.colours':'请录入每个实体色块，检查各颜色数量及同一块的颜色。', 'cuboid.search_limit':'此状态超出当前短搜索范围；复杂手动长方体状态的完整求解尚未开放。'})
+EN.update({'poly.cuboid_input':'Paint the physical panels. App scrambles can be restored; complex manual solves are not yet supported.', 'poly.cuboid_twist':'Axes show 90° or 180°. Select a layer; cuts through rigid pieces are blocked. Lock to twist by dragging.', 'cuboid.blocked':'This cut would split a rigid brick. Choose another layer.', 'cuboid.colours':'Paint every panel and check colour counts and continuous panels.', 'cuboid.search_limit':'This state exceeds the bounded search. General manual cuboid solving is not yet available.'})
+JA.update({'poly.cuboid_input':'実際の面片を入力。アプリのスクランブルを復元できます。複雑な手入力の完全求解は未対応。', 'poly.cuboid_twist':'軸に90°または180°を表示。部品を分断する層は回せません。ロック中はドラッグで回転。', 'cuboid.blocked':'この切断面は部品を分断します。別の層を選択してください。', 'cuboid.colours':'全ての面片を入力し、色数と連続した面の色を確認してください。', 'cuboid.search_limit':'短い探索の範囲を超えています。複雑な手入力の完全求解は未対応です。'})
+
+ZH.update({'cuboid.outer_layers':'外侧 {i} 层', 'cuboid.layer_blocked':'切层 {i} · 被阻挡', 'poly.super_floppy_input':'Super Floppy：按实体块录入，可完整求解。侧棱必须带着至少一个角才能转动。'})
+EN.update({'cuboid.outer_layers':'Outer {i} layer(s)', 'cuboid.layer_blocked':'Cut {i} · blocked', 'poly.super_floppy_input':'Super Floppy supports complete state-based solving. An edge needs at least one attached corner to turn.'})
+JA.update({'cuboid.outer_layers':'外側 {i} 層', 'cuboid.layer_blocked':'切断面 {i}・回転不可', 'poly.super_floppy_input':'Super Floppyは入力状態から完全求解できます。辺には角が少なくとも1個必要です。'})
+
+ZH.update({'floppy.centre_error':'中心块的上下颜色不正确。', 'floppy.corner_error':'角块颜色、朝向或位置不符合 Super Floppy 结构。', 'floppy.edge_error':'棱块颜色或朝向不符合 Super Floppy 结构。'})
+EN.update({'floppy.centre_error':'The centre top/bottom colours do not match.', 'floppy.corner_error':'A corner has impossible colours, orientation or position.', 'floppy.edge_error':'An edge has impossible colours or orientation.'})
+JA.update({'floppy.centre_error':'中心の上下の色が正しくありません。', 'floppy.corner_error':'角の色、向き、または位置が不正です。', 'floppy.edge_error':'辺の色または向きが不正です。'})
+
+ZH.update({
+    'directory.penrose_family': '彭罗斯系列',
+    'directory.bandaged_family': '绑块系列',
+    'directory.mosaic_family': '马赛克系列',
+    'directory.ivy_family': '枫叶系列',
+    'directory.void_family': '空芯系列',
+    'directory.special_hint': '不属于以上系列的独立型号',
+    'directory.mirror_pyraminx3': '镜面金字塔 · 3阶',
+    'directory.mirror_pyraminx4': '镜面金字塔 · 4阶',
+    'directory.mirror_skewb3': '镜面斜转 · 3阶',
+    'directory.mirror_tower3': '镜面魔塔 · 3阶',
+    'directory.mirror_axis3': '镜面变形金刚 · 3阶',
+    'directory.mirror_windmill_equal': '镜面风车 · 等高',
+    'directory.mirror_fisher_equal': '镜面移棱 · 等高',
+    'directory.pyraminx': '金字塔系列',
+    'directory.mastermorphix': '粽子系列',
+    'directory.skewb': '斜转系列',
+    'directory.dino': '恐龙／格子系列',
+    'directory.megaminx': '五魔方系列',
+    'directory.moyu': '魔塔系列',
+    'directory.mirror': '镜面系列',
+    'directory.ghost': '魔鬼系列',
+    'directory.fto': '八面体系列',
+    'directory.football': '足球系列',
+    'directory.icosahedron': '二十面体系列',
+    'directory.war_drum': '战鼓系列',
+    'directory.pentahedron': '五面体系列',
+    'directory.windmill': '风火轮系列',
+    'directory.axis': '变形金刚系列',
+    'directory.fisher': '移棱系列',
+    'directory.cuboid_family': '长方体系列',
+})
+EN.update({
+    'directory.penrose_family': 'Penrose Series',
+    'directory.bandaged_family': 'Bandaged Series',
+    'directory.mosaic_family': 'Mosaic Series',
+    'directory.ivy_family': 'Ivy Series',
+    'directory.void_family': 'Void Series',
+    'directory.special_hint': 'Standalone puzzles outside the series above',
+    'directory.mirror_pyraminx3': 'Mirror Pyraminx · 3',
+    'directory.mirror_pyraminx4': 'Mirror Pyraminx · 4',
+    'directory.mirror_skewb3': 'Mirror Skewb · 3',
+    'directory.mirror_tower3': 'Mirror Tower · 3',
+    'directory.mirror_axis3': 'Mirror Axis · 3',
+    'directory.mirror_windmill_equal': 'Mirror Windmill · Equal Height',
+    'directory.mirror_fisher_equal': 'Mirror Fisher · Equal Height',
+    'directory.pyraminx': 'Pyraminx Series',
+    'directory.mastermorphix': 'Mastermorphix Series',
+    'directory.skewb': 'Skewb Series',
+    'directory.dino': 'Dino / Lattice Series',
+    'directory.megaminx': 'Megaminx Series',
+    'directory.moyu': 'Tower Series',
+    'directory.mirror': 'Mirror Series',
+    'directory.ghost': 'Ghost Series',
+    'directory.fto': 'FTO Series',
+    'directory.football': 'Football Series',
+    'directory.icosahedron': 'Icosahedron Series',
+    'directory.war_drum': 'War Drum Series',
+    'directory.pentahedron': 'Pentahedron Series',
+    'directory.windmill': 'Windmill Series',
+    'directory.axis': 'Axis Series',
+    'directory.fisher': 'Fisher Series',
+    'directory.cuboid_family': 'Cuboid Series',
+})
+JA.update({
+    'directory.penrose_family': 'ペンローズシリーズ',
+    'directory.bandaged_family': 'バンデージシリーズ',
+    'directory.mosaic_family': 'モザイクシリーズ',
+    'directory.ivy_family': 'アイビーシリーズ',
+    'directory.void_family': '空洞シリーズ',
+    'directory.special_hint': '上記シリーズに属さない単独パズル',
+    'directory.mirror_pyraminx3': 'ミラーピラミンクス・3段',
+    'directory.mirror_pyraminx4': 'ミラーピラミンクス・4段',
+    'directory.mirror_skewb3': 'ミラースキューブ・3段',
+    'directory.mirror_tower3': 'ミラータワー・3段',
+    'directory.mirror_axis3': 'ミラーアクシス・3段',
+    'directory.mirror_windmill_equal': 'ミラーウィンドミル・高さ均等',
+    'directory.mirror_fisher_equal': 'ミラーフィッシャー・高さ均等',
+    'directory.pyraminx': 'ピラミンクスシリーズ',
+    'directory.mastermorphix': 'モルフィクスシリーズ',
+    'directory.skewb': 'スキューブシリーズ',
+    'directory.dino': 'ダイノ／ラティスシリーズ',
+    'directory.megaminx': 'メガミンクスシリーズ',
+    'directory.moyu': 'タワーシリーズ',
+    'directory.mirror': 'ミラーシリーズ',
+    'directory.ghost': 'ゴーストシリーズ',
+    'directory.fto': '八面体シリーズ',
+    'directory.football': 'フットボールシリーズ',
+    'directory.icosahedron': '二十面体シリーズ',
+    'directory.war_drum': 'ウォードラムシリーズ',
+    'directory.pentahedron': '五面体シリーズ',
+    'directory.windmill': 'ウィンドミルシリーズ',
+    'directory.axis': 'アクシスシリーズ',
+    'directory.fisher': 'フィッシャーシリーズ',
+    'directory.cuboid_family': '直方体シリーズ',
+})

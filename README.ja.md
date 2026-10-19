@@ -4,6 +4,16 @@
 
 [Windows / Android 版](https://github.com/coco54-beep/cube-solver/releases/latest) · [English](README.md) · [中文技术说明](README.zh-CN.md) · [ソースコード](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.31 の更新
+
+- **直方体シリーズ**：3×3×2 Rubik's Domino、2×2×3 Slim Tower、3×3×4、2×2×4 Rubik's Tower、4×4×2、2×3×4、1×3×3 Super Floppy、3×3×5、4×4×6。Super Floppy は 3,041,280 状態の完全な最短距離表を使用します。
+- **新しいファミリー**：Circle／Crazy Planet（Circle 2×2 と 8 惑星）、バンデージ／融合（Fused、Two-Bar、Bandaged C、BiCube、AI、Burr、カモフラージュ）、Penrose 2×2/3×3/4×4、Circle 2×2。
+- **新しい特殊パズル**：Super Ivy、Mosaic、Tins、Dino Skewb、Dayan Dino Skewb、Fisher Skewb、Pyraminx Duo、Ghost Pyramid、Coin Tetrahedron、Helicopter、5 層 FTO。
+- **アルゴリズムと UI**：アプリのスクランブルは長解パズルで合法な逆手順を保持（100～450 手ではなく約 30 手）。Petal Tetrahedron の解を短縮し、SQ の再生／ランダム時のクラッシュを修正。新しい外観・形状レイヤーも追加。
+- **検証**：追加ファミリー向けの回帰テストを追加。既知の制限はリリースノートを参照してください。
+
+[1.2.31 リリースノート](docs/release-1.2.31.md)
+
 ## 1.2.30 の更新
 
 - **新しい異形シリーズ**：辺回転四面体／二十面体（中心あり・なし）、SQ-0、SQ-2、Super SQ-1、ミラーウィンドミル／フィッシャーの高さ不均等・偏心カット版、ゴーストキューブ、スキューブアルティメット、空洞メガミンクス、4色ダイノ、4段 Axis／Windmill／Fisher を追加。

@@ -14,8 +14,14 @@ CORE = (0, 0, 0)
 EDGES = tuple((i+1, 0, 0) for i in range(5))
 CORNERS = tuple((i+1, 1, 0) for i in range(5))
 POSITIONS = (CORE,) + EDGES + CORNERS
-AXES = tuple((math.cos(math.radians(90+72*i)),
-              math.sin(math.radians(90+72*i)), 0.) for i in range(5))
+# The five cuts are rotated in the broad face relative to its square outline.
+# This is an in-plane angle, not a tilt through the slab's thickness. Values
+# approximate the line/outer-edge intersections in the user's YJ reference.
+CUT_ROTATION_DEG = 6.
+CUT_BOUND = .805
+SHELL_OFFSET = (-.04, .01)
+AXES = tuple((math.cos(math.radians(90+CUT_ROTATION_DEG+72*i)),
+              math.sin(math.radians(90+CUT_ROTATION_DEG+72*i)), 0.) for i in range(5))
 
 
 def _frame(axis, angle):
@@ -25,6 +31,8 @@ def _frame(axis, angle):
 
 FLIPS = tuple(_frame(axis, 180) for axis in AXES)
 FRAMES = (IDENTITY,) + tuple(_frame((0., 0., 1.), 72*i) for i in range(1, 5)) + FLIPS
+LEGACY_FLIPS = tuple(_frame((math.cos(math.radians(90+72*i)),
+                             math.sin(math.radians(90+72*i)), 0.), 180) for i in range(5))
 
 
 def compose(left, right):
@@ -38,7 +46,7 @@ def moving_positions(side):
 
 
 def _corner_point(index):
-    angle = math.radians(126+72*index)
+    angle = math.radians(126+CUT_ROTATION_DEG+72*index)
     return (math.cos(angle), math.sin(angle), 0.)
 
 
@@ -52,6 +60,26 @@ def placements(home, pos):
         return ()
     a, b = _corner_point(CORNERS.index(home)), _corner_point(CORNERS.index(pos))
     return tuple(f for f in FRAMES if sum((x-y)**2 for x, y in zip(transform(f, a), b)) < 1e-16)
+
+
+def migrate_legacy_frame(home, pos, frame):
+    """Preserve saved permutations/facings from the former zero-degree profile."""
+    options = placements(home, pos)
+    if frame in options or frame not in LEGACY_FLIPS:
+        return frame
+    if home in EDGES:
+        if pos != home or frame != LEGACY_FLIPS[EDGES.index(home)]:
+            return frame
+    elif home in CORNERS and pos in CORNERS:
+        def legacy_point(index):
+            angle = math.radians(126+72*index)
+            return (math.cos(angle), math.sin(angle), 0.)
+        a, b = legacy_point(CORNERS.index(home)), legacy_point(CORNERS.index(pos))
+        if sum((x-y)**2 for x,y in zip(transform(frame,a),b)) >= 1e-16:
+            return frame
+    else:
+        return frame
+    return next((f for f in options if (f[2][2] < 0) == (frame[2][2] < 0)), frame)
 
 
 def _clip_solid(polygons, normal, bound):
@@ -74,19 +102,19 @@ def _clip_solid(polygons, normal, bound):
 
 @lru_cache(maxsize=11)
 def piece_faces(home):
-    # Oblique square slab: the five mechanical cuts become unequal polygons
-    # on its broad faces, including the large, fixed central pentagon.
-    half = (1.5, 1.5, .30)
-    shell_frame = tuple(rotate(rotate(v, (1., 0., 0.), math.radians(18)),
-                               (0., 1., 0.), math.radians(12)) for v in IDENTITY)
-    polygons = [(tuple(tuple(transform(shell_frame, tuple(p[i]*half[i] for i in range(3)))[j]
-                              + (.06, -.04, .02)[j] for j in range(3)) for p in face), 0)
+    # YJ8346 is a straight-cut, constant-thickness slab (55 x 55 x 20 mm),
+    # not an oblique Ghost shell. Cut normals have zero Z component, so the
+    # front and back footprints coincide and a half turn keeps the slab flat.
+    # The small XY offset makes the outer shape asymmetric about the core.
+    half = (1.5, 1.5, 1.5 * 20 / 55)
+    polygons = [(tuple((p[0]*half[0]+SHELL_OFFSET[0], p[1]*half[1]+SHELL_OFFSET[1],
+                        p[2]*half[2]) for p in face), 0)
                 for face in body(CUBE)]
     outside = ({EDGES.index(home)} if home in EDGES else
                {CORNERS.index(home), (CORNERS.index(home)+1) % 5} if home in CORNERS else set())
     for i, normal in enumerate(AXES):
         sign = -1 if i in outside else 1
-        polygons = _clip_solid(polygons, tuple(sign*v for v in normal), sign*.82)
+        polygons = _clip_solid(polygons, tuple(sign*v for v in normal), sign*CUT_BOUND)
     return tuple(polygons)
 
 
@@ -110,6 +138,12 @@ def state_key(cube):
         if piece.home != pos or piece.frame not in placements(pos, pos):
             raise ValueError('ghost.invalid')
         edge_bits |= int(piece.frame != IDENTITY) << i
+    # Each legal turn swaps two corners, flips both of them, and flips one
+    # edge. Reject contradictory painted poses before starting a search.
+    parity = sum(permutation[i] > permutation[j]
+                 for i in range(5) for j in range(i+1, 5)) % 2
+    if corner_bits.bit_count() % 2 or edge_bits.bit_count() % 2 != parity:
+        raise ValueError('ghost.invalid')
     return tuple(permutation) + (corner_bits, edge_bits)
 
 

@@ -191,6 +191,8 @@ class Square1Screen(EntryActionsMixin, Screen):
     def _refresh(self,message=None):
         if self._cube is None:
             return
+        if self._playback and not hasattr(self, "track"):
+            return
         shown=self._work if self._playback else self._entry
         if self.view.cube is not shown:
             self.view.set_cube(shown)

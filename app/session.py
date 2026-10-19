@@ -17,6 +17,10 @@ _CUBES = {
     'cube.polyhedral:PolyhedralPuzzle', 'cube.mirror_tower:MirrorTowerCube', 'cube.square1:Square1Cube',
     'cube.mirror_pyraminx:MirrorPyraminxCube',
     'cube.mirror_skewb:MirrorSkewbCube',
+    'cube.fisher_skewb:FisherSkewbCube',
+    'cube.bandaged_cube:BandagedCube',
+    'cube.cuboid:CuboidCube',
+    'cube.ghost_pyramid:GhostPyramidCube',
     'cube.ghost:GhostCube',
     'cube.square_family:SquareFamilyCube',
     'cube.mirror_shape:MirrorAxisCube', 'cube.mirror_shape:MirrorFisherCube',
@@ -26,6 +30,7 @@ _CUBES = {
 }
 _RECORDS = {
     'cube.cubie_model:Cubie', 'cube.mastermorphix:MorphixPiece', 'cube.mirror_tower:Piece',
+    'cube.ghost_pyramid:PyramidAlignment',
     'cube.polyhedral:Move', 'cube.square1:Square1Move', 'cube.square1_entry:EntryBlock',
     'cube.square_family:SquareFamilyMove', 'cube.square_family_entry:SquareFamilyBlock',
     'solver.result:SolveResult', 'solver.result:SolveStage',
@@ -51,13 +56,21 @@ def encode(value):
     if name == 'numpy:ndarray': return {'@': 'array', 'v': value.tolist()}
     if name.startswith('numpy:') and hasattr(value,'item'): return encode(value.item())
     if name in _CUBES:
-        fields = ('n', 'puzzle_kind', 'cubies', 'palette', 'colors', 'pieces', 'slots', 'middle')
+        fields = ('n', 'puzzle_kind', 'appearance_kind', 'cubies', 'palette', 'colors', 'pieces', 'slots', 'middle')
+        if name == 'cube.polyhedral:PolyhedralPuzzle' and value.puzzle_kind.startswith('crazy_'):
+            fields = ('n','puzzle_kind','colors','circle_history')
+        if name == 'cube.ghost_pyramid:GhostPyramidCube':
+            fields = ('n', 'puzzle_kind', 'pieces', 'phase')
         if name == 'cube.ghost:GhostCube':
             fields = ('n', 'puzzle_kind', 'cubies', 'palette', 'phases')
+        if name == 'cube.bandaged_cube:BandagedCube':
+            fields = ('n', 'puzzle_kind', 'cubies', 'history')
+        if name == 'cube.cuboid:CuboidCube':
+            fields = ('puzzle_kind','colors','frames','history')
         if name == 'cube.square_family:SquareFamilyCube':
             fields = ('n', 'puzzle_kind', 'slots', 'middle')
         if name in ('cube.mirror_tower:MirrorTowerCube', 'cube.mirror_pyraminx:MirrorPyraminxCube',
-                    'cube.mirror_skewb:MirrorSkewbCube'):
+                    'cube.mirror_skewb:MirrorSkewbCube', 'cube.fisher_skewb:FisherSkewbCube'):
             # Partial shape input may repeat provisional identities. Save the
             # actual pieces, without asking for a valid labelled permutation.
             fields = ('n', 'puzzle_kind', 'pieces')
@@ -67,7 +80,14 @@ def encode(value):
         fields = _PLAIN[name]
     else:
         raise ValueError('Unsupported checkpoint type: '+name)
-    return {'@': name, 'v': {key: encode(getattr(value, key)) for key in fields if hasattr(value, key)}}
+    data = {key: encode(getattr(value, key)) for key in fields if hasattr(value, key)}
+    if name == 'cube.polyhedral:PolyhedralPuzzle' and value.puzzle_kind == 'super_ivy':
+        # The old 21-piece layout also had 54 stickers, with different meanings.
+        # Sticker count alone cannot safely restore its input or playback.
+        data['layout_version'] = 2
+    if name == 'cube.bandaged_cube:BandagedCube' and value.puzzle_kind in ('bicube', 'bandaged_c'):
+        data['layout_version'] = 2
+    return {'@': name, 'v': data}
 
 
 def decode(value):
@@ -89,17 +109,49 @@ def decode(value):
     cls = getattr(importlib.import_module(module), symbol)
     data = {k: decode(v) for k, v in data.items()}
     if name in _CUBES:
-        if name == 'cube.polyhedral:PolyhedralPuzzle': return cls(data['puzzle_kind'], data['n'], data['colors'])
+        if name == 'cube.cuboid:CuboidCube':
+            cube=cls(data['puzzle_kind'],data['colors'],data['frames'])
+            history=data.get('history')
+            if history is not None and len(history)<=4096:
+                replay=cls.solved(cube.puzzle_kind)
+                replay.apply_moves(history)
+                if replay.colors==cube.colors and replay.frames==cube.frames:
+                    cube.history=list(history)
+            return cube
+        if name == 'cube.polyhedral:PolyhedralPuzzle':
+            if data['puzzle_kind'] == 'super_ivy' and data.get('layout_version') != 2:
+                raise ValueError('Super Ivy checkpoint uses the obsolete layout')
+            cube=cls(data['puzzle_kind'], data['n'], data['colors'])
+            if cube.puzzle_kind.startswith('crazy_'):
+                history=data.get('circle_history')
+                if history is not None and len(history)<=4096:
+                    replay=cls(cube.puzzle_kind,cube.n)
+                    for move in history:replay.apply_move(move)
+                    if replay.colors==cube.colors:
+                        cube.circle_history=list(history)
+            return cube
         if name == 'cube.mirror_tower:MirrorTowerCube': return cls(data['pieces'])
         if name == 'cube.mirror_pyraminx:MirrorPyraminxCube': return cls(data['pieces'], n=data['n'])
         if name == 'cube.mirror_skewb:MirrorSkewbCube': return cls(data['pieces'], n=data['n'])
+        if name == 'cube.ghost_pyramid:GhostPyramidCube': return cls(data['pieces'],n=data['n'],phase=data['phase'])
+        if name == 'cube.fisher_skewb:FisherSkewbCube': return cls(data['pieces'], n=data['n'])
+        if name == 'cube.bandaged_cube:BandagedCube':
+            if data['puzzle_kind'] == 'camouflage_3':
+                raise ValueError('Camouflage checkpoint uses the obsolete 3x3 mechanism')
+            if data['puzzle_kind'] in ('bicube', 'bandaged_c') and data.get('layout_version') != 2:
+                raise ValueError('Bandaged checkpoint uses the obsolete bond layout')
+            return cls(data['cubies'], data['puzzle_kind'], data.get('history', ()))
         if name == 'cube.ghost:GhostCube': return cls(data['cubies'], n=data['n'], phases=data['phases'])
         if name == 'cube.square1:Square1Cube': return cls(data['slots'], data['middle'])
         if name == 'cube.square_family:SquareFamilyCube': return cls(data['puzzle_kind'],data['slots'],data['middle'])
         if not 2 <= data['n'] <= 17: raise ValueError('Bad checkpoint order')
+        if data.get('appearance_kind') == 'camouflage_3':
+            raise ValueError('Camouflage checkpoint uses the obsolete 3x3 mechanism')
         if 'palette' in data: return cls(data['cubies'], palette=data['palette'], n=data['n'])
         if name == 'cube.cube_n:CubeN': return cls(data['cubies'], data['n'])
-        return cls(data['cubies'])
+        cube = cls(data['cubies'])
+        from cube.appearance import with_appearance
+        return with_appearance(cube, data.get('appearance_kind'))
     if name in _RECORDS: return cls(**data)
     if set(data) != set(_PLAIN[name]): raise ValueError('Bad checkpoint fields')
     obj = cls.__new__(cls)
@@ -117,7 +169,7 @@ ENTRY_NAMES = ('InputScreen', 'MastermorphixScreen', 'MirrorScreen', 'Polyhedral
                'ShapeCubeScreen', 'Square1Screen', 'SquareFamilyScreen', 'MirrorPyraminxScreen',
                'MirrorAxisScreen', 'MirrorFisherScreen', 'MirrorWindmillScreen',
                'MirrorOffsetWindmillScreen', 'MirrorOffsetFisherScreen',
-               'MirrorUnequalWindmillScreen', 'MirrorUnequalFisherScreen', 'MirrorSkewbScreen', 'GhostScreen')
+               'MirrorUnequalWindmillScreen', 'MirrorUnequalFisherScreen', 'MirrorSkewbScreen', 'FisherSkewbScreen', 'GhostPyramidScreen', 'GhostScreen')
 
 
 class SessionStore:
@@ -227,7 +279,7 @@ class SessionStore:
             # Entry screens use object identity to decide whether to create a blank puzzle.
             source = saved.get(page, {}).get('_source', page)
             if page == 'PolyhedralTwistScreen':
-                source = {'mirror_tower':'MirrorTowerScreen',
+                source = {'ghost_pyramid':'GhostPyramidScreen','fisher_skewb':'FisherSkewbScreen','mirror_tower':'MirrorTowerScreen',
                           'mirror_skewb':'MirrorSkewbScreen',
                           'mirror_pyraminx':'MirrorPyraminxScreen'}.get(app.puzzle_kind,'PolyhedralScreen')
             if source in ENTRY_NAMES and saved.get(source,{}).get('_cube') is not None:

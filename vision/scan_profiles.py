@@ -12,7 +12,7 @@ from vision import imageops
 SUPPORTED = {
     'skewb': (3, 5), 'dino': (2, 4), 'clover': (3,), 'eight_petals': (3,),
     'ivy': (3,), 'void_cube': (3,), 'pandora': (3,),
-    'pyraminx': (2, 3, 4, 5), 'fto': (2, 3, 4),
+    'pyraminx': (2, 3, 4, 5), 'fto': (2, 3, 4, 5),
     'icosahedron': (2, 3, 4, 5),
     'megaminx': (2, 3, 4, 5), 'football': (3, 5), 'blossom': (3,),
     'moyu': (3, 4, 5), 'void_tower': (3,),

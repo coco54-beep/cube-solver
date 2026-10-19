@@ -178,17 +178,18 @@ def solve_core(cube,cancel=None,progress=None,max_seconds=2,exact=True):
     constructive chain. The improvement search re-solves the puzzle many times
     and the IDA attempt is far too slow to repeat on each call.
     """
-    if exact:
-        try:
-            return _search_core(cube,cancel,progress,max_seconds)
-        except (TimeoutError, ValueError):
-            pass
     if cube.puzzle_kind=='fto':
-        # Safety net: the compact PDB may not cover every state.
+        # FTO corners have four stickers. The generic small-core PDB omits
+        # them, so use the complete prepared FTO core before attempting IDA.
         from solver.fto import solve_prepared_core
         prepared=solve_prepared_core(cube,cancel,progress)
         if prepared is not None:
             return prepared
+    if exact and cube.puzzle_kind!='fto':
+        try:
+            return _search_core(cube,cancel,progress,max_seconds)
+        except (TimeoutError, ValueError):
+            pass
     from solver.polyhedral import StabilizerChain,identify
     if cube.puzzle_kind == 'fto':
         from solver.fto import core_points

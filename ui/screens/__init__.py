@@ -20,6 +20,8 @@ from ui.screens.settings_screen import SettingsScreen  # noqa: F401
 from .mirror_tower_screen import MirrorTowerScreen
 from .mirror_pyraminx_screen import MirrorPyraminxScreen
 from .mirror_skewb_screen import MirrorSkewbScreen
+from .fisher_skewb_screen import FisherSkewbScreen
+from .ghost_pyramid_screen import GhostPyramidScreen
 from .ghost_screen import GhostScreen
 from .ghost_twist_screen import GhostTwistScreen
 from .square_family_screen import SquareFamilyScreen

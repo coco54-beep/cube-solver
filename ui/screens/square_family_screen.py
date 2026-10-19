@@ -110,6 +110,8 @@ class SquareFamilyScreen(Square1Screen):
     def _refresh(self,message=None):
         if self._cube is None:
             return
+        if self._playback and not hasattr(self, "track"):
+            return
         if self._playback:
             return super()._refresh(message)
         self.title.text = tr('directory.'+self._cube.puzzle_kind)
@@ -206,7 +208,9 @@ class SquareFamilyScreen(Square1Screen):
         if not self.entry_can_edit():
             return
         self._remember()
-        self._entry = SquareFamilyEntry(SquareFamilyCube(self._cube.puzzle_kind).scramble(),colored=True)
+        cube = SquareFamilyCube(self._cube.puzzle_kind)
+        cube.scramble()
+        self._entry = SquareFamilyEntry(cube,colored=True)
         self._slot = self._entry.block_start(0)
         self._gallery_page = 0
         self._refresh()

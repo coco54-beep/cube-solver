@@ -18,5 +18,7 @@ def test_petal_puzzle_scramble_solves_and_replays(kind):
     for move in word:
         replay.apply_move(move)
     assert replay.is_solved()
+    if kind in ("petal_tetrahedron", "petal_tetrahedron_nocentre"):
+        assert len(word) <= 64
     if kind == "petal_icosahedron":
         assert len(word) <= 400

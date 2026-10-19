@@ -182,6 +182,18 @@ def _skewb_ultimate_axes():
 
 
 def specification(kind, n):
+    if kind.startswith('crazy_'):
+        from cube.circle_cube import circle_specification
+        return circle_specification(kind,n)
+    if kind == 'coin_tetrahedron' and n == 3:
+        from cube.coin_tetrahedron import coin_specification
+        return coin_specification()
+    if kind == 'pyraminx_duo' and n == 3:
+        from cube.pyraminx_duo import duo_specification
+        return duo_specification()
+    if kind in ('mosaic','tins'):
+        from cube.mosaic import mosaic_specification
+        return mosaic_specification(kind,n)
     if kind in ('petal_tetrahedron', 'petal_tetrahedron_nocentre') and n == 3:
         from cube.petal_icosahedron import petal_geometry
         return petal_geometry(kind == 'petal_tetrahedron', solid='tetrahedron').spec
@@ -207,6 +219,9 @@ def specification(kind, n):
     if kind == 'ivy' and n == 3:
         from cube.ivy import ivy_specification
         return ivy_specification()
+    if kind == 'super_ivy' and n == 3:
+        from cube.super_ivy import super_ivy_specification
+        return super_ivy_specification()
     if kind == 'blossom' and n == 3:
         from cube.blossom import blossom_specification
         return blossom_specification()
@@ -224,12 +239,30 @@ def specification(kind, n):
         return football_specification(n)
     if kind == 'clover' and n == 3:
         return Spec(kind, n, CUBE, EDGE_AXES, (1.,), 2)
+    if kind == 'helicopter' and n == 3:
+        # Straight planes through adjacent face centres; regular half turns.
+        # Eight three-sticker corners and 24 independent triangular centres.
+        return Spec(kind, n, CUBE, EDGE_AXES, (1/math.sqrt(2),), 2)
+    if kind == 'dino_skewb' and n == 4:
+        # Tom van der Zanden's original: true origin Skewb cuts combined
+        # with all eight shallow Dino cuts, unlike the asymmetric DaYan F-Skewb.
+        return Spec(kind,n,CUBE,OCTA,(0.,1/math.sqrt(3)),3)
+    if kind == 'dayan_dino_skewb' and n == 4:
+        # Timur Evbatyrov's asymmetric F-Skewb. Four cuts pass the opposite
+        # vertices (Dino), while four offset cuts leave four small corners.
+        # The offset controls the photographed proportions, not the orbits.
+        shallow=1/math.sqrt(3)
+        offset=1/(3*math.sqrt(3))
+        fixed={key(axis) for axis in TETRA}
+        axis_cuts=tuple((offset,) if key(axis) in fixed else (-offset,shallow)
+                        for axis in OCTA)
+        return Spec(kind,n,CUBE,OCTA,(),3,axis_cuts=axis_cuts)
     if kind == 'void_cube' and n == 3:
         return Spec(kind, n, CUBE, CUBE, (-1/3, 1/3), 4)
     if kind == 'void_tower' and n == 3:
         return Spec(kind, n, TETRA, TETRA, (0.,), 3)
-    if kind == 'fto' and n in (2, 3, 4):
-        cuts = {2: (0.,), 3: (1/3,), 4: (0., .5)}[n]
+    if kind == 'fto' and n in (2, 3, 4, 5):
+        cuts = {2: (0.,), 3: (1/3,), 4: (0., .5), 5: (1/5, 3/5)}[n]
         return Spec(kind, n, OCTA, OCTA, cuts, 3)
     if kind == 'eight_petals' and n == 3:
         return Spec(kind, n, CUBE, OCTA, (1/math.sqrt(3),), 3)
@@ -467,6 +500,12 @@ def _even_geometry(n,kind='megaminx'):
 
 @lru_cache(maxsize=4)
 def geometry(kind,n):
+    if kind.startswith('crazy_'):
+        from cube.circle_cube import circle_geometry
+        return circle_geometry(kind,n)
+    if kind in ('mosaic','tins'):
+        from cube.mosaic import mosaic_geometry
+        return mosaic_geometry(kind,n)
     if kind in ('petal_tetrahedron', 'petal_tetrahedron_nocentre') and n == 3:
         from cube.petal_icosahedron import petal_geometry
         return petal_geometry(kind == 'petal_tetrahedron', solid='tetrahedron')
@@ -485,9 +524,18 @@ def geometry(kind,n):
     if kind=='blossom':
         from cube.blossom import blossom_skin
         fragments=blossom_skin(spec)
+    elif kind=='coin_tetrahedron':
+        from cube.coin_tetrahedron import coin_skin
+        fragments=coin_skin(spec)
+    elif kind=='pyraminx_duo':
+        from cube.pyraminx_duo import duo_skin
+        fragments=duo_skin(spec)
     elif kind=='ivy':
         from cube.ivy import ivy_skin
         fragments=ivy_skin(spec)
+    elif kind=='super_ivy':
+        from cube.super_ivy import super_ivy_skin
+        fragments=super_ivy_skin(spec)
     else:
         fragments=(_clover_skin(spec) if kind=='clover' else
                _redi_skin(spec) if kind=='eight_petals' else _cut_skin(spec))
@@ -530,15 +578,39 @@ def geometry(kind,n):
                 point_perm.append(centre_index[q])
         normal_perm=[face_index[key(rotate(normal,axis,angle))] for normal in spec.normals]
         projections=[dot(axis,p) for p in centres]
-        if kind=='blossom':
+        if kind=='coin_tetrahedron':
+            from cube.coin_tetrahedron import moving_pieces
+            bands=[moving_pieces(tuple(groups),axis_id)]
+        elif kind=='blossom':
             from cube.blossom import edge_caps
             cap,radius=edge_caps()[axis_id]
             bands=[{i for i,p in enumerate(centres)
                     if dot(add(p,scale(cap,-1)),add(p,scale(cap,-1)))<radius*radius-EPS}]
+        elif kind=='super_ivy':
+            # Spheres centred on all eight vertices, with a radius of two.
+            cap=scale(axis,math.sqrt(3))
+            bands=[{i for i,p in enumerate(centres)
+                    if dot(add(p,scale(cap,-1)),add(p,scale(cap,-1)))<4-EPS}]
         elif kind=='clover':
             cap=scale(axis,math.sqrt(2))
             bands=[{i for i,p in enumerate(centres)
                     if dot(add(p,scale(cap,-1)),add(p,scale(cap,-1)))<1-EPS}]
+        elif kind=='dayan_dino_skewb':
+            if len(spec.axis_cuts[axis_id])==1:
+                bands=[{i for i,p in enumerate(projections) if p>spec.axis_cuts[axis_id][0]+EPS}]
+            else:
+                lower,upper=spec.axis_cuts[axis_id]
+                bands=[{i for i,p in enumerate(projections) if p>upper+EPS},
+                       {i for i,p in enumerate(projections) if p>lower+EPS}]
+        elif kind=='dino_skewb':
+            # Expose the physical moves directly, rather than requiring the
+            # player to combine an inner slice with a shallow corner turn.
+            bands=[{i for i,p in enumerate(projections) if p>1/math.sqrt(3)+EPS},
+                   {i for i,p in enumerate(projections) if p>EPS}]
+        elif kind=='pyraminx_duo':
+            corner=max((i for i,p in enumerate(pieces) if len(p)==3),key=lambda i:projections[i])
+            bands=[{corner}|{i for i,p in enumerate(pieces)
+                             if len(p)==1 and projections[i]>EPS}]
         elif n==2 and kind=='pyraminx':
             corner=max((i for i,p in enumerate(pieces) if len(p)==3),key=lambda i:projections[i])
             # Mini Pyraminx has four independent tips and fixed face centres.
@@ -580,7 +652,7 @@ def geometry(kind,n):
         return drum_even_geometry(result, spec)
     if kind == 'eight_petals':
         return _flower_geometry(result, spec)
-    if kind in ('clover','blossom','ivy'):
+    if kind in ('clover','blossom','ivy','super_ivy','pyraminx_duo','coin_tetrahedron'):
         return _patch_faces(result)
     return _without_centres(result, spec) if kind == 'void_cube' else result
 
@@ -755,19 +827,36 @@ class PolyhedralPuzzle:
         self.puzzle_kind=kind
         self.n=n
         self.colors=list(colors if colors is not None else solved_colors(self))
+        self.scramble_history=None
         if len(self.colors)!=len(self.geometry.stickers):
             raise ValueError('Wrong sticker count')
+        if kind.startswith('crazy_'):
+            self.circle_history=[] if self.is_solved() else None
+            self._circle_snapshot=tuple(self.colors)
 
     @classmethod
     def solved(cls,kind,n):
         return cls(kind,n)
 
     def clone(self):
-        return type(self)(self.puzzle_kind,self.n,self.colors)
+        result=type(self)(self.puzzle_kind,self.n,self.colors)
+        result.scramble_history=None if self.scramble_history is None else tuple(self.scramble_history)
+        if self.puzzle_kind.startswith('crazy_') and tuple(self.colors)==self._circle_snapshot:
+            result.circle_history=None if self.circle_history is None else list(self.circle_history)
+        return result
 
     def apply_move(self,move):
         inverse=self.geometry.inverse_permutation(move)
+        circle=self.puzzle_kind.startswith('crazy_')
+        if circle and tuple(self.colors)!=self._circle_snapshot:
+            self.circle_history=[] if self.is_solved() else None
         self.colors=list(map(self.colors.__getitem__,inverse))
+        if circle:
+            if self.circle_history is not None:
+                self.circle_history.append(move)
+                if len(self.circle_history)>4096:
+                    self.circle_history=None
+            self._circle_snapshot=tuple(self.colors)
         return self
 
     @property
@@ -794,4 +883,6 @@ class PolyhedralPuzzle:
 
     def entered(self):
         """Rebuild an input state using only its painted facelets."""
+        if self.puzzle_kind.startswith('crazy_'):
+            return self.clone()
         return type(self)(self.puzzle_kind,self.n,self.colors)

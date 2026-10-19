@@ -233,7 +233,14 @@ class TwistScreen(Screen):
         n = _app().n
         input_screen = self._input_screen()
         facelets = input_screen.collect_facelets()
-        cube = _build_partial_cube(facelets, n)
+        from cube.appearance import VARIANTS
+        app_cube = getattr(_app(), 'cube', None)
+        if (getattr(_app(), 'puzzle_kind', None) in VARIANTS and
+                app_cube is not None and app_cube.n == n and
+                cubies_to_facelets(app_cube.cubies, n) == facelets):
+            cube = app_cube.clone()
+        else:
+            cube = _build_partial_cube(facelets, n)
         if cube is None:
             cube = _solved_for(n)
         self._work = cube
@@ -281,6 +288,9 @@ class TwistScreen(Screen):
     def _twist(self, spec):
         if self._busy:
             return
+        if hasattr(self._work, 'can_turn') and not self._work.can_turn(spec.axis, spec.layer_positions):
+            self.msg.text = tr('bandage.blocked')
+            return
         self._history.append((spec.axis, tuple(spec.layer_positions), spec.sign))
         self._future.clear()
         self._update_history_buttons()
@@ -322,7 +332,10 @@ class TwistScreen(Screen):
         follow_turn(self.view,layer_target(axis,layers),begin)
 
     def _after_twist(self, axis, layers, sign):
-        apply_layer_turn(self._work.cubies, axis, list(layers), sign)
+        if hasattr(self._work, 'apply_layer_turn'):
+            self._work.apply_layer_turn(axis, list(layers), sign)
+        else:
+            apply_layer_turn(self._work.cubies, axis, list(layers), sign)
         self.view.set_cube(self._work)
         self._write_back()
         self._busy = False
@@ -360,10 +373,16 @@ class TwistScreen(Screen):
         for f in FACES:
             grid = facelets.get(f, [])
             clean[f] = [[(g if g else "") for g in row] for row in grid]
+        app = _app()
+        from cube.appearance import kind_for
+        if kind_for(self._work) is not None:
+            app.cube = self._work.clone()
         input_screen.set_facelets(clean,remember=True)
         # 同步刷新应用记录的布局，避免回到录入页时 on_enter
         # 用拧动前的旧 facelets_input 覆盖刚拧好的分布。
         app = _app()
+        if hasattr(self._work, 'puzzle_kind') and hasattr(self._work, 'history'):
+            app.cube = self._work.clone()
         app.facelets_input = clean
         cache = getattr(app, "facelets_cache", None)
         if cache is not None:

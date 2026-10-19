@@ -27,6 +27,7 @@ class ColorSelector(GridLayout):
         self._two_rows = bool(two_rows)
         super().__init__(cols=3 if two_rows else 6, **kwargs)
         self._buttons = {}
+        self._palette = {}
         self.update_metrics()
         self._build()
 
@@ -111,9 +112,21 @@ class ColorSelector(GridLayout):
         self._sync()
         self.dispatch("on_select", col)
 
+    def set_palette(self, colors=None, labels=None):
+        """Use a shape variant's displayed colours while retaining logical IDs."""
+        self._palette = dict(colors or {})
+        for col, button in self._buttons.items():
+            rgba = self._palette.get(col, COLOR_INFO[col][1])
+            button.text = (labels or {}).get(col, col)
+            button.color = self._text_color(rgba)
+            button._ring_color = self._contrast(rgba)
+            button._border_color = button._ring_color
+            button._border_ctx.rgba = (*button._border_color[:3], .28)
+        self._sync()
+
     def _sync(self):
         for col, b in self._buttons.items():
-            rgba = COLOR_INFO[col][1]
+            rgba = self._palette.get(col, COLOR_INFO[col][1])
             # 保持原底色，叠加高对比描边
             b._fill_ctx.rgba = rgba
             if col == self.current_color:

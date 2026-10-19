@@ -47,6 +47,19 @@ def prepared_cycles(cube,targets):
         return None
 
 
+def prepared_stages(cube,targets):
+    record=_cycle_assets().get(str(cube.n),{})
+    if record.get('geometry')!=geometry_key(cube.geometry): return None
+    order=record.get('stage_order',())
+    rows=record.get('staged',{})
+    if len(order)!=len(targets) or set(order)!=set(targets): return None
+    try:
+        macros={i:(tuple(Move(*m) for m in rows[str(i)]['word']),tuple(rows[str(i)]['base']))
+                for i in order}
+    except (KeyError,ValueError,TypeError): return None
+    return macros,order
+
+
 def solve_prepared_core(cube,cancel=None,progress=None):
     """Return a core word, or None if this geometry needs runtime preparation."""
     record=_assets().get(str(cube.n))

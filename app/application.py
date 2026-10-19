@@ -48,6 +48,7 @@ class CubeApp(App):
         self.facelets_input = None  # 用户录入的 facelets
         self.facelets_cache = {}    # 各阶录入状态的快照（切回该阶时恢复）
         self.input_from_camera = False  # 录入页是否由拍照识别进入（决定返回目标）
+        self.selection_series = None    # 录入页返回时重新打开哪个系列
         self.camera_return_screen = 'HomeScreen'
         self.camera_shape_result = None
         self.camera_recorded = None
@@ -69,7 +70,7 @@ class CubeApp(App):
         sm = ScreenManager()
         for name in ("HomeScreen", "InputScreen", "CameraScreen", "MastermorphixScreen", "MirrorScreen", "MorphixTwistScreen", "PolyhedralScreen", "PolyhedralTwistScreen", "PolyhedralPlaybackScreen", "SolvingScreen", "PlaybackScreen",
                      "DemoScreen", "DemoMenuScreen", "FormulaLibraryScreen", "PracticeScreen",                      "TwistScreen", "SettingsScreen", "Square1Screen", "ShapeCubeScreen", "MirrorTowerScreen",
-                     "MirrorWindmillScreen", "MirrorAxisScreen", "MirrorFisherScreen", "MirrorUnequalWindmillScreen", "MirrorUnequalFisherScreen", "MirrorOffsetWindmillScreen", "MirrorOffsetFisherScreen", "MirrorPyraminxScreen", "MirrorSkewbScreen", "GhostScreen", "GhostTwistScreen", "SquareFamilyScreen"):
+                     "MirrorWindmillScreen", "MirrorAxisScreen", "MirrorFisherScreen", "MirrorUnequalWindmillScreen", "MirrorUnequalFisherScreen", "MirrorOffsetWindmillScreen", "MirrorOffsetFisherScreen", "MirrorPyraminxScreen", "MirrorSkewbScreen", "FisherSkewbScreen", "GhostPyramidScreen", "GhostScreen", "GhostTwistScreen", "SquareFamilyScreen"):
             scr = _screen(name)
             scr.name = name
             sm.add_widget(scr)
@@ -141,7 +142,7 @@ class CubeApp(App):
         sm = getattr(self, "root", None)
         if sm is not None:
             for name in ("InputScreen", "MastermorphixScreen", "MirrorScreen", "PolyhedralScreen",
-                         "MorphixTwistScreen", "GhostTwistScreen", "PolyhedralTwistScreen", "Square1Screen", "SquareFamilyScreen", "ShapeCubeScreen", "MirrorTowerScreen", "MirrorPyraminxScreen", "MirrorSkewbScreen"):
+                         "MorphixTwistScreen", "GhostTwistScreen", "PolyhedralTwistScreen", "Square1Screen", "SquareFamilyScreen", "ShapeCubeScreen", "MirrorTowerScreen", "MirrorPyraminxScreen", "MirrorSkewbScreen", "GhostPyramidScreen"):
                 if sm.has_screen(name):
                     self._screen_lifecycle(sm.get_screen(name), "reset_interaction")
 
@@ -215,6 +216,24 @@ class CubeApp(App):
         self.solve_result = None
         self.facelets_input = None
 
+    def new_cube_variant(self, kind: str, n: int):
+        """Standard n×n mechanism with a patterned/stylised exterior."""
+        if kind == 'camouflage_3':
+            self.new_polyhedral(kind,3)
+            return
+        from cube.bandaged_cube import KINDS, BandagedCube
+        if kind in KINDS:
+            n = KINDS[kind]
+            self.n = n
+            self.cube = BandagedCube.solved(kind)
+            self.solve_result = None
+            self.facelets_input = None
+        else:
+            self.new_cube(n)
+        from cube.appearance import with_appearance
+        with_appearance(self.cube, kind)
+        self.puzzle_kind = kind
+
     def new_mastermorphix(self, n=3):
         self.n = n
         self.puzzle_kind = "mastermorphix"
@@ -241,7 +260,12 @@ class CubeApp(App):
     def new_polyhedral(self, kind, n):
         from cube.polyhedral import PolyhedralPuzzle
         self.n = n
-        self.cube = PolyhedralPuzzle(kind, n)
+        if kind.startswith(('cuboid_','camouflage_3')):
+            from cube.cuboid import CuboidCube
+            self.cube = CuboidCube.solved(kind)
+            self.n = self.cube.n
+        else:
+            self.cube = PolyhedralPuzzle(kind, n)
         self.puzzle_kind = self.cube.puzzle_kind
         self.cube.colors = [-1] * len(self.cube.colors)
         self.polyhedral_solution = None
@@ -286,6 +310,20 @@ class CubeApp(App):
         self.cube=MirrorSkewbCube.solved()
         self.n=3
         self.puzzle_kind='mirror_skewb'
+        self.polyhedral_solution=None
+
+    def new_fisher_skewb(self):
+        from cube.fisher_skewb import FisherSkewbCube
+        self.n=3
+        self.cube=FisherSkewbCube()
+        self.puzzle_kind='fisher_skewb'
+        self.polyhedral_solution=None
+
+    def new_ghost_pyramid(self):
+        from cube.ghost_pyramid import GhostPyramidCube
+        self.n=3
+        self.cube=GhostPyramidCube()
+        self.puzzle_kind='ghost_pyramid'
         self.polyhedral_solution=None
 
     def new_ghost(self, n=3):

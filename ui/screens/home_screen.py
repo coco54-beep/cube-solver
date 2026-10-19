@@ -9,6 +9,8 @@ class HomeScreen(IrregularDirectoryScreen):
     puzzle_keys = ('cube',) + PUZZLES
     title_key = 'app.name'
     hint_key = 'directory.home_hint'
+    menu_top_px = 0
+    menu_bottom_px = 44
 
     def _build_topbar(self, top):
         top.height = 0
@@ -39,6 +41,8 @@ class HomeScreen(IrregularDirectoryScreen):
     def _relayout(self, *_args):
         super()._relayout(*_args)
         self._topbar.height = 0
+        for button in self._toolbar_buttons:
+            button.width = button.height = self._bottom.height
         self._bottom.height = self.formula_btn.height
 
     def refresh_theme(self):
@@ -50,6 +54,9 @@ class HomeScreen(IrregularDirectoryScreen):
         self.manager.current = 'SettingsScreen'
 
     def open_camera(self):
+        app = _app()
+        if app is not None:
+            app.selection_series = None
         from ui.widgets.photo_entry import choose_photo_puzzle
         choose_photo_puzzle(self)
 

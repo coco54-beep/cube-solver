@@ -112,6 +112,9 @@ def text(zh, en, ja=None):
 def token(move,spec=None):
     if isinstance(move,str):
         return move
+    if move.__class__.__name__=='PyramidAlignment':
+        from app.i18n import tr
+        return tr('ghost_pyramid.align_move',angle=move.angle)
     if getattr(move, 'notation', None):
         return move.notation
     if move.__class__.__name__=='Square1Move':
@@ -119,6 +122,13 @@ def token(move,spec=None):
     label=f'A{move.axis+1}:{move.layer+1}'
     if spec is None:
         return label if move.amount==1 else f'{label} ×{move.amount}'
+    if spec.kind.startswith(('crazy_','cuboid_','camouflage_3')):
+        from cube.circle_cube import FACES
+        power=(-move.amount)%4
+        prefix=f'{move.layer+1}' if spec.kind.startswith(('cuboid_','camouflage_3')) and move.layer else ''
+        return prefix+FACES[move.axis]+('w' if prefix else '')+{0:'',1:'',2:'2',3:"'"}[power]
+    if spec.kind=='coin_tetrahedron':
+        label=f'C{move.axis+1}' if move.axis<4 else f'V{move.axis-3}'
     amount=move.amount%spec.turn_order
     if amount>spec.turn_order/2:
         amount-=spec.turn_order
@@ -152,6 +162,26 @@ def _cycle_formula_lessons(cube):
     if kind=='dino' and n in (4,6):
         from solver.lattice_data import _data
         record=_data().get(str(n),{})
+        if record.get('geometry')==geometry_key(cube.geometry):
+            records=record.get('cycles',{})
+    elif kind in ('dino_skewb','dayan_dino_skewb'):
+        from solver.dino_skewb import prepared
+        record=prepared(kind)
+        if record.get('geometry')==geometry_key(cube.geometry):
+            records=record.get('cycles',{})
+    elif kind in ('mosaic','tins'):
+        from solver.mosaic import prepared
+        record=prepared(kind)
+        if record.get('geometry')==geometry_key(cube.geometry):
+            records=record.get('cycles',{})
+    elif kind=='helicopter':
+        from solver.helicopter import prepared
+        record=prepared()
+        if record.get('geometry')==geometry_key(cube.geometry):
+            records=record.get('cycles',{})
+    elif kind=='super_ivy':
+        from solver.super_ivy import prepared
+        record=prepared()
         if record.get('geometry')==geometry_key(cube.geometry):
             records=record.get('cycles',{})
     elif kind=='fto':
@@ -235,6 +265,19 @@ def _cycle_formula_lessons(cube):
         base=tuple(sorted(destinations))
         markers={piece:label for piece,label in zip(base,('A','B','C'))}
         group_zh,group_en,group_ja=_piece_group_names(len(g.pieces[base[0]]))
+        if kind in ('mosaic','tins'):
+            if min(abs(v) for v in g.centres[base[0]])<1e-6:
+                group_zh,group_en,group_ja=('双色中心块','Paired centre','2色の中心')
+            elif kind=='mosaic':
+                group_zh,group_en,group_ja=('外围块','Outer piece','外側パーツ')
+            elif max(len(g.stickers[s].polygon) for s in g.pieces[base[0]])==5:
+                group_zh,group_en,group_ja=('五边形块','Pentagon','五角形')
+            else:
+                group_zh,group_en,group_ja=('三角块','Triangle','三角形')
+        if kind=='super_ivy' and len(g.pieces[base[0]])==1:
+            orbit=next(o for o in piece_orbits(kind,n) if base[0] in o)
+            group_zh,group_en,group_ja=(('中心块','Centre','センター') if len(orbit)==6
+                                      else ('叶片','Leaf','葉'))
         for reverse,formula in ((False,word),(True,inverse_word(word,g.spec.turn_order))):
             mapping={v:k for k,v in destinations.items()} if reverse else destinations
             a=base[0];b=mapping[a];c=mapping[b]
@@ -285,6 +328,98 @@ def _cycle_camera(g,pieces):
 def lessons(kind,n):
     if not 2<=n<=5:
         raise ValueError('Teaching demos support orders up to five')
+    if kind=='coin_tetrahedron':
+        from cube.polyhedral import dot
+        cube=PolyhedralPuzzle(kind,n)
+        g=cube.geometry
+        examples=[]
+        for corner in range(4,8):
+            face=next(i for i,normal in enumerate(g.spec.normals) if dot(normal,g.spec.axes[corner])>0)
+            for amount in (1,2):
+                moves=(Move(corner),Move(face,0,amount),Move(corner,0,2))
+                item=case(text(f'角已齐，跨面叶片错位 · V{corner-3}/C{face+1} · {"正向" if amount==1 else "反向"}',
+                               f'Corners solved, misplaced leaves · V{corner-3}/C{face+1} · {"forward" if amount==1 else "reverse"}',
+                               f'角が揃い、葉を移す・V{corner-3}/C{face+1}・{"正方向" if amount==1 else "逆方向"}'),moves,text(
+                    '四个角已对齐，图示椭圆叶片分布在相邻两面。按模型核对颜色和拿法，依次转角、转圆盘、把角转回。公式实际移动三片叶片，其中同色片可能让它看起来只有两片错位；其余角和中心在结束后保持归位。',
+                    'All four corners match; the shown oval leaves are misplaced across adjacent faces. Match the colours and grip. Turn the corner, turn the disc, then undo the corner turn. Three leaves cycle; equal colours can hide one displacement. Corners and centres are restored at the end.',
+                    '角4個が揃い、隣接する2面の楕円の葉がずれた場合。色と持ち方を合わせ、角→円盤→角を戻す順に実行します。葉3個の循環ですが、同色により2個だけの交換に見えることがあります。角と中心は最後に元へ戻ります。'))
+                item['text']='  '.join(token(m,g.spec) for m in moves)
+                item['show_all']=True
+                examples.append(item)
+        return [step(text('典型情况：保留角块，调整跨面叶片','Typical case: move leaves while preserving corners','典型例：角を保ち、面をまたぐ葉を移す'),text(
+            'C1–C4是面上圆盘，V1–V4是角轴，每步120°。先按角块确定拿法，再核对椭圆叶片的颜色位置。每例从待还原状态开始，执行完整公式后还原。',
+            'C1–C4 are face discs and V1–V4 are corner axes; each move is 120°. Orient the puzzle using its corners and match the oval leaf colours. Each case starts unsolved and the complete formula restores it.',
+            'C1–C4は円盤、V1–V4は角軸で、1手は120°です。角で持ち方を決め、楕円の葉の色配置を確認します。各例は未完成の状態から始まり、公式全体で完成します。'),examples)]
+    if kind=='pyraminx_duo':
+        from solver.pyraminx_duo import prepared
+        cube=PolyhedralPuzzle(kind,n)
+        g=cube.geometry
+        corners={s for piece in g.pieces if len(piece)==3 for s in piece}
+        first=[]
+        for axis in range(4):
+            for amount in (1,2):
+                moves=(Move(axis,0,amount),)
+                item=case(text(f'角 A{axis+1} 与相邻中心错位 · {"+120°" if amount==1 else "−120°"}',
+                               f'Corner A{axis+1} and its centres · {"+120°" if amount==1 else "−120°"}',
+                               f'角 A{axis+1} と隣接中心・{"+120°" if amount==1 else "−120°"}'),moves,text(
+                    '其余三个角已对齐，图示角及相邻三个面中心沿同一方向错开一格。核对模型中三色角的颜色顺序，再按标出的方向转120°一起归位。',
+                    'The other three corners match; the shown corner and its three adjacent centres are offset together. Match the three-colour corner order, then turn 120° in the shown direction.',
+                    '他の角3個は揃い、図の角と隣接中心3個が一緒にずれた場合。角の色順を確認し、表示方向へ120°回します。'))
+                item['text']=token(moves[0],g.spec)
+                corner=next(p for p in g.layers[axis][0] if len(g.pieces[p])==3)
+                item['camera']=_cycle_camera(g,(corner,))
+                first.append(item)
+        centres=[]
+        for state,atoms in prepared().items():
+            if not atoms or any(int(state[s])!=g.stickers[s].face for s in corners):
+                continue
+            moves=tuple(Move(*atom) for atom in atoms)
+            item=case(text(f'四角已齐，中心两两交换 · {len(centres)+1}',
+                           f'Corners solved, two centre pairs swapped · {len(centres)+1}',
+                           f'角が揃い、中心2組を交換・{len(centres)+1}'),moves,text(
+                '四个角的三色都已对齐，但四个面中心成两对交换。按模型核对是哪两对，保持图示拿法，完整执行四步公式；结束后角和中心同时还原。',
+                'All four corners match, but the four centres form two swapped pairs. Match both pairs and the model orientation, then complete all four moves to restore corners and centres.',
+                '角4個は揃い、中心4個が2組ずつ入れ替わった場合。交換する組と持ち方をモデルに合わせ、4手を最後まで実行します。'))
+            item['text']='  '.join(token(m,g.spec) for m in moves)
+            item['show_all']=True
+            centres.append(item)
+        return [step(text('典型情况：角与中心一起错位','Typical case: corner and centres offset','典型例：角と中心のずれ'),text(
+                    '先核对四个三色角；普通Duo的单色面中心不需要判断旋转方向。以下情况均从待还原状态开始。',
+                    'Identify the four three-colour corners first. Plain centres have no visible orientation. Every example begins in its unsolved case.',
+                    'まず3色の角を確認します。単色中心の回転方向は区別不要です。各例は未完成の状態から始まります。'),first),
+                step(text('典型情况：角已齐，只换面中心','Typical case: corners solved, centres swapped','典型例：角が揃い、中心だけ交換'),text(
+                    '四角归位后，合法的剩余中心错位只有以下三种两两交换。选择与实物相同的颜色排列，完整执行四步公式。',
+                    'With corners solved, these are the three legal remaining centre pair swaps. Match the colour arrangement and complete the four-move formula.',
+                    '角が揃った後に残る合法な中心交換は次の3種類です。実物と同じ色配置を選び、4手の公式を実行します。'),centres)]
+    if kind=='fisher_skewb':
+        from cube.fisher_skewb import appearance
+        from cube.mirror_pyraminx import placements
+        from solver.fisher_skewb import prepared
+        record=prepared()
+        invisible=sum(1<<i for i,h in enumerate(record['homes'])
+                      if len({appearance(h,f) for f in placements(3,h,h,'skewb')})==1)
+        shortest={}
+        for mask,word in record['finishers'].items():
+            visible=int(mask)&~invisible
+            if visible and visible.bit_count()==1 and (visible not in shortest or len(word)<len(shortest[visible])):
+                shortest[visible]=word
+        examples=[]
+        for i,(mask,word) in enumerate(sorted(shortest.items())):
+            moves=tuple(Move(*m) for m in word)
+            item=case(text(f'单个侧中心方向错误 · {i+1}',f'One misoriented side centre · {i+1}',f'側面中心1個の向き違い・{i+1}'),moves,text(
+                '适用情况：其余块已归位，只有图示侧中心没有与外壳和邻面接平。先把实物摆成图中的方向，再执行完整公式；两个单色方形中心的不可见方向不需要区分。',
+                'Use when every other piece is restored and only the shown side centre fails to align with the shell. Match the model orientation and complete the algorithm. Invisible directions of the two square centres do not matter.',
+                '他が揃い、図の側面中心だけが外形に合わない場合。図と同じ向きで持ち、公式を最後まで実行します。単色の四角中心2個の見えない向きは区別不要です。'))
+            home=record['homes'][mask.bit_length()-1]
+            from cube.polyhedral import geometry
+            item['camera']=_cycle_camera(geometry('skewb',3),(home,))
+            item['text']='  '.join(token(m,geometry('skewb',3).spec) for m in moves)
+            item['show_all']=True
+            examples.append(item)
+        return [step(text('典型情况：侧面中心方向','Typical case: side-centre direction','典型例：側面中心の向き'),text(
+            'Fisher Skewb需要同时还原颜色、外形和可见方向。以下公式会把示例中的侧中心归位，其余可见块在公式结束后保持原样。',
+            'Restore colour, shape and visible direction together. These formulas correct the shown centre and leave the other visible pieces restored after the full sequence.',
+            '色、外形、見える向きを同時に戻します。公式終了後は図の中心が戻り、他の見えるパーツも元のままです。'),examples)]
     if kind=='square1':
         from cube.square1 import Square1Move
         return [

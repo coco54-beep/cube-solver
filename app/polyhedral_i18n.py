@@ -303,3 +303,80 @@ JA.update({
  'poly.petal_icosahedron_nocentre_twist':'辺を180°回すと4枚の花びらが動きます。中心ピースはありません。ロック中はドラッグで辺を回し、解除で視点を変更。',
 })
 MESSAGES={'zh':ZH,'en':EN,'ja':JA}
+
+
+ZH.update({
+ 'poly.fisher_skewb_twist':'绕角轴转120°，外形会随块一起变化。锁定后拖动拧转，解锁后拖动观察；还原时也要检查侧中心方向。',
+ 'poly.fisher_skewb_input':'按实物的颜色、形状和朝向选块录入；侧中心也要与外壳接平。',
+ 'poly.dino_skewb_input':'TomZ版：24个双色块和24个单色中心。选色后点块录入；Dino浅切与Skewb深切均可使用。',
+ 'poly.dino_skewb_twist':'选择Dino浅切或Skewb深切，每次120°。锁定后按所选模式拖动，解锁后拖动观察；深切会带动整个半边。',
+ 'poly.dayan_dino_skewb_input':'大雁版：4个小角块、12个双色棱块、12个单色中心。四条对角线两端的转动不同；选色后逐块录入。',
+ 'poly.dayan_dino_skewb_twist':'大角端只有Skewb式深切；小角端可选Dino浅切或Skewb式深切。每次120°，锁定后按所选模式拖动。',
+ 'poly.dino_shallow':'Dino 浅切',
+ 'poly.skewb_deep':'Skewb 深切',
+ 'poly.mosaic_input':'八个固定位置的角块可以调整朝向；另有24个外围块和12个双色中心块。选色后点块录入，左右箭头逐面切换。',
+ 'poly.mosaic_twist':'八个角轴均转120°。浅层带动角块和近角的外围块；内层带动中心与另一组外围块，两层可分别选择。',
+ 'poly.tins_input':'四个Redi式角带独立角块，另外四个为Dino式切割。三角块、五边形块及双色中心分属不同轨道；逐块选色录入。',
+ 'poly.tins_twist':'八个角轴均转120°，浅层、内层可分别选择。只有四个交替分布的角带独立角块，另外四个角为分开的三角块。',
+ 'poly.corner_outer':'浅层',
+ 'poly.corner_inner':'内层',
+ 'poly.helicopter_input':'直线切割：8个角块、24个三角中心块。支持棱转180°的常规状态，不支持斜转变形；选色后点块录入。',
+ 'poly.helicopter_twist':'绕12条棱转180°。锁定视角后拖动块拧棱，解锁后拖动观察；本模式不含斜转变形。',
+ 'poly.super_ivy_input':'八个角均可转 120°。每面由中心块、四个叶块和四个三角块组成；选色后点块录入，左右箭头切换观察面。',
+ 'poly.super_ivy_twist':'绕八个角轴转 120°，带动相邻的中心块、叶片和棱块。锁定视角后拖动角部拧动，解锁后拖动观察。',
+})
+EN.update({
+ 'poly.fisher_skewb_twist':'Corner turns are 120° and change the shape. Lock to twist by dragging; unlock to orbit. Check side-centre directions when restoring.',
+ 'poly.fisher_skewb_input':'Enter pieces by their colour, shape and direction. Align side centres with the shell too.',
+ 'poly.dino_skewb_input':'TomZ version: 24 two-colour pieces and 24 single-colour centres. Select colours to enter; both shallow Dino and deep Skewb turns are available.',
+ 'poly.dino_skewb_twist':'Select shallow Dino or deep Skewb turns, each 120°. Locked drags use the selected mode; unlock to orbit. A deep turn moves a full half.',
+ 'poly.dayan_dino_skewb_input':'DaYan version: 4 small corners, 12 two-colour edges and 12 centres. Opposite ends of the four diagonal axes turn differently. Select colours to enter.',
+ 'poly.dayan_dino_skewb_twist':'Large-corner ends allow only Skewb-style turns; small-corner ends also allow Dino turns. Turns are 120°. Locked drags use the selected mode.',
+ 'poly.dino_shallow':'Dino shallow turn',
+ 'poly.skewb_deep':'Skewb deep turn',
+ 'poly.mosaic_input':'Eight fixed-position corners can change orientation, with 24 outer pieces and 12 two-colour centre pieces. Select a colour and tap stickers; arrows change faces.',
+ 'poly.mosaic_twist':'Eight axes turn 120°. The shallow layer moves the corner and nearby outer pieces; the inner layer moves centres and the other outer pieces. Select either layer.',
+ 'poly.tins_input':'Four Redi-style corners have caps; four alternate corners use Dino cuts. Triangles, pentagons and paired centres belong to separate orbits. Select colours to enter.',
+ 'poly.tins_twist':'Eight axes turn 120°, with separate shallow and inner layers. Only four alternating corners have independent caps; the other four split into triangles.',
+ 'poly.corner_outer':'Shallow layer',
+ 'poly.corner_inner':'Inner layer',
+ 'poly.helicopter_input':'Straight cuts: 8 corners and 24 triangular centres. Supports regular 180° edge turns, without jumbling. Select a colour and tap stickers.',
+ 'poly.helicopter_twist':'Twelve edges turn 180°. Lock the view and drag a piece to turn an edge; unlock to orbit. Jumbling is not included.',
+ 'poly.super_ivy_input':'All eight corners turn by 120°. Each face has a centre, four leaves and four triangular pieces. Select a colour and tap stickers; arrows change the view.',
+ 'poly.super_ivy_twist':'Corner turns are 120° and move adjacent centres, leaves and edges. Lock the view and drag a corner to turn it; unlock to orbit.',
+})
+JA.update({
+ 'poly.fisher_skewb_twist':'角軸を120°回すと外形も変わります。ロック中はドラッグで回し、解除で視点変更。側面中心の向きも確認します。',
+ 'poly.fisher_skewb_input':'実物と同じ色、形、向きのパーツを選択します。側面中心も外形に合わせます。',
+ 'poly.dino_skewb_input':'TomZ版：2色パーツ24個と単色中心24個。色を選んで入力。Dinoの浅い回転とSkewbの深い回転が使えます。',
+ 'poly.dino_skewb_twist':'Dinoの浅い回転かSkewbの深い回転を選択し、120°回します。ロック中のドラッグは選択モードに従い、解除で視点変更。',
+ 'poly.dayan_dino_skewb_input':'DaYan版：小さい角4個、2色エッジ12個、中心12個。4本の対角軸は両端で回転が異なります。色を選んで入力。',
+ 'poly.dayan_dino_skewb_twist':'大きい角側はSkewb式のみ、小さい角側はDino式も選べます。120°回転。ロック中のドラッグは選択モードに従います。',
+ 'poly.dino_shallow':'Dino 浅い回転',
+ 'poly.skewb_deep':'Skewb 深い回転',
+ 'poly.mosaic_input':'位置固定の角8個は向きを変えられます。外側24個と2色の中心12個も動きます。色を選んで入力し、矢印で面を変更。',
+ 'poly.mosaic_twist':'8本の角軸は120°回転。浅い層は角と近くの外側パーツ、内層は中心と別の外側パーツを動かします。各層を選択できます。',
+ 'poly.tins_input':'4個のRedi式の角と、交互に配置された4個のDino式の角。三角形、五角形、2色の中心は別の軌道です。色を選んで入力。',
+ 'poly.tins_twist':'8本の角軸は120°回転し、浅い層と内層を選択できます。独立した角キャップは交互の4か所のみで、他の4か所は三角形に分かれます。',
+ 'poly.corner_outer':'浅い層',
+ 'poly.corner_inner':'内層',
+ 'poly.helicopter_input':'直線カット：角8個と三角センター24個。辺を180°回す通常状態に対応し、変形回転は非対応。色を選んで入力します。',
+ 'poly.helicopter_twist':'12本の辺を180°回転。ロック中はパーツをドラッグして辺を回し、解除で視点を変更。変形回転は含みません。',
+ 'poly.super_ivy_input':'8つの角はすべて120°回転します。各面は中心、4枚の葉、4つの三角パーツで構成されます。色を選んで入力し、矢印で面を切り替えます。',
+ 'poly.super_ivy_twist':'角軸で120°回転し、隣接するセンター、葉、エッジが動きます。視点をロックして角付近をドラッグして回し、解除で視点を動かします。',
+})
+
+ZH.update({
+ 'poly.pyraminx_duo_input':'4个三色角块、4个可移动面中心；选色后逐块录入。中心不是固定的，普通单色中心不区分朝向。',
+ 'poly.pyraminx_duo_twist':'绕角转120°，同时带动相邻三个面中心。锁定后拖动拧转，解锁后拖动观察。',
+})
+
+EN.update({
+ 'poly.pyraminx_duo_input':'Four three-colour corners and four moving face centres. Select colours and tap stickers. Plain centre directions do not matter.',
+ 'poly.pyraminx_duo_twist':'Turn a corner by 120° to move it and the three adjacent centres. Lock to twist by dragging; unlock to orbit.',
+})
+
+JA.update({
+ 'poly.pyraminx_duo_input':'3色の角4個と動く面中心4個。色を選んで入力します。単色中心の向きは区別不要です。',
+ 'poly.pyraminx_duo_twist':'角を120°回すと隣接する中心3個も動きます。ロック中はドラッグで回し、解除で視点変更。',
+})

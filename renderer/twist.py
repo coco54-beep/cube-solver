@@ -317,6 +317,8 @@ def apply_layer_turn(cubies, axis, layer_positions, sign):
             # 保持块身份 home 不变，只移动 pos 与 sticker 方向。
             c.pos = npos
             c.stickers = stickers
+            if getattr(c, 'appearance_frame', None) is not None:
+                c.appearance_frame = tuple(_rot(v) for v in c.appearance_frame)
             selected[npos] = c
         else:
             selected[pos] = c

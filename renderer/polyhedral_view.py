@@ -94,7 +94,7 @@ def _outlines(sticker,normal):
 def outlines(kind,n):
     from cube.polyhedral import geometry
     g=geometry(kind,n)
-    if kind in ('eight_petals','clover','blossom','petal_icosahedron','petal_icosahedron_nocentre','petal_tetrahedron','petal_tetrahedron_nocentre','ivy'):
+    if kind.startswith('crazy_') or kind in ('eight_petals','clover','blossom','petal_icosahedron','petal_icosahedron_nocentre','petal_tetrahedron','petal_tetrahedron_nocentre','ivy','super_ivy','pyraminx_duo','coin_tetrahedron'):
         # Ear-clipped patches share the original concave outline. Walking the
         # source boundary avoids discovering internal triangle edges again.
         return tuple(tuple(zip(s.polygon,s.polygon[1:]+s.polygon[:1])) for s in g.stickers)
@@ -205,7 +205,11 @@ class PolyhedralView(Widget):
             self.remove_widget(label)
         self._face_labels=[]
         for i in range(count):
-            label=Label(text=str(i+1),size_hint=(None,None),size=(24,24),
+            label_text=str(i+1)
+            if cube.puzzle_kind.startswith('crazy_'):
+                from cube.circle_cube import PLANETS,FACES
+                label_text=f'{i+1}:{int(FACES[i] in PLANETS[cube.puzzle_kind[6:]])}'
+            label=Label(text=label_text,size_hint=(None,None),size=(24,24),
                         font_size='13sp',bold=True,color=(1,1,1,1),
                         outline_width=1,outline_color=(.1,.12,.15,1))
             self.add_widget(label)
@@ -339,7 +343,7 @@ class PolyhedralView(Widget):
         compatible=[]
         self._polygons=[]
         boundaries=outlines(self.cube.puzzle_kind,self.cube.n)
-        rounded_flower=self.cube.puzzle_kind in ('eight_petals','clover','ivy')
+        rounded_flower=self.cube.puzzle_kind in ('eight_petals','clover','ivy','super_ivy')
         football=self.cube.puzzle_kind=='football'
         rounded_variant=self.cube.puzzle_kind in ('war_drum','pentahedron')
         curved=self.cube.puzzle_kind=='moyu' or rounded_flower or rounded_variant
@@ -459,8 +463,10 @@ class PolyhedralView(Widget):
                 else:
                     path=tuple(observation.transform(*p) for p in path)
                 for a,b in zip(path,path[1:]):
-                    seam=tuple(c*.48 for c in rgba[:3])+(1,) if rounded_flower else (.12,.16,.2,1)
-                    edge(project(a),project(b),seam,.48 if rounded_flower else .6)
+                    super_ivy=self.cube.puzzle_kind=='super_ivy'
+                    seam=((.06,.07,.08,1) if super_ivy else
+                          tuple(c*.48 for c in rgba[:3])+(1,) if rounded_flower else (.12,.16,.2,1))
+                    edge(project(a),project(b),seam,.9 if super_ivy else .48 if rounded_flower else .6)
                     if i==self.selected:
                         edge(project(a),project(b),(.05,.84,1,1),1.5)
                     if self._move is None and s.piece in self.tutorial_targets:
@@ -685,6 +691,15 @@ class PolyhedralTwistView(PolyhedralView):
         candidates=[]
         for axis,bands in enumerate(g.layers):
             for layer,band in enumerate(bands):
+                if self.cube.puzzle_kind=='dayan_dino_skewb':
+                    mode=getattr(self,'dino_skewb_mode','skewb')
+                    if mode=='dino' and len(bands)==1:
+                        continue
+                    if layer!=(0 if mode=='dino' else len(bands)-1):
+                        continue
+                if (self.cube.puzzle_kind=='dino_skewb' and
+                        layer!=getattr(self,'selected_turn_layer',0)):
+                    continue
                 if sticker.piece not in band:
                     continue
                 velocity=cross(self.observation_world().transform(*g.spec.axes[axis]),point)

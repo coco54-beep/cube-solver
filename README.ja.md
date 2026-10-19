@@ -4,6 +4,13 @@
 
 [Windows / Android 版](https://github.com/coco54-beep/cube-solver/releases/latest) · [English](README.md) · [中文技术说明](README.zh-CN.md) · [ソースコード](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.32 の更新
+
+- 外観レイヤーのフィールド追加で発生したピース座標の回帰を修正しました。Mastermorphix、Ghost、ミラー形状のピースで `frame` が誤ったフィールドに入り、スクランブル初期化やセンター方向の求解が失敗していました。
+- Mastermorphix、Ghost Cube／フロッピー、ミラー形状ファミリーの座標処理を復元し、回帰テストが再びすべて通るようになりました。
+
+[1.2.32 リリースノート](docs/release-1.2.32.md)
+
 ## 1.2.31 の更新
 
 - **直方体シリーズ**：3×3×2 Rubik's Domino、2×2×3 Slim Tower、3×3×4、2×2×4 Rubik's Tower、4×4×2、2×3×4、1×3×3 Super Floppy、3×3×5、4×4×6。Super Floppy は 3,041,280 状態の完全な最短距離表を使用します。

@@ -231,7 +231,7 @@ class MorphixPiece(Cubie):
     frame: tuple = IDENTITY
 
     def clone(self):
-        return MorphixPiece(self.home, self.pos, dict(self.stickers), self.frame)
+        return MorphixPiece(self.home, self.pos, dict(self.stickers), frame=self.frame)
 
 
 @lru_cache(maxsize=8)
@@ -241,7 +241,7 @@ def _virtual_cubies(n):
 
 def make_piece(home, pos, frame, n=3):
     virtual = _virtual_cubies(n)[home]
-    return MorphixPiece(home, pos, {transform(frame, n): col for n, col in virtual.stickers.items()}, frame)
+    return MorphixPiece(home, pos, {transform(frame, n): col for n, col in virtual.stickers.items()}, frame=frame)
 
 
 def geometry_signature(piece, palette, n=3):
@@ -389,7 +389,7 @@ class MastermorphixCube(Cube3):
             result[new_pos] = MorphixPiece(
                 piece.home, new_pos,
                 {rotate[n]: col for n, col in piece.stickers.items()},
-                frames[piece.frame])
+                frame=frames[piece.frame])
         self.cubies = result
 
     def center_twists(self):

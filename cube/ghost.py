@@ -52,7 +52,7 @@ def goal_phases(n):
 def _floppy_piece(home, frame=IDENTITY, pos=None):
     stickers = {(0, 0, 1): DEFAULT_COLORS['F'], (0, 0, -1): DEFAULT_COLORS['B']}
     return MorphixPiece(home, home if pos is None else pos,
-                        {transform(frame, normal): color for normal, color in stickers.items()}, frame)
+                        {transform(frame, normal): color for normal, color in stickers.items()}, frame=frame)
 
 
 def ghost_placements(n, home, pos):

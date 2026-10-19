@@ -4,6 +4,13 @@
 
 [下载 Windows / Android 版](https://github.com/coco54-beep/cube-solver/releases/latest) · [English technical overview](README.md) · [日本語](README.ja.md) · [源代码](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.32 更新
+
+- 修复外观层字段引出的块坐标系回归：Mastermorphix、Ghost 和镜面异形块在构造时把 `frame` 写进了错误字段，导致大量异形的打乱初始化和中心方向求解失败。
+- 恢复 Mastermorphix、Ghost Cube/软糖及镜面异形系列的坐标处理；全部回归测试已恢复通过。
+
+[1.2.32 更新说明](docs/release-1.2.32.md)
+
 ## 1.2.31 更新
 
 - **长方体系列**：3×3×2 多米诺、2×2×3 细塔、3×3×4、2×2×4 魔塔、4×4×2、2×3×4、1×3×3 Super Floppy、3×3×5、4×4×6。Super Floppy 使用完整的 3,041,280 状态最短距离表。

@@ -4,6 +4,13 @@
 
 [Windows and Android downloads](https://github.com/coco54-beep/cube-solver/releases/latest) · [中文技术说明](README.zh-CN.md) · [日本語](README.ja.md) · [Source code](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.32 update
+
+- Fixed a piece-frame regression introduced by the appearance-layer field: Mastermorphix, Ghost and Mirror shape pieces were constructed with their frame stored in the wrong field. This broke scramble initialization and center-orientation solving across many shape variants.
+- Restored correct frame handling for Mastermorphix, Ghost Cube/floppy, and the Mirror shape family; all regression tests now pass again.
+
+[1.2.32 release notes](docs/release-1.2.32.md)
+
 ## 1.2.31 update
 
 - **Cuboid series**: 3×3×2 Rubik's Domino, 2×2×3 Slim Tower, 3×3×4, 2×2×4 Rubik's Tower, 4×4×2, 2×3×4, 1×3×3 Super Floppy, 3×3×5 and 4×4×6. Super Floppy uses a complete 3,041,280-state shortest-distance table.

@@ -21,3 +21,9 @@
 
 - Mixup and entry-screen regression tests are included under `tests/test_mixup_*.py`.
 - Solutions are replay-checked against the puzzle's legal move model before being returned.
+
+## Windows packaging fix (re-uploaded exe)
+
+- The portable Windows build crashed on start with `TypeError: expected str, bytes or os.PathLike object, not NoneType`. The `kivy_deps` packages call `os.path.join(site.USER_BASE, ...)` while Kivy imports, but PyInstaller never runs `site.main()` so `site.USER_BASE` is `None`. `app/desktop_runtime.py` now fills it in before Kivy loads.
+- Kivy's `get_deps_minimal` lists the image providers as `kivy.core.image.image_*`, but the real modules are `img_*`; none were bundled and Kivy aborted with "Unable to get any Image provider". `packaging/windows.spec` now adds `img_dds`, `img_pil`, `img_sdl2` and `img_tex` explicitly.
+- The re-uploaded `CubeSolver-1.2.33-windows-x64.zip` starts the GUI, loads the image/text/window providers and passes the frozen self-check (sha256 `7393d59cb6f89f10907b027e7ea79f48c4e616cb3654550ccd5903f28405fea4`).

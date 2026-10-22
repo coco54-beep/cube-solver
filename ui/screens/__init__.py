@@ -2,6 +2,9 @@
 
 from ui.screens.home_screen import HomeScreen  # noqa: F401
 from ui.screens.polyhedral_screen import PolyhedralScreen, PolyhedralPlaybackScreen, PolyhedralTwistScreen
+from ui.screens.articulated_screen import ArticulatedEntryScreen
+from ui.screens.mixup_input_screen import MixupInputScreen
+from ui.screens.pentacle_screen import PentacleScreen
 from ui.screens.mirror_screen import MirrorScreen
 from ui.screens.square1_screen import Square1Screen
 from ui.screens.shape_cube_screen import ShapeCubeScreen
@@ -17,6 +20,8 @@ from ui.screens.formula_library_screen import FormulaLibraryScreen  # noqa: F401
 from ui.screens.practice_screen import PracticeScreen  # noqa: F401
 from ui.screens.twist_screen import TwistScreen  # noqa: F401
 from ui.screens.settings_screen import SettingsScreen  # noqa: F401
+from ui.screens.piece_palette_screen import PiecePaletteScreen
+from ui.screens.cuboid_six_view_screen import CuboidSixViewScreen
 from .mirror_tower_screen import MirrorTowerScreen
 from .mirror_pyraminx_screen import MirrorPyraminxScreen
 from .mirror_skewb_screen import MirrorSkewbScreen

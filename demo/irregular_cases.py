@@ -120,9 +120,10 @@ def token(move,spec=None):
     if move.__class__.__name__=='Square1Move':
         return str(move)
     label=f'A{move.axis+1}:{move.layer+1}'
+    if getattr(move,'layers',()):label=f'A{move.axis+1}:'+','.join(str(l+1) for l in move.layers)
     if spec is None:
         return label if move.amount==1 else f'{label} ×{move.amount}'
-    if spec.kind.startswith(('crazy_','cuboid_','camouflage_3')):
+    if spec.kind.startswith(('crazy_','circle_2','cuboid_','camouflage_3')):
         from cube.circle_cube import FACES
         power=(-move.amount)%4
         prefix=f'{move.layer+1}' if spec.kind.startswith(('cuboid_','camouflage_3')) and move.layer else ''

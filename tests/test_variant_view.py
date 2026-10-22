@@ -5,7 +5,7 @@ import pytest
 
 pytest.importorskip('kivy')
 
-from cube.appearance import VARIANTS, PENROSE_RGB, kind_for, with_appearance
+from cube.appearance import VARIANTS, PENROSE, PENROSE_RGB, kind_for, with_appearance
 from cube.bandaged_cube import BandagedCube, KINDS
 from cube.cube2 import Cube2
 from cube.cube3 import Cube3
@@ -61,7 +61,7 @@ def test_input_rebuild_preserves_saved_exterior_and_piece_frames(monkeypatch,kin
     assert kind_for(entry._new_solved_cube(cube.n))==kind
 
 
-@pytest.mark.parametrize('kind',('penrose_2','penrose_3','circle_2'))
+@pytest.mark.parametrize('kind',('penrose_2','penrose_3','penrose_4'))
 def test_solve_commit_does_not_reset_variant_to_ordinary_cube(monkeypatch,kind):
     import ui.screens.input_screen as entry
     cube=make(kind)
@@ -92,7 +92,7 @@ def test_penrose_palette_can_restore_normal_cube_colours():
     assert picker._buttons['W'].text=='W'
 
 
-@pytest.mark.parametrize('kind',sorted(VARIANTS))
+@pytest.mark.parametrize('kind',sorted(VARIANTS-PENROSE))
 def test_painting_changes_colour_without_rebuilding_the_physical_shell(monkeypatch,kind):
     import ui.screens.input_screen as entry
     from renderer.variant_scene import build_variant_scene
@@ -117,6 +117,8 @@ def test_a_continuous_fused_plate_is_coloured_and_undone_as_one_action():
     captured=[]
     fake=SimpleNamespace(_data=facelets,_n=lambda:3,
                          view=SimpleNamespace(cube=cube),
+                         _bandage_step='2×2',
+                         _update_bandage_step=lambda **kwargs:None,
                          _error_cells=set(),_valid=True,
                          _commit_action=lambda action:captured.append(action),
                          _refresh_view=lambda:None,_update_progress=lambda:None)

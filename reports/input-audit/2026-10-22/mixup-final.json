@@ -1,0 +1,146 @@
+[
+  {
+    "kind": "mixup_333",
+    "fixture": "mixup_333-211021.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 74,
+    "seconds": 0.921
+  },
+  {
+    "kind": "mixup_333",
+    "fixture": "mixup_333-211022.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 391,
+    "seconds": 0.735
+  },
+  {
+    "kind": "mixup_334",
+    "fixture": "mixup_334-211021.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 729,
+    "seconds": 1.266
+  },
+  {
+    "kind": "mixup_334",
+    "fixture": "mixup_334-211022.json",
+    "history_free": true,
+    "solved": false,
+    "match": "matched",
+    "error": "ValueError: mixup.replay_failed",
+    "seconds": 2.875
+  },
+  {
+    "kind": "mixup_344",
+    "fixture": "mixup_344-211021.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 924,
+    "seconds": 12.281
+  },
+  {
+    "kind": "mixup_344",
+    "fixture": "mixup_344-211022.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 1644,
+    "seconds": 17.187
+  },
+  {
+    "kind": "mixup_444",
+    "fixture": "mixup_444-211021.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 158,
+    "seconds": 3.734
+  },
+  {
+    "kind": "mixup_444",
+    "fixture": "mixup_444-211022.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 151,
+    "seconds": 3.078
+  },
+  {
+    "kind": "mixup_plus_333",
+    "fixture": "mixup_plus_333-211021.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 6299,
+    "seconds": 17.031
+  },
+  {
+    "kind": "mixup_plus_333",
+    "fixture": "mixup_plus_333-211022.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 4872,
+    "seconds": 11.954
+  },
+  {
+    "kind": "mixup_plus_334",
+    "fixture": "mixup_plus_334-211021.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 15025,
+    "seconds": 46.921
+  },
+  {
+    "kind": "mixup_plus_334",
+    "fixture": "mixup_plus_334-211022.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 20915,
+    "seconds": 81.157
+  },
+  {
+    "kind": "mixup_plus_344",
+    "fixture": "mixup_plus_344-211021.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 8335,
+    "seconds": 26.109
+  },
+  {
+    "kind": "mixup_plus_344",
+    "fixture": "mixup_plus_344-211022.json",
+    "history_free": true,
+    "solved": false,
+    "match": "matched",
+    "error": "ValueError: mixup.shape_limit",
+    "seconds": 22.234
+  },
+  {
+    "kind": "mixup_plus_444",
+    "fixture": "mixup_plus_444-211021.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 746,
+    "seconds": 27.532
+  },
+  {
+    "kind": "mixup_plus_444",
+    "fixture": "mixup_plus_444-211022.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 843,
+    "seconds": 28.922
+  }
+]

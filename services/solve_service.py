@@ -69,7 +69,17 @@ class SolveService:
             from cube.cube5 import Cube5
             from cube.bandaged_cube import BandagedCube
             from cube.polyhedral import PolyhedralPuzzle
-            if isinstance(cube,PolyhedralPuzzle) or getattr(cube,'puzzle_kind','').startswith(('cuboid_','camouflage_3')) or getattr(cube,'puzzle_kind',None) in ('mirror_tower','mirror_pyraminx','mirror_skewb','fisher_skewb','ghost_pyramid'):
+            if getattr(cube,'puzzle_kind','').startswith('mixup_'):
+                from solver.mixup import solve_mixup
+                result=solve_mixup(cube,cancel.is_set,cb)
+            elif getattr(cube,'rigid_family',False):
+                from time import perf_counter
+                from solver.articulated import solve_articulated
+                from solver.result import SolveResult
+                started=perf_counter()
+                moves=solve_articulated(cube,cancel.is_set,lambda done,total:cb({'done':done,'total':total}))
+                result=SolveResult(True,list(moves),'',int((perf_counter()-started)*1000),len(moves),[])
+            elif isinstance(cube,PolyhedralPuzzle) or getattr(cube,'puzzle_kind','').startswith(('cuboid_','camouflage_3')) or getattr(cube,'puzzle_kind',None) in ('mirror_tower','mirror_pyraminx','mirror_skewb','fisher_skewb','ghost_pyramid'):
                 from time import perf_counter
                 from solver.polyhedral import solve_polyhedral
                 from solver.result import SolveResult

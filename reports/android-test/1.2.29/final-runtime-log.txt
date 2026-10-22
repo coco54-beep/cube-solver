@@ -1,0 +1,63 @@
+ 8528  8557 I python  : [INFO   ] [Kivy        ] Installed at "/data/user/0/com.example.cubesolver/files/app/_python_bundle/site-packages/kivy/__init__.pyc"
+10-18 08:40:18.251  8528  8557 I python  : [INFO   ] [Python      ] v3.14.2 (main, Oct  8 2026, 21:28:52) [Clang 19.0.1 (https://android.googlesource.com/toolchain/llvm-project 97a699bf4
+10-18 08:40:18.251  8528  8557 I python  : [INFO   ] [Python      ] Interpreter at "/data/user/0/com.example.cubesolver/files/app/.bin/python"
+10-18 08:40:18.251  8528  8557 I python  : [INFO   ] [Logger      ] Purge log fired. Processing...
+10-18 08:40:18.251  8528  8557 I python  : [INFO   ] [Logger      ] Purge finished!
+10-18 08:40:18.469  8528  8557 I python  : [INFO   ] [Factory     ] 195 symbols loaded
+10-18 08:40:18.519  8528  8557 I python  : [INFO   ] [Image       ] Providers: img_tex, img_dds, img_sdl2 (img_pil, img_ffpyplayer ignored)
+10-18 08:40:18.524  8528  8557 I python  : [INFO   ] [Text        ] Provider: sdl2
+10-18 08:40:18.538  8528  8557 I python  : [INFO   ] [cubesolver  ] starting app
+10-18 08:40:18.544  8528  8557 I python  : [INFO   ] [Window      ] Provider: sdl2
+10-18 08:40:18.558  8528  8557 I python  : [INFO   ] [GL          ] Using the "OpenGL ES 2" graphics system
+10-18 08:40:18.558  8528  8557 I python  : [INFO   ] [GL          ] Backend used <sdl2>
+10-18 08:40:18.558  8528  8557 I python  : [INFO   ] [GL          ] OpenGL version <b'OpenGL ES 3.0 (OpenGL ES 3.0 SwiftShader 4.0.0.1)'>
+10-18 08:40:18.559  8528  8557 I python  : [INFO   ] [GL          ] OpenGL vendor <b'Google (Google Inc.)'>
+10-18 08:40:18.559  8528  8557 I python  : [INFO   ] [GL          ] OpenGL renderer <b'Android Emulator OpenGL ES Translator (Google SwiftShader)'>
+10-18 08:40:18.559  8528  8557 I python  : [INFO   ] [GL          ] OpenGL parsed version: 3, 0
+10-18 08:40:18.559  8528  8557 I python  : [INFO   ] [GL          ] Texture max size <8192>
+10-18 08:40:18.559  8528  8557 I python  : [INFO   ] [GL          ] Texture max units <16>
+10-18 08:40:18.569  8528  8557 I python  : [INFO   ] [Window      ] auto add sdl2 input provider
+10-18 08:40:18.569  8528  8557 I python  : [INFO   ] [Window      ] virtual keyboard not allowed, single mode, not docked
+10-18 08:40:18.666  8528  8557 I python  : [INFO   ] [GL          ] NPOT texture support is available
+10-18 08:40:18.667  8528  8557 I python  : [WARNING] Deprecated property "<BooleanProperty name=allow_stretch>" of object "<kivy.uix.image.Image object at 0x7225b152ef30>" has been set, it will be removed in a future version
+10-18 08:40:18.667  8528  8557 I python  : [WARNING] Deprecated property "<BooleanProperty name=keep_ratio>" of object "<kivy.uix.image.Image object at 0x7225b152ef30>" was accessed, it will be removed in a future version
+10-18 08:40:18.955  8528  8557 I python  : [WARNING] [Base        ] Unknown <android> provider
+10-18 08:40:18.955  8528  8557 I python  : [INFO   ] [Base        ] Start application main loop
+10-18 08:40:50.717  8612  8638 I python  : Initializing Python for Android
+10-18 08:40:50.717  8612  8638 I python  : Setting additional env vars from p4a_env_vars.txt
+10-18 08:40:50.717  8612  8638 I python  : Changing directory to '/data/user/0/com.example.cubesolver/files/app'
+10-18 08:40:50.717  8612  8638 I python  : Preparing to initialize python
+10-18 08:40:50.717  8612  8638 I python  : _python_bundle dir exists
+10-18 08:40:50.717  8612  8638 I python  : set wchar paths...
+10-18 08:40:50.738  8612  8638 I python  : Initialized python
+10-18 08:40:50.738  8612  8638 I python  : testing python print redirection
+10-18 08:40:50.739  8612  8638 I python  : Android kivy bootstrap done. __name__ is __main__
+10-18 08:40:50.788  8612  8638 I python  : [INFO   ] [Logger      ] Record log in /data/user/0/com.example.cubesolver/files/app/.kivy/logs/kivy_26-10-18_1.txt
+10-18 08:40:50.789  8612  8638 I python  : [INFO   ] [Kivy        ] v2.3.1
+10-18 08:40:50.789  8612  8638 I python  : [INFO   ] [Kivy        ] Installed at "/data/user/0/com.example.cubesolver/files/app/_python_bundle/site-packages/kivy/__init__.pyc"
+10-18 08:40:50.789  8612  8638 I python  : [INFO   ] [Python      ] v3.14.2 (main, Oct  8 2026, 21:28:52) [Clang 19.0.1 (https://android.googlesource.com/toolchain/llvm-project 97a699bf4
+10-18 08:40:50.789  8612  8638 I python  : [INFO   ] [Python      ] Interpreter at "/data/user/0/com.example.cubesolver/files/app/.bin/python"
+10-18 08:40:50.789  8612  8638 I python  : [INFO   ] [Logger      ] Purge log fired. Processing...
+10-18 08:40:50.789  8612  8638 I python  : [INFO   ] [Logger      ] Purge finished!
+10-18 08:40:50.999  8612  8638 I python  : [INFO   ] [Factory     ] 195 symbols loaded
+10-18 08:40:51.053  8612  8638 I python  : [INFO   ] [Image       ] Providers: img_tex, img_dds, img_sdl2 (img_pil, img_ffpyplayer ignored)
+10-18 08:40:51.058  8612  8638 I python  : [INFO   ] [Text        ] Provider: sdl2
+10-18 08:40:51.064  8612  8638 I python  : [INFO   ] [cubesolver  ] starting app
+10-18 08:40:51.070  8612  8638 I python  : [INFO   ] [Window      ] Provider: sdl2
+10-18 08:40:51.080  8612  8638 I python  : [INFO   ] [GL          ] Using the "OpenGL ES 2" graphics system
+10-18 08:40:51.080  8612  8638 I python  : [INFO   ] [GL          ] Backend used <sdl2>
+10-18 08:40:51.080  8612  8638 I python  : [INFO   ] [GL          ] OpenGL version <b'OpenGL ES 3.0 (OpenGL ES 3.0 SwiftShader 4.0.0.1)'>
+10-18 08:40:51.080  8612  8638 I python  : [INFO   ] [GL          ] OpenGL vendor <b'Google (Google Inc.)'>
+10-18 08:40:51.080  8612  8638 I python  : [INFO   ] [GL          ] OpenGL renderer <b'Android Emulator OpenGL ES Translator (Google SwiftShader)'>
+10-18 08:40:51.080  8612  8638 I python  : [INFO   ] [GL          ] OpenGL parsed version: 3, 0
+10-18 08:40:51.081  8612  8638 I python  : [INFO   ] [GL          ] Texture max size <8192>
+10-18 08:40:51.081  8612  8638 I python  : [INFO   ] [GL          ] Texture max units <16>
+10-18 08:40:51.091  8612  8638 I python  : [INFO   ] [Window      ] auto add sdl2 input provider
+10-18 08:40:51.091  8612  8638 I python  : [INFO   ] [Window      ] virtual keyboard not allowed, single mode, not docked
+10-18 08:40:51.167  8612  8638 I python  : [INFO   ] [GL          ] NPOT texture support is available
+10-18 08:40:51.167  8612  8638 I python  : [WARNING] Deprecated property "<BooleanProperty name=allow_stretch>" of object "<kivy.uix.image.Image object at 0x7225ad90f3e0>" has been set, it will be removed in a future version
+10-18 08:40:51.167  8612  8638 I python  : [WARNING] Deprecated property "<BooleanProperty name=keep_ratio>" of object "<kivy.uix.image.Image object at 0x7225ad90f3e0>" was accessed, it will be removed in a future version
+10-18 08:40:51.422  8612  8638 I python  : [WARNING] [Base        ] Unknown <android> provider
+10-18 08:40:51.422  8612  8638 I python  : [INFO   ] [Base        ] Start application main loop
+10-18 08:40:52.069  8612  8638 I python  : [INFO   ] [Camera      ] Provider: android
+

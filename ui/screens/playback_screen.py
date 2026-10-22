@@ -391,7 +391,7 @@ class PlaybackScreen(Screen):
     def _do_go_back(self):
         self._stop_all()
         self.manager.current = {'mastermorphix': 'MastermorphixScreen', 'mirror': 'MirrorScreen',
-                                'axis':'ShapeCubeScreen','pandora':'ShapeCubeScreen','windmill':'ShapeCubeScreen',
+                                'axis':'ShapeCubeScreen','pandora':'InputScreen','windmill':'ShapeCubeScreen',
                                 'fisher':'ShapeCubeScreen',
                                 'mirror_fisher':'MirrorFisherScreen',
                                 'mirror_fisher_unequal':'MirrorUnequalFisherScreen',

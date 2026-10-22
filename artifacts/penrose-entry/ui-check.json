@@ -1,0 +1,11 @@
+{
+  "checks": [
+    "three visible colours rebuild the scrambled shell without loading the source cube",
+    "validation commits unique physical identities and preserves them in checkpoints",
+    "twist opens the reconstructed shell",
+    "twist writeback, undo and redo keep colour and shell in agreement",
+    "Penrose and ordinary cube colours and drafts remain separate",
+    "two-order and four-order entry use the same reconstruction"
+  ],
+  "errors": []
+}

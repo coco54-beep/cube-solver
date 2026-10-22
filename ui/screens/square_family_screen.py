@@ -14,6 +14,11 @@ from ui.widgets.camera_follow import follow_panel
 from ui.widgets.buttons import UIButton,PrimaryButton,DangerButton
 from ui.widgets.layouts import AdaptiveSceneLayout,ResponsiveBoxLayout
 from ui.widgets import metrics as m
+from ui.widgets.puzzle_preview import PassivePreview
+
+
+class _PieceCard(PassivePreview,SquareFamilyView):
+    pass
 
 
 class SquareFamilyScreen(Square1Screen):
@@ -98,7 +103,7 @@ class SquareFamilyScreen(Square1Screen):
     def on_pre_enter(self,*args):
         if self._cube is not _app().cube:
             self._cube = _app().cube
-            self._entry = SquareFamilyEntry(self._cube)
+            self._entry = SquareFamilyEntry(self._cube,empty=True)
             self._history = []
             self._slot = self._field = self._gallery_page = 0
             self._playback = False
@@ -118,7 +123,8 @@ class SquareFamilyScreen(Square1Screen):
         if self.view.cube is not self._entry:
             self.view.set_cube(self._entry)
         self.view.selected = (self._slot,0)
-        self.status.text = message if message is not None else tr('sq.input',done=self._entry.complete_count(),total=len(self._cube.specs))
+        self.status.text = message if message is not None else tr('sq.entry_cursor',layer=self._layer_names()[self._slot//12],
+            done=sum(p>=0 for p in self._entry.slots[self._slot//12*12:self._slot//12*12+12]))
         self.status.color = _app().theme.text
         self.title.color = _app().theme.text
         names = self._layer_names()
@@ -162,7 +168,7 @@ class SquareFamilyScreen(Square1Screen):
             if (spec not in grouped or (grouped[spec] in used and home not in used) or
                     (current is not None and current.confirmed and current.home == home)):
                 grouped[spec] = home
-        return list(grouped.values())
+        return [home for home in grouped.values() if home not in used]
 
     def _build_gallery(self):
         self.gallery.clear_widgets()
@@ -179,7 +185,7 @@ class SquareFamilyScreen(Square1Screen):
             preview.blocks = {0:SquareFamilyBlock(home,True)}
             for i in range(self._cube.specs[home].width):
                 preview.slots[self._slot//12*12+(self._slot%12+i)%12] = 0
-            view = self.view_class(size_hint=(None,None))
+            view = _PieceCard(size_hint=(None,None))
             view.fit_piece = True
             view.show_middle = False
             view.lock_rotation = True
@@ -201,7 +207,16 @@ class SquareFamilyScreen(Square1Screen):
         if not self.entry_can_edit():
             return
         self._remember()
-        self._slot = self._entry.choose_piece(self._slot,home)
+        try:
+            placed=self._entry.choose_piece(self._slot,home)
+        except ValueError as exc:
+            self._history.pop()
+            self._refresh(tr(str(exc)))
+            return
+        from cube.ring_entry import next_empty
+        last=placed//12*12+(placed%12+self._entry.specs[home].width-1)%12
+        self._slot=self._entry.block_start(next_empty(self._entry.slots,last))
+        self._gallery_page=0
         self._refresh()
 
     def randomize(self):
@@ -219,7 +234,7 @@ class SquareFamilyScreen(Square1Screen):
         if not self.entry_can_edit():
             return
         self._remember()
-        self._entry = SquareFamilyEntry(SquareFamilyCube(self._cube.puzzle_kind))
+        self._entry = SquareFamilyEntry(SquareFamilyCube(self._cube.puzzle_kind),empty=True)
         self._slot = self._field = self._gallery_page = 0
         self._refresh()
 

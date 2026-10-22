@@ -1,0 +1,1831 @@
+[
+  {
+    "kind": "mixup_333",
+    "seed": 211021,
+    "source_moves": 67,
+    "menu": {
+      "total_regions": 18,
+      "covered_regions": 13,
+      "empty_regions": 0,
+      "missing": [
+        {
+          "region": [
+            1,
+            43
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            3,
+            50
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            5,
+            23
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            14,
+            25
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            39,
+            46
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        }
+      ],
+      "blank_entry_rebuilt": false
+    },
+    "input_path": "ideal_geometry_observations_only",
+    "input_data": "reports\\input-audit\\2026-10-21\\mixup-manual-inputs\\mixup_333-211021.json",
+    "match": "matched",
+    "match_seconds": 0.39,
+    "history_before_solve": 0,
+    "same_surfaces": true,
+    "solved": false,
+    "solve_error": "mixup.shape_limit",
+    "solve_seconds": 0.828,
+    "elapsed": 1.453,
+    "manual_roundtrip_passed": false
+  },
+  {
+    "kind": "mixup_333",
+    "seed": 211022,
+    "source_moves": 70,
+    "menu": {
+      "total_regions": 18,
+      "covered_regions": 11,
+      "empty_regions": 0,
+      "missing": [
+        {
+          "region": [
+            1,
+            43
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            3,
+            50
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            5,
+            23
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            7,
+            16
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            10,
+            34
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            19,
+            41
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            28,
+            37
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        }
+      ],
+      "blank_entry_rebuilt": false
+    },
+    "input_path": "ideal_geometry_observations_only",
+    "input_data": "reports\\input-audit\\2026-10-21\\mixup-manual-inputs\\mixup_333-211022.json",
+    "match": "matched",
+    "match_seconds": 0.375,
+    "history_before_solve": 0,
+    "same_surfaces": true,
+    "solved": false,
+    "solve_error": "mixup.shape_limit",
+    "solve_seconds": 0.828,
+    "elapsed": 1.438,
+    "manual_roundtrip_passed": false
+  },
+  {
+    "kind": "mixup_334",
+    "seed": 211021,
+    "source_moves": 53,
+    "menu": {
+      "total_regions": 18,
+      "covered_regions": 15,
+      "empty_regions": 0,
+      "missing": [
+        {
+          "region": [
+            3,
+            50
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            21,
+            32
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            39,
+            46
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        }
+      ],
+      "blank_entry_rebuilt": false
+    },
+    "input_path": "ideal_geometry_observations_only",
+    "input_data": "reports\\input-audit\\2026-10-21\\mixup-manual-inputs\\mixup_334-211021.json",
+    "match": "matched",
+    "match_seconds": 0.485,
+    "history_before_solve": 0,
+    "same_surfaces": true,
+    "solved": false,
+    "solve_error": "mixup.shape_limit",
+    "solve_seconds": 1.422,
+    "elapsed": 2.781,
+    "manual_roundtrip_passed": false
+  },
+  {
+    "kind": "mixup_334",
+    "seed": 211022,
+    "source_moves": 85,
+    "menu": {
+      "total_regions": 18,
+      "covered_regions": 16,
+      "empty_regions": 0,
+      "missing": [
+        {
+          "region": [
+            7,
+            16
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            12,
+            52
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        }
+      ],
+      "blank_entry_rebuilt": false
+    },
+    "input_path": "ideal_geometry_observations_only",
+    "input_data": "reports\\input-audit\\2026-10-21\\mixup-manual-inputs\\mixup_334-211022.json",
+    "match": "matched",
+    "match_seconds": 0.516,
+    "history_before_solve": 0,
+    "same_surfaces": true,
+    "solved": false,
+    "solve_error": "mixup.shape_limit",
+    "solve_seconds": 1.235,
+    "elapsed": 2.469,
+    "manual_roundtrip_passed": false
+  },
+  {
+    "kind": "mixup_344",
+    "seed": 211021,
+    "source_moves": 97,
+    "menu": {
+      "total_regions": 18,
+      "covered_regions": 18,
+      "empty_regions": 0,
+      "missing": [],
+      "blank_entry_rebuilt": true
+    },
+    "input_path": "blank_menu_combinations_rotation_paint",
+    "input_data": "reports\\input-audit\\2026-10-21\\mixup-manual-inputs\\mixup_344-211021.json",
+    "match": "matched",
+    "match_seconds": 0.891,
+    "history_before_solve": 0,
+    "same_surfaces": true,
+    "solved": false,
+    "solve_error": "mixup.shape_limit",
+    "solve_seconds": 8.016,
+    "elapsed": 10.172,
+    "manual_roundtrip_passed": false
+  },
+  {
+    "kind": "mixup_344",
+    "seed": 211022,
+    "source_moves": 61,
+    "menu": {
+      "total_regions": 18,
+      "covered_regions": 18,
+      "empty_regions": 0,
+      "missing": [],
+      "blank_entry_rebuilt": true
+    },
+    "input_path": "blank_menu_combinations_rotation_paint",
+    "input_data": "reports\\input-audit\\2026-10-21\\mixup-manual-inputs\\mixup_344-211022.json",
+    "match": "matched",
+    "match_seconds": 0.672,
+    "history_before_solve": 0,
+    "same_surfaces": true,
+    "solved": false,
+    "solve_error": "mixup.shape_limit",
+    "solve_seconds": 8.016,
+    "elapsed": 9.859,
+    "manual_roundtrip_passed": false
+  },
+  {
+    "kind": "mixup_444",
+    "seed": 211021,
+    "source_moves": 69,
+    "menu": {
+      "total_regions": 18,
+      "covered_regions": 18,
+      "empty_regions": 0,
+      "missing": [],
+      "blank_entry_rebuilt": true
+    },
+    "input_path": "blank_menu_combinations_rotation_paint",
+    "input_data": "reports\\input-audit\\2026-10-21\\mixup-manual-inputs\\mixup_444-211021.json",
+    "match": "matched",
+    "match_seconds": 1.406,
+    "history_before_solve": 0,
+    "same_surfaces": true,
+    "solved": true,
+    "solution_moves": 196,
+    "replay_solved": true,
+    "shape_moves": 2,
+    "core_moves": 194,
+    "solve_seconds": 1.906,
+    "elapsed": 3.953,
+    "manual_roundtrip_passed": true
+  },
+  {
+    "kind": "mixup_444",
+    "seed": 211022,
+    "source_moves": 116,
+    "menu": {
+      "total_regions": 18,
+      "covered_regions": 18,
+      "empty_regions": 0,
+      "missing": [],
+      "blank_entry_rebuilt": true
+    },
+    "input_path": "blank_menu_combinations_rotation_paint",
+    "input_data": "reports\\input-audit\\2026-10-21\\mixup-manual-inputs\\mixup_444-211022.json",
+    "match": "matched",
+    "match_seconds": 0.953,
+    "history_before_solve": 0,
+    "same_surfaces": true,
+    "solved": true,
+    "solution_moves": 179,
+    "replay_solved": true,
+    "shape_moves": 2,
+    "core_moves": 177,
+    "solve_seconds": 1.39,
+    "elapsed": 2.953,
+    "manual_roundtrip_passed": true
+  },
+  {
+    "kind": "mixup_plus_333",
+    "seed": 211021,
+    "source_moves": 55,
+    "menu": {
+      "total_regions": 42,
+      "covered_regions": 30,
+      "empty_regions": 0,
+      "missing": [
+        {
+          "region": [
+            6
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            8
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            18
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            24
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            37
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            44
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            50
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            54
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            58
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            60
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            67
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            73
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        }
+      ],
+      "blank_entry_rebuilt": false
+    },
+    "input_path": "ideal_geometry_observations_only",
+    "input_data": "reports\\input-audit\\2026-10-21\\mixup-manual-inputs\\mixup_plus_333-211021.json",
+    "match": "matched",
+    "match_seconds": 0.797,
+    "history_before_solve": 0,
+    "same_surfaces": true,
+    "solved": false,
+    "solve_error": "mixup.shape_limit",
+    "solve_seconds": 1.546,
+    "elapsed": 2.828,
+    "manual_roundtrip_passed": false
+  },
+  {
+    "kind": "mixup_plus_333",
+    "seed": 211022,
+    "source_moves": 84,
+    "menu": {
+      "total_regions": 42,
+      "covered_regions": 30,
+      "empty_regions": 0,
+      "missing": [
+        {
+          "region": [
+            2
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            6
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            18
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            24
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            31
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            37
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            44
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            45
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            54
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            60
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            71
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            73
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        }
+      ],
+      "blank_entry_rebuilt": false
+    },
+    "input_path": "ideal_geometry_observations_only",
+    "input_data": "reports\\input-audit\\2026-10-21\\mixup-manual-inputs\\mixup_plus_333-211022.json",
+    "match": "matched",
+    "match_seconds": 0.89,
+    "history_before_solve": 0,
+    "same_surfaces": true,
+    "solved": false,
+    "solve_error": "mixup.shape_limit",
+    "solve_seconds": 1.75,
+    "elapsed": 3.063,
+    "manual_roundtrip_passed": false
+  },
+  {
+    "kind": "mixup_plus_334",
+    "seed": 211021,
+    "source_moves": 91,
+    "menu": {
+      "total_regions": 42,
+      "covered_regions": 30,
+      "empty_regions": 0,
+      "missing": [
+        {
+          "region": [
+            8
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            18
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            24
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            31
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            37
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            44
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            45
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 2
+          }
+        },
+        {
+          "region": [
+            50
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            54
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            58
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            63
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            70
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        }
+      ],
+      "blank_entry_rebuilt": false
+    },
+    "input_path": "ideal_geometry_observations_only",
+    "input_data": "reports\\input-audit\\2026-10-21\\mixup-manual-inputs\\mixup_plus_334-211021.json",
+    "match": "matched",
+    "match_seconds": 0.844,
+    "history_before_solve": 0,
+    "same_surfaces": true,
+    "solved": false,
+    "solve_error": "mixup.shape_limit",
+    "solve_seconds": 2.235,
+    "elapsed": 4.219,
+    "manual_roundtrip_passed": false
+  },
+  {
+    "kind": "mixup_plus_334",
+    "seed": 211022,
+    "source_moves": 81,
+    "menu": {
+      "total_regions": 42,
+      "covered_regions": 27,
+      "empty_regions": 0,
+      "missing": [
+        {
+          "region": [
+            2
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            6
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 2
+          }
+        },
+        {
+          "region": [
+            11
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            21
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            31
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            34
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            37
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            44
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            50
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            58
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            60
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            67
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            70
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            71
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "centre": 2
+          }
+        },
+        {
+          "region": [
+            73
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        }
+      ],
+      "blank_entry_rebuilt": false
+    },
+    "input_path": "ideal_geometry_observations_only",
+    "input_data": "reports\\input-audit\\2026-10-21\\mixup-manual-inputs\\mixup_plus_334-211022.json",
+    "match": "matched",
+    "match_seconds": 0.859,
+    "history_before_solve": 0,
+    "same_surfaces": true,
+    "solved": false,
+    "solve_error": "mixup.shape_limit",
+    "solve_seconds": 2.125,
+    "elapsed": 4.14,
+    "manual_roundtrip_passed": false
+  },
+  {
+    "kind": "mixup_plus_344",
+    "seed": 211021,
+    "source_moves": 67,
+    "menu": {
+      "total_regions": 42,
+      "covered_regions": 28,
+      "empty_regions": 0,
+      "missing": [
+        {
+          "region": [
+            2
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            6
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 2
+          }
+        },
+        {
+          "region": [
+            8
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            18
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            19
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "centre": 3
+          }
+        },
+        {
+          "region": [
+            24
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            30,
+            46
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "centre": 3
+          }
+        },
+        {
+          "region": [
+            31
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            37
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            44
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            45
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 2
+          }
+        },
+        {
+          "region": [
+            58
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "centre": 3
+          }
+        },
+        {
+          "region": [
+            67
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            76
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        }
+      ],
+      "blank_entry_rebuilt": false
+    },
+    "input_path": "ideal_geometry_observations_only",
+    "input_data": "reports\\input-audit\\2026-10-21\\mixup-manual-inputs\\mixup_plus_344-211021.json",
+    "match": "matched",
+    "match_seconds": 1.078,
+    "history_before_solve": 0,
+    "same_surfaces": true,
+    "solved": false,
+    "solve_error": "mixup.shape_limit",
+    "solve_seconds": 3.015,
+    "elapsed": 5.828,
+    "manual_roundtrip_passed": false
+  },
+  {
+    "kind": "mixup_plus_344",
+    "seed": 211022,
+    "source_moves": 94,
+    "menu": {
+      "total_regions": 42,
+      "covered_regions": 25,
+      "empty_regions": 0,
+      "missing": [
+        {
+          "region": [
+            1,
+            62
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "centre": 3
+          }
+        },
+        {
+          "region": [
+            2
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            6
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 2
+          }
+        },
+        {
+          "region": [
+            8
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            10,
+            23
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "centre": 3
+          }
+        },
+        {
+          "region": [
+            19
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "centre": 2
+          }
+        },
+        {
+          "region": [
+            24
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            27,
+            59
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "centre": 3
+          }
+        },
+        {
+          "region": [
+            37
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            40,
+            53
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "centre": 3
+          }
+        },
+        {
+          "region": [
+            44
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            50
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 1
+          }
+        },
+        {
+          "region": [
+            54
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            60
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            67
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            70
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            71
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1
+          }
+        }
+      ],
+      "blank_entry_rebuilt": false
+    },
+    "input_path": "ideal_geometry_observations_only",
+    "input_data": "reports\\input-audit\\2026-10-21\\mixup-manual-inputs\\mixup_plus_344-211022.json",
+    "match": "matched",
+    "match_seconds": 1.078,
+    "history_before_solve": 0,
+    "same_surfaces": true,
+    "solved": false,
+    "solve_error": "mixup.shape_limit",
+    "solve_seconds": 3.0,
+    "elapsed": 5.813,
+    "manual_roundtrip_passed": false
+  },
+  {
+    "kind": "mixup_plus_444",
+    "seed": 211021,
+    "source_moves": 133,
+    "menu": {
+      "total_regions": 42,
+      "covered_regions": 25,
+      "empty_regions": 0,
+      "missing": [
+        {
+          "region": [
+            1,
+            62
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "centre": 2,
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            2
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            4,
+            72
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1,
+            "centre": 2
+          }
+        },
+        {
+          "region": [
+            5
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            8
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            19
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "centre": 2,
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            27,
+            59
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "centre": 2,
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            28
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            31
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            32
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "centre": 2,
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            37
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            43,
+            69
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "centre": 2,
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            44
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            58
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 2
+          }
+        },
+        {
+          "region": [
+            60
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            71
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "centre": 2,
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            73
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        }
+      ],
+      "blank_entry_rebuilt": false
+    },
+    "input_path": "ideal_geometry_observations_only",
+    "input_data": "reports\\input-audit\\2026-10-21\\mixup-manual-inputs\\mixup_plus_444-211021.json",
+    "match": "matched",
+    "match_seconds": 2.453,
+    "history_before_solve": 0,
+    "same_surfaces": true,
+    "solved": false,
+    "solve_error": "mixup.shape_limit",
+    "solve_seconds": 3.343,
+    "elapsed": 6.859,
+    "manual_roundtrip_passed": false
+  },
+  {
+    "kind": "mixup_plus_444",
+    "seed": 211022,
+    "source_moves": 136,
+    "menu": {
+      "total_regions": 42,
+      "covered_regions": 18,
+      "empty_regions": 0,
+      "missing": [
+        {
+          "region": [
+            2
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            5
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            6
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "centre": 2,
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            8
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            11
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            17,
+            75
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1,
+            "centre": 2
+          }
+        },
+        {
+          "region": [
+            18
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            19
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "centre": 2,
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            20,
+            36
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 1,
+            "centre": 2
+          }
+        },
+        {
+          "region": [
+            24
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            28
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            31
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            32
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "edge": 2
+          }
+        },
+        {
+          "region": [
+            34
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            37
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            41
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            45
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "centre": 2,
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            47
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            54
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            56,
+            66
+          ],
+          "role": "edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "centre": 2,
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            60
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            63
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        },
+        {
+          "region": [
+            71
+          ],
+          "role": "centre",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "centre": 2,
+            "edge": 1
+          }
+        },
+        {
+          "region": [
+            73
+          ],
+          "role": "inner_edge",
+          "reason": "no_geometry_choice",
+          "pieces": {
+            "inner_edge": 2
+          }
+        }
+      ],
+      "blank_entry_rebuilt": false
+    },
+    "input_path": "ideal_geometry_observations_only",
+    "input_data": "reports\\input-audit\\2026-10-21\\mixup-manual-inputs\\mixup_plus_444-211022.json",
+    "match": "matched",
+    "match_seconds": 2.109,
+    "history_before_solve": 0,
+    "same_surfaces": true,
+    "solved": false,
+    "solve_error": "mixup.shape_limit",
+    "solve_seconds": 3.188,
+    "elapsed": 6.516,
+    "manual_roundtrip_passed": false
+  }
+]

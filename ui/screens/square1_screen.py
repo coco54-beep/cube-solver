@@ -180,7 +180,7 @@ class Square1Screen(EntryActionsMixin, Screen):
         if self._cube is not _app().cube:
             self._cube=_app().cube
             self._history=[]
-            self._entry=Square1Entry()
+            self._entry=Square1Entry(empty=True)
             self._slot=self._field=0
             self._playback=False
             self._build()
@@ -209,7 +209,8 @@ class Square1Screen(EntryActionsMixin, Screen):
             self._playback_buttons['last'].disabled=busy or self._index>=len(self._moves)
             self.play_button.disabled=not self._moves
         else:
-            self.status.text=message or tr('square1.color_hint',done=self._entry.complete_count())
+            self.status.text=message or tr('sq.entry_cursor',layer=tr('square1.top' if self._slot<12 else 'square1.bottom'),
+                                          done=sum(p>=0 for p in self._entry.slots[self._slot//12*12:self._slot//12*12+12]))
             self.view.selected=(self._slot,self._field)
             identity=self._entry.slots[self._slot]
             block=self._entry.blocks.get(identity)
@@ -255,7 +256,12 @@ class Square1Screen(EntryActionsMixin, Screen):
         if self._job is not None or self.view._move is not None:
             return
         self._remember()
-        self._slot=self._entry.set_shape(self._slot,width)
+        try:
+            self._slot=self._entry.set_shape(self._slot,width)
+        except ValueError as exc:
+            self._history.pop()
+            self._refresh(tr(str(exc)))
+            return
         self._field=0
         self._refresh()
 
@@ -266,6 +272,11 @@ class Square1Screen(EntryActionsMixin, Screen):
         self._remember()
         self._entry.paint(self._slot,self._field,color)
         self._field=(self._field+1)%(block.width+1)
+        updated=self._entry.blocks[self._entry.slots[self._slot]]
+        if self._field==0 and all(c>=0 for c in updated.colors):
+            from cube.ring_entry import next_empty
+            last=self._slot//12*12+(self._slot%12+block.width-1)%12
+            self._slot=self._entry.block_start(next_empty(self._entry.slots,last))
         self._refresh()
 
     def rotate_layer(self,amount):
@@ -310,7 +321,7 @@ class Square1Screen(EntryActionsMixin, Screen):
         if not self.entry_can_edit():
             return
         self._remember()
-        self._entry=Square1Entry()
+        self._entry=Square1Entry(empty=True)
         self._slot=self._field=0
         self._refresh()
 

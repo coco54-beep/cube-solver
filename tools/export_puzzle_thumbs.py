@@ -27,6 +27,7 @@ from cube.cube2 import Cube2
 from cube.cube4 import Cube4
 from cube.appearance import with_appearance
 from cube.bandaged_cube import BandagedCube  # noqa: E402
+from cube.circle_cube import Circle2Cube
 from cube.cuboid import CuboidCube
 from renderer.cuboid_view import CuboidView
 from cube.mastermorphix import MastermorphixCube  # noqa: E402
@@ -75,7 +76,7 @@ JOBS = [
     ('penrose_2', CubeView, lambda: with_appearance(Cube2.solved(), 'penrose_2')),
     ('penrose_3', CubeView, lambda: with_appearance(Cube3.solved(), 'penrose_3')),
     ('penrose_4', CubeView, lambda: with_appearance(Cube4.solved(), 'penrose_4')),
-    ('circle_2', CubeView, lambda: with_appearance(Cube2.solved(), 'circle_2')),
+    ('circle_2', PolyhedralView, lambda: Circle2Cube()),
     ('axis_4',AxisView,lambda:AxisCube.solved(n=4)),
     ('windmill_4',WindmillView,lambda:WindmillCube.solved(n=4)),
     ('fisher_4',FisherView,lambda:FisherCube.solved(n=4)),
@@ -145,6 +146,14 @@ from cube.cuboid import MODELS as CUBOID_MODELS
 JOBS.extend((kind,CuboidView,lambda k=kind:CuboidCube.solved(k))
             for kind in CUBOID_MODELS if kind.startswith('cuboid_'))
 ONLY=set(sys.argv[1:])
+from cube.articulated import ArticulatedCube,KINDS as ARTICULATED_KINDS
+from renderer.articulated_view import ArticulatedView
+from cube.pentacle import PentacleCube
+from renderer.pentacle_view import PentacleView
+JOBS.append(('pentacle',PentacleView,PentacleCube))
+JOBS.extend((kind,ArticulatedView,lambda k=kind:ArticulatedCube(k)) for kind in ARTICULATED_KINDS)
+JOBS.extend((("o2",PolyhedralView,lambda:P('o2',1)),
+             ("ancient_coin",PolyhedralView,lambda:P('ancient_coin',3))))
 
 OUT = os.path.join(BASE, "assets", "puzzles")
 os.makedirs(OUT, exist_ok=True)

@@ -1,0 +1,12 @@
+{
+  "checks": [
+    "all ten model routes",
+    "touch drag records one panel, not four pieces",
+    "plastic, outside, clear and undo",
+    "back and palette settings preserve the observation draft",
+    "draft checkpoint round trip",
+    "background matching applies an entered state",
+    "twist return writes back shape and remains undoable"
+  ],
+  "errors": []
+}

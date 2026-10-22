@@ -25,6 +25,8 @@ KINDS = tuple('crazy_'+p for p in PLANETS)
 
 
 def circle_specification(kind, n=3):
+    if kind=='circle_2' and n==2:
+        return Spec(kind,2,CUBE,CUBE,(0.,),4)
     if n != 3 or kind not in KINDS:
         raise ValueError('Unsupported Circle planet')
     return Spec(kind,3,CUBE,CUBE,(1/3,),4)
@@ -41,9 +43,9 @@ def _clip(poly, axis, bound, sign):
     return tuple(out)
 
 
-def _cell(poly,r,c):
-    for axis,lo,hi in ((0,-1+c*2/3,-1+(c+1)*2/3),
-                       (1,-1+r*2/3,-1+(r+1)*2/3)):
+def _cell(poly,r,c,n=3):
+    for axis,lo,hi in ((0,-1+c*2/n,-1+(c+1)*2/n),
+                       (1,-1+r*2/n,-1+(r+1)*2/n)):
         poly=_clip(poly,axis,lo,1)
         if len(poly)<3:return ()
         poly=_clip(poly,axis,hi,-1)
@@ -71,8 +73,8 @@ def _boundary(patches):
     return tuple(result)
 
 
-@lru_cache(maxsize=1)
-def _panels():
+@lru_cache(maxsize=2)
+def _panels(n=3):
     pieces={}
     # Include diagonal rays so the square boundary has exact corners.
     for i in range(96):
@@ -82,9 +84,9 @@ def _panels():
         outer=tuple((p[0]/max(abs(p[0]),abs(p[1])),p[1]/max(abs(p[0]),abs(p[1]))) for p in (u,v))
         for inside,poly in ((True,((0.,0.),inner[0],inner[1])),
                             (False,(inner[0],outer[0],outer[1],inner[1]))):
-            for r in range(3):
-                for c in range(3):
-                    patch=_cell(poly,r,c)
+            for r in range(n):
+                for c in range(n):
+                    patch=_cell(poly,r,c,n)
                     if patch:pieces.setdefault((inside,r,c),[]).append(patch)
     return tuple((label,_boundary(tuple(patches)),tuple(patches)) for label,patches in sorted(pieces.items()))
 
@@ -95,17 +97,22 @@ def _point(face,p):
     return tuple(out)
 
 
-@lru_cache(maxsize=8)
-def circle_geometry(kind,n=3):
+@lru_cache(maxsize=16)
+def circle_geometry(kind,n=3,anchor=(-1,-1,-1)):
     spec=circle_specification(kind,n)
-    one=PLANETS[kind.removeprefix('crazy_')]
+    one=frozenset() if kind=='circle_2' else PLANETS[kind.removeprefix('crazy_')]
     entries=[]; groups={}
     for faceid,face in enumerate(FACES):
-        for (inside,r,c),polygon,patches in _panels():
-            pos=pos_from_rc(3,face,r,c)
+        for (inside,r,c),polygon,patches in _panels(n):
+            pos=pos_from_rc(n,face,r,c)
+            if kind=='circle_2' and inside:
+                # Opposite-face quarter discs are the two caps of one
+                # hidden edge. Its mechanical coordinate has zero along
+                # the disc normal; it is not a second corner piece.
+                pos=tuple(0 if CUBE[faceid][a] else v for a,v in enumerate(pos))
             # Inner sectors are separate physical pieces. The outer shell
             # retains ordinary corner/edge grouping across adjacent faces.
-            signature=('inner',face,r,c) if inside else ('outer',pos)
+            signature=(('inner',pos) if kind=='circle_2' else ('inner',face,r,c)) if inside else ('outer',pos)
             groups.setdefault(signature,[]).append(len(entries))
             entries.append((faceid,inside,pos,tuple(_point(face,p) for p in polygon),
                             tuple(tuple(_point(face,p) for p in patch) for patch in patches)))
@@ -116,11 +123,16 @@ def circle_geometry(kind,n=3):
     lookup={(face,inside,pos):i for i,(face,inside,pos,*_) in enumerate(entries)}
     normalid={key(normal):i for i,normal in enumerate(CUBE)}
     perms=[];layers=[]
-    for axis,normal in enumerate(CUBE):
+    for axis,normal in enumerate(spec.axes):
         selected=[];mapping=[]
         a,sgn=next((a,v) for a,v in enumerate(normal) if v)
         for i,(face,inside,pos,*_) in enumerate(entries):
-            moving=pos[a]==sgn and not (inside and face==axis and FACES[axis] not in one)
+            if kind=='circle_2':
+                # When the anchored corner turns, its core carries the
+                # middle-plane hidden edges too, rotating both disc caps.
+                moving=(sgn*pos[a]>=0 if inside and anchor[a]==sgn else pos[a]==sgn)
+            else:
+                moving=pos[a]==sgn and not (inside and face==axis and FACES[axis] not in one)
             if moving:
                 target=tuple(round(v) for v in rotate(pos,normal,math.pi/2))
                 nf=normalid[key(rotate(CUBE[face],normal,math.pi/2))]
@@ -129,3 +141,52 @@ def circle_geometry(kind,n=3):
         if len(set(mapping))!=len(mapping):raise ValueError('Circle move is not bijective')
         perms.append((tuple(mapping),));layers.append((tuple(sorted(set(selected))),))
     return Geometry(spec,stickers,pieces,centres,tuple(perms),tuple(layers))
+
+
+from cube.polyhedral import PolyhedralPuzzle
+
+
+class Circle2Cube(PolyhedralPuzzle):
+    """Circular 2x2 with a travelling anchored corner and paired disc caps."""
+    def __init__(self,kind='circle_2',n=2,colors=None,anchor=(-1,-1,-1)):
+        super().__init__(kind,n,colors)
+        self.anchor=tuple(anchor)
+        if len(self.anchor)!=3 or any(v not in (-1,1) for v in self.anchor):
+            raise ValueError('Invalid Circle 2x2 anchor')
+        self.geometry=circle_geometry(kind,n,self.anchor)
+
+    def clone(self):
+        other=type(self)(colors=self.colors,anchor=self.anchor)
+        if tuple(self.colors)==self._circle_snapshot:
+            other.circle_history=None if self.circle_history is None else list(self.circle_history)
+        return other
+
+    def apply_move(self,move):
+        normal=self.geometry.spec.axes[move.axis]
+        a,sign=next((a,v) for a,v in enumerate(normal) if v)
+        moving=self.anchor[a]==sign
+        super().apply_move(move)
+        if moving:
+            self.anchor=tuple(round(v) for v in rotate(self.anchor,normal,move.amount*math.pi/2))
+        self.geometry=circle_geometry(self.puzzle_kind,self.n,self.anchor)
+        return self
+
+    def restore(self,other):
+        self.colors=list(other.colors);self.anchor=other.anchor
+        self.geometry=circle_geometry(self.puzzle_kind,self.n,self.anchor)
+        self.circle_history=None if other.circle_history is None else list(other.circle_history)
+        self._circle_snapshot=tuple(self.colors)
+
+    def entered(self):
+        other=self.clone()
+        # The labelled anchored corner also identifies core orientation
+        # after a fresh manual entry, without needing scramble history.
+        for slots in self.geometry.pieces:
+            if len(slots)==3 and {self.colors[i] for i in slots}=={3,4,5}:
+                other.anchor=tuple(sum(CUBE[self.geometry.stickers[i].face][a] for i in slots) for a in range(3))
+                other.geometry=circle_geometry(other.puzzle_kind,2,other.anchor)
+                break
+        return other
+
+    def is_solved(self):
+        return getattr(self,'anchor',(-1,-1,-1))==(-1,-1,-1) and super().is_solved()

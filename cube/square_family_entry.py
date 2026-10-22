@@ -22,12 +22,14 @@ class SquareFamilyEntry:
     def specs(self):
         return catalogue(self.puzzle_kind)[1]
 
-    def __init__(self, cube=None, colored=False):
+    def __init__(self, cube=None, colored=False, empty=False):
         cube = cube or SquareFamilyCube()
         self.puzzle_kind = cube.puzzle_kind
         self.middle = cube.middle
         self.slots = [-1]*len(cube.slots)
         self.blocks = {}
+        if empty:
+            return
         for layer,start,width,home in cube.groups():
             identity = layer*12+start
             self.blocks[identity] = SquareFamilyBlock(home,colored)
@@ -69,9 +71,16 @@ class SquareFamilyEntry:
 
     def choose_piece(self,slot,home):
         slot = self.block_start(slot)
+        from cube.ring_entry import placement
+        if not 0 <= home < len(self.specs):
+            raise ValueError('sq.error.move')
         width = self.specs[home].width
-        targets = [slot//12*12+(slot%12+i)%12 for i in range(width)]
-        displaced = {self.slots[i] for i in targets}-{-1}
+        if self.layer_count == 4 and self.specs[home].pair != int(slot//12 in (1,2)):
+            raise ValueError('sq.error.move')
+        if any(b.home == home for p,b in self.blocks.items() if p != self.slots[slot] and b.confirmed):
+            raise ValueError('square1.error.duplicate')
+        targets,old = placement(self.slots,slot,width)
+        displaced = {old}-{-1}
         self.slots = [-1 if p in displaced else p for p in self.slots]
         for p in displaced:
             self.blocks.pop(p)

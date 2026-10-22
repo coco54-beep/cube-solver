@@ -14,11 +14,13 @@ class Square1Entry:
     puzzle_kind='square1'
     n=3
 
-    def __init__(self,cube=None,colored=False):
+    def __init__(self,cube=None,colored=False,empty=False):
         cube=cube or Square1Cube()
         self.middle=cube.middle
         self.slots=[-1]*24
         self.blocks={}
+        if empty:
+            return
         for layer,start,width,piece in cube.groups():
             identity=layer*12+start
             colors=piece_colors(piece)
@@ -53,8 +55,9 @@ class Square1Entry:
         old=self.slots[slot]
         if old>=0 and self.blocks[old].width==width:
             return slot
-        targets=[slot//12*12+(slot%12+i)%12 for i in range(width)]
-        displaced={self.slots[i] for i in targets}-{ -1 }
+        from cube.ring_entry import placement
+        targets,old=placement(self.slots,slot,width)
+        displaced={old}-{ -1 }
         identity=max(self.blocks,default=-1)+1
         self.slots=[-1 if p in displaced else p for p in self.slots]
         for p in displaced:

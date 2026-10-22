@@ -1,4 +1,4 @@
-"""Cuboid family: rigid physical bricks over a bandaged cubic mechanism.
+"""Cuboid family: fixed cuboids, extended cores and bandaged mechanisms.
 
 The displayed dimensions are separate from the mechanical grid. Bonds forbid
 cuts through a brick after shape changes; incompatible-parity axes use 180°.
@@ -22,6 +22,9 @@ MODELS={
  'cuboid_446': ((4,6,4),6),
  'camouflage_3': ((3,3,3),4),
 }
+# Standard models with fixed exterior dimensions. Input stays colour-only;
+# this is a model capability, not a check of the current scrambled shape.
+FIXED_SHAPE_KINDS=frozenset(('cuboid_332','cuboid_223','cuboid_334'))
 PARTITIONS={
  (3,1):(3,), (3,3):(1,1,1),
  (4,2):(2,2), (4,3):(1,2,1), (4,4):(1,1,1,1),
@@ -45,6 +48,9 @@ def turn_frame(axis,amount):
 
 @lru_cache(maxsize=10)
 def layout(kind):
+ if kind in ('cuboid_224','cuboid_335','cuboid_446','cuboid_234'):
+  from cube.extended_cuboid import extended_layout
+  return extended_layout(kind)
  dims,n=MODELS[kind];vals=tuple(2*i-(n-1) for i in range(n))
  bins=[]
  for length in dims:
@@ -103,6 +109,12 @@ def layout(kind):
 
 
 class CuboidCube:
+ def __new__(cls,kind,*args,**kwargs):
+  if cls is CuboidCube and kind in ('cuboid_224','cuboid_335','cuboid_446','cuboid_234'):
+   from cube.extended_cuboid import ExtendedCuboid
+   return object.__new__(ExtendedCuboid)
+  return object.__new__(cls)
+
  def __init__(self,kind,colors=None,frames=None,history=None):
   self.puzzle_kind=kind;self.dimensions,self.core_n=MODELS[kind];self.n=max(self.dimensions)
   cells,boxes,entries,lookup,base=layout(kind)
@@ -120,6 +132,9 @@ class CuboidCube:
 
  @property
  def color_count(self):return 6
+
+ @property
+ def can_change_shape(self):return self.puzzle_kind not in FIXED_SHAPE_KINDS
 
  @property
  def geometry(self):

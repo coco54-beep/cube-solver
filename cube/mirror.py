@@ -42,6 +42,43 @@ def shape_signature(cube,frame=IDENTITY):
                         for points,normal,exterior in piece_faces(piece.home,cube.n) if exterior))
 
 
+def normalize_entry(cube):
+    """Assign identical-looking high-order pieces without asking for IDs."""
+    from cube.mastermorphix import placements,make_piece,MorphixInputError
+    positions=set(cube.positions)
+    if set(cube.cubies)!=positions:raise MorphixInputError('incomplete')
+    if any(p.frame not in placements(p.home,pos) for pos,p in cube.cubies.items()):
+        raise MorphixInputError('invalid')
+    if {p.home for p in cube.cubies.values()}==positions:return cube.clone()
+    def shell(home,frame):
+        return tuple(sorted((exterior,tuple(sorted(tuple(round(v,6) for v in transform(frame,p)) for p in points)))
+                            for points,normal,exterior in piece_faces(home,cube.n)))
+    options={}
+    rotations=tuple((frame,tuple(tuple(frame[j][i] for j in range(3)) for i in range(3))) for frame in ROTATIONS)
+    for pos,piece in cube.cubies.items():
+        target=shell(piece.home,piece.frame)
+        # Invert each of the 24 rotations to find its sole possible home.
+        # Scanning every home and every rotation becomes quadratic in the
+        # number of pieces and is needlessly slow on older phones.
+        options[pos]=[]
+        for frame,inverse in rotations:
+            home=transform(inverse,pos)
+            if home in positions and shell(home,frame)==target:options[pos].append((home,frame))
+    owners={};assigned={}
+    def assign(pos,seen):
+        for home,frame in options[pos]:
+            if home in seen:continue
+            seen.add(home)
+            if home not in owners or assign(owners[home],seen):
+                owners[home]=pos;assigned[pos]=(home,frame);return True
+        return False
+    for pos in sorted(positions,key=lambda p:len(options[p])):
+        if not assign(pos,set()):raise MorphixInputError('duplicate')
+    work=cube.clone()
+    work.cubies={pos:make_piece(home,pos,frame,cube.n) for pos,(home,frame) in assigned.items()}
+    return work
+
+
 class MirrorCube(MastermorphixCube):
     puzzle_kind='mirror'
 

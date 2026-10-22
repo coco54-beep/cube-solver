@@ -233,11 +233,28 @@ class TwistScreen(Screen):
         n = _app().n
         input_screen = self._input_screen()
         facelets = input_screen.collect_facelets()
-        from cube.appearance import VARIANTS
+        from cube.appearance import VARIANTS,kind_for
         app_cube = getattr(_app(), 'cube', None)
-        if (getattr(_app(), 'puzzle_kind', None) in VARIANTS and
+        comparison=(cubies_to_facelets(app_cube.cubies,n)
+                    if app_cube is not None and app_cube.n==n and hasattr(app_cube,'cubies') else None)
+        from cube.appearance import PENROSE
+        if getattr(_app(),'puzzle_kind',None) in PENROSE and comparison is not None:
+            from cube.penrose_entry import visible_facelets
+            comparison=visible_facelets(comparison)
+        if getattr(_app(),'puzzle_kind',None) in PENROSE:
+            from cube.penrose_entry import reconstruct,rigid_state
+            if (comparison == facelets and app_cube is not None and
+                    kind_for(app_cube)==_app().puzzle_kind and rigid_state(app_cube)):
+                cube=app_cube.clone()
+            else:
+                try:cube=reconstruct(facelets,n,_app().puzzle_kind)
+                except ValueError as error:
+                    self.manager.current='InputScreen'
+                    input_screen.entry_set_status(tr(str(error),count=2*n*n),True)
+                    return
+        elif (getattr(_app(), 'puzzle_kind', None) in VARIANTS and
                 app_cube is not None and app_cube.n == n and
-                cubies_to_facelets(app_cube.cubies, n) == facelets):
+                comparison == facelets):
             cube = app_cube.clone()
         else:
             cube = _build_partial_cube(facelets, n)
@@ -374,10 +391,12 @@ class TwistScreen(Screen):
             grid = facelets.get(f, [])
             clean[f] = [[(g if g else "") for g in row] for row in grid]
         app = _app()
-        from cube.appearance import kind_for
+        from cube.appearance import kind_for,PENROSE
         if kind_for(self._work) is not None:
             app.cube = self._work.clone()
         input_screen.set_facelets(clean,remember=True)
+        if getattr(app,'puzzle_kind',None) in PENROSE:
+            clean=input_screen.collect_facelets()
         # 同步刷新应用记录的布局，避免回到录入页时 on_enter
         # 用拧动前的旧 facelets_input 覆盖刚拧好的分布。
         app = _app()
@@ -386,7 +405,7 @@ class TwistScreen(Screen):
         app.facelets_input = clean
         cache = getattr(app, "facelets_cache", None)
         if cache is not None:
-            cache[app.n] = clean
+            cache[input_screen.input_cache_key()] = clean
         # 状态已改变，必须作废上一次求解结果：否则回录入页按“求解”时，
         # start_solve 会因 facelets_input == 当前布局而误判为“状态未变”，
         # 直接复用拧动前的旧解法，导致无法正确还原。

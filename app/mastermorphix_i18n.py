@@ -42,7 +42,7 @@ ZH = {
     "directory.fisher": "移棱魔方",
     "directory.skewb_ultimate": "斜转终极",
     "directory.super_ivy": "超级枫叶", "directory.penrose_2": "彭罗斯二阶", "directory.penrose_3": "彭罗斯魔方（3阶）", "directory.penrose_4": "彭罗斯四阶", "directory.camouflage_3": "迷彩三阶", "directory.circle_2": "圆形二阶",
-    "poly.camouflage_input": "按实体色块录入；可进入拧动页调整形状。支持软件打乱还原，复杂手动求解尚未开放。",
+    "poly.camouflage_input": "先点“调整形状”进入拧动页摆出实物外形，再按实体色块录入。支持软件打乱还原，复杂手动求解尚未开放。",
     "directory.fused_cube": "融合魔方", "directory.two_bar_cube": "双条魔方", "directory.bandaged_c": "C型绑块魔方", "directory.bicube": "BiCube 绑块魔方", "directory.ai_cube": "AI 魔方（4阶）", "directory.burr_cube": "Burr 魔方（4阶）",
     "bandage.blocked": "绑块挡住了这次转动，请换一个面或层。",
     "directory.pending": "模型、录入和求解正在接入，暂不能使用。",
@@ -76,10 +76,10 @@ ZH = {
     "morphix.group.edge": "单色梯形",
     "morphix.slot": "{kind}  {i}/{total} · {pos}",
     "morphix.progress": "已录入 {done}/{total} 块",
-    "morphix.hint": "点选块；左右箭头切换视角，中间箭头调朝向。灰色未录入，露出的切面自动沿用邻近颜色。",
-    "morphix.rotate_hint": "左右箭头切换视角，中间旋转箭头调整块的朝向。青框为当前块，露出的切面自动沿用邻近颜色。",
+    "morphix.hint": "点选块；左右箭头切换视角，圆箭头调朝向。灰色未录入，露出的切面自动沿用邻近颜色。",
+    "morphix.rotate_hint": "左右箭头切换视角，圆箭头调整块的朝向。青框为当前块，露出的切面自动沿用邻近颜色。",
     "morphix.triangle_hint": "单色小三角无需调整朝向；左右箭头切换视角。青框为当前块，露出的切面自动沿用邻近颜色。",
-    "morphix.center_hint": "双色中心已按初始状态预填，请对照实物调整朝向。左右箭头切视角，中间箭头旋转中心。",
+    "morphix.center_hint": "双色中心已按初始状态预填，请对照实物调整朝向。左右箭头切视角，圆箭头旋转中心。",
     "morphix.color_slot": "颜色 {i}",
     "morphix.restore_preset": "恢复预设",
     "morphix.color_hint": "按四面展开图的 1、2、3、4 选色；青框为当前面，选择已用颜色会交换色位。",
@@ -111,23 +111,23 @@ ZH = {
         "参考拿法\n先选好四种颜色，并按彩色示意图找到前轴 F 和上轴 U 的双色中心。"
         "新建或清空时，六个双色中心会按初始状态预填，方便定位；请按实物调整各中心朝向。"
         "六个双色中心的位置固定，只有朝向会变化。若实物其余轴的色对与示意图不同，"
-        "点击顶部色块调整四色顺序。录入过程中保持同一拿法，不要随意转动实物的层。\n\n"
+        "点击操作区齿轮，在配色设置中调整四色顺序。录入过程中保持同一拿法，不要随意转动实物的层。\n\n"
         "按块录入\n点击模型中的块，自动切换对应的输入选项，镜头保持当前视角。"
         "需要录入 6 个双色中心、8 个角块、12 个单色梯形。"
         "角块包含 4 个三色尖角和 4 个单色小三角，它们可以交换位置。"
         "点击 3D 预览中的块选择位置。左右箭头带动画切换观察视角，不会改动录入。"
         "不能直接拖动改变视角；灰色表示尚未确认。\n\n"
-        "选择外形与朝向\n点下方形状卡片确认这块的颜色与类型；中间的弯箭头旋转这块的朝向。"
-        "双色中心的四张卡片从左到右每次顺时针旋转 90°，中间旋转按钮也按此顺序切换。"
+        "选择外形与朝向\n点下方形状卡片确认这块的颜色与类型；圆箭头旋转这块的朝向。"
+        "双色中心的四张卡片从左到右每次顺时针旋转 90°，圆箭头按钮也按此顺序切换。"
         "梯形有 2 种朝向，三色尖角有 3 种。用左右箭头检查另一侧。"
         "小三角的内部朝向、同色梯形的内部编号会自动匹配，无需猜普通三阶贴纸颜色。\n\n"
         "底部图标\n交叉箭头：随机生成一颗打乱、变形的魔方，自动录入全部 26 块，可直接求解；"
         "垃圾桶：清空；回弯箭头：撤销上次录入或恢复随机打乱前的录入；勾：检查完整性和可还原性；"
         "播放三角：求解并进入逐步还原。还原包含双色中心的校正，兼顾颜色和形状。\n\n"
-        "配色\n直接点击顶部编号色块，用选色器选色。四面展开图的 1、2、3、4 对应顶部色位，"
+        "配色\n点击操作区齿轮打开配色设置，用选色器选色。四面展开图的 1、2、3、4 对应设置页的色位，"
         "图中青框标出当前改色的面，选色时该面会同步预览。选择已用颜色会交换两个色位。"
-        "改色会保存配色并保留已录入的块、中心朝向和当前视角。"
-        "改色窗口的“恢复预设”可恢复默认红、黄、蓝、绿四色及其顺序，也会保留录入。"
+        "点击保存后才会应用配色；取消或返回会放弃草稿。已录入的块、中心朝向和当前视角均会保留。"
+        "设置页的“恢复默认颜色”可恢复默认红、黄、蓝、绿四色及其顺序，保存后生效。"
         "这是一套便于辨认块的几何示意模型，曲面弧度和实体品牌可能略有不同。"
     ),
 }
@@ -174,7 +174,7 @@ EN = {
     "directory.fisher": "Fisher Cube",
     "directory.skewb_ultimate": "Skewb Ultimate",
     "directory.super_ivy": "Super Ivy", "directory.penrose_2": "Penrose 2×2", "directory.penrose_3": "Penrose Cube · 3×3", "directory.penrose_4": "Penrose 4×4", "directory.camouflage_3": "Camouflage 3×3", "directory.circle_2": "Circle 2×2",
-    "poly.camouflage_input": "Paint physical panels; adjust shape in the turn screen. App scrambles can be restored; complex manual solving is not yet available.",
+    "poly.camouflage_input": "Tap Adjust Shape to open the turn screen and match the physical form, then paint the panels. App scrambles can be restored; complex manual solving is not yet available.",
     "directory.fused_cube": "Fused Cube", "directory.two_bar_cube": "Two-Bar Cube", "directory.bandaged_c": "Bandaged Cube C", "directory.bicube": "BiCube", "directory.ai_cube": "AI Cube · 4×4", "directory.burr_cube": "Burr Cube · 4×4",
     "bandage.blocked": "A fused block prevents that turn. Try another face or layer.",
     "directory.pending": "Model, entry and solving support are being added and are not available yet.",
@@ -208,10 +208,10 @@ EN = {
     "morphix.group.edge": "Single-color wedges",
     "morphix.slot": "{kind}  {i}/{total} · {pos}",
     "morphix.progress": "{done}/{total} pieces entered",
-    "morphix.hint": "Tap a piece. Side arrows change the view; center arrow rotates the piece. Gray: unconfirmed; exposed cuts inherit nearby colors.",
-    "morphix.rotate_hint": "Side arrows change the view; center arrow rotates the piece. Cyan: selected; exposed cuts inherit nearby colors.",
+    "morphix.hint": "Tap a piece. Side arrows change the view; the circular arrow rotates the piece. Gray: unconfirmed; exposed cuts inherit nearby colors.",
+    "morphix.rotate_hint": "Side arrows change the view; the circular arrow rotates the piece. Cyan: selected; exposed cuts inherit nearby colors.",
     "morphix.triangle_hint": "Single-color triangles need no orientation adjustment. Use side arrows to change the view. Exposed cuts inherit nearby colors.",
-    "morphix.center_hint": "Centers start with preset colors and orientations. Match the real puzzle; side arrows change the view, center arrow rotates the center.",
+    "morphix.center_hint": "Centers start with preset colors and orientations. Match the real puzzle; side arrows change the view, the circular arrow rotates the center.",
     "morphix.color_slot": "Color {i}",
     "morphix.restore_preset": "Restore defaults",
     "morphix.color_hint": "Match colors to faces 1–4 in the net. Cyan outlines the current face; existing colors swap slots.",
@@ -241,20 +241,20 @@ EN = {
         "Reference orientation\nThe four-color tetrahedron has six 3x3 turn axes: U/D, F/B and R/L. "
         "New input or clearing presets all six centers as landmarks. Adjust their orientations to match the real puzzle. "
         "Match the F and U center color pairs to the reference preview. If other pairs differ, "
-        "adjust the color selection order. Keep the same physical hold during input.\n\n"
+        "use the gear in the input controls to adjust the color order. Keep the same physical hold during input.\n\n"
         "Piece input\nEnter 6 two-color centers, 8 corners (4 three-color tips and 4 small triangles), "
         "and 12 single-color wedges. Tap a piece in 3D to switch input options while keeping the camera fixed. "
         "The side arrows animate view changes without changing input. Dragging cannot change the view. "
         "Gray means unconfirmed. Choose a shape card and use the curved arrow to match orientation. "
-        "Center cards run left to right in clockwise 90-degree steps, matching the center arrow. "
+        "Center cards run left to right in clockwise 90-degree steps, matching the circular arrow. "
         "Wedges have 2 orientations, tips 3. Use side arrows to inspect another side. "
         "Invisible triangle twists and identical wedge identities are assigned automatically.\n\n"
         "Controls\nShuffle generates a scrambled, shape-changed puzzle and fills all 26 pieces, ready to solve. "
         "Trash clears input; undo restores the previous input; check validates; play solves and opens "
-        "step playback, including center orientation correction. Tap a top swatch to open the color picker. "
-        "The tetrahedron net numbers 1–4 match the top swatches. Cyan outlines the current face; its color previews as you choose. "
-        "Choosing an existing color swaps slots. Color edits are saved and preserve the entered pieces, center orientations and view. "
-        "Restore defaults in the color editor restores red, yellow, blue and green in that order while preserving input. "
+        "step playback, including center orientation correction. The gear in the input controls opens palette settings. "
+        "The tetrahedron net numbers 1–4 match the settings swatches. Cyan outlines the current face; its color previews as you choose. "
+        "Choosing an existing color swaps slots. Save applies edits; cancel or back discards the draft. Entered pieces, center orientations and view are preserved. "
+        "Restore defaults resets the draft to red, yellow, blue and green in that order; Save applies it. "
         "The geometry is schematic; curvature may differ from your brand."
     ),
 }
@@ -292,10 +292,10 @@ JA = dict(EN, **{
     "morphix.palette": "4色を選択",
     "morphix.custom_color": "カスタムカラー",
     "morphix.apply_palette": "色を適用して再入力",
-    "morphix.hint": "ピースを選択。左右の矢印は視点、中央の矢印は向きを変更します。灰色は未入力、露出した切断面は隣接する色を引き継ぎます。",
-    "morphix.rotate_hint": "左右の矢印で視点、中央の矢印で向きを変更します。水色の枠は選択中、露出した切断面は隣接する色を引き継ぎます。",
+    "morphix.hint": "ピースを選択。左右の矢印は視点、円形の矢印は向きを変更します。灰色は未入力、露出した切断面は隣接する色を引き継ぎます。",
+    "morphix.rotate_hint": "左右の矢印で視点、円形の矢印で向きを変更します。水色の枠は選択中、露出した切断面は隣接する色を引き継ぎます。",
     "morphix.triangle_hint": "単色の小三角は向きの調整が不要です。左右の矢印で視点を変更します。露出した切断面は隣接する色を引き継ぎます。",
-    "morphix.center_hint": "センターは初期状態で入力済みです。実物に合わせて向きを調整してください。左右の矢印は視点、中央はセンターを回転します。",
+    "morphix.center_hint": "センターは初期状態で入力済みです。実物に合わせて向きを調整してください。左右の矢印は視点、円形の矢印はセンターを回転します。",
     "morphix.color_slot": "色 {i}",
     "morphix.restore_preset": "初期配色に戻す",
     "morphix.color_hint": "展開図の1～4に合わせて色を選択。水色の枠は現在の面です。使用中の色は位置を交換します。",
@@ -318,20 +318,20 @@ JA = dict(EN, **{
         "基準の持ち方\n色の面は4つですが、回転軸はU/D、F/B、R/Lの6つです。"
         "新規入力、クリア時には6個のセンターが初期状態で入力されます。実物に合わせて向きを調整してください。"
         "FとUの2色センターを参考図に合わせてください。他の色の組が違う場合は、"
-        "4色の選択順を変えます。入力中は実物の持ち方を維持してください。\n\n"
+        "入力操作欄の歯車から配色設定を開き、4色の順序を変えます。入力中は実物の持ち方を維持してください。\n\n"
         "ピース入力\n2色センター6個、コーナー8個（3色の頂点4個と小三角4個）、"
         "単色の台形12個を入力します。3D上のピースをタップすると入力候補が自動で切り替わり、視点は変わりません。"
         "左右の矢印で視点をアニメーションで切り替えます。入力は変わりません。ドラッグでは視点を変更できません。"
         "灰色は未確認です。形のカードを選び、曲がった矢印で向きを合わせます。"
-        "センターの4枚のカードは左から時計回りに90度ずつ回転し、中央の回転ボタンも同じ順序です。"
+        "センターの4枚のカードは左から時計回りに90度ずつ回転し、円形の矢印ボタンも同じ順序です。"
         "台形は2方向、頂点は3方向です。左右の矢印で裏側を確認できます。"
         "見えない小三角の向きと同色の台形の内部番号は自動で割り当てます。\n\n"
         "操作\n交差する矢印は変形したスクランブルを生成し、26ピースを入力します。すぐに復元できます。"
         "ごみ箱はクリア、戻る矢印は以前の入力に戻す、チェックは検証、再生は復元です。"
-        "復元には2色センターの向きの修正も含まれます。上部の色をタップしてカラーピッカーで選べます。"
-        "展開図の1～4は上部の色番号に対応し、水色の枠は現在の面です。選ぶ色は図に反映されます。"
-        "使用中の色は位置を交換します。配色は保存され、ピース、センターの向き、視点は保持されます。"
-        "色の編集画面の初期配色ボタンで赤、黄、青、緑の順に戻せます。入力は保持されます。"
+        "復元には2色センターの向きの修正も含まれます。入力操作欄の歯車で配色設定を開きます。"
+        "展開図の1～4は設定画面の色番号に対応し、水色の枠は現在の面です。選ぶ色は図に反映されます。"
+        "使用中の色は位置を交換します。保存で適用し、キャンセルや戻るで編集を破棄します。ピース、センターの向き、視点は保持されます。"
+        "初期配色ボタンで赤、黄、青、緑の順に戻し、保存で適用できます。"
         "表示は模式的な形です。曲面の形状は実物のブランドと異なる場合があります。"
     ),
     "morphix.solving.pieces": "ピースを復元中…",
@@ -379,7 +379,7 @@ JA = dict(EN, **{
     "directory.fisher": "フィッシャーキューブ",
     "directory.skewb_ultimate": "スキューブアルティメット",
     "directory.super_ivy": "スーパーアイビー", "directory.penrose_2": "ペンローズ2×2", "directory.penrose_3": "ペンローズキューブ 3×3", "directory.penrose_4": "ペンローズ4×4", "directory.camouflage_3": "カモフラージュ3×3", "directory.circle_2": "サークル2×2",
-    "poly.camouflage_input": "実際のパネルに入力し、回転画面で形状を調整します。アプリのスクランブルは復元可能。複雑な手動入力の求解は未対応です。",
+    "poly.camouflage_input": "「形状を調整」で回転画面を開き、実物の形に合わせてからパネルを入力します。アプリのスクランブルは復元可能。複雑な手動入力の求解は未対応です。",
     "directory.fused_cube": "フューズドキューブ", "directory.two_bar_cube": "ツーバーキューブ", "directory.bandaged_c": "バンデージキューブ C", "directory.bicube": "BiCube", "directory.ai_cube": "AIキューブ 4×4", "directory.burr_cube": "バールキューブ 4×4",
     "bandage.blocked": "ブロックが固定されているため回せません。別の面か層を選んでください。",
     "directory.pending": "モデル・入力・解法は準備中で、まだ利用できません。",
@@ -617,13 +617,13 @@ for _messages, _family, _hint in (
         '446':'4×4×6 · Cuboid',
     }.items():
         _messages['directory.cuboid_'+_key]=_label
-ZH.update({'poly.cuboid_input':'按实体色块录入。支持软件打乱还原；复杂手动求解未开放。', 'poly.cuboid_twist':'轴标明90°或180°；选择层后转动，阻挡实体块的切层不可转。锁定后拖动拧层。', 'cuboid.blocked':'这条切层会切开实体块，当前不能转；请选择其他层。', 'cuboid.colours':'请录入每个实体色块，检查各颜色数量及同一块的颜色。', 'cuboid.search_limit':'此状态超出当前短搜索范围；复杂手动长方体状态的完整求解尚未开放。'})
-EN.update({'poly.cuboid_input':'Paint the physical panels. App scrambles can be restored; complex manual solves are not yet supported.', 'poly.cuboid_twist':'Axes show 90° or 180°. Select a layer; cuts through rigid pieces are blocked. Lock to twist by dragging.', 'cuboid.blocked':'This cut would split a rigid brick. Choose another layer.', 'cuboid.colours':'Paint every panel and check colour counts and continuous panels.', 'cuboid.search_limit':'This state exceeds the bounded search. General manual cuboid solving is not yet available.'})
-JA.update({'poly.cuboid_input':'実際の面片を入力。アプリのスクランブルを復元できます。複雑な手入力の完全求解は未対応。', 'poly.cuboid_twist':'軸に90°または180°を表示。部品を分断する層は回せません。ロック中はドラッグで回転。', 'cuboid.blocked':'この切断面は部品を分断します。別の層を選択してください。', 'cuboid.colours':'全ての面片を入力し、色数と連続した面の色を確認してください。', 'cuboid.search_limit':'短い探索の範囲を超えています。複雑な手入力の完全求解は未対応です。'})
+ZH.update({'poly.cuboid_input':'先点“调整形状”进入拧动页把实体块摆到实物外形，再按实体色块录入。支持软件打乱还原；复杂手动求解未开放。', 'poly.adjust_shape':'调整形状', 'poly.cuboid_twist':'轴标明90°或180°；选择层后转动，阻挡实体块的切层不可转。锁定后拖动拧层。', 'cuboid.blocked':'这条切层会切开实体块，当前不能转；请选择其他层。', 'cuboid.colours':'请录入每个实体色块，检查各颜色数量及同一块的颜色。', 'cuboid.search_limit':'此状态超出当前短搜索范围；复杂手动长方体状态的完整求解尚未开放。'})
+EN.update({'poly.cuboid_input':'Tap Adjust Shape to move the rigid bricks into the physical form in the turn screen, then paint the panels. App scrambles can be restored; complex manual solves are not yet supported.', 'poly.adjust_shape':'Adjust shape', 'poly.cuboid_twist':'Axes show 90° or 180°. Select a layer; cuts through rigid pieces are blocked. Lock to twist by dragging.', 'cuboid.blocked':'This cut would split a rigid brick. Choose another layer.', 'cuboid.colours':'Paint every panel and check colour counts and continuous panels.', 'cuboid.search_limit':'This state exceeds the bounded search. General manual cuboid solving is not yet available.'})
+JA.update({'poly.cuboid_input':'「形状を調整」で回転画面を開き、実物の形に合わせてから面片を入力します。アプリのスクランブルを復元できます。複雑な手入力の完全求解は未対応。', 'poly.adjust_shape':'形状を調整', 'poly.cuboid_twist':'軸に90°または180°を表示。部品を分断する層は回せません。ロック中はドラッグで回転。', 'cuboid.blocked':'この切断面は部品を分断します。別の層を選択してください。', 'cuboid.colours':'全ての面片を入力し、色数と連続した面の色を確認してください。', 'cuboid.search_limit':'短い探索の範囲を超えています。複雑な手入力の完全求解は未対応です。'})
 
-ZH.update({'cuboid.outer_layers':'外侧 {i} 层', 'cuboid.layer_blocked':'切层 {i} · 被阻挡', 'poly.super_floppy_input':'Super Floppy：按实体块录入，可完整求解。侧棱必须带着至少一个角才能转动。'})
-EN.update({'cuboid.outer_layers':'Outer {i} layer(s)', 'cuboid.layer_blocked':'Cut {i} · blocked', 'poly.super_floppy_input':'Super Floppy supports complete state-based solving. An edge needs at least one attached corner to turn.'})
-JA.update({'cuboid.outer_layers':'外側 {i} 層', 'cuboid.layer_blocked':'切断面 {i}・回転不可', 'poly.super_floppy_input':'Super Floppyは入力状態から完全求解できます。辺には角が少なくとも1個必要です。'})
+ZH.update({'cuboid.outer_layers':'外侧 {i} 层', 'cuboid.layer_blocked':'切层 {i} · 被阻挡', 'poly.super_floppy_input':'Super Floppy：先点“调整形状”在拧动页摆出实物外形，再按实体块录入；可完整求解。侧棱必须带着至少一个角才能转动。'})
+EN.update({'cuboid.outer_layers':'Outer {i} layer(s)', 'cuboid.layer_blocked':'Cut {i} · blocked', 'poly.super_floppy_input':'Super Floppy: tap Adjust Shape to match the physical form, then paint the pieces. Complete state-based solving is supported. An edge needs at least one attached corner to turn.'})
+JA.update({'cuboid.outer_layers':'外側 {i} 層', 'cuboid.layer_blocked':'切断面 {i}・回転不可', 'poly.super_floppy_input':'Super Floppy：「形状を調整」で回転画面を開き、実物の形に合わせてから入力します。入力状態から完全求解できます。辺には角が少なくとも1個必要です。'})
 
 ZH.update({'floppy.centre_error':'中心块的上下颜色不正确。', 'floppy.corner_error':'角块颜色、朝向或位置不符合 Super Floppy 结构。', 'floppy.edge_error':'棱块颜色或朝向不符合 Super Floppy 结构。'})
 EN.update({'floppy.centre_error':'The centre top/bottom colours do not match.', 'floppy.corner_error':'A corner has impossible colours, orientation or position.', 'floppy.edge_error':'An edge has impossible colours or orientation.'})
@@ -725,3 +725,132 @@ JA.update({
     'directory.fisher': 'フィッシャーシリーズ',
     'directory.cuboid_family': '直方体シリーズ',
 })
+
+# Circular 2x2: independent disc sectors with a travelling anchored corner.
+ZH.update({
+ 'poly.circle2_input':'圈内、圈外分别录入，共48块。支持软件打乱还原；复杂手动求解尚未开放。',
+ 'poly.circle2_twist':'内圈随机构联动；转固定角所在层时，内圈也会跟转。左右箭头更换观察面。',
+})
+EN.update({
+ 'poly.circle2_input':'Enter inner and outer panels separately: 48 total. App scrambles can be restored; complex manual solving is not yet available.',
+ 'poly.circle2_twist':'Inner discs follow the mechanism and layers containing the anchored corner. Arrows change the viewing face.',
+})
+JA.update({
+ 'poly.circle2_input':'内円と外側を別々に入力します（全48面片）。アプリのスクランブルは復元可能。複雑な手動求解は未対応です。',
+ 'poly.circle2_twist':'内円は内部機構と連動し、固定角を含む層の回転にも追従します。左右矢印で観察面を変更します。',
+})
+
+# Fixed bandaged layouts: enter single plates, bars, then square plates.
+ZH.update({
+ 'bandage.other':'其他形状',
+ 'bandage.step_hint':'选择颜色，点击{shape}块；同一块自动填满。',
+ 'bandage.wrong_step':'这是一块{shape}，请切换到对应步骤填色。',
+ 'bandage.progress':'{shape}：已填 {done}/{total} 块',
+})
+EN.update({
+ 'bandage.other':'Other shapes',
+ 'bandage.step_hint':'Select a colour and tap a {shape} plate to fill it.',
+ 'bandage.wrong_step':'This is a {shape} plate. Select its step to paint it.',
+ 'bandage.progress':'{shape}: {done}/{total} plates filled',
+})
+JA.update({
+ 'bandage.other':'その他',
+ 'bandage.step_hint':'色を選び、{shape}のパネルをタップすると全体が塗られます。',
+ 'bandage.wrong_step':'これは{shape}のパネルです。対応する手順に切り替えてください。',
+ 'bandage.progress':'{shape}：入力済み {done}/{total}',
+})
+
+ZH.update({'bandage.connect':'① 连块','bandage.colour':'② 填色',
+ 'bandage.connect_hint':'先点选各尺寸块确认连块；浅色表示已确认。全部完成后填色。',
+ 'bandage.connect_progress':'连块 {shape}：已确认 {done}/{total} 块'})
+EN.update({'bandage.connect':'1. Connect','bandage.colour':'2. Colour',
+ 'bandage.connect_hint':'Confirm each plate size first. Light panels are confirmed. Then enter colours.',
+ 'bandage.connect_progress':'Connect {shape}: {done}/{total} confirmed'})
+JA.update({'bandage.connect':'① 接合','bandage.colour':'② 配色',
+ 'bandage.connect_hint':'サイズ別にパネルを確認します。明るい部分は確認済みです。完了後に配色します。',
+ 'bandage.connect_progress':'接合 {shape}：確認済み {done}/{total}'})
+
+ZH.update({'bandage.place_hint':'选块和颜色，点击中心格，旋转后点✓确认；不会覆盖已有颜色。',
+ 'bandage.orientation':'{w}×{h} · {angle}°',
+ 'bandage.outside':'旋转后的块超出当前面，请调整中心格或方向。',
+ 'bandage.occupied':'位置已有颜色，不能覆盖；请调整中心格或方向。',
+ 'bandage.layout_mismatch':'此位置不符合该型号的绑块布局，请调整中心格或方向。'})
+EN.update({'bandage.place_hint':'Select shape and colour, tap the pivot cell, rotate, then confirm. Filled cells cannot be overwritten.',
+ 'bandage.orientation':'{w}×{h} · {angle}°',
+ 'bandage.outside':'The rotated plate extends outside this face. Adjust the pivot or direction.',
+ 'bandage.occupied':'Some cells already have colours. Adjust the pivot or direction.',
+ 'bandage.layout_mismatch':'This position does not match the selected model. Adjust the pivot or direction.'})
+JA.update({'bandage.place_hint':'形と色を選び、中心マスをタップし、回転後に✓で確定します。入力済みの色は上書きしません。',
+ 'bandage.orientation':'{w}×{h} · {angle}°',
+ 'bandage.outside':'回転後のブロックが面からはみ出します。中心マスか向きを調整してください。',
+ 'bandage.occupied':'入力済みの色と重なります。中心マスか向きを調整してください。',
+ 'bandage.layout_mismatch':'この位置は選択モデルの接合配置と一致しません。中心マスか向きを調整してください。'})
+
+ZH.update({'sq.entry_cursor':'{layer} · {done}/12格：从青线沿箭头录入，完成后自动前进',
+ 'sq.entry_occupied':'位置与邻块重叠，请选择空位；可撤销后重新放块。',
+ 'cuboid.direct_entry':'直接摆块', 'cuboid.entry_hint':'选实物块 → 调位置和朝向 → ✓放置；最后检查并应用',
+ 'cuboid.entry_piece':'块 {piece}/{total} · {size}', 'cuboid.entry_progress':'已放 {done}/{total} 块',
+ 'cuboid.entry_overlap':'与已放的块重叠，请换位置或撤销。',
+ 'cuboid.entry_incomplete':'还有未放置的块，请先完成摆放。',
+ 'cuboid.entry_invalid':'内部结构无法拼合，请检查各块位置和朝向。',
+ 'cuboid.entry_apply':'检查并应用', 'cuboid.entry_orientation':'位置/朝向 {index}/{total}',
+ 'cuboid.entry_reset':'从空形状开始', 'cuboid.entry_edit':'编辑当前形状'})
+EN.update({'sq.entry_cursor':'{layer} · {done}/12 sectors: follow the cyan arrow; advance automatically',
+ 'sq.entry_occupied':'Overlaps a neighbouring piece. Select an empty position or undo.',
+ 'cuboid.direct_entry':'Place pieces', 'cuboid.entry_hint':'Choose a physical piece → position and orient → confirm; then check and apply',
+ 'cuboid.entry_piece':'Piece {piece}/{total} · {size}', 'cuboid.entry_progress':'Placed {done}/{total} pieces',
+ 'cuboid.entry_overlap':'Overlaps a placed piece. Change position or undo.',
+ 'cuboid.entry_incomplete':'Place all visible pieces first.',
+ 'cuboid.entry_invalid':'The internal pieces cannot fit. Check positions and orientations.',
+ 'cuboid.entry_apply':'Check and apply', 'cuboid.entry_orientation':'Position/orientation {index}/{total}',
+ 'cuboid.entry_reset':'Start empty', 'cuboid.entry_edit':'Edit current shape'})
+JA.update({'sq.entry_cursor':'{layer} · {done}/12：青線から矢印の順に入力し、自動で次へ',
+ 'sq.entry_occupied':'隣のピースと重なります。空き位置を選ぶか元に戻してください。',
+ 'cuboid.direct_entry':'ピース配置', 'cuboid.entry_hint':'実物ピースを選択 → 位置と向きを調整 → 確定 → 確認して適用',
+ 'cuboid.entry_piece':'ピース {piece}/{total} · {size}', 'cuboid.entry_progress':'配置済み {done}/{total}',
+ 'cuboid.entry_overlap':'配置済みピースと重なります。位置を変えるか元に戻してください。',
+ 'cuboid.entry_incomplete':'外側のピースをすべて配置してください。',
+ 'cuboid.entry_invalid':'内部ピースが収まりません。位置と向きを確認してください。',
+ 'cuboid.entry_apply':'確認して適用', 'cuboid.entry_orientation':'位置・向き {index}/{total}',
+ 'cuboid.entry_reset':'空の形から開始', 'cuboid.entry_edit':'現在の形を編集'})
+
+ZH.update({'cuboid.entry_position':'位置 {index}/{total}', 'cuboid.entry_direction':'朝向 {index}/{total}',
+ 'poly.cuboid_input':'形状未变可直接填色；变形后点“直接摆块”选块、调位置和朝向。复杂手动求解尚未开放。',
+ 'poly.camouflage_input':'点“直接摆块”匹配实物形状，再检查颜色。复杂手动求解尚未开放。',
+ 'poly.super_floppy_input':'形状未变可直接填色；变形后点“直接摆块”匹配实物，再求解。'})
+EN.update({'cuboid.entry_position':'Position {index}/{total}', 'cuboid.entry_direction':'Orientation {index}/{total}',
+ 'poly.cuboid_input':'Paint unchanged shapes directly. For shape changes, use Place pieces to set positions and orientations. Complex manual solving is not yet available.',
+ 'poly.camouflage_input':'Use Place pieces to match the physical shape, then check colours. Complex manual solving is not yet available.',
+ 'poly.super_floppy_input':'Paint unchanged shapes directly. For shape changes, use Place pieces before solving.'})
+JA.update({'cuboid.entry_position':'位置 {index}/{total}', 'cuboid.entry_direction':'向き {index}/{total}',
+ 'poly.cuboid_input':'元の形なら直接配色できます。変形時は「ピース配置」で位置と向きを合わせてください。複雑な手動求解は未対応です。',
+ 'poly.camouflage_input':'「ピース配置」で実物の形に合わせ、色を確認します。複雑な手動求解は未対応です。',
+ 'poly.super_floppy_input':'元の形なら直接配色できます。変形時は「ピース配置」で実物に合わせてから求解します。'})
+
+ZH.update({'cuboid.entry_budget':'内部结构检查达到时间上限，摆块已保留；请先检查位置后重试。'})
+EN.update({'cuboid.entry_budget':'Internal fitting reached its time limit. Placements are kept; review positions and retry.'})
+JA.update({'cuboid.entry_budget':'内部構造の確認が時間上限に達しました。配置は保持しています。位置を確認して再試行してください。'})
+
+ZH.update({'poly.cuboid_fixed_input':'选择颜色后点色块录入，左右箭头逐面切换。'})
+EN.update({'poly.cuboid_fixed_input':'Select a colour and tap panels. Use the arrows to change faces.'})
+JA.update({'poly.cuboid_fixed_input':'色を選んでパネルを入力します。左右の矢印で面を切り替えます。'})
+
+ZH.update({'palette.settings':'配色设置','palette.hint':'编号对应展开图。选择色号后调色，保存后生效。',
+ 'palette.selected':'正在设置：色号 {i}','palette.save':'保存配色','palette.duplicate':'请为每个色号设置不同的颜色。'})
+EN.update({'palette.settings':'Colours','palette.hint':'Numbers match the net. Select a slot, edit its colour, then save.',
+ 'palette.selected':'Editing colour {i}','palette.save':'Save colours','palette.duplicate':'Each slot needs a different colour.'})
+JA.update({'palette.settings':'配色設定','palette.hint':'番号は展開図に対応します。色番号を選んで調整し、保存してください。',
+ 'palette.selected':'色番号 {i} を設定中','palette.save':'配色を保存','palette.duplicate':'各番号に異なる色を設定してください。'})
+
+ZH.update({'bandage.entry_incomplete':'请录完六面的连块和颜色。',
+ 'bandage.entry_inventory':'该尺寸的块数量不符合此型号，请检查连块。',
+ 'bandage.entry_layout':'颜色与连块无法组成此型号的刚性块，请检查相邻面。',
+ 'bandage.entry_budget':'连块匹配达到时间上限，录入已保留，请检查后重试。'})
+EN.update({'bandage.entry_incomplete':'Enter plates and colours on all six faces.',
+ 'bandage.entry_inventory':'The plate counts do not match this model.',
+ 'bandage.entry_layout':'Colours and seams cannot form the rigid pieces of this model. Check adjacent faces.',
+ 'bandage.entry_budget':'Plate matching timed out. Input is kept; check and retry.'})
+JA.update({'bandage.entry_incomplete':'六面の接合と色を入力してください。',
+ 'bandage.entry_inventory':'この形のパーツ数がモデルと一致しません。',
+ 'bandage.entry_layout':'色と接合がこのモデルの剛体パーツに一致しません。隣接面を確認してください。',
+ 'bandage.entry_budget':'接合照合が時間上限に達しました。入力は保持しています。確認して再試行してください。'})

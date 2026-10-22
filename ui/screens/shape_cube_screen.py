@@ -6,10 +6,10 @@ from renderer.shape_cube_view import AxisView
 from ui.screens.mirror_screen import MirrorScreen
 from ui.screens.mastermorphix_screen import _app
 from app.constants import COLOR_INFO
-from ui.widgets import metrics as m
 
 
 class ShapeCubeScreen(MirrorScreen):
+    supports_palette_settings=True
     cube_class=AxisCube
     view_class=AxisView
 
@@ -45,31 +45,15 @@ class ShapeCubeScreen(MirrorScreen):
             self._refresh()
 
     def open_color(self,index):
-        from kivy.uix.colorpicker import ColorPicker
-        from ui.widgets.layouts import ResponsiveBoxLayout
-        from ui.widgets.buttons import UIButton,PrimaryButton
-        picker=ColorPicker(color=COLOR_INFO[self._cube.palette[index]][1])
-        content=ResponsiveBoxLayout(orientation='vertical',gap_px=8)
-        content.add_widget(picker)
-        actions=ResponsiveBoxLayout(height_px=44,gap_px=6)
-        restore=UIButton(text=tr('poly.restore_colors'))
-        done=PrimaryButton(icon_name='done')
-        actions.add_widget(restore)
-        actions.add_widget(done)
-        content.add_widget(actions)
-        popup=self._popup(tr('poly.palette'),content,(.9,.85))
-        restore.bind(on_release=lambda *_:(self.restore_preset(),popup.dismiss()))
-        def accept(*args):
-            colors=[COLOR_INFO[c][1] for c in self._cube.palette]
-            value=tuple(picker.color[:3])+(1,)
-            for other,color in enumerate(colors):
-                if other!=index and color[:3]==value[:3]:
-                    colors[other]=colors[index]
-                    break
-            colors[index]=value
-            self._apply_shape_colors(colors)
-            popup.dismiss()
-        done.bind(on_release=accept)
+        self.open_palette_settings(index)
+
+    def default_palette_colors(self):
+        from cube.shape_cube import PALETTE
+        return [COLOR_INFO[c][1] for c in PALETTE]
+
+    def apply_palette_colors(self,colors):
+        self._apply_shape_colors(colors)
+        _app().solve_result=None
 
     def restore_preset(self):
         from cube.shape_cube import PALETTE
@@ -112,18 +96,7 @@ class ShapeCubeScreen(MirrorScreen):
     def _refresh(self):
         super()._refresh()
         if self._cube is not None:
-            from ui.screens.mastermorphix_screen import _Swatch
-            visible=self._cube.puzzle_kind!='football'
-            self.palette_row.height=m.h(44) if visible else 0
-            self.palette_row._height_px=44 if visible else 0
-            self.palette_row.opacity=1 if visible else 0
-            self.palette_row.disabled=not visible
-            self.palette_row.clear_widgets()
-            if visible:
-                for i,color in enumerate(self._cube.palette):
-                    chip=_Swatch(COLOR_INFO[color][1],text=str(i+1))
-                    chip.bind(on_release=lambda *_,slot=i:self.open_color(slot))
-                    self.palette_row.add_widget(chip)
+            self._refresh_palette_button()
             self.demo_button.disabled=self._cube.n>3
             self.demo_button.opacity=0 if self._cube.n>3 else 1
             self.reference_label.text=tr('football.pattern_hint' if self._cube.puzzle_kind=='football' else 'shape.reference')

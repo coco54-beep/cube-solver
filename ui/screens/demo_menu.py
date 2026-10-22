@@ -36,7 +36,7 @@ def source_screen(mode):
         return 'HomeScreen'
     kind=mode[0] if isinstance(mode,tuple) else mode
     return {'fisher_skewb':'FisherSkewbScreen','mastermorphix':'MastermorphixScreen','mirror':'MirrorScreen',
-            'axis':'ShapeCubeScreen','pandora':'ShapeCubeScreen',
+            'axis':'ShapeCubeScreen','pandora':'InputScreen',
             'windmill':'ShapeCubeScreen','fisher':'ShapeCubeScreen',
             'square1':'Square1Screen','mirror_tower':'MirrorTowerScreen'}.get(
                 kind,'PolyhedralScreen' if isinstance(mode,tuple) else 'InputScreen')

@@ -6,6 +6,7 @@
 """
 
 from kivy.clock import Clock
+from kivy.graphics import Color,Line,InstructionGroup
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
@@ -86,8 +87,21 @@ def _build_partial_cube(facelets, n):
     app = _app()
     kind = getattr(app, 'puzzle_kind', None) if app is not None else None
     from cube.appearance import VARIANTS, with_appearance, kind_for
+    from cube.appearance import PENROSE
+    if kind in PENROSE:
+        from cube.penrose_entry import preview, visible_facelets, rigid_state
+        saved = getattr(app, 'cube', None)
+        if (saved is not None and saved.n == n and kind_for(saved) == kind and
+                visible_facelets(cubies_to_facelets(saved.cubies, n)) == visible_facelets(facelets) and rigid_state(saved)):
+            return saved.clone()
+        return preview(facelets, n, kind)
     if kind in VARIANTS:
-        from cube.conversion import cubies_to_facelets
+        # Resetting a shaped variant must rebuild the rigid shell frames, not
+        # merely repaint the scrambled pieces. Painting keeps the old frames
+        # so Penrose/bandaged variants looked unsolved after a reset.
+        solved = _new_solved_cube(n)
+        if facelets == cubies_to_facelets(solved.cubies, n):
+            return solved
         saved = getattr(app, 'cube', None)
         if saved is not None and saved.n == n and kind_for(saved) == kind:
             result = saved.clone()
@@ -150,6 +164,28 @@ class _InputCubeView(CubeView):
         # 只处理「本视图按下」的那一个触点；否则从颜色选择器等其它控件冒泡上来的
         # touch_up 会带着它们的坐标触发 on_pick，误填到当前面的角落。
         self._active_touch = None
+        self._entry_pivot=None
+        self._pivot_marks=InstructionGroup()
+        self.canvas.after.add(self._pivot_marks)
+
+    def set_entry_pivot(self,pivot):
+        self._entry_pivot=pivot
+        self._draw_entry_pivot()
+
+    def _draw_mesh(self):
+        super()._draw_mesh()
+        if hasattr(self,'_pivot_marks'):self._draw_entry_pivot()
+
+    def _draw_entry_pivot(self):
+        self._pivot_marks.clear()
+        if self._entry_pivot is None or self.cube is None:return
+        face,r,c=self._entry_pivot
+        pos=pos_from_rc(self.cube.n,face,r,c)
+        quad=next((q for q,p,f in self._last_quads if p==pos and f==face),None)
+        if quad is None:return
+        x=sum(p['x'] for p in quad)/len(quad);y=sum(p['y'] for p in quad)/len(quad)
+        self._pivot_marks.add(Color(.05,.8,.95,1))
+        self._pivot_marks.add(Line(circle=(x,y,m.h(6)),width=m.h(1.5)))
 
     def cancel_touch(self):
         """Release a gesture even if the OS never delivered its touch-up."""
@@ -208,6 +244,16 @@ class _InputCubeView(CubeView):
         return True
 
 
+class _PandoraInputView(_InputCubeView):
+    def set_cube(self,cube,highlight=None):
+        cube.pandora_entry=True
+        super().set_cube(cube,highlight)
+
+    def pick_cell(self,face,n,x,y):
+        hit=self.pick_facelet(x,y)
+        return rc_from_pos(n,face,hit[0]) if hit is not None and hit[1]==face else None
+
+
 class InputScreen(EntryActionsMixin, Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -221,6 +267,13 @@ class InputScreen(EntryActionsMixin, Screen):
         self._redo = []           # 重做栈
         self._drag_edits = {}     # 当前拖动手法累积的编辑 {(r,c): old}
         self._error_cells = set()
+        self._bandage_step='1×1'
+        self._bandage_kind=None
+        self._bandage_rotation=0
+        self._bandage_pending=None
+        self._bandage_mode='place'
+        self._bandage_connections=set()
+        self._entry_layout_cube=None
         self.build_ui()
         self._init_for_n()
 
@@ -239,13 +292,16 @@ class InputScreen(EntryActionsMixin, Screen):
                            halign="center", font_size="20sp", bold=True)
         self.btn_demo = UIButton(text="", icon_name="demo", size_hint_x=0.22)
         self.btn_demo.bind(on_release=lambda *a: self.open_demo())
+        self.btn_palette=UIButton(icon_name='gear')
+        self.btn_palette.bind(on_release=lambda *_:self.open_palette_settings())
         top.add_widget(self.btn_back)
         top.add_widget(self.title)
         top.add_widget(self.btn_demo)
         root.add_widget(top)
 
         # ---- 3D 视图占满主区 ----
-        self.view = _InputCubeView(size_hint=(1.0, 1.0))
+        self._pandora_entry=getattr(_app(),'puzzle_kind',None)=='pandora'
+        self.view = (_PandoraInputView if self._pandora_entry else _InputCubeView)(size_hint=(1.0, 1.0))
         self.view.on_pick = self._handle_pick
         self.view.on_drag = self._handle_drag
         self.view.on_drag_end = self._handle_drag_end
@@ -266,8 +322,24 @@ class InputScreen(EntryActionsMixin, Screen):
                 nav.add_widget(w)
         panel.add_widget(nav)
 
+        self.bandage_modes=BoxLayout(size_hint_y=None,height=0,spacing=m.h(5))
+        self.bandage_orientation=Label(text='',halign='center',font_size='14sp')
+        self.bandage_rotate=UIButton(text='90°',size_hint_x=.45)
+        self.bandage_rotate.bind(on_release=lambda *_:self._rotate_bandage_block())
+        self.bandage_modes.add_widget(self.bandage_orientation)
+        self.bandage_modes.add_widget(self.bandage_rotate)
+        self.bandage_confirm=PrimaryButton(icon_name='done',size_hint_x=.35)
+        self.bandage_confirm.bind(on_release=lambda *_:self._confirm_bandage_placement())
+        self.bandage_modes.add_widget(self.bandage_confirm)
+        panel.add_widget(self.bandage_modes)
+        self.bandage_row=BoxLayout(size_hint_y=None,height=0,spacing=m.h(5))
+        self.bandage_row.opacity=0
+        self.bandage_row.disabled=True
+        panel.add_widget(self.bandage_row)
+
         # ---- 颜色选择器 ----
         self.picker = ColorSelector(two_rows=simple, size_hint_y=None)
+        self.picker.bind(current_color=lambda *_:self._refresh_view() if self._bandage_pending is not None else None)
         self.input_panel = None
         if simple:
             panel.add_widget(self.picker)
@@ -324,7 +396,9 @@ class InputScreen(EntryActionsMixin, Screen):
             size_hint_y=None, height=m.h(48), spacing=m.h(16),
             padding=[m.h(28), 0, m.h(28), 0])
         if simple:
-            for b in (self.btn_prev, self.btn_solve, self.btn_next):
+            for b in (self.btn_prev, self.btn_palette, self.btn_solve, self.btn_next):
+                if b is self.btn_palette and not self._uses_standard_palette():
+                    continue
                 self.simple_turn_row.add_widget(b)
             panel.add_widget(self.simple_turn_row)
         else:
@@ -350,6 +424,7 @@ class InputScreen(EntryActionsMixin, Screen):
             (self.msg, 34),
         ]
         self.add_widget(root)
+        self._configure_palette_controls()
         # Refresh once the native window reports its final pixel height.
         Clock.schedule_once(lambda *_: self._apply_responsive_heights(), 0)
 
@@ -380,6 +455,8 @@ class InputScreen(EntryActionsMixin, Screen):
             return
         self.follow_control.retranslate()
         self.title.text = tr("input.title", n=self._n())
+        self._configure_palette_controls()
+        self._update_face_label()
         self._update_turn_hints()
         self._update_progress()
 
@@ -416,6 +493,7 @@ class InputScreen(EntryActionsMixin, Screen):
 
     def _init_for_n(self):
         self.reset_interaction()
+        self._bandage_mode='place';self._bandage_connections=set();self._bandage_step='1×1';self._bandage_pending=None;self._bandage_rotation=0
         n = self._n()
         self._data = {f: [[""] * n for _ in range(n)] for f in FACES}
         self._ori = CubeOrientation(n)
@@ -442,6 +520,14 @@ class InputScreen(EntryActionsMixin, Screen):
     def _n(self):
         return _app().n
 
+    def _penrose(self):
+        from cube.appearance import PENROSE
+        return getattr(_app(), 'puzzle_kind', None) in PENROSE
+
+    def input_cache_key(self):
+        from cube.bandaged_cube import KINDS
+        return _app().puzzle_kind if self._penrose() or self._pandora_entry or _app().puzzle_kind in KINDS else self._n()
+
     # ---- 3D 视图 ----
     def _refresh_view(self):
         if not hasattr(self, "view"):
@@ -459,11 +545,43 @@ class InputScreen(EntryActionsMixin, Screen):
             pos_from_rc(self._n(), face, r, c)
             for face, r, c in self._error_cells
         }
-        self.view.set_cube(cube, highlight=highlighted or None)
+        self._entry_layout_cube=cube
+        from cube.bandaged_entry import plates,entered_plates
+        inventory=plates(cube)
+        if inventory and self._bandage_kind!=cube.puzzle_kind:
+            self._bandage_mode='place';self._bandage_connections=set()
+        visual=cube
+        if self._pandora_entry:cube.pandora_entry_palette=dict(self.picker._palette)
+        if inventory and self._bandage_mode in ('connect','place'):
+            # Show the base grid first. Only explicitly confirmed plates
+            # lose their internal seams; mechanical constraints stay fixed.
+            visual=cube.clone()
+            for cubie in visual.cubies.values():
+                for normal in cubie.stickers:cubie.stickers[normal]=''
+            confirmed=entered_plates(self._bandage_connections)
+            for p in confirmed:
+                for r,c in p.cells:visual.cubies[pos_from_rc(cube.n,p.face,r,c)].stickers[FACE_NORMALS[p.face]]=self._data[p.face][r][c] if self._bandage_mode=='place' else 'W'
+            visual.groups=tuple(frozenset(cube.cubies[pos_from_rc(cube.n,p.face,r,c)].home
+                                         for r,c in p.cells)
+                                for p in confirmed if len(p.cells)>1)
+            if self._bandage_pending is not None:
+                face,r,c=self._bandage_pending
+                candidate=self._bandage_candidate()
+                inside=[(rr,cc) for rr,cc in candidate if 0<=rr<cube.n and 0<=cc<cube.n]
+                for rr,cc in inside:
+                    if not self._data[face][rr][cc]:
+                        visual.cubies[pos_from_rc(cube.n,face,rr,cc)].stickers[FACE_NORMALS[face]]=self.picker.current_color
+                if len(inside)==len(candidate) and not any(self._data[face][rr][cc] for rr,cc in inside):
+                    visual.groups+= (frozenset(cube.cubies[pos_from_rc(cube.n,face,rr,cc)].home for rr,cc in inside),)
+        self.view.set_cube(visual, highlight=highlighted or None)
+        self._update_bandage_step()
         self.view.set_whole_world(self._ori.world)
+        self.view.set_entry_pivot(self._bandage_pending if inventory else None)
         self._update_face_label()
 
     def _update_face_label(self):
+        if self._pandora_entry:self.title.text=tr('directory.pandora')
+        if self._penrose():self.title.text=tr('directory.'+_app().puzzle_kind)
         face = self._ori.current_face()
         grid = self._data.get(face, [])
         face_done = sum(bool(col) for row in grid for col in row)
@@ -483,6 +601,117 @@ class InputScreen(EntryActionsMixin, Screen):
         self.msg.text = tr("input.progress", done=filled, total=6 * self._n() ** 2)
         self.msg.color = _app().theme.text_muted
         self._update_face_label()
+        self._update_bandage_step()
+        from cube.bandaged_entry import plates,completed,entered_plates
+        current=[p for p in plates(self._entry_layout_cube) if p.shape==self._bandage_step]
+        if current:
+            shape=tr('bandage.other') if self._bandage_step=='other' else self._bandage_step
+            done=sum(completed(p,self._data) for p in entered_plates(self._bandage_connections) if p.shape==self._bandage_step)
+            self.msg.text=tr('bandage.progress',shape=shape,done=done,total=len(current))
+
+    def _update_bandage_step(self,advance=False):
+        from cube.bandaged_entry import plates,steps,completed,entered_plates
+        cube=getattr(self,'_entry_layout_cube',None) or getattr(self.view,'cube',None)
+        inventory=plates(cube)
+        enabled=bool(inventory)
+        self.bandage_row.height=m.h(42) if enabled else 0
+        self.bandage_row.opacity=1 if enabled else 0
+        self.bandage_row.disabled=not enabled
+        if hasattr(self,'bandage_modes'):
+            self.bandage_modes.height=m.h(38) if enabled else 0
+            self.bandage_modes.opacity=1 if enabled else 0
+            self.bandage_modes.disabled=not enabled
+            self.picker.disabled=False;self.picker.opacity=1
+            self.btn_twist.disabled=enabled and len(self._bandage_connections)<len(inventory)
+            self.btn_pick.disabled=False
+            w,h=self._bandage_dimensions()
+            self.bandage_rotate.disabled=not enabled or self._bandage_step in ('1×1','other')
+            self.bandage_confirm.disabled=not enabled or self._bandage_pending is None
+            self.bandage_orientation.text=tr('bandage.orientation',w=w,h=h,angle=90*self._bandage_rotation) if enabled else ''
+        if not enabled:return
+        kind=cube.puzzle_kind
+        if hasattr(self,'title'):self.title.text=tr('directory.'+kind)
+        if self._bandage_kind!=kind:
+            self._bandage_kind=kind;self._bandage_step='1×1'
+            advance=True
+        keys=steps(cube)
+        connecting=getattr(self,'_bandage_mode','colour')=='connect'
+        remaining={k:sum((p.face,p.cells) not in self._bandage_connections if connecting else not completed(p,self._data)
+                         for p in inventory if p.shape==k) for k in keys}
+        if getattr(self,'_bandage_mode',None)=='place':
+            remaining={k:sum(p.shape==k for p in inventory)-sum(p.shape==k for p in entered_plates(self._bandage_connections)) for k in keys}
+        if self._bandage_step not in keys:self._bandage_step=keys[0]
+        if advance and remaining.get(self._bandage_step,0)==0:
+            self._bandage_step=next((k for k in keys if remaining[k]),self._bandage_step)
+        if hasattr(self,'bandage_rotate'):
+            w,h=self._bandage_dimensions()
+            self.bandage_rotate.disabled=self._bandage_step in ('1×1','other')
+            self.bandage_orientation.text=tr('bandage.orientation',w=w,h=h,angle=90*self._bandage_rotation)
+        self.bandage_row.clear_widgets()
+        for index,k in enumerate(keys):
+            label=tr('bandage.other') if k=='other' else k
+            button=UIButton(text=f'{index+1} · {label}')
+            button.active=k==self._bandage_step
+            button.disabled=not any(p.shape==k for p in inventory)
+            button.bind(on_release=lambda _button,key=k:self._select_bandage_step(key))
+            self.bandage_row.add_widget(button)
+
+    def _select_bandage_step(self,key):
+        if self._busy_turn:return
+        self._handle_drag_end()
+        self._bandage_step=key;self._bandage_rotation=0;self._bandage_pending=None
+        self._refresh_view()
+        self._update_bandage_step()
+        self.msg.text=tr('bandage.place_hint')
+
+    def _bandage_dimensions(self):
+        shape=self._bandage_step
+        if shape=='other':return (0,0)
+        w,h=map(int,shape.split('×'))
+        return (h,w) if getattr(self,'_bandage_rotation',0)%2 else (w,h)
+
+    def _rotate_bandage_block(self):
+        if self._busy_turn:return
+        self._bandage_rotation=(self._bandage_rotation+1)%4
+        self._refresh_view();self.msg.text=tr('bandage.place_hint')
+
+    def _bandage_candidate(self):
+        from cube.bandaged_entry import rotated_cells,plates
+        if self._bandage_pending is None:return ()
+        face,r,c=self._bandage_pending
+        if self._bandage_step=='other':
+            return next((p.cells for p in plates(self._entry_layout_cube) if p.face==face and (r,c) in p.cells),())
+        return rotated_cells(r,c,self._bandage_step,self._bandage_rotation)
+
+    def _confirm_bandage_placement(self):
+        if self._busy_turn or self._bandage_pending is None:return
+        self._place_bandage_plate(*self._bandage_pending)
+
+    def _place_bandage_plate(self,face,r,c):
+        from cube.bandaged_entry import plates,plate_shape,entered_plates
+        inventory=plates(self._entry_layout_cube)
+        candidate=self._bandage_candidate()
+        if not candidate:return
+        if any(not 0<=rr<self._n() or not 0<=cc<self._n() for rr,cc in candidate):
+            self.msg.text=tr('bandage.outside');return
+        if any(self._data[face][rr][cc] for rr,cc in candidate):
+            self.msg.text=tr('bandage.occupied');return
+        from cube.bandaged_entry import Plate
+        plate=Plate(face,tuple(sorted(candidate)),plate_shape(candidate))
+        if (plate.shape!=self._bandage_step or
+                sum(p.shape==plate.shape for p in entered_plates(self._bandage_connections))>=sum(p.shape==plate.shape for p in inventory)):
+            self.msg.text=tr('bandage.entry_inventory');return
+        color=self.picker.current_color
+        before=set(self._bandage_connections);key=(plate.face,plate.cells)
+        edits=[(face,r,c,self._data[face][r][c],color) for r,c in plate.cells]
+        if key in before and all(old==new for f,r,c,old,new in edits):return
+        self._bandage_connections.add(key)
+        for f,r,c,old,new in edits:self._data[f][r][c]=new
+        self._history.append({'connections':(before,set(self._bandage_connections)),'colours':edits})
+        self._redo=[];self._error_cells.clear();self._valid=None
+        self._bandage_pending=None
+        _app().polyhedral_solution=None
+        self._refresh_view();self._update_bandage_step(advance=True);self._update_progress();self._update_edit_buttons()
 
     def _find_piece_error_cells(self, facelets, n):
         if n not in (2, 3):
@@ -563,6 +792,7 @@ class InputScreen(EntryActionsMixin, Screen):
     def _handle_drag(self, x, y):
         if self._busy_turn or self._pick_mode:
             return
+        if self._bandage_mode in ('connect','place') and self.bandage_modes.height:return
         face = self._ori.current_face()
         hit = self.view.pick_cell(face, self._n(), x, y)
         if hit is None:
@@ -576,16 +806,29 @@ class InputScreen(EntryActionsMixin, Screen):
             self._commit_action(self._drag_edits)
             self._drag_edits = {}
             self._refresh_view()
+            self._update_bandage_step(advance=True)
+            self._update_progress()
 
     # ---- 颜色填充 ----
     def _fill_cell(self, face, r, c, col, action=None):
         """填一个格子；若给定 action 字典则记录旧值（供连续拖动合并一次撤销）。"""
+        if getattr(self,'_bandage_mode','colour')=='place' and getattr(self,'_entry_layout_cube',None) is not None:
+            from cube.bandaged_entry import plates
+            if plates(self._entry_layout_cube):
+                self._bandage_pending=(face,r,c)
+                self._refresh_view();self.msg.text=tr('bandage.place_hint')
+                return
         cells = [(r, c)]
-        cube = getattr(getattr(self, 'view', None), 'cube', None)
+        cube = getattr(self,'_entry_layout_cube',None) or getattr(getattr(self, 'view', None), 'cube', None)
         if hasattr(cube, 'surface_group') and getattr(cube, 'puzzle_kind', None) != 'camouflage_3':
             pos = pos_from_rc(self._n(), face, r, c)
             cells = [rc_from_pos(self._n(), face, p)
                      for p in cube.surface_group(pos, FACE_NORMALS[face])]
+            from cube.bandaged_entry import plate_shape
+            shape=plate_shape(cells)
+            if shape!=self._bandage_step:
+                self.msg.text=tr('bandage.wrong_step',shape=tr('bandage.other') if shape=='other' else shape)
+                return
         edits = {(row, column): self._data[face][row][column]
                  for row, column in cells if self._data[face][row][column] != col}
         if not edits:
@@ -600,6 +843,7 @@ class InputScreen(EntryActionsMixin, Screen):
         if action is None:
             self._commit_action(edits)
         self._refresh_view()
+        if action is None:self._update_bandage_step(advance=True)
         self._update_progress()
 
     def _commit_action(self, edits):
@@ -616,12 +860,20 @@ class InputScreen(EntryActionsMixin, Screen):
         """把当前面所有格子填成当前色（作为一次可撤销操作）。"""
         if self._busy_turn:
             return
+        if getattr(self,'_bandage_mode','colour')=='place' and self.bandage_modes.height:
+            self.msg.text=tr('bandage.place_hint')
+            return
         face = self._ori.current_face()
         col = self.picker.current_color
         n = self._n()
         edits = {}
+        from cube.bandaged_entry import plates
+        inventory=plates(getattr(self,'_entry_layout_cube',None) or getattr(self.view,'cube',None))
+        allowed=({cell for plate in inventory if plate.face==face and plate.shape==self._bandage_step
+                  for cell in plate.cells} if inventory else None)
         for r in range(n):
             for c in range(n):
+                if allowed is not None and (r,c) not in allowed:continue
                 if self._data[face][r][c] != col:
                     edits[(r, c)] = self._data[face][r][c]
                     self._data[face][r][c] = col
@@ -633,11 +885,69 @@ class InputScreen(EntryActionsMixin, Screen):
         else:
             self.msg.text = tr("input.already", face=face, col=col)
         self._refresh_view()
+        self._update_bandage_step(advance=True)
         self._update_progress()
 
     def toggle_pick(self):
+        if self._uses_standard_palette():
+            self.open_palette_settings()
+            return
         self._pick_mode = not self._pick_mode
         self.btn_pick.active = self._pick_mode
+
+    def _uses_standard_palette(self):
+        return getattr(_app(),'puzzle_kind','cube')=='cube'
+
+    def _configure_palette_controls(self):
+        standard=self._uses_standard_palette()
+        self.btn_pick.icon_name='' if self._simple else ('gear' if standard else 'pick')
+        self.btn_pick.text=tr('palette.settings' if standard else 'input.pick') if self._simple else ''
+        if self._simple and standard and self.btn_palette.parent is None:
+            self.simple_turn_row.add_widget(self.btn_palette,index=2)
+        elif (not self._simple or not standard) and self.btn_palette.parent is self.simple_turn_row:
+            self.simple_turn_row.remove_widget(self.btn_palette)
+        self.btn_palette.disabled=not standard
+        if standard:
+            from app.cube_palette import get_palette
+            self.picker.set_visible_colors()
+            self.picker.set_palette(get_palette())
+        elif self._penrose():
+            from cube.appearance import PENROSE_RGB
+            self.picker.set_visible_colors(('W','G','Y'))
+            self.picker.set_palette(PENROSE_RGB, {'W':tr('penrose.red'),'G':tr('penrose.blue'),'Y':tr('penrose.yellow')})
+        else:
+            self.picker.set_visible_colors()
+
+    def palette_title(self):
+        return tr('input.title',n=self._n())
+
+    def palette_slot_labels(self):
+        from app.cube_palette import FACE_CODES
+        return FACE_CODES
+
+    def palette_colors(self):
+        from app.cube_palette import FACE_CODES,get_palette
+        palette=get_palette()
+        return [palette[c] for c in FACE_CODES]
+
+    def default_palette_colors(self):
+        from app.cube_palette import FACE_CODES,default_palette
+        palette=default_palette()
+        return [palette[c] for c in FACE_CODES]
+
+    def apply_palette_colors(self,colors):
+        from app.cube_palette import get_palette,save_palette
+        save_palette(colors)
+        self.picker.set_palette(get_palette())
+        self._refresh_view()
+
+    def open_palette_settings(self):
+        if not self._uses_standard_palette() or not self.entry_can_edit():return
+        from app.cube_palette import FACE_CODES
+        self._pick_mode=False;self.btn_pick.active=False
+        page=self.manager.get_screen('PiecePaletteScreen')
+        page.configure(self,FACE_CODES.index(self.picker.current_color))
+        self.manager.current='PiecePaletteScreen'
 
     # ---- 撤销 / 重做 ----
     def undo(self):
@@ -646,6 +956,13 @@ class InputScreen(EntryActionsMixin, Screen):
         if not self._history:
             return
         action = self._history.pop()
+        if isinstance(action,dict) and 'connections' in action:
+            self._bandage_connections=set(action['connections'][0]);self._bandage_mode='place'
+            self._valid=None;self._error_cells.clear()
+            for f,r,c,old,new in action.get('colours',()):self._data[f][r][c]=old
+            self._redo.append(action)
+            self._refresh_view();self._update_bandage_step(advance=True);self._update_progress();self._update_edit_buttons()
+            return
         for face, r, c, old, _new in reversed(action):
             self._data[face][r][c] = old
         self._redo.append(action)
@@ -662,6 +979,15 @@ class InputScreen(EntryActionsMixin, Screen):
         if not self._redo:
             return
         action = self._redo.pop()
+        if isinstance(action,dict) and 'connections' in action:
+            from cube.bandaged_entry import plates
+            self._bandage_connections=set(action['connections'][1])
+            self._valid=None;self._error_cells.clear()
+            self._bandage_mode='place'
+            for f,r,c,old,new in action.get('colours',()):self._data[f][r][c]=new
+            self._history.append(action)
+            self._refresh_view();self._update_bandage_step(advance=True);self._update_progress();self._update_edit_buttons()
+            return
         for face, r, c, _old, new in action:
             self._data[face][r][c] = new
         self._history.append(action)
@@ -685,6 +1011,7 @@ class InputScreen(EntryActionsMixin, Screen):
     def _animate_turn(self, direction):
         if self._busy_turn:
             return
+        self._bandage_pending=None
         self._busy_turn = True
         self._pending_dir = direction
         if direction == "prev":
@@ -706,6 +1033,7 @@ class InputScreen(EntryActionsMixin, Screen):
     def reset_interaction(self):
         """Keep entered colors, but release temporary touch and turn state."""
         self.view.cancel_touch()
+        self._bandage_pending=None
         self._handle_drag_end()
         self._cancel_turn()
         self._pick_mode = False
@@ -731,6 +1059,11 @@ class InputScreen(EntryActionsMixin, Screen):
 
     def set_facelets(self, facelets, remember=False):
         self.reset_interaction()
+        before_connections=set(self._bandage_connections)
+        action=[]
+        if self._penrose():
+            from cube.penrose_entry import visible_facelets
+            facelets=visible_facelets(facelets)
         n=self._n()
         data={f:([[facelets[f][r][c] for c in range(n)] for r in range(n)]
                  if f in facelets else [row[:] for row in self._data[f]]) for f in FACES}
@@ -744,6 +1077,26 @@ class InputScreen(EntryActionsMixin, Screen):
         else:
             self._reset_edits()
         self._data=data
+        full=all(col for grid in data.values() for row in grid for col in row)
+        if full:
+            # A full load (random scramble, pasted scramble or a complete
+            # manual entry) must rebuild plate connections from this state.
+            # Reusing the previous cube's plate cells drops stickers whose
+            # bonded group moved, leaving most of the rendered cube blank.
+            from cube.bandaged_entry import plates
+            layout=_build_partial_cube(data,n)
+            inventory=plates(layout)
+            saved=getattr(_app(),'cube',None)
+            if inventory and saved is not None and cubies_to_facelets(saved.cubies,n)==data:
+                self._entry_layout_cube=layout
+                self._bandage_connections={(p.face,p.cells) for p in inventory}
+                self._bandage_mode='place'
+        elif not any(col for grid in data.values() for row in grid for col in row):
+            self._bandage_connections=set()
+        if remember and before_connections!=self._bandage_connections:
+            if action:self._history.pop()
+            self._history.append({'connections':(before_connections,set(self._bandage_connections)),'colours':action})
+            self._redo=[]
         self._valid=None
         self._error_cells.clear()
         self._refresh_view()
@@ -879,22 +1232,31 @@ class InputScreen(EntryActionsMixin, Screen):
     def on_enter(self):
         self.reset_interaction()
         n = self._n()
+        pandora=getattr(_app(),'puzzle_kind',None)=='pandora'
+        self._cube=_app().cube if pandora else None
+        if self._pandora_entry!=pandora:
+            self.clear_widgets();self.build_ui();self._initialized=False
         cur_simple = bool(getattr(_app(), "simple_input", False))
         if getattr(self, "_simple", None) != cur_simple:
             self.apply_input_mode(cur_simple)
         self.title.text = tr("input.title", n=n)
-        if not self._initialized or getattr(self, "_n_for_screen", None) != n:
+        if (not self._initialized or getattr(self, "_n_for_screen", None) != n or
+                getattr(self, '_kind_for_screen', None) != getattr(_app(), 'puzzle_kind', 'cube')):
             self._init_for_n()
             self._n_for_screen = n
             self._initialized = True
+            self._kind_for_screen = getattr(_app(), 'puzzle_kind', 'cube')
         self.btn_demo.disabled = n >= 6
         self.btn_demo.opacity = 0 if n >= 6 else 1
-        from cube.appearance import PENROSE, PENROSE_RGB
-        from cube.colors import DEFAULT_COLORS
-        if getattr(_app(), 'puzzle_kind', None) in PENROSE:
-            self.picker.set_palette(PENROSE_RGB, {color:face for face,color in DEFAULT_COLORS.items()})
-        else:
+        if not self._penrose():
             self.picker.set_palette()
+        self._configure_palette_controls()
+        if pandora:
+            from app.prefs import get
+            from vision.scan_profiles import CUBE_CODES
+            saved_palette=get('shape_palette_pandora',None)
+            if isinstance(saved_palette,list) and len(saved_palette)==6 and all(isinstance(c,list) and len(c)==4 for c in saved_palette):
+                self.picker.set_palette(dict(zip(CUBE_CODES,map(tuple,saved_palette))))
         # 5 阶专属重资源在用户填色期间后台预热，避免启动时无谓开销。
         if n == 5:
             try:
@@ -906,7 +1268,7 @@ class InputScreen(EntryActionsMixin, Screen):
         saved = app.facelets_input
         if saved is None:
             # 切回某一阶时恢复该阶上次录入的状态（而不是空白）。
-            saved = getattr(app, "facelets_cache", {}).get(n)
+            saved = getattr(app, "facelets_cache", {}).get(self.input_cache_key())
         if saved is not None:
             if saved!=self.collect_facelets():
                 self.set_facelets(saved)
@@ -915,6 +1277,13 @@ class InputScreen(EntryActionsMixin, Screen):
             self.msg.text = tr("input.resumed")
         else:
             self._refresh_view()
+
+        draft=getattr(app,'bandage_entry_cache',{}).get(self.input_cache_key())
+        if draft is not None and draft[0]==self.collect_facelets():
+            self._bandage_connections=set(draft[1]);self._refresh_view()
+
+        if self._penrose():
+            self.msg.text=tr('penrose.valid' if getattr(self,'_valid',False) else 'penrose.input_hint')
 
     def on_pre_leave(self, *args):
         # 记住当前阶数的录入状态，便于在其它阶与本次之间来回切换。
@@ -927,7 +1296,11 @@ class InputScreen(EntryActionsMixin, Screen):
                     app.solve_result=None
                 app.facelets_input=current
                 if cache is not None:
-                    cache[app.n]=current
+                    cache[self.input_cache_key()]=current
+                from cube.bandaged_cube import KINDS
+                if app.puzzle_kind in KINDS:
+                    if not hasattr(app,'bandage_entry_cache'):app.bandage_entry_cache={}
+                    app.bandage_entry_cache[self.input_cache_key()]=(current,set(self._bandage_connections))
         except Exception:
             pass
         self.reset_interaction()
@@ -937,6 +1310,18 @@ class InputScreen(EntryActionsMixin, Screen):
         facelets = self.collect_facelets()
         n = self._n()
         self._error_cells.clear()
+        if self._penrose():
+            from cube.penrose_entry import reconstruct
+            try:
+                self._penrose_cube=reconstruct(facelets,n,_app().puzzle_kind)
+                self._penrose_data=facelets
+                self._valid=True
+                self.msg.text=tr('penrose.valid');self.msg.color=_app().theme.accent
+                self._refresh_view()
+            except ValueError as error:
+                self._valid=False
+                self.msg.text=tr(str(error),count=2*n*n);self.msg.color=_app().theme.danger
+            return
         empty = []
         for face in FACES:
             for r in range(n):
@@ -985,6 +1370,14 @@ class InputScreen(EntryActionsMixin, Screen):
                 self._focus_error_face()
                 self._refresh_view()
             return
+        from cube.bandaged_cube import KINDS
+        if getattr(_app(),'puzzle_kind',None) in KINDS:
+            try:
+                from cube.bandaged_entry import reconstruct
+                self._bandage_cube=reconstruct(_app().puzzle_kind,facelets,self._bandage_connections)
+            except ValueError as error:
+                self.msg.text=tr(str(error));self.msg.color=_app().theme.danger;self._valid=False
+                return
         self.msg.text = tr("input.valid")
         self.msg.color = _app().theme.accent
         self._valid = True
@@ -993,9 +1386,37 @@ class InputScreen(EntryActionsMixin, Screen):
     # ---- EntryActionsMixin 钩子 ----
     entry_twist_screen = "TwistScreen"
 
+    def open_twist(self):
+        from cube.bandaged_cube import KINDS
+        if self._penrose() or getattr(_app(),'puzzle_kind',None) in KINDS:
+            if not self.entry_can_edit():return
+            self.check()
+            if not self._valid:return
+            self._commit_cube(self.collect_facelets())
+            self.manager.current='TwistScreen'
+            return
+        if not self._pandora_entry:return super().open_twist()
+        if not self.entry_can_edit():return
+        self.check()
+        if not self._valid:return
+        self._commit_cube(self.collect_facelets())
+        self._cube=_app().cube
+        self._recorded=set(self._cube.positions)
+        _app().morphix_twist_source=self.name
+        self.manager.current='MorphixTwistScreen'
+
+    def receive_pandora_twist(self,cube):
+        from cube.pandora_entry import to_facelets
+        self._cube=cube
+        _app().cube=cube
+        self.set_facelets(to_facelets(cube),remember=True)
+        _app().facelets_input=self.collect_facelets()
+
     def entry_reset_solved(self):
         from cube.conversion import cubies_to_facelets
         n = self._n()
+        from cube.bandaged_cube import KINDS
+        if _app().puzzle_kind in KINDS:_app().cube=_new_solved_cube(n)
         self.set_facelets(cubies_to_facelets(_new_solved_cube(n).cubies, n),remember=True)
 
     def entry_commit_state(self):
@@ -1029,6 +1450,32 @@ class InputScreen(EntryActionsMixin, Screen):
         from cube.appearance import VARIANTS
         from cube.bandaged_cube import KINDS
         kind = getattr(app, 'puzzle_kind', None)
+        if kind in KINDS:
+            from cube.bandaged_entry import reconstruct
+            saved=getattr(app,'cube',None)
+            from cube.bandaged_entry import plates
+            if (saved is not None and saved.puzzle_kind==kind and
+                    cubies_to_facelets(saved.cubies,saved.n)==facelets and
+                    {(p.face,p.cells) for p in plates(saved)}==self._bandage_connections):
+                app.cube=saved.clone()
+            else:app.cube=reconstruct(kind,facelets,self._bandage_connections)
+            app.n=app.cube.n;app.facelets_input=facelets
+            return
+        from cube.appearance import PENROSE
+        if kind in PENROSE:
+            from cube.penrose_entry import reconstruct
+            cached=getattr(self,'_penrose_cube',None)
+            if cached is not None and getattr(self,'_penrose_data',None)==facelets and self._valid:
+                app.cube=cached.clone()
+            else:
+                app.cube=reconstruct(facelets,self._n(),kind)
+            app.n=app.cube.n;app.puzzle_kind=kind;app.facelets_input=facelets
+            return
+        if kind=='pandora':
+            from cube.pandora_entry import from_facelets
+            app.cube=from_facelets(facelets,app.cube)
+            app.facelets_input=facelets
+            return
         if kind in VARIANTS:
             app.cube = _build_partial_cube(facelets, self._n())
             if self._n() == 4 and kind not in KINDS:
@@ -1066,7 +1513,7 @@ class InputScreen(EntryActionsMixin, Screen):
         app = _app()
         app.facelets_input = self.collect_facelets()
         menu = self.manager.get_screen("DemoMenuScreen")
-        menu.set_mode(self._n())
+        menu.set_mode(('pandora',3) if self._pandora_entry else self._n())
         self.manager.current = "DemoMenuScreen"
 
 

@@ -45,7 +45,7 @@ def frame_for(cubie):
 
 VARIANTS = frozenset((
     'fused_cube', 'two_bar_cube', 'bandaged_c', 'bicube', 'ai_cube',
-    'burr_cube', 'penrose_2', 'penrose_3', 'penrose_4', 'circle_2',
+    'burr_cube', 'penrose_2', 'penrose_3', 'penrose_4',
 ))
 PENROSE = frozenset(('penrose_2', 'penrose_3', 'penrose_4'))
 

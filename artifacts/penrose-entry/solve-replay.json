@@ -1,0 +1,26 @@
+[
+  {
+    "n": 2,
+    "success": true,
+    "replay_solved": true,
+    "moves": 4,
+    "seconds": 0.015,
+    "message": "2x2 \u6c42\u89e3\u6210\u529f\uff084 \u6b65\uff09"
+  },
+  {
+    "n": 3,
+    "success": true,
+    "replay_solved": true,
+    "moves": 20,
+    "seconds": 0.094,
+    "message": "L3 F3 L3 B2 D3 L3 F3 B2 D3 F1 R2 F2 R2 D3 F2 U3 R2 L2 D1 L2 (20f)"
+  },
+  {
+    "n": 4,
+    "success": true,
+    "replay_solved": true,
+    "moves": 136,
+    "seconds": 1.453,
+    "message": "solved"
+  }
+]

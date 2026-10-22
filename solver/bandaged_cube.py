@@ -9,6 +9,12 @@ def solve_bandaged_cube(cube, cancelled=None):
     if cancelled is not None and cancelled():
         raise InterruptedError()
     moves = cube.solution_from_history()
+    if not moves and not cube.is_solved() and cube.n == 3:
+        from solver.bandaged_search import solve_bandaged_search
+        try:
+            moves = solve_bandaged_search(cube, cancelled)
+        except ValueError:
+            moves = []
     if not moves and not cube.is_solved():
         # For a manually entered state, try the corresponding ordinary cube
         # solver and accept its result only when every move is legal for this

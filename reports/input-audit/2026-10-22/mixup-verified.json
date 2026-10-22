@@ -1,0 +1,146 @@
+[
+  {
+    "kind": "mixup_333",
+    "fixture": "mixup_333-211021.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 74,
+    "seconds": 0.937
+  },
+  {
+    "kind": "mixup_333",
+    "fixture": "mixup_333-211022.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 399,
+    "seconds": 0.859
+  },
+  {
+    "kind": "mixup_334",
+    "fixture": "mixup_334-211021.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 736,
+    "seconds": 1.641
+  },
+  {
+    "kind": "mixup_334",
+    "fixture": "mixup_334-211022.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 273,
+    "seconds": 2.094
+  },
+  {
+    "kind": "mixup_344",
+    "fixture": "mixup_344-211021.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 844,
+    "seconds": 18.109
+  },
+  {
+    "kind": "mixup_344",
+    "fixture": "mixup_344-211022.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 1149,
+    "seconds": 18.031
+  },
+  {
+    "kind": "mixup_444",
+    "fixture": "mixup_444-211021.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 158,
+    "seconds": 4.0
+  },
+  {
+    "kind": "mixup_444",
+    "fixture": "mixup_444-211022.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 151,
+    "seconds": 3.282
+  },
+  {
+    "kind": "mixup_plus_333",
+    "fixture": "mixup_plus_333-211021.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 5794,
+    "seconds": 20.25
+  },
+  {
+    "kind": "mixup_plus_333",
+    "fixture": "mixup_plus_333-211022.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 5345,
+    "seconds": 16.265
+  },
+  {
+    "kind": "mixup_plus_334",
+    "fixture": "mixup_plus_334-211021.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 14659,
+    "seconds": 50.219
+  },
+  {
+    "kind": "mixup_plus_334",
+    "fixture": "mixup_plus_334-211022.json",
+    "history_free": true,
+    "solved": false,
+    "match": "matched",
+    "error": "ReductionLimit: mixup.shape_limit",
+    "seconds": 61.313
+  },
+  {
+    "kind": "mixup_plus_344",
+    "fixture": "mixup_plus_344-211021.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 6970,
+    "seconds": 22.906
+  },
+  {
+    "kind": "mixup_plus_344",
+    "fixture": "mixup_plus_344-211022.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 5853,
+    "seconds": 23.859
+  },
+  {
+    "kind": "mixup_plus_444",
+    "fixture": "mixup_plus_444-211021.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 666,
+    "seconds": 20.828
+  },
+  {
+    "kind": "mixup_plus_444",
+    "fixture": "mixup_plus_444-211022.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 878,
+    "seconds": 16.235
+  }
+]

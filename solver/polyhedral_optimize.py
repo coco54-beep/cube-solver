@@ -54,7 +54,8 @@ def _seed_of(solution):
 
 
 def optimize_solution(cube, solution, solver, budget=DEFAULT_OPTIMIZE_BUDGET,
-                      target=None, cancel=None, progress=None, seed=None):
+                      target=None, cancel=None, progress=None, seed=None,
+                      cache_prefixes=False):
     """Return a verified solution no longer than ``solution`` when possible.
 
     ``solver`` must be the raw solver for this puzzle and must accept a puzzle
@@ -68,6 +69,8 @@ def optimize_solution(cube, solution, solver, budget=DEFAULT_OPTIMIZE_BUDGET,
     """
     best = list(solution)
     if not best:
+        return tuple(best)
+    if target is not None and len(best) <= target:
         return tuple(best)
     order = cube.geometry.spec.turn_order
     atoms = _atoms(cube)
@@ -85,6 +88,7 @@ def optimize_solution(cube, solution, solver, budget=DEFAULT_OPTIMIZE_BUDGET,
     deadline = monotonic() + max(0.0, budget)
     rng = Random(_seed_of(best) if seed is None else seed)
     memo=OrderedDict()
+    prefix_states=None
 
     def done():
         return target is not None and len(best) <= target
@@ -93,9 +97,24 @@ def optimize_solution(cube, solution, solver, budget=DEFAULT_OPTIMIZE_BUDGET,
         if cancel is not None and cancel():
             raise InterruptedError()
 
-    def consider(prefix):
-        nonlocal best
-        work = _apply(cube, prefix)
+    def prefix_state(cut):
+        nonlocal prefix_states
+        if prefix_states is None:
+            work=cube.entered()
+            prefix_states=[work.clone()]
+            for move in best:
+                work.apply_move(move)
+                prefix_states.append(work.clone())
+        return prefix_states[cut]
+
+    def consider(prefix, cut=None):
+        nonlocal best, prefix_states
+        if cache_prefixes and cut is not None:
+            work=prefix_state(cut).clone()
+            for move in prefix[cut:]:
+                work.apply_move(move)
+        else:
+            work=_apply(cube, prefix)
         state=bytes(work.colors)
         try:
             word=memo.get(state)
@@ -113,6 +132,7 @@ def optimize_solution(cube, solution, solver, budget=DEFAULT_OPTIMIZE_BUDGET,
         candidate = simplify(tuple(prefix) + tuple(word), order)
         if len(candidate) < len(best) and _verify(cube, candidate):
             best = list(candidate)
+            prefix_states=None
             return True
         return False
 
@@ -149,5 +169,5 @@ def optimize_solution(cube, solution, solver, budget=DEFAULT_OPTIMIZE_BUDGET,
         options=[m for axis,m in proposals if axis!=last] or [m for _,m in proposals]
         perturb=[rng.choice(options) for _ in range(rng.choice((1,1,2,2,3,3,4,5,6)))]
         perturb=[move for move in perturb if move is not None]
-        consider(prefix + perturb)
+        consider(prefix + perturb, cut)
     return tuple(best)

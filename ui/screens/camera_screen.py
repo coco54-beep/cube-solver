@@ -350,9 +350,18 @@ class CameraScreen(Screen):
             self._n_for_screen = n
             self._cube_for_screen = cube
             self._initialized = True
-        elif self._profile and self._profile.kind != 'pandora' and getattr(_app(), 'input_from_camera', False):
+        elif self._profile and getattr(_app(), 'input_from_camera', False):
             # Keep corrections made on the full-size input model when returning.
-            updated = self._profile.from_cube(cube)
+            if self._profile.kind=='pandora' and getattr(_app(),'facelets_input',None) is not None:
+                from vision.scan_profiles import CUBE_CODES
+                entered=_app().facelets_input
+                updated=self._profile.blank()
+                for surface in self._profile.surfaces:
+                    face,r,c=surface.cell
+                    code=entered[face][r][c]
+                    updated[face][surface.index]=CUBE_CODES.index(code) if code in CUBE_CODES else -1
+            else:
+                updated = self._profile.from_cube(cube)
             for face, values in updated.items():
                 self._manual_cells.update((face, i) for i, color in values.items()
                                           if color != self._data[face].get(i, -1))
@@ -1264,8 +1273,10 @@ class CameraScreen(Screen):
             app.polyhedral_solution = None
             app.solve_result = None
             if self._profile.kind == 'pandora':
-                app.camera_shape_result = cube
-                target = 'ShapeCubeScreen'
+                from cube.pandora_entry import to_facelets
+                app.camera_shape_result = None
+                app.facelets_input=to_facelets(cube)
+                target = 'InputScreen'
             else:
                 target = 'PolyhedralScreen'
             self.msg.text = tr('camera.applied')

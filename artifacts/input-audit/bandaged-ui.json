@@ -1,0 +1,12 @@
+{
+  "checks": [
+    "fused_cube: blank input -> place/colour -> rigid reconstruction -> clear/undo/redo -> checkpoint",
+    "two_bar_cube: blank input -> place/colour -> rigid reconstruction -> clear/undo/redo -> checkpoint",
+    "bandaged_c: blank input -> place/colour -> rigid reconstruction -> clear/undo/redo -> checkpoint",
+    "bicube: blank input -> place/colour -> rigid reconstruction -> clear/undo/redo -> checkpoint",
+    "ai_cube: blank input -> place/colour -> rigid reconstruction -> clear/undo/redo -> checkpoint",
+    "burr_cube: blank input -> place/colour -> rigid reconstruction -> clear/undo/redo -> checkpoint",
+    "twist state and per-model draft isolation"
+  ],
+  "error": null
+}

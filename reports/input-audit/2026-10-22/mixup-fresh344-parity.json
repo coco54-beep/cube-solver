@@ -1,0 +1,11 @@
+[
+  {
+    "kind": "mixup_plus_344",
+    "fixture": "mixup_plus_344-221023.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 6804,
+    "seconds": 44.641
+  }
+]

@@ -68,8 +68,8 @@ class CubeApp(App):
             Builder.load_file(_KV_PATH)
             self._kv_loaded = True
         sm = ScreenManager()
-        for name in ("HomeScreen", "InputScreen", "CameraScreen", "MastermorphixScreen", "MirrorScreen", "MorphixTwistScreen", "PolyhedralScreen", "PolyhedralTwistScreen", "PolyhedralPlaybackScreen", "SolvingScreen", "PlaybackScreen",
-                     "DemoScreen", "DemoMenuScreen", "FormulaLibraryScreen", "PracticeScreen",                      "TwistScreen", "SettingsScreen", "Square1Screen", "ShapeCubeScreen", "MirrorTowerScreen",
+        for name in ("HomeScreen", "InputScreen", "CameraScreen", "MastermorphixScreen", "MirrorScreen", "MorphixTwistScreen", "PolyhedralScreen", "ArticulatedEntryScreen", "MixupInputScreen", "PentacleScreen", "PolyhedralTwistScreen", "PolyhedralPlaybackScreen", "SolvingScreen", "PlaybackScreen",
+                     "DemoScreen", "DemoMenuScreen", "FormulaLibraryScreen", "PracticeScreen",                      "TwistScreen", "SettingsScreen", "PiecePaletteScreen", "CuboidSixViewScreen", "Square1Screen", "ShapeCubeScreen", "MirrorTowerScreen",
                      "MirrorWindmillScreen", "MirrorAxisScreen", "MirrorFisherScreen", "MirrorUnequalWindmillScreen", "MirrorUnequalFisherScreen", "MirrorOffsetWindmillScreen", "MirrorOffsetFisherScreen", "MirrorPyraminxScreen", "MirrorSkewbScreen", "FisherSkewbScreen", "GhostPyramidScreen", "GhostScreen", "GhostTwistScreen", "SquareFamilyScreen"):
             scr = _screen(name)
             scr.name = name
@@ -141,7 +141,7 @@ class CubeApp(App):
     def _reset_input_interaction(self):
         sm = getattr(self, "root", None)
         if sm is not None:
-            for name in ("InputScreen", "MastermorphixScreen", "MirrorScreen", "PolyhedralScreen",
+            for name in ("InputScreen", "MastermorphixScreen", "MirrorScreen", "PolyhedralScreen", "ArticulatedEntryScreen", "MixupInputScreen", "PentacleScreen", "CuboidSixViewScreen",
                          "MorphixTwistScreen", "GhostTwistScreen", "PolyhedralTwistScreen", "Square1Screen", "SquareFamilyScreen", "ShapeCubeScreen", "MirrorTowerScreen", "MirrorPyraminxScreen", "MirrorSkewbScreen", "GhostPyramidScreen"):
                 if sm.has_screen(name):
                     self._screen_lifecycle(sm.get_screen(name), "reset_interaction")
@@ -218,8 +218,8 @@ class CubeApp(App):
 
     def new_cube_variant(self, kind: str, n: int):
         """Standard n×n mechanism with a patterned/stylised exterior."""
-        if kind == 'camouflage_3':
-            self.new_polyhedral(kind,3)
+        if kind in ('camouflage_3','circle_2'):
+            self.new_polyhedral(kind,2 if kind=='circle_2' else 3)
             return
         from cube.bandaged_cube import KINDS, BandagedCube
         if kind in KINDS:
@@ -260,7 +260,10 @@ class CubeApp(App):
     def new_polyhedral(self, kind, n):
         from cube.polyhedral import PolyhedralPuzzle
         self.n = n
-        if kind.startswith(('cuboid_','camouflage_3')):
+        if kind=='circle_2':
+            from cube.circle_cube import Circle2Cube
+            self.cube=Circle2Cube()
+        elif kind.startswith(('cuboid_','camouflage_3')):
             from cube.cuboid import CuboidCube
             self.cube = CuboidCube.solved(kind)
             self.n = self.cube.n
@@ -269,6 +272,21 @@ class CubeApp(App):
         self.puzzle_kind = self.cube.puzzle_kind
         self.cube.colors = [-1] * len(self.cube.colors)
         self.polyhedral_solution = None
+
+    def new_articulated(self,kind):
+        if kind.startswith('mixup_'):
+            from cube.mixup import MixupCube
+            self.cube=MixupCube(kind)
+        else:
+            from cube.articulated import ArticulatedCube
+            self.cube=ArticulatedCube(kind)
+        self.n=self.cube.n;self.puzzle_kind=kind
+        self.polyhedral_solution=None;self.solve_result=None
+
+    def new_pentacle(self):
+        from cube.pentacle import PentacleCube
+        self.cube=PentacleCube(paints=[-1]*len(PentacleCube().panels))
+        self.n=3;self.puzzle_kind='pentacle';self.polyhedral_solution=None;self.solve_result=None
 
     def new_mirror(self, n=3):
         from cube.mirror import MirrorCube
@@ -342,6 +360,7 @@ class CubeApp(App):
         self.puzzle_kind=kind
         self.cube=factories[kind].solved(n=n)
         self.solve_result=None
+        if kind=='pandora':self.facelets_input=None
 
     def new_mirror_shape(self,kind='mirror_windmill',n=3):
         from cube.mirror_shape import (MirrorAxisCube, MirrorFisherCube, MirrorWindmillCube,

@@ -1,0 +1,20 @@
+[
+  {
+    "kind": "mixup_plus_444",
+    "fixture": "mixup_plus_444-211021.json",
+    "history_free": true,
+    "solved": false,
+    "match": "matched",
+    "error": "ValueError: mixup.shape_limit",
+    "seconds": 62.391
+  },
+  {
+    "kind": "mixup_plus_444",
+    "fixture": "mixup_plus_444-211022.json",
+    "history_free": true,
+    "solved": false,
+    "match": "matched",
+    "error": "ValueError: mixup.shape_limit",
+    "seconds": 62.75
+  }
+]

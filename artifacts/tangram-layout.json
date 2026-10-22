@@ -1,0 +1,106 @@
+{
+  "root": {
+    "pos": [
+      0,
+      0
+    ],
+    "size": [
+      800,
+      600
+    ],
+    "opacity": 1.0,
+    "disabled": false,
+    "text": ""
+  },
+  "panel": {
+    "pos": [
+      0,
+      52
+    ],
+    "size": [
+      414.72,
+      454
+    ],
+    "opacity": 1.0,
+    "disabled": false,
+    "text": ""
+  },
+  "viewport": {
+    "pos": [
+      377.28000000000003,
+      8
+    ],
+    "size": [
+      414.72,
+      534.0
+    ],
+    "opacity": 1.0,
+    "disabled": false,
+    "text": ""
+  },
+  "wrapper": {
+    "pos": [
+      0,
+      0
+    ],
+    "size": [
+      414.72,
+      506
+    ],
+    "opacity": 1.0,
+    "disabled": false,
+    "text": ""
+  },
+  "gallery": {
+    "pos": [
+      0,
+      278
+    ],
+    "size": [
+      414.72,
+      138
+    ],
+    "opacity": 1,
+    "disabled": false,
+    "text": ""
+  },
+  "title": {
+    "pos": [
+      131.94444444444446,
+      550.0
+    ],
+    "size": [
+      536.1111111111111,
+      44
+    ],
+    "opacity": 1.0,
+    "disabled": false,
+    "text": "Tangram Extreme"
+  },
+  "status": {
+    "pos": [
+      0,
+      52
+    ],
+    "size": [
+      414.72,
+      40
+    ],
+    "opacity": 1.0,
+    "disabled": false,
+    "text": "\u5df2\u5f55\u5165 66 \u5f20\u9762\u7247"
+  },
+  "nav": {
+    "pos": [
+      0,
+      192
+    ],
+    "size": [
+      414.72,
+      44
+    ],
+    "opacity": 1.0,
+    "disabled": false,
+    "text": ""
+  }
+}

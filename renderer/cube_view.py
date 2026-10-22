@@ -191,8 +191,13 @@ class CubeView(Widget):
 			# Unequal strips and rounded surfaces cannot use equally spaced
 			# planar cell centres. Pick the actual rendered surface instead.
 			hit = self.pick_facelet(px, py)
-			if hit is None or hit[1] != face:
+			if hit is None:
 				return None
+			if hit[1] != face:
+				from cube.appearance import PENROSE
+				from cube.coordinates import FACE_NORMALS
+				if kind_for(self.cube) not in PENROSE or FACE_NORMALS[face] not in self.cube.cubies[hit[0]].stickers:
+					return None
 			from cube.coordinates import rc_from_pos
 			return rc_from_pos(n, face, hit[0])
 		proj = self._last_proj

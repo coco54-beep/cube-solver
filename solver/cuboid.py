@@ -1,7 +1,6 @@
-"""Bounded cuboid restoration; never substitute ordinary cube moves illegally."""
-from collections import Counter,deque
-from time import monotonic
-from cube.cuboid import CuboidCube
+"""State-based cuboid restoration with legal replay on the entered model."""
+from collections import Counter
+from cube.cuboid import CuboidCube, FIXED_SHAPE_KINDS
 from solver.polyhedral import inverse_word,simplify
 
 
@@ -19,6 +18,7 @@ def validate_cuboid(cube):
 
 def solve_cuboid(cube,cancel=None,progress=None):
  from solver.messages import tr
+ if cancel and cancel():raise InterruptedError()
  validate_cuboid(cube)
  if cube.puzzle_kind=='cuboid_133':
   from solver.super_floppy import solve_super_floppy
@@ -39,25 +39,19 @@ def solve_cuboid(cube,cancel=None,progress=None):
   if replay(word):
    if progress:progress(1,1)
    return word
- # Small manual states have a bounded search; deep input needs a dedicated
- # reduction. Do not label a timeout as mathematical unsolvability.
- deadline=monotonic()+3.;queue=deque([(cube.entered(),())]);seen=set();expanded=0
- while queue and expanded<2000 and monotonic()<deadline:
-  if cancel and cancel():raise InterruptedError()
-  state,word=queue.popleft();signature=(tuple(state.colors),state.frames)
-  if signature in seen:continue
-  seen.add(signature);expanded+=1
-  if state.is_solved():
-   if progress:progress(1,1)
-   return word
-  if len(word)>=3:continue
-  for atom in state.moves():
-   if word and (atom.axis,atom.layer)==(word[-1].axis,word[-1].layer):continue
-   for power in range(1,state.geometry.spec.order(atom.axis)):
-    from cube.polyhedral import Move
-    move=Move(atom.axis,atom.layer,power*state.geometry.spec.step(atom.axis))
-    nxt=state.clone();nxt.apply_move(move);nxt.history=None
-    queue.append((nxt,word+(move,)))
-    if len(queue)>=2000:break
-   if len(queue)>=2000:break
- raise ValueError(tr('cuboid.search_limit'))
+ if cube.puzzle_kind in FIXED_SHAPE_KINDS:
+  from solver.cuboid_static import solve_fixed_cuboid
+  solve=solve_fixed_cuboid
+ elif getattr(cube,'panel_anchored',False):
+  from solver.cuboid_extended import solve_extended_cuboid
+  solve=solve_extended_cuboid
+ else:
+  from solver.cuboid_search import solve_bandaged_cuboid
+  solve=solve_bandaged_cuboid
+ try:return solve(cube,cancel,progress)
+ except TimeoutError:raise ValueError(tr('cuboid.search_budget')) from None
+ except ValueError as error:
+  message=str(error)
+  if message.startswith('cuboid.'):
+   raise ValueError(tr(message)) from None
+  raise

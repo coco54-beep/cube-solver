@@ -1,0 +1,52 @@
+[
+  {
+    "kind": "cube",
+    "n": 3,
+    "process_peak_rss_mib": 94.57,
+    "scramble_length": 23,
+    "seconds": 0.128,
+    "moves": 20,
+    "replay_ok": true,
+    "status": "passed"
+  },
+  {
+    "kind": "cube",
+    "n": 4,
+    "process_peak_rss_mib": 149.0,
+    "scramble_length": 43,
+    "seconds": 1.091,
+    "moves": 144,
+    "replay_ok": true,
+    "status": "passed"
+  },
+  {
+    "kind": "cube",
+    "n": 5,
+    "process_peak_rss_mib": 132.8,
+    "scramble_length": 66,
+    "seconds": 3.388,
+    "moves": 405,
+    "replay_ok": true,
+    "status": "passed"
+  },
+  {
+    "kind": "cube",
+    "n": 6,
+    "process_peak_rss_mib": 115.13,
+    "scramble_length": 78,
+    "seconds": 1.335,
+    "moves": 865,
+    "replay_ok": true,
+    "status": "passed"
+  },
+  {
+    "kind": "cube",
+    "n": 17,
+    "process_peak_rss_mib": 125.79,
+    "scramble_length": 230,
+    "seconds": 72.707,
+    "moves": 8362,
+    "replay_ok": true,
+    "status": "passed"
+  }
+]

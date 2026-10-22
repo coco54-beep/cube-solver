@@ -1,0 +1,146 @@
+{
+  "checks": [
+    {
+      "kind": "cuboid_223",
+      "seed": 202,
+      "status": "ok",
+      "moves": 12,
+      "seconds": 0.094,
+      "history_used": false
+    },
+    {
+      "kind": "cuboid_223",
+      "seed": 303,
+      "status": "ok",
+      "moves": 16,
+      "seconds": 0.0,
+      "history_used": false
+    },
+    {
+      "kind": "cuboid_332",
+      "seed": 202,
+      "status": "ok",
+      "moves": 137,
+      "seconds": 0.094,
+      "history_used": false
+    },
+    {
+      "kind": "cuboid_332",
+      "seed": 303,
+      "status": "ok",
+      "moves": 128,
+      "seconds": 0.078,
+      "history_used": false
+    },
+    {
+      "kind": "cuboid_334",
+      "seed": 202,
+      "status": "ok",
+      "moves": 130,
+      "seconds": 0.125,
+      "history_used": false
+    },
+    {
+      "kind": "cuboid_334",
+      "seed": 303,
+      "status": "ok",
+      "moves": 144,
+      "seconds": 0.125,
+      "history_used": false
+    },
+    {
+      "kind": "cuboid_224",
+      "seed": 202,
+      "status": "ok",
+      "moves": 21,
+      "seconds": 0.125,
+      "history_used": false
+    },
+    {
+      "kind": "cuboid_224",
+      "seed": 303,
+      "status": "ok",
+      "moves": 22,
+      "seconds": 0.031,
+      "history_used": false
+    },
+    {
+      "kind": "cuboid_234",
+      "seed": 202,
+      "status": "ok",
+      "moves": 69,
+      "seconds": 0.062,
+      "history_used": false
+    },
+    {
+      "kind": "cuboid_234",
+      "seed": 303,
+      "status": "ok",
+      "moves": 88,
+      "seconds": 0.062,
+      "history_used": false
+    },
+    {
+      "kind": "cuboid_335",
+      "seed": 202,
+      "status": "ok",
+      "moves": 68,
+      "seconds": 0.234,
+      "history_used": false
+    },
+    {
+      "kind": "cuboid_335",
+      "seed": 303,
+      "status": "ok",
+      "moves": 32,
+      "seconds": 0.078,
+      "history_used": false
+    },
+    {
+      "kind": "cuboid_446",
+      "seed": 202,
+      "status": "ok",
+      "moves": 829,
+      "seconds": 3.016,
+      "history_used": false
+    },
+    {
+      "kind": "cuboid_446",
+      "seed": 303,
+      "status": "ok",
+      "moves": 344,
+      "seconds": 1.344,
+      "history_used": false
+    },
+    {
+      "kind": "camouflage_3",
+      "seed": 123,
+      "scramble": 10,
+      "status": "ok",
+      "moves": 8,
+      "seconds": 0.141,
+      "history_used": false
+    },
+    {
+      "kind": "cuboid_442",
+      "seed": 123,
+      "scramble": 15,
+      "status": "ok",
+      "moves": 10,
+      "seconds": 3.39,
+      "history_used": false
+    },
+    {
+      "kind": "cuboid_224",
+      "status": "cancel_ok"
+    },
+    {
+      "kind": "camouflage_3",
+      "status": "cancel_ok"
+    }
+  ],
+  "limits": [
+    "Software observations only, no independent physical reference or phone run.",
+    "Camouflage and 4x4x2 use a 45-second resource budget; harder states can time out."
+  ]
+}

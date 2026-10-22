@@ -1,0 +1,41 @@
+{
+  "version": "1.2.29",
+  "emulator": {
+    "android": 13,
+    "api": 33,
+    "abi": "x86_64",
+    "ram_mib": 2048
+  },
+  "final_apk": {
+    "installed": true,
+    "launched": true,
+    "photo_picker": true,
+    "photo_import": true,
+    "reset_calibration": true,
+    "background_return_same_pid": true,
+    "background_return_visible": true,
+    "process_restart_restores_photo": true,
+    "process_restart_restores_colors": true,
+    "theme_persisted": "light"
+  },
+  "minx13_source_overlay": {
+    "seconds": 257.675222199,
+    "moves": 14145,
+    "replay_ok": true,
+    "memory": [
+      "VmHWM:\t  310736 kB",
+      "VmRSS:\t  285800 kB"
+    ]
+  },
+  "minx13_test_note": "Final solver sources in a test entry point, before installation of final unmodified APK.",
+  "desktop_regression": {
+    "passed": 1349,
+    "skipped": 4,
+    "failed": 0
+  },
+  "final_lifecycle_tests": {
+    "passed": 96,
+    "failed": 0
+  },
+  "physical_device_test": "not_run"
+}

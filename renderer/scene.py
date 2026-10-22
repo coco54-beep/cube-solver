@@ -90,10 +90,15 @@ def build_scene(cube, moving_positions=None, rotation=None, highlight=None):
           每项为 (pos, face_name)，标识该面片属于哪个 cubie 的哪个面，
           供屏幕拾取（pick_facelet）把触摸点还原成"接触的小面"。
     """
+    if getattr(cube,'pandora_entry',False):
+        from renderer.pandora_entry import build_scene as pandora_scene
+        return pandora_scene(cube,highlight)
     from cube.appearance import kind_for
     if kind_for(cube) is not None:
         from renderer.variant_scene import build_variant_scene
         return build_variant_scene(cube, moving_positions, rotation, highlight)
+    from app.cube_palette import get_palette
+    display_palette=get_palette()
     vertices = []
     indices = []
     face_info = []
@@ -130,7 +135,7 @@ def build_scene(cube, moving_positions=None, rotation=None, highlight=None):
             if cub is not None:
                 col = cub.stickers.get(tuple(normal))
                 if col is not None:
-                    c = _RGB.get(col)
+                    c = display_palette.get(col, _RGB.get(col))
                     if c is not None:
                         color = (c[0], c[1], c[2], 1.0)
             if not focused:

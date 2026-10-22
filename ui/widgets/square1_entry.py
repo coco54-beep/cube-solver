@@ -76,6 +76,9 @@ class Square1Ring(Widget):
             with self.canvas:
                 Color(.25,.32,.38,.65)
                 Line(points=[v for p in points for v in p],close=True,width=.6,dash_length=3,dash_offset=2)
+                if self.selected[0]==self.layer*12+slot:
+                    Color(0,.75,.86,1)
+                    Line(points=[v for p in points for v in p],close=True,width=2)
             self._hits.append((points,self.layer*12+slot,0))
         for layer,start,width,piece in self.entry.groups():
             if layer!=self.layer:
@@ -111,6 +114,19 @@ class Square1Ring(Widget):
                 if self.selected==(slot,0):
                     Color(0,.75,.86,1)
                     Line(points=[v for p in inner for v in p],close=True,width=1.5)
+        # A permanent start line and arrow make both layer diagrams unambiguous.
+        import math
+        start=project(ring_outline(self.layer,0,1,-1))[1]
+        finish=project(ring_outline(self.layer,1,1,-1))[-1]
+        a=(self.center_x+(start[0]-self.center_x)*1.10,self.center_y+(start[1]-self.center_y)*1.10)
+        b=(self.center_x+(finish[0]-self.center_x)*1.10,self.center_y+(finish[1]-self.center_y)*1.10)
+        angle=math.atan2(b[1]-a[1],b[0]-a[0])
+        with self.canvas:
+            Color(0,.75,.86,1)
+            Line(points=[self.center_x,self.center_y,*a],width=1.2)
+            Line(points=[*a,*b],width=1.2)
+            Line(points=[b[0]-7*math.cos(angle-.5),b[1]-7*math.sin(angle-.5),*b,
+                         b[0]-7*math.cos(angle+.5),b[1]-7*math.sin(angle+.5)],width=1.2)
 
     def on_touch_down(self,touch):
         if self.collide_point(*touch.pos):

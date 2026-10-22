@@ -79,6 +79,8 @@ class MirrorTowerScreen(PolyhedralScreen):
             preview.set_cube(self._new_cube({self._position:Piece(home,frame)}))
             preview.yaw,preview.pitch=self.view.yaw,self.view.pitch
             preview.roll=self.view.roll
+            # Gallery previews are static: never let them intercept the card tap.
+            preview.on_touch_down = preview.on_touch_move = preview.on_touch_up = lambda *_: False
             button.add_widget(preview)
             button.bind(pos=lambda b,*_:setattr(b.children[0],'pos',b.pos),size=lambda b,*_:setattr(b.children[0],'size',b.size))
             button.bind(on_release=lambda *_,h=home,f=frame:self.choose(h,f))

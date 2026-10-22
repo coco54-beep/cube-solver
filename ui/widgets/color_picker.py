@@ -32,8 +32,10 @@ class ColorSelector(GridLayout):
         self._build()
 
     def update_metrics(self):
+        count=len(getattr(self,'_visible_colors',COLOR_ORDER))
+        rows=(count+2)//3 if self._two_rows else 1
         layout = m.input_grid_metrics(
-            2 if self._two_rows else 1,
+            rows,
             column_gap=16 if self._two_rows else 8,
             row_gap=10 if self._two_rows else 6)
         self.spacing = layout["spacing"]
@@ -123,6 +125,18 @@ class ColorSelector(GridLayout):
             button._border_color = button._ring_color
             button._border_ctx.rgba = (*button._border_color[:3], .28)
         self._sync()
+
+    def set_visible_colors(self, colors=None):
+        """Hide paired internal labels when a puzzle has fewer visible colours."""
+        visible = tuple(colors or COLOR_ORDER)
+        self._visible_colors=visible
+        self.clear_widgets()
+        self.cols = min(3, len(visible)) if self._two_rows else len(visible)
+        for color in visible:
+            self.add_widget(self._buttons[color])
+        if self.current_color not in visible:
+            self.select(visible[0])
+        self.update_metrics()
 
     def _sync(self):
         for col, b in self._buttons.items():

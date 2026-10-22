@@ -92,7 +92,7 @@ CATALOG = {
         "help.icons_input.title": "录入页图标",
         "help.icons_input.body":
             "返回箭头：回到主页；书本：打开教学演示目录；− / +：缩小或放大棋盘。\n"
-            "滴管：开启或关闭取色，开启后点击棋盘格即可吸取该格颜色；油漆桶：用当前选中的颜色填满这一面。\n"
+            "普通魔方齿轮：打开配色设置，调整各色号的显示颜色；油漆桶：用当前选中的颜色填满这一面。\n"
             "左弯箭头 / 右弯箭头：撤销 / 重做上一次颜色修改；左右尖括号：切换当前显示的魔方面。\n"
             "立方体：进入手动拧动；交叉箭头：载入随机打乱状态；垃圾桶：清空已录入颜色。\n"
             "播放三角形：开始求解；圆圈勾号：校验当前布局；剪贴板：粘贴或输入打乱公式。\n"
@@ -185,7 +185,7 @@ CATALOG = {
         "input.picked": "已取色 {col}，可继续填色",
         "input.random_loaded": "已载入随机布局（{k} 步打乱）",
         "input.cleared": "已清空",
-        "input.resumed": "已载入上次布局，点「开始求解」即可沿用上次方案",
+        "input.resumed": "已恢复上次录入的布局",
         "input.clear.title": "确认清空",
         "input.clear.msg": "确定要清空全部已录入的颜色吗？",
         "input.cancel": "取消",
@@ -318,7 +318,7 @@ CATALOG = {
         "help.icons_input.title": "Input screen icons",
         "help.icons_input.body":
             "Back arrow: return home; book: open the demo catalog; − / +: zoom the grid out or in.\n"
-            "Eyedropper: turn color picking on or off; when on, tap a cell to sample its color. Paint bucket: fill the current face with the selected color.\n"
+            "Cube gear: open colour settings to change the display palette. Paint bucket: fill the current face with the selected colour.\n"
             "Curved left / right arrows: undo / redo the last color edit; angle arrows: switch the displayed cube face.\n"
             "Cube: open manual turning; shuffle arrows: load a random scramble; trash: clear entered colors.\n"
             "Play triangle: solve; circled check: validate the layout; clipboard: paste or enter scramble notation.\n"
@@ -420,7 +420,7 @@ CATALOG = {
         "input.picked": "Picked {col}; keep filling",
         "input.random_loaded": "Loaded a random layout ({k}-move scramble)",
         "input.cleared": "Cleared",
-        "input.resumed": "Loaded the previous layout; press Solve to reuse the last solution",
+        "input.resumed": "Previous input layout restored",
         "input.clear.title": "Confirm clear",
         "input.clear.msg": "Clear all entered colors?",
         "input.cancel": "Cancel",
@@ -552,7 +552,7 @@ CATALOG = {
         "help.icons_input.title": "入力画面のアイコン",
         "help.icons_input.body":
             "戻る矢印：ホームへ戻る；本：デモ一覧を開く；− / ＋：盤面を縮小 / 拡大します。\n"
-            "スポイト：色取得のオン / オフ。オンにしてマスをタップすると、その色を取得します。バケツ：選択中の色で面を塗ります。\n"
+            "通常キューブの歯車：配色設定を開き、表示色を調整します。バケツ：選択中の色で面を塗ります。\n"
             "左 / 右の曲がった矢印：色変更を元に戻す / やり直す；左右の山形：表示する面を切り替えます。\n"
             "キューブ：手動回転画面を開く；シャッフル：ランダム状態を読み込む；ゴミ箱：入力色を消去します。\n"
             "再生：解き始める；丸付きチェック：配置を検証；クリップボード：スクランブル記法を貼り付け / 入力します。\n"
@@ -653,7 +653,7 @@ CATALOG = {
         "input.picked": "{col} をスポイトしました。続けて入力できます",
         "input.random_loaded": "ランダム配置を読み込みました（{k} 手スクランブル）",
         "input.cleared": "クリアしました",
-        "input.resumed": "前回の配置を読み込みました。「解く」で前回の解法を再利用できます",
+        "input.resumed": "前回の入力配置を復元しました",
         "input.clear.title": "クリアの確認",
         "input.clear.msg": "入力した色をすべてクリアしますか？",
         "input.cancel": "キャンセル",
@@ -739,6 +739,22 @@ for _language, _messages in _NXN_MESSAGES.items():
 
 from app.polyhedral_i18n import MESSAGES as _POLY_MESSAGES
 for _language, _messages in _POLY_MESSAGES.items():
+    CATALOG[_language].update(_messages)
+
+from app.articulated_i18n import MESSAGES as _RIGID_MESSAGES
+for _language, _messages in _RIGID_MESSAGES.items():
+    CATALOG[_language].update(_messages)
+
+from app.observation_i18n import MESSAGES as _OBSERVATION_MESSAGES
+for _language, _messages in _OBSERVATION_MESSAGES.items():
+    CATALOG[_language].update(_messages)
+
+from app.six_view_i18n import MESSAGES as _SIX_MESSAGES
+for _language, _messages in _SIX_MESSAGES.items():
+    CATALOG[_language].update(_messages)
+
+from app.penrose_i18n import MESSAGES as _PENROSE_MESSAGES
+for _language, _messages in _PENROSE_MESSAGES.items():
     CATALOG[_language].update(_messages)
 
 from app.square_family_i18n import MESSAGES as _SQ_MESSAGES

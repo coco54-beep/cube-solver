@@ -7,11 +7,10 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.scrollview import ScrollView
-from kivy.uix.colorpicker import ColorPicker
 
-from app.constants import COLOR_INFO, COLOR_ORDER
+from app.constants import COLOR_INFO
 from app.i18n import tr
-from app.mastermorphix_palette import palette_entries, save_palette
+from app.mastermorphix_palette import save_palette
 from cube.mastermorphix import (MastermorphixCube, DEFAULT_PALETTE, POSITIONS, positions_for_order, AXIS_FACES, position_kind, position_name,
                                placements, make_piece, piece_colors, equivalent_placements,
                                normalize_input, MorphixInputError)
@@ -22,7 +21,6 @@ from ui.widgets.buttons import UIButton, PrimaryButton, DangerButton
 from ui.widgets.layouts import ResponsiveBoxLayout
 from ui.widgets import metrics as m
 from ui.widgets.dialogs import theme_popup
-from ui.widgets.mastermorphix_net import MastermorphixNet
 from ui.widgets.camera_follow import CameraFollowControl
 
 
@@ -57,6 +55,7 @@ def _thumbnail_camera_for(view, pos):
 
 
 class MastermorphixScreen(EntryActionsMixin, Screen):
+    supports_palette_settings=True
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._cube = None
@@ -81,11 +80,14 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
         demo_button = UIButton(icon_name="demo", size_hint_x=.16)
         demo_button.bind(on_release=lambda *_: self.open_demo())
         self.demo_button = demo_button
-        for widget in (back, self.title, demo_button):
+        self.palette_button=UIButton(icon_name='gear')
+        self.palette_button.bind(on_release=lambda *_:self.open_palette_settings())
+        for widget in (back, self.title):
             top.add_widget(widget)
+        top.add_widget(demo_button)
         root.add_widget(top)
-        self.palette_row = ResponsiveBoxLayout(height_px=34, gap_px=8)
-        root.add_widget(self.palette_row)
+        # Kept for subclass compatibility; palette editing lives on its own page.
+        self.palette_row = ResponsiveBoxLayout(height_px=0, gap_px=8)
         self.reference_label = Label(size_hint_y=None, height=m.h(24), font_size="12sp", halign="center")
         root.add_widget(self.reference_label)
         self.view = MastermorphixView()
@@ -120,13 +122,16 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
         self.gallery_pages.add_widget(self.gallery_page_next)
         controls.add_widget(self.gallery_pages)
         navigation = ResponsiveBoxLayout(height_px=46, gap_px=8)
+        self.navigation = navigation
         self.btn_prev = UIButton(icon_name="prev")
         self.btn_prev.bind(on_release=lambda *_: self.turn_view(-1))
         self.rotate = UIButton(icon_name="reset")
         self.rotate.bind(on_release=lambda *_: self.rotate_piece())
         self.btn_next = UIButton(icon_name="next")
         self.btn_next.bind(on_release=lambda *_: self.turn_view(1))
-        for button in (self.btn_prev, self.rotate, self.btn_next):
+        for button in (self.btn_prev, self.palette_button, self.rotate, self.btn_next):
+            if button is self.palette_button and not self.supports_palette_settings:
+                continue
             navigation.add_widget(button)
         controls.add_widget(navigation)
         self.hint = Label(text=tr("morphix.hint"), size_hint_y=None, height=m.h(44),
@@ -280,11 +285,7 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
         kind = tr(f"morphix.group.{self._group}")
         self.slot.text = tr("morphix.slot", kind=kind, i=positions.index(self._pos)+1,
                             total=len(positions), pos=position_name(self._pos))
-        self.palette_row.clear_widgets()
-        for index, color in enumerate(self._cube.palette):
-            chip = _Swatch(COLOR_INFO[color][1], text=str(index+1))
-            chip.bind(on_release=lambda _, i=index: self.edit_color(i))
-            self.palette_row.add_widget(chip)
+        self._refresh_palette_button()
         self._build_gallery()
         self.progress.text = tr("morphix.progress", done=len(self._recorded), total=len(self._all_positions()))
         piece = self._cube.cubies[self._pos]
@@ -472,58 +473,34 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
         self._refresh()
         self.hint.text = tr("morphix.random_loaded", k=len(moves), total=len(self._all_positions()))
 
-    def edit_color(self, index):
-        """Edit one top swatch directly, keeping the entered pieces and pose."""
-        if self._cube is None or self._busy_turn:
+    def _refresh_palette_button(self):
+        visible=self.supports_palette_settings and self._cube is not None and self._cube.puzzle_kind!='football'
+        if visible and self.palette_button.parent is None:
+            self.navigation.add_widget(self.palette_button,index=2)
+        elif not visible and self.palette_button.parent is self.navigation:
+            self.navigation.remove_widget(self.palette_button)
+        self.palette_button.disabled=not visible
+
+    def palette_colors(self):
+        return [COLOR_INFO[c][1] for c in self._cube.palette]
+
+    def default_palette_colors(self):
+        return [COLOR_INFO[c][1] for c in DEFAULT_PALETTE]
+
+    def apply_palette_colors(self,colors):
+        self._apply_colors([list(c) for c in colors])
+
+    def open_palette_settings(self,index=0):
+        if not self.entry_can_edit() or self._cube is None or not self.supports_palette_settings:
             return
-        content = ResponsiveBoxLayout(orientation="vertical", gap_px=8, padding_px=16)
-        hint = Label(text=tr("morphix.color_hint"), size_hint_y=None, height=m.h(36),
-                     font_size="12sp", halign="center")
-        hint.bind(size=lambda label, *_: setattr(label, "text_size", label.size))
-        content.add_widget(hint)
-        reference = MastermorphixNet(colors=[COLOR_INFO[c][1] for c in self._cube.palette],
-                                    selected_face=index, size_hint_y=None, height=m.h(140))
-        content.add_widget(reference)
-        picker = ColorPicker(color=COLOR_INFO[self._cube.palette[index]][1])
-        content.add_widget(picker)
+        if self._cube.puzzle_kind=='football':
+            return
+        screen=self.manager.get_screen('PiecePaletteScreen')
+        screen.configure(self,index)
+        self.manager.current='PiecePaletteScreen'
 
-        def preview_color(_picker, color):
-            colors = [COLOR_INFO[c][1] for c in self._cube.palette]
-            rgb = tuple(color[:3])
-            for other, rgba in enumerate(colors):
-                if other != index and rgba[:3] == rgb:
-                    colors[other] = colors[index]
-                    break
-            colors[index] = rgb + (1.,)
-            reference.colors = colors
-        picker.bind(color=preview_color)
-        actions = ResponsiveBoxLayout(height_px=48, gap_px=8)
-        cancel, done = UIButton(icon_name="cancel"), PrimaryButton(icon_name="done")
-        restore = UIButton(text=tr("morphix.restore_preset"), size_hint_x=2,
-                           font_size="14sp", halign="center", valign="middle")
-        restore.bind(size=lambda button, *_: setattr(button, "text_size", button.size))
-        actions.add_widget(cancel)
-        actions.add_widget(restore)
-        actions.add_widget(done)
-        content.add_widget(actions)
-        popup = self._popup(tr("morphix.color_slot", i=index+1), content, (.92, .85))
-        cancel.bind(on_release=lambda *_: popup.dismiss())
-        restore.bind(on_release=lambda *_: (self.restore_preset(), popup.dismiss()))
-
-        def accept(*_):
-            rgb = tuple(picker.color[:3])
-            entries = palette_entries(self._cube.palette)
-            # Selecting an existing color exchanges slots, preserving four
-            # distinct colors and allowing reference pairs to be rearranged.
-            for other, color in enumerate(self._cube.palette):
-                if other != index and COLOR_INFO[color][1][:3] == rgb:
-                    entries[other] = entries[index]
-                    break
-            entries[index] = next((c for c in COLOR_ORDER if COLOR_INFO[c][1][:3] == rgb),
-                                  list(rgb) + [1.])
-            self._apply_colors(entries)
-            popup.dismiss()
-        done.bind(on_release=accept)
+    def edit_color(self,index):
+        self.open_palette_settings(index)
 
     def restore_preset(self):
         if self._cube is not None and not self._busy_turn:

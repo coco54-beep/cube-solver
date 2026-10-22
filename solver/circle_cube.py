@@ -20,12 +20,12 @@ def validate_circle(cube):
 
 
 def _atoms(cube):
-    return tuple(Move(a,0,k) for a in range(6) for k in (1,2,3))
+    return tuple(Move(a,0,k) for a in range(len(cube.geometry.spec.axes)) for k in (1,2,3))
 
 
 @lru_cache(maxsize=1)
 def _goal_ball(kind):
-    cube=PolyhedralPuzzle(kind,3);atoms=_atoms(cube)
+    cube=PolyhedralPuzzle(kind,2 if kind=='circle_2' else 3);atoms=_atoms(cube)
     maps=tuple(cube.geometry.inverse_permutation(m) for m in atoms)
     goal=bytes(cube.colors);records={goal:()};front=[goal]
     for depth in range(3):
@@ -42,17 +42,18 @@ def _goal_ball(kind):
 
 
 def solve_circle(cube,cancel=None,progress=None):
+    if cube.puzzle_kind=='circle_2':cube=cube.entered()
     goal=validate_circle(cube)
     if cancel and cancel():raise InterruptedError()
     if cube.is_solved():return ()
     g=cube.geometry
     def verified(word):
-        replay=PolyhedralPuzzle(cube.puzzle_kind,3,cube.colors)
+        replay=cube.entered()
         for move in word:
             if cancel and cancel():raise InterruptedError()
             replay.apply_move(move)
         return replay.is_solved()
-    # Keep the witness only after matching all 102 entered colours. Painting
+    # Keep the witness only after matching all entered colours. Painting
     # or restoring unrelated state can never yield a false successful answer.
     history=getattr(cube,'circle_history',None)
     if history is not None:
@@ -62,8 +63,10 @@ def solve_circle(cube,cancel=None,progress=None):
             return result
     start=monotonic();atoms=_atoms(cube)
     maps=tuple(g.inverse_permutation(m) for m in atoms)
-    solved=_goal_ball(cube.puzzle_kind)
-    state=bytes(cube.colors);pending=deque([(state,())]);seen={state}
+    circle2=cube.puzzle_kind=='circle_2'
+    solved=_circle2_goal_ball() if circle2 else _goal_ball(cube.puzzle_kind)
+    state=(bytes(cube.colors),cube.anchor) if circle2 else bytes(cube.colors)
+    pending=deque([(state,())]);seen={state}
     while pending:
         if cancel and cancel():raise InterruptedError()
         if monotonic()-start>4:break
@@ -75,10 +78,46 @@ def solve_circle(cube,cancel=None,progress=None):
             if progress:progress(1,1)
             return result
         if len(word)>=3:continue
-        for move,mapping in zip(atoms,maps):
+        transitions=_circle2_maps(state[1]) if circle2 else tuple((m,p,None) for m,p in zip(atoms,maps))
+        for move,mapping,anchor in transitions:
             if word and move.axis==word[-1].axis:continue
-            nxt=bytes(map(state.__getitem__,mapping))
+            colors=state[0] if circle2 else state
+            nxt=bytes(map(colors.__getitem__,mapping))
+            if circle2:nxt=(nxt,anchor)
             if nxt not in seen:
                 seen.add(nxt);pending.append((nxt,word+(move,)))
     from solver.messages import tr
     raise ValueError(tr('circle.search_limit'))
+
+
+@lru_cache(maxsize=8)
+def _circle2_maps(anchor):
+    import math
+    from cube.circle_cube import Circle2Cube
+    from cube.polyhedral import rotate
+    cube=Circle2Cube(anchor=anchor);result=[]
+    for move in _atoms(cube):
+        normal=cube.geometry.spec.axes[move.axis]
+        a,sign=next((a,v) for a,v in enumerate(normal) if v)
+        target=(tuple(round(v) for v in rotate(anchor,normal,move.amount*math.pi/2))
+                if anchor[a]==sign else anchor)
+        result.append((move,cube.geometry.inverse_permutation(move),target))
+    return tuple(result)
+
+
+@lru_cache(maxsize=1)
+def _circle2_goal_ball():
+    from cube.circle_cube import Circle2Cube
+    cube=Circle2Cube();goal=(bytes(cube.colors),cube.anchor)
+    records={goal:()};front=[goal]
+    for _ in range(3):
+        nxt=[]
+        for state in front:
+            word=records[state]
+            for move,mapping,anchor in _circle2_maps(state[1]):
+                if word and word[-1].axis==move.axis:continue
+                target=(bytes(map(state[0].__getitem__,mapping)),anchor)
+                if target not in records:
+                    records[target]=word+(move,);nxt.append(target)
+        front=nxt
+    return records

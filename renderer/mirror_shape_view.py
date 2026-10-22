@@ -9,7 +9,7 @@ class MirrorShapeView(MirrorView):
     def _piece_geometry(self, home, frame, subdivisions, n):
         return tuple((points, normal, 0, 'sticker' if _finish == 'sticker' else 'cut', edges)
                      for points, normal, _color, _finish, edges
-                     in _geometry(self.shape_kind, home, frame))
+                     in _geometry(self.shape_kind, home, frame, n))
 
 
 class MirrorWindmillView(MirrorShapeView):

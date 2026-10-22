@@ -12,6 +12,7 @@ from ui.widgets import metrics as m
 
 
 class MirrorScreen(MastermorphixScreen):
+    supports_palette_settings=False
     cube_class=MirrorCube
     view_class=MirrorView
 
@@ -107,6 +108,8 @@ class MirrorScreen(MastermorphixScreen):
             view.fit_piece=True
             view.set_cube(self._preview_cube(self._pos,self._make_piece(home,self._pos,frame)))
             self._card_camera(view,self._pos)
+            # Gallery previews are static: never let them intercept the card tap.
+            view.on_touch_down = view.on_touch_move = view.on_touch_up = lambda *_: False
             button.add_widget(view)
             button.bind(pos=lambda b,*_:setattr(b.children[0],'pos',(b.x+b.width*.05,b.y+b.height*.05)),
                         size=lambda b,*_:setattr(b.children[0],'size',(b.width*.9,b.height*.9)))
@@ -143,12 +146,20 @@ class MirrorScreen(MastermorphixScreen):
         if len(self._recorded)!=len(self._all_positions()):
             self.hint.text=tr('morphix.error.incomplete',total=len(self._all_positions()))
             return None
-        corners=[p.home for p in self._cube.cubies.values() if len(p.stickers)==3]
-        if len(set(corners))!=8:
+        from cube.mirror import normalize_entry
+        from cube.mastermorphix import MorphixInputError
+        try:
+            if type(self._cube) is MirrorCube:
+                cube=normalize_entry(self._cube)
+            else:
+                corners=[p.home for p in self._cube.cubies.values() if len(p.stickers)==3]
+                if len(set(corners))!=8:raise MorphixInputError('duplicate')
+                cube=self._cube.clone()
+        except MorphixInputError:
             self.hint.text=tr('mirror.duplicate')
             return None
         self.hint.text=tr('poly.valid')
-        return self._cube.clone()
+        return cube
 
     def start_solve(self):
         if not self.entry_can_edit():

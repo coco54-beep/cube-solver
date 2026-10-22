@@ -1,0 +1,47 @@
+[
+  {
+    "kind": "cuboid_332",
+    "moves": 30,
+    "panels": 42
+  },
+  {
+    "kind": "cuboid_223",
+    "moves": 30,
+    "panels": 32
+  },
+  {
+    "kind": "cuboid_334",
+    "moves": 30,
+    "panels": 66
+  },
+  {
+    "kind": "cuboid_224",
+    "moves": 30,
+    "panels": 40
+  },
+  {
+    "kind": "cuboid_442",
+    "moves": 30,
+    "panels": 64
+  },
+  {
+    "kind": "cuboid_234",
+    "moves": 30,
+    "panels": 52
+  },
+  {
+    "kind": "cuboid_133",
+    "moves": 11,
+    "panels": 30
+  },
+  {
+    "kind": "cuboid_335",
+    "moves": 30,
+    "panels": 78
+  },
+  {
+    "kind": "cuboid_446",
+    "moves": 43,
+    "panels": 128
+  }
+]

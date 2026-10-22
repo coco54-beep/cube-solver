@@ -33,11 +33,10 @@ def puzzle_image(key):
 PUZZLES = ("pyraminx", "mastermorphix", "skewb", "dino", "megaminx", "moyu", "mirror", "ghost",
            "fto", "football", "icosahedron", "war_drum", "pentahedron", "sq_family", "circle_family",
            "cuboid_family", "windmill", "axis", "fisher", "edge_family", "void_family",
-           "penrose_family", "bandaged_family", "mosaic_family", "ivy_family", "special")
+           "penrose_family", "bandaged_family", "mosaic_family", "ivy_family", "mixup_family", "tangram_family", "special")
 EDGE_TURNING_PUZZLES = ('petal_tetrahedron','petal_tetrahedron_nocentre', 'helicopter', 'clover', 'blossom', 'petal_icosahedron', 'petal_icosahedron_nocentre')
 CUBE_PATTERN_VARIANTS = {
     'penrose_2': 2, 'penrose_3': 3, 'penrose_4': 4,
-    'circle_2': 2,
     'fused_cube': 3, 'two_bar_cube': 3, 'bandaged_c': 3, 'bicube': 3,
     'ai_cube': 4, 'burr_cube': 4,
 }
@@ -46,7 +45,7 @@ BANDAGED_SERIES = ('fused_cube', 'two_bar_cube', 'bandaged_c', 'bicube', 'ai_cub
 MOSAIC_SERIES = ('mosaic', 'tins')
 IVY_SERIES = ('ivy', 'super_ivy', 'eight_petals')
 # 只有确实没有同系列可归的独立型号才留在“特殊异形”。
-SPECIAL_PUZZLES = ('pandora', 'pyraminx_duo', 'coin_tetrahedron', 'camouflage_3')
+SPECIAL_PUZZLES = ('pandora', 'pyraminx_duo', 'coin_tetrahedron', 'camouflage_3', 'o2', 'ancient_coin', 'pentacle')
 # 系列卡没有独立缩略图时借用最能代表该系列的一张。
 SERIES_IMAGES = {
     'void_family': 'void_cube',
@@ -54,6 +53,8 @@ SERIES_IMAGES = {
     'bandaged_family': 'bicube',
     'mosaic_family': 'mosaic',
     'ivy_family': 'super_ivy',
+    'mixup_family':'mixup_333',
+    'tangram_family':'tangram',
 }
 # (family, option) -> (physical kind, order, entry screen, label).
 # The Mirror and Void cards collect all appearance variants; their base
@@ -90,6 +91,8 @@ ORDERS = {'cube': tuple(range(2, MAX_N+1)),
           'skewb_ultimate': (3,), 'void_minx': (3,), 'void_family': (),
           'penrose_family': PENROSE_SERIES, 'bandaged_family': BANDAGED_SERIES,
           'mosaic_family': MOSAIC_SERIES, 'ivy_family': IVY_SERIES}
+from cube.articulated import MIXUP_MODELS,TANGRAM_MODELS
+ORDERS.update(mixup_family=tuple(MIXUP_MODELS),tangram_family=TANGRAM_MODELS)
 for _family, _option in PUZZLE_VARIANTS:
     ORDERS[_family] += (_option,)
 # Appearance variants are selected from their own Mirror/Void cards.
@@ -109,7 +112,7 @@ IMPLEMENTED_ORDERS = {**ORDERS,
                       'fto': (2, 3, 4, 5), 'eight_petals': (3,), 'helicopter': (3,), 'mosaic': (4,), 'tins': (5,), 'dino_skewb': (4,), 'dayan_dino_skewb': (4,), 'fisher_skewb': (3,),
                       'void_cube': (3,), 'void_tower': (3,), 'clover': (3,), 'blossom': (3,), 'petal_tetrahedron': (3,), 'petal_tetrahedron_nocentre': (3,), 'petal_icosahedron': (3,), 'petal_icosahedron_nocentre': (3,), 'super_ivy': (3,),
                       'football':(3,5), 'icosahedron':(2,3,4,5), 'ivy':(3,), 'pyraminx_duo':(3,), 'ghost_pyramid':(3,), 'coin_tetrahedron':(3,),
-                      'war_drum': (2,3,4,5), 'pentahedron': (2,3,4,5)}
+                      'war_drum': (2,3,4,5), 'pentahedron': (2,3,4,5), 'o2':(1,), 'ancient_coin':(3,)}
 # Physical variants are named separately where an order alone is ambiguous.
 # Keep catalogue ranges separate from IMPLEMENTED_ORDERS until engines exist.
 ORDERS.update(fto=(2, 3, 4, 5), football=(3, 5), icosahedron=(2, 3, 4, 5))
@@ -138,6 +141,7 @@ ORDER_LABELS = {
 ORDER_LABELS.update({key: variant[3] for key, variant in PUZZLE_VARIANTS.items()})
 ORDER_LABELS.update({('circle_family',kind): 'directory.'+kind for kind in ORDERS['circle_family']})
 ORDER_LABELS.update({('cuboid_family',kind): 'directory.'+kind for kind in ORDERS['cuboid_family']})
+ORDER_LABELS.update({(family,kind):'directory.'+kind for family in ('mixup_family','tangram_family') for kind in ORDERS[family]})
 for _series, _options in (('penrose_family', PENROSE_SERIES),
                           ('bandaged_family', BANDAGED_SERIES),
                           ('mosaic_family', MOSAIC_SERIES),
@@ -153,6 +157,7 @@ ORDER_LABELS.update({
 })
 # 语言无关的两字母标记，与首页「大号文字 + 标题」的卡片结构一致。
 MARKS = {'cube': '普', 'pyraminx': "Py", 'mirror_pyraminx': 'MP', 'ghost': 'Gh', 'mastermorphix': "Mo", 'skewb': "Sk", 'dino': 'Di',
+         'mixup_family':'Mx','tangram_family':'Tg','o2':'O2','ancient_coin':'币','pentacle':'★',
          'sq_family':'SQ', 'circle_family':'○', 'cuboid_family':'▭', 'edge_family':'180°',
          'megaminx': "Mg", 'moyu': "Tw", 'mirror': "Mi", 'special': '特',
          'eight_petals': '8', 'helicopter': 'HC', 'clover': '4', 'football': 'Fb', 'fto': 'FTO',
@@ -325,9 +330,14 @@ class IrregularDirectoryScreen(Screen):
         self.open_order_picker(series)
 
     def open_order_picker(self, puzzle):
-        if puzzle == 'camouflage_3':
-            _app().new_polyhedral(puzzle,3)
-            _app().root.current='PolyhedralScreen'
+        if puzzle=='pentacle':
+            _app().new_pentacle()
+            self.manager.current='PentacleScreen'
+            return
+        if puzzle in ('camouflage_3','circle_2'):
+            _app().new_polyhedral(puzzle,2 if puzzle=='circle_2' else 3)
+            from ui.screens.polyhedral_screen import _entry_for
+            _app().root.current=_entry_for(_app().cube)
             return
         if puzzle in CUBE_PATTERN_VARIANTS:
             _app().new_cube_variant(puzzle, CUBE_PATTERN_VARIANTS[puzzle])
@@ -336,7 +346,7 @@ class IrregularDirectoryScreen(Screen):
         if puzzle in SPECIAL_PUZZLES or puzzle in EDGE_TURNING_PUZZLES:
             if puzzle == 'pandora':
                 _app().new_shape_cube(puzzle)
-                self.manager.current='ShapeCubeScreen'
+                self.manager.current='InputScreen'
                 return
             if puzzle=='square1':
                 _app().new_square1()
@@ -350,7 +360,7 @@ class IrregularDirectoryScreen(Screen):
             return
         content = BoxLayout(orientation="vertical", spacing=m.h(10), padding=m.h(14))
         has_variants = any(family == puzzle for family, _ in PUZZLE_VARIANTS)
-        model_series = ('skewb', 'dino', 'ghost', 'penrose_family',
+        model_series = ('skewb', 'dino', 'ghost', 'penrose_family', 'mixup_family', 'tangram_family',
                         'bandaged_family', 'mosaic_family', 'ivy_family')
         hint_key = ('directory.cuboid_hint' if puzzle == 'cuboid_family' else
                     'directory.circle_hint' if puzzle == 'circle_family' else
@@ -404,6 +414,10 @@ class IrregularDirectoryScreen(Screen):
 
     def select_order(self, picker, puzzle, order):
         picker.dismiss()
+        if puzzle in ('mixup_family','tangram_family') and order in ORDERS[puzzle]:
+            _app().new_articulated(order)
+            self.manager.current='MixupInputScreen' if order.startswith('mixup_') else 'ArticulatedEntryScreen'
+            return
         if puzzle == 'penrose_family':
             _app().new_cube_variant(order, CUBE_PATTERN_VARIANTS[order])
             self.manager.current = 'InputScreen'
@@ -423,14 +437,15 @@ class IrregularDirectoryScreen(Screen):
         if puzzle == 'cuboid_family':
             if order in ORDERS[puzzle]:
                 _app().new_polyhedral(order,3)
-                self.manager.current='PolyhedralScreen'
+                from ui.screens.polyhedral_screen import _entry_for
+                self.manager.current=_entry_for(_app().cube)
             return
         if puzzle == 'circle_family':
             if order not in ORDERS[puzzle]:
                 return
             if order == 'circle_2':
-                _app().new_cube_variant(order,2)
-                self.manager.current='InputScreen'
+                _app().new_polyhedral(order,2)
+                self.manager.current='PolyhedralScreen'
             else:
                 _app().new_polyhedral(order,3)
                 self.manager.current='PolyhedralScreen'
@@ -514,7 +529,8 @@ class IrregularDirectoryScreen(Screen):
             self.manager.current = 'MirrorScreen'
         else:
             _app().new_polyhedral(puzzle, order)
-            self.manager.current = 'PolyhedralScreen'
+            from ui.screens.polyhedral_screen import _entry_for
+            self.manager.current = _entry_for(_app().cube)
 
     def _show_pending(self, puzzle, order=None, message=None):
         content=BoxLayout(orientation='vertical',spacing=m.h(12),padding=m.h(16))

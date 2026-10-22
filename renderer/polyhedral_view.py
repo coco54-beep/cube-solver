@@ -92,9 +92,12 @@ def _outlines(sticker,normal):
 
 @lru_cache(maxsize=3)
 def outlines(kind,n):
+    if kind=='o2':
+        from cube.o2 import outlines as o2_outlines
+        return o2_outlines()
     from cube.polyhedral import geometry
     g=geometry(kind,n)
-    if kind.startswith('crazy_') or kind in ('eight_petals','clover','blossom','petal_icosahedron','petal_icosahedron_nocentre','petal_tetrahedron','petal_tetrahedron_nocentre','ivy','super_ivy','pyraminx_duo','coin_tetrahedron'):
+    if kind.startswith('crazy_') or kind in ('eight_petals','clover','blossom','petal_icosahedron','petal_icosahedron_nocentre','petal_tetrahedron','petal_tetrahedron_nocentre','ivy','super_ivy','pyraminx_duo','coin_tetrahedron','ancient_coin'):
         # Ear-clipped patches share the original concave outline. Walking the
         # source boundary avoids discovering internal triangle edges again.
         return tuple(tuple(zip(s.polygon,s.polygon[1:]+s.polygon[:1])) for s in g.stickers)

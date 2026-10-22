@@ -1,0 +1,137 @@
+{
+  "matches": [
+    {
+      "kind": "cuboid_224",
+      "seed": 101,
+      "automatic_depth": "ok",
+      "with_depth_if_needed": "ok",
+      "nodes": 46
+    },
+    {
+      "kind": "cuboid_224",
+      "seed": 202,
+      "automatic_depth": "ok",
+      "with_depth_if_needed": "ok",
+      "nodes": 46
+    },
+    {
+      "kind": "cuboid_224",
+      "seed": 303,
+      "automatic_depth": "ok",
+      "with_depth_if_needed": "ok",
+      "nodes": 46
+    },
+    {
+      "kind": "cuboid_442",
+      "seed": 101,
+      "automatic_depth": "ok",
+      "with_depth_if_needed": "ok",
+      "nodes": 74
+    },
+    {
+      "kind": "cuboid_442",
+      "seed": 202,
+      "automatic_depth": "ok",
+      "with_depth_if_needed": "ok",
+      "nodes": 74
+    },
+    {
+      "kind": "cuboid_442",
+      "seed": 303,
+      "automatic_depth": "ok",
+      "with_depth_if_needed": "ok",
+      "nodes": 74
+    },
+    {
+      "kind": "cuboid_234",
+      "seed": 101,
+      "automatic_depth": "ok",
+      "with_depth_if_needed": "ok",
+      "nodes": 59
+    },
+    {
+      "kind": "cuboid_234",
+      "seed": 202,
+      "automatic_depth": "ok",
+      "with_depth_if_needed": "ok",
+      "nodes": 59
+    },
+    {
+      "kind": "cuboid_234",
+      "seed": 303,
+      "automatic_depth": "ok",
+      "with_depth_if_needed": "ok",
+      "nodes": 59
+    },
+    {
+      "kind": "cuboid_133",
+      "seed": 101,
+      "automatic_depth": "ok",
+      "with_depth_if_needed": "ok",
+      "nodes": 32
+    },
+    {
+      "kind": "cuboid_133",
+      "seed": 202,
+      "automatic_depth": "ok",
+      "with_depth_if_needed": "ok",
+      "nodes": 32
+    },
+    {
+      "kind": "cuboid_133",
+      "seed": 303,
+      "automatic_depth": "ok",
+      "with_depth_if_needed": "ok",
+      "nodes": 31
+    },
+    {
+      "kind": "cuboid_335",
+      "seed": 101,
+      "automatic_depth": "ok",
+      "with_depth_if_needed": "ok",
+      "nodes": 92
+    },
+    {
+      "kind": "cuboid_335",
+      "seed": 202,
+      "automatic_depth": "ok",
+      "with_depth_if_needed": "ok",
+      "nodes": 92
+    },
+    {
+      "kind": "cuboid_335",
+      "seed": 303,
+      "automatic_depth": "ok",
+      "with_depth_if_needed": "ok",
+      "nodes": 94
+    },
+    {
+      "kind": "camouflage_3",
+      "seed": 101,
+      "automatic_depth": "ok",
+      "with_depth_if_needed": "ok",
+      "nodes": 57
+    },
+    {
+      "kind": "camouflage_3",
+      "seed": 202,
+      "automatic_depth": "ok",
+      "with_depth_if_needed": "ok",
+      "nodes": 57
+    },
+    {
+      "kind": "camouflage_3",
+      "seed": 303,
+      "automatic_depth": "ok",
+      "with_depth_if_needed": "ok",
+      "nodes": 57
+    }
+  ],
+  "edge_checks": [
+    "incomplete",
+    "conflict",
+    "time_limit",
+    "cancelled"
+  ],
+  "scope": "Existing software models; not independent real-puzzle verification"
+}

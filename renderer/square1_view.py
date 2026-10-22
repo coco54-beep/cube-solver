@@ -93,6 +93,7 @@ class Square1View(PolyhedralView):
     fit_piece=False
     show_middle=True
     camera_target=(0.,0.,0.)
+    pick_black_surfaces=False
     _surfaces=staticmethod(surfaces)
 
     def _surface_shade(self, normal, eye, light, rgba, color, recorded):
@@ -108,6 +109,9 @@ class Square1View(PolyhedralView):
 
     def _is_recorded(self,slot):
         return self.recorded is None or slot>=24 or self.cube.slots[slot] in self.recorded
+
+    def _is_selected(self,slot):
+        return slot==self.selected
 
     def _motion(self,points,normal,slot,layer,start,width):
         if self._move is None:
@@ -204,11 +208,11 @@ class Square1View(PolyhedralView):
             centre=mean(points)
             points=self._inset(points)
             shade=self._surface_shade(normal,eye,light,rgba,color,color<0 or self._is_recorded(slot))
-            if slot==self.selected:
+            if self._is_selected(slot):
                 shade=tuple(.75*v+.25*c for v,c in zip(shade,(0.,.9,1.,1.)))
             depth_bias=self._surface_depth_bias(color)
             projected=tuple((cx+dot(p,right)*factor,cy+dot(p,up)*factor,-dot(p,eye)*.12+depth_bias) for p in points)
-            if color>=0 or color==-2:
+            if color>=0 or color==-2 or self.pick_black_surfaces:
                 self._polygons.append((projected,slot))
             base=len(vertices)//7
             for x,y,z in projected:

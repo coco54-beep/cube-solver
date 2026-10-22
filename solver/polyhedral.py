@@ -490,6 +490,14 @@ def _optimize_plan(cube):
 
 
 def solve_polyhedral(cube,cancel=None,progress=None):
+    if cube.puzzle_kind=='o2':
+        from solver.o2 import solve_o2
+        return solve_o2(cube,cancel,progress)
+    if cube.puzzle_kind=='ancient_coin':
+        from solver.ancient_coin import solve_ancient_coin
+        solution=solve_ancient_coin(cube,cancel,progress)
+        from solver.solution_loops import shorten_polyhedral_word
+        return shorten_polyhedral_word(cube,solution,cancel)
     # App-generated scrambles retain their exact inverse. For reduction-based
     # puzzles whose general solver is much longer, replaying that inverse is a
     # valid and dramatically shorter complete solution.
@@ -515,7 +523,7 @@ def solve_polyhedral(cube,cancel=None,progress=None):
     if cube.puzzle_kind.startswith(('cuboid_','camouflage_3')):
         from solver.cuboid import solve_cuboid
         return solve_cuboid(cube,cancel,progress)
-    if cube.puzzle_kind.startswith('crazy_'):
+    if cube.puzzle_kind.startswith(('crazy_','circle_2')):
         from solver.circle_cube import solve_circle
         return solve_circle(cube,cancel,progress)
     if cube.puzzle_kind == 'coin_tetrahedron':
@@ -555,6 +563,9 @@ def _solve_and_optimize(cube,cancel=None,progress=None):
         from solver.pentahedron_reduce import core_injection
         from solver.pentahedron_high import shorten_pentahedron
         refine=lambda word:shorten_pentahedron(cube,word,cancel)
+        target=_OPTIMIZE_TARGETS.get((cube.puzzle_kind,cube.n))
+        if target is not None and len(solution) <= target:
+            return refine(solution)
         candidates=[solution]
         try:
             injected=core_injection(cube,cancel)
@@ -567,12 +578,11 @@ def _solve_and_optimize(cube,cancel=None,progress=None):
         resolver=lambda work:_solve_polyhedral_raw(work,cancel)
         best=min(candidates,key=len)
         per=_OPTIMIZE_HEAVY_BUDGET/len(candidates)
-        target=_OPTIMIZE_TARGETS.get((cube.puzzle_kind,cube.n))
         for cand in candidates:
             if cancel and cancel():
                 raise InterruptedError()
             result=optimize_solution(cube,cand,resolver,budget=per,target=target,
-                                     cancel=cancel,progress=progress)
+                                     cancel=cancel,progress=progress,cache_prefixes=True)
             if len(result)<len(best):
                 best=result
         return refine(best)
@@ -586,7 +596,8 @@ def _solve_and_optimize(cube,cancel=None,progress=None):
         else:
             resolver=lambda work:_solve_polyhedral_raw(work,cancel)
         solution=optimize_solution(cube,solution,resolver,budget=budget,
-                                   target=target,cancel=cancel,progress=progress)
+                                   target=target,cancel=cancel,progress=progress,
+                                   cache_prefixes=cube.puzzle_kind=='war_drum')
     return solution
 
 
@@ -598,6 +609,9 @@ def _solve_constructive_core(cube,cancel=None,progress=None):
 
 def _solve_polyhedral_raw(cube,cancel=None,progress=None):
     """Dispatch to the puzzle's solver before any improvement search."""
+    if cube.puzzle_kind=='o2':
+        from solver.o2 import solve_o2
+        return solve_o2(cube,cancel,progress)
     if cube.is_solved():
         return ()
     if cube.puzzle_kind in ('war_drum','pentahedron'):

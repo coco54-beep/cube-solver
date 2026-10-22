@@ -182,7 +182,13 @@ def _skewb_ultimate_axes():
 
 
 def specification(kind, n):
-    if kind.startswith('crazy_'):
+    if kind=='ancient_coin' and n==3:
+        from cube.ancient_coin import specification as coin_specification
+        return coin_specification()
+    if kind=='o2' and n==1:
+        from cube.o2 import specification as o2_specification
+        return o2_specification()
+    if kind.startswith(('crazy_','circle_2')):
         from cube.circle_cube import circle_specification
         return circle_specification(kind,n)
     if kind == 'coin_tetrahedron' and n == 3:
@@ -500,7 +506,10 @@ def _even_geometry(n,kind='megaminx'):
 
 @lru_cache(maxsize=4)
 def geometry(kind,n):
-    if kind.startswith('crazy_'):
+    if kind=='o2' and n==1:
+        from cube.o2 import geometry as o2_geometry
+        return o2_geometry()
+    if kind.startswith(('crazy_','circle_2')):
         from cube.circle_cube import circle_geometry
         return circle_geometry(kind,n)
     if kind in ('mosaic','tins'):
@@ -524,6 +533,9 @@ def geometry(kind,n):
     if kind=='blossom':
         from cube.blossom import blossom_skin
         fragments=blossom_skin(spec)
+    elif kind=='ancient_coin':
+        from cube.ancient_coin import skin
+        fragments=skin(spec)
     elif kind=='coin_tetrahedron':
         from cube.coin_tetrahedron import coin_skin
         fragments=coin_skin(spec)
@@ -578,7 +590,10 @@ def geometry(kind,n):
                 point_perm.append(centre_index[q])
         normal_perm=[face_index[key(rotate(normal,axis,angle))] for normal in spec.normals]
         projections=[dot(axis,p) for p in centres]
-        if kind=='coin_tetrahedron':
+        if kind=='ancient_coin':
+            from cube.ancient_coin import moving_pieces
+            bands=[moving_pieces(tuple(groups),axis_id)]
+        elif kind=='coin_tetrahedron':
             from cube.coin_tetrahedron import moving_pieces
             bands=[moving_pieces(tuple(groups),axis_id)]
         elif kind=='blossom':
@@ -652,7 +667,7 @@ def geometry(kind,n):
         return drum_even_geometry(result, spec)
     if kind == 'eight_petals':
         return _flower_geometry(result, spec)
-    if kind in ('clover','blossom','ivy','super_ivy','pyraminx_duo','coin_tetrahedron'):
+    if kind in ('clover','blossom','ivy','super_ivy','pyraminx_duo','coin_tetrahedron','ancient_coin'):
         return _patch_faces(result)
     return _without_centres(result, spec) if kind == 'void_cube' else result
 
@@ -830,7 +845,7 @@ class PolyhedralPuzzle:
         self.scramble_history=None
         if len(self.colors)!=len(self.geometry.stickers):
             raise ValueError('Wrong sticker count')
-        if kind.startswith('crazy_'):
+        if kind.startswith(('crazy_','circle_2')):
             self.circle_history=[] if self.is_solved() else None
             self._circle_snapshot=tuple(self.colors)
 
@@ -841,13 +856,13 @@ class PolyhedralPuzzle:
     def clone(self):
         result=type(self)(self.puzzle_kind,self.n,self.colors)
         result.scramble_history=None if self.scramble_history is None else tuple(self.scramble_history)
-        if self.puzzle_kind.startswith('crazy_') and tuple(self.colors)==self._circle_snapshot:
+        if self.puzzle_kind.startswith(('crazy_','circle_2')) and tuple(self.colors)==self._circle_snapshot:
             result.circle_history=None if self.circle_history is None else list(self.circle_history)
         return result
 
     def apply_move(self,move):
         inverse=self.geometry.inverse_permutation(move)
-        circle=self.puzzle_kind.startswith('crazy_')
+        circle=self.puzzle_kind.startswith(('crazy_','circle_2'))
         if circle and tuple(self.colors)!=self._circle_snapshot:
             self.circle_history=[] if self.is_solved() else None
         self.colors=list(map(self.colors.__getitem__,inverse))
@@ -864,6 +879,9 @@ class PolyhedralPuzzle:
         return 4 if self.puzzle_kind == 'dino4' else len(self.geometry.spec.normals)
 
     def is_solved(self):
+        if self.puzzle_kind=='o2':
+            from cube.o2 import is_solved
+            return is_solved(self.colors)
         if self.puzzle_kind == 'dino4':
             return (len(self.colors)==len(self.geometry.stickers) and
                     all(color==DINO4_FACE_COLORS[sticker.face]
@@ -883,6 +901,6 @@ class PolyhedralPuzzle:
 
     def entered(self):
         """Rebuild an input state using only its painted facelets."""
-        if self.puzzle_kind.startswith('crazy_'):
+        if self.puzzle_kind.startswith(('crazy_','circle_2')):
             return self.clone()
         return type(self)(self.puzzle_kind,self.n,self.colors)

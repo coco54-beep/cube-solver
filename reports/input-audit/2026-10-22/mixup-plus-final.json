@@ -1,0 +1,38 @@
+[
+  {
+    "kind": "mixup_plus_344",
+    "fixture": "mixup_plus_344-211021.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 6970,
+    "seconds": 28.984
+  },
+  {
+    "kind": "mixup_plus_344",
+    "fixture": "mixup_plus_344-211022.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 5853,
+    "seconds": 28.954
+  },
+  {
+    "kind": "mixup_plus_444",
+    "fixture": "mixup_plus_444-211021.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 666,
+    "seconds": 20.75
+  },
+  {
+    "kind": "mixup_plus_444",
+    "fixture": "mixup_plus_444-211022.json",
+    "history_free": true,
+    "solved": true,
+    "match": "matched",
+    "moves": 878,
+    "seconds": 16.906
+  }
+]

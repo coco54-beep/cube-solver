@@ -298,6 +298,10 @@ class MorphixTwistScreen(Screen):
             return
         try:
             src = self.manager.get_screen(self._source)
+            if self._work.puzzle_kind=='pandora' and hasattr(src,'receive_pandora_twist'):
+                src.receive_pandora_twist(self._work)
+                self.manager.current=self._source
+                return
             if self._history:
                 src._remember()
             src._cube = self._work

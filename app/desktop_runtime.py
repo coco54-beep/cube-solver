@@ -1,7 +1,18 @@
 """Choose desktop graphics before any module imports Kivy's window."""
 from importlib.util import find_spec
 import os
+import site
 import sys
+
+# PyInstaller never runs ``site.main()``, so ``site.USER_BASE`` stays None in
+# the frozen build. The ``kivy_deps`` packages (angle/glew/sdl2) call
+# ``os.path.join(site.USER_BASE, ...)`` while Kivy imports, which raises
+# ``TypeError: expected str, bytes or os.PathLike object, not NoneType``.
+# Give them a real path before Kivy is imported.
+if getattr(site, 'USER_BASE', None) is None:
+    site.USER_BASE = os.path.expanduser('~')
+if getattr(site, 'USER_SITE', None) is None:
+    site.USER_SITE = os.path.join(site.USER_BASE, 'Python', 'site-packages')
 
 
 def configure_graphics():

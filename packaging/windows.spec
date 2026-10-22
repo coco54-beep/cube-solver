@@ -15,7 +15,11 @@ deps=get_deps_minimal(window='sdl2',text='sdl2',image=('sdl2','pil','tex','dds')
 hidden=list(deps['hiddenimports'])
 for package in ('app','cube','demo','renderer','services','solver','ui','vision','twophase'):
     hidden.extend(collect_submodules(package))
-hidden.extend(('kivy_deps.angle','kivy_deps.glew','kivy_deps.sdl2'))
+hidden.extend(('kivy_deps.angle','kivy_deps.glew','kivy_deps.sdl2',
+               # Kivy's get_deps_minimal names these image_pil/image_sdl2/...,
+               # which do not exist; the real provider modules are img_*.
+               'kivy.core.image.img_dds','kivy.core.image.img_pil',
+               'kivy.core.image.img_sdl2','kivy.core.image.img_tex'))
 datas=[]
 for folder in ('assets','solver','ui','docs','twophase','demo'):
     for path in (root/folder).rglob('*'):

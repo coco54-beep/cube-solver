@@ -4,6 +4,15 @@
 
 [Windows / Android 版](https://github.com/coco54-beep/cube-solver/releases/latest) · [English](README.md) · [中文技术说明](README.zh-CN.md) · [ソースコード](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.33 の更新
+
+- **Mixup シリーズ**：Mixup 3×3、3×3×4、3×4×4、4×4×4 と Mixup Plus 各変種。形状／コアの段階的縮約を幾何に基づいて行います。Plus 3×4×4 は形状探索が上限に達しても中断せず、部分的な形状フレームから仕上げられます。内側エッジ反転の仕上げは全 Plus モデルで有効になりました。
+- **新しい変形パズル**：Tangram、Tangram Extreme、O2、Pentacle、Ancient Coin を追加し、Penrose／Pandora の入力画面も加えました。
+- **入力とパレット**：6方向直接入力、ピースパレット／キューブパレット画面、新しい系統向けの articulated 観測入力。
+- **修正**：1.2.32 の形状ピースのフレーム修正を含み、新系統の日本語 UI／ダイアログ文言を補完しました。
+
+[1.2.33 リリースノート](docs/release-1.2.33.md)
+
 ## 1.2.32 の更新
 
 - 外観レイヤーのフィールド追加で発生したピース座標の回帰を修正しました。Mastermorphix、Ghost、ミラー形状のピースで `frame` が誤ったフィールドに入り、スクランブル初期化やセンター方向の求解が失敗していました。
@@ -96,9 +105,11 @@
 
 ## 概要
 
-本プロジェクトは、入力されたパズル状態をモデル化し、パズルごとの検証と回放チェックを伴う手順列を生成します。通常の 2×2〜5×5 と実験的な 6×6〜17×17 に加え、現行版（1.2.30）は幅広い変形パズルを収録します：形状変化した Mastermorphix / Mirror Cube 系（2〜9段）、Pyraminx（2〜7）、Skewb（3/5/7）、Megaminx（2〜13）、Tower Cube（3〜7）、Dino / Lattice（2/4/6）、面回転八面体（2〜4）、Football / Tuttminx（3/5）、Icosahedron（2〜5）、Blossom、Ivy、Clover、Eight-petals、Void Cube / Tower、Square-1、Mirror Tower、ウォードラム（2〜5）、五面体（2〜5）、および形状キューブ（Axis / Pandora / Windmill / Fisher）。各系統は、すべてを通常の 3×3 表現に押し込むのではなく、幾何に基づく状態モデルを使います。変形カタログは、専用ディレクトリ内の図付きカードとして表示されます。
+本プロジェクトは、入力されたパズル状態をモデル化し、パズルごとの検証と回放チェックを伴う手順列を生成します。通常の 2×2〜5×5 と実験的な 6×6〜17×17 に加え、現行版（1.2.33）は幅広い変形パズルを収録します：形状変化した Mastermorphix / Mirror Cube 系（2〜9段）、Pyraminx（2〜7）、Skewb（3/5/7）、Megaminx（2〜13）、Tower Cube（3〜7）、Dino / Lattice（2/4/6）、面回転八面体（2〜4）、Football / Tuttminx（3/5）、Icosahedron（2〜5）、Blossom、Ivy、Clover、Eight-petals、Void Cube / Tower、Square-1、Mirror Tower、ウォードラム（2〜5）、五面体（2〜5）、および形状キューブ（Axis / Pandora / Windmill / Fisher）。各系統は、すべてを通常の 3×3 表現に押し込むのではなく、幾何に基づく状態モデルを使います。変形カタログは、専用ディレクトリ内の図付きカードとして表示されます。
 
 1.2.30 では辺回転四面体／二十面体、SQ-0／SQ-2／Super SQ-1、高さ不均等・偏心カットのミラー変種、ゴースト、スキューブアルティメット、空洞メガミンクス、4色ダイノ、4段形状キューブを追加しました。
+
+1.2.31 で直方体・円環／クレイジープラネット・バンデージ系などを追加し、1.2.32 で形状ピースのフレーム処理を修正しました。1.2.33 では Mixup 系、Tangram／Tangram Extreme、O2、Pentacle、Ancient Coin、および 6方向直接入力・パレット画面を追加しています。
 
 エンジニアリングの重点は、入力から回放までの一連の流れです：幾何キュービー表現、状態検証、解法の段階制御、手順の正規化、解のチェック。本プロジェクトは適切な箇所で既存の解法を取り込んでおり、キューブ群に対する新しい一般解や大域的最短解を主張するものではありません。高次の解法は実験的で、ランダム状態や Android 実機での網羅的な評価は未完了です。
 

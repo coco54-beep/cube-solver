@@ -1378,7 +1378,7 @@ class InputScreen(EntryActionsMixin, Screen):
             except ValueError as error:
                 self.msg.text=tr(str(error));self.msg.color=_app().theme.danger;self._valid=False
                 return
-        self.msg.text = tr("input.valid")
+        self.msg.text = tr("bandage.entry_checked" if getattr(_app(),'puzzle_kind',None) in KINDS else "input.valid")
         self.msg.color = _app().theme.accent
         self._valid = True
         self._refresh_view()

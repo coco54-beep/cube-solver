@@ -4,6 +4,15 @@
 
 [Windows / Android 版](https://github.com/coco54-beep/cube-solver/releases/latest) · [English](README.md) · [中文技术说明](README.zh-CN.md) · [ソースコード](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.34 の更新
+
+- 履歴なしの手動求解が **Fused、AI、Burr、Bandaged C、Two-Bar、BiCube**、**Circle 2／Crazy Planet**、**Tangram／Tangram Extreme** に対応しました。
+- 2×2〜5×5 の入力検証に角・辺の反転、向き、パリティ、軌道の条件を追加し、監査で見つかった不正入力を拒否します。
+- 入力ボタン、色スウォッチ、ピース選択、Mixup 内側エッジの組み合わせを再テストしました。
+- 全自動テスト成功：**2225 passed, 8 skipped**。
+
+[1.2.34 リリースノート](docs/release-1.2.34.md)
+
 ## 1.2.33 の更新
 
 - **Mixup シリーズ**：Mixup 3×3、3×3×4、3×4×4、4×4×4 と Mixup Plus 各変種。形状／コアの段階的縮約を幾何に基づいて行います。Plus 3×4×4 は形状探索が上限に達しても中断せず、部分的な形状フレームから仕上げられます。内側エッジ反転の仕上げは全 Plus モデルで有効になりました。

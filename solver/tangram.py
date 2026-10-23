@@ -1,19 +1,17 @@
-"""Bounded macro search for the two Tangram mechanisms."""
-from time import monotonic
+"""History-independent Tangram algorithms with physical solution replay."""
 from solver.articulated import _simplify_rigid
 
 
-def _score(cube):
-    # Number of solids away from their home pose; lower is better.
-    return sum(1 for pose in cube.frames if pose != 0)
-
-
-def _verify(cube, word, cancel):
+def _verify(cube, word, cancel, progress=None):
     work = cube.clone()
-    for move in word:
-        if cancel and cancel(): raise InterruptedError()
-        try: work.apply_move(move)
+    def guard():
+        if cancel and cancel():raise InterruptedError()
+    for index,move in enumerate(word):
+        guard()
+        if progress and index%10==0:progress(index,len(word))
+        try: work.apply_move(move,guard=guard)
         except ValueError: return False
+    if progress:progress(len(word),len(word))
     return work.is_solved()
 
 
@@ -22,34 +20,25 @@ def solve_tangram(cube, cancel=None, progress=None):
     period = cube.geometry.spec.turn_order
     if cube.history and cube.frames == cube._history_snapshot:
         word = tuple(m.inverse(period) for m in reversed(cube.history))
-        if _verify(cube, word, cancel):
+        if _verify(cube, word, cancel, progress):
             short = _simplify_rigid(cube, word)
             if len(short) < len(word) and _verify(cube, short, cancel): return short
             return word
-    deadline = monotonic() + 10.
-    start = cube.clone(); beam = [(_score(start), start, ())]; seen = {start.frames}
-    width = 120
-    for depth in range(1, 25):
-        if cancel and cancel(): raise InterruptedError()
-        if progress: progress(depth, 24)
-        following = []
-        for _, state, path in beam:
-            if monotonic() > deadline: break
-            previous = (path[-1].axis, path[-1].layer) if path else None
-            for base in state.moves():
-                if previous == (base.axis, base.layer): continue
-                for amount in range(base.amount, period, base.amount):
-                    from cube.polyhedral import Move
-                    move = Move(base.axis, base.layer, amount)
-                    child = state.clone()
-                    try: child.apply_move(move)
-                    except ValueError: continue
-                    if child.frames in seen: continue
-                    seen.add(child.frames); word = path + (move,)
-                    if child.is_solved():
-                        if _verify(cube, word, cancel): return word
-                    following.append((_score(child), child, word))
-        if not following: break
-        following.sort(key=lambda item: item[0]); beam = following[:width]
-        if monotonic() > deadline: break
-    raise ValueError('rigid.search_limit')
+    from solver.tangram_geometry import geometry
+    from solver.tangram_table import load_table,compact
+    model=geometry(cube.puzzle_kind)
+    prefix=()
+    work=cube.clone()
+    if model.shape(work.frames)!=model.shape(model.cube.frames):
+        prefix=model.restore_shape(work.frames,cancel,progress)
+        frames=tuple(work.frames)
+        for move in prefix:
+            if cancel and cancel():raise InterruptedError()
+            frames=model.apply(frames,move)
+            if frames is None:raise ValueError('rigid.invalid')
+        work.colors=frames
+    table=load_table(cube.puzzle_kind)
+    suffix=table.solve(work,cancel)
+    word=compact(prefix+suffix)
+    if _verify(cube,word,cancel,progress):return word
+    raise ValueError('rigid.invalid')

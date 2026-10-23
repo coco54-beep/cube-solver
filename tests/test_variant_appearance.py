@@ -134,7 +134,7 @@ def test_cached_curves_are_reused_without_allowing_caller_mutation():
     assert cube._appearance_scene_cache is not cache
 
 
-@pytest.mark.parametrize('kind',('penrose_2','penrose_3','penrose_4','circle_2'))
+@pytest.mark.parametrize('kind',('penrose_2','penrose_3','penrose_4'))
 def test_ordinary_engine_variants_keep_exterior_after_clone_and_session_restore(kind):
     from app.session import encode,decode
     cube=make(kind)
@@ -145,20 +145,19 @@ def test_ordinary_engine_variants_keep_exterior_after_clone_and_session_restore(
     assert build_variant_scene(restored)==build_variant_scene(cube)
 
 
-def test_circle_contains_real_quarter_disc_boundaries_not_square_grid_only():
-    cube=make('circle_2')
-    vertices,_indices,infos=build_variant_scene(cube)
-    half=2.
-    radius=half*.64
-    ring=set()
-    for i,(_pos,face,_edges) in enumerate(infos):
-        if face is None:continue
-        if face!='F':continue
-        for j in range(4):
-            start=i*28+j*7
-            x,y,_z=vertices[start:start+3]
-            if abs(math.hypot(x,y)-radius)<1e-8:ring.add((round(x,6),round(y,6)))
-    assert len(ring)>=40
+def test_circle2_geometry_clone_and_session_roundtrip():
+    from app.session import encode, decode
+    from cube.circle_cube import Circle2Cube
+    cube = Circle2Cube()
+    assert len(cube.geometry.stickers) == 48
+    assert all(sticker.patches for sticker in cube.geometry.stickers if sticker.face >= 0)
+    from cube.polyhedral import Move
+    cube.apply_move(Move(0, 0, 1))
+    clone = cube.clone()
+    restored = decode(encode(clone))
+    assert type(restored) is Circle2Cube
+    assert restored.colors == clone.colors
+    assert restored.anchor == clone.anchor
 
 
 @pytest.mark.parametrize('kind', sorted(VARIANTS))

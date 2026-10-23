@@ -4,6 +4,7 @@ from collections import deque
 from time import monotonic
 
 from cube.polyhedral import CUBE, Move
+from cube.appearance import transform_frame
 from solver.articulated import _simplify_rigid
 
 
@@ -13,8 +14,8 @@ def _score(cube):
     for panel,color in zip(cube.panels,cube._paints):
         if color<0:
             return 1000
-        normal=cube.frames[panel.home]
-        face=max(range(6),key=lambda i:sum(normal[j][k]*CUBE[i][k] for j in range(3) for k in range(3)))
+        normal=transform_frame(cube.frames[panel.home],CUBE[panel.face])
+        face=max(range(6),key=lambda i:sum(normal[k]*CUBE[i][k] for k in range(3)))
         sets[face].add(color)
     return sum(max(0,len(colors)-1) for colors in sets.values())
 
@@ -37,9 +38,11 @@ def _macros(cube,cancel,cache):
         alignment=cache.get(key)
         if alignment is None:
             try:alignment=cube.alignment_moves(axis)
-            except ValueError:alignment=()
+            except ValueError:alignment=False
             cache[key]=alignment
-        if not alignment:
+        # Empty alignment means the layer is already open. It still has
+        # legal core turns; only a failed alignment should remove the axis.
+        if alignment is False:
             continue
         for amount in (90,270):
             child=cube.clone()

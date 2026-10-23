@@ -843,14 +843,48 @@ JA.update({'palette.settings':'配色設定','palette.hint':'番号は展開図�
  'palette.selected':'色番号 {i} を設定中','palette.save':'配色を保存','palette.duplicate':'各番号に異なる色を設定してください。'})
 
 ZH.update({'bandage.entry_incomplete':'请录完六面的连块和颜色。',
+ 'bandage.entry_checked':'连块与配色匹配通过；尚未确认能否还原。',
+ 'bandage.search_table':'还原数据与当前连块模型不一致，请更新应用。',
+ 'bandage.search_replay':'本次公式未通过连块规则与还原回放检查，请反馈当前状态。',
+ 'bandage.state_unreachable':'当前型号的合法转动无法到达这组块位，请核对连块、配色和型号。',
  'bandage.entry_inventory':'该尺寸的块数量不符合此型号，请检查连块。',
  'bandage.entry_layout':'颜色与连块无法组成此型号的刚性块，请检查相邻面。',
  'bandage.entry_budget':'连块匹配达到时间上限，录入已保留，请检查后重试。'})
 EN.update({'bandage.entry_incomplete':'Enter plates and colours on all six faces.',
+ 'bandage.entry_checked':'Seams and colours match. Reachability has not been confirmed.',
+ 'bandage.search_table':'Solver data does not match this bandage model. Update the app.',
+ 'bandage.search_replay':'This solution failed legal-turn or solved-state replay verification.',
+ 'bandage.state_unreachable':'This state is outside the legal move group of this model. Check seams, colours and model.',
  'bandage.entry_inventory':'The plate counts do not match this model.',
  'bandage.entry_layout':'Colours and seams cannot form the rigid pieces of this model. Check adjacent faces.',
  'bandage.entry_budget':'Plate matching timed out. Input is kept; check and retry.'})
 JA.update({'bandage.entry_incomplete':'六面の接合と色を入力してください。',
+ 'bandage.entry_checked':'接合と色の照合に合格しました。到達可能性は未確認です。',
+ 'bandage.search_table':'解法データと接合モデルが一致しません。アプリを更新してください。',
+ 'bandage.search_replay':'合法回転または完成状態の再生検証に失敗しました。',
+ 'bandage.state_unreachable':'このモデルの合法回転では到達できません。接合・色・モデルを確認してください。',
  'bandage.entry_inventory':'この形のパーツ数がモデルと一致しません。',
  'bandage.entry_layout':'色と接合がこのモデルの剛体パーツに一致しません。隣接面を確認してください。',
  'bandage.entry_budget':'接合照合が時間上限に達しました。入力は保持しています。確認して再試行してください。'})
+
+ZH.update({'poly.circle2_input':'按实物分别录入圈内和圈外，左右箭头换面。还原公式会在当前模型上回放核对。',
+ 'poly.circle_input':'圈内外分别录入，左右箭头换面；0面圆圈固定，1面圆圈跟转。',
+ 'circle.search_limit':'本次状态计算达到限额，尚未找到解法；请保留录入状态。',
+ 'circle.state_unreachable':'录入状态不在当前型号的合法转动范围内，请核对圈内外颜色及型号。',
+ 'circle.replay_failed':'本次公式未通过实际转动回放检查，请反馈当前状态。',
+ 'circle2.table_missing':'缺少或无法读取此型号的还原数据，请更新应用。',
+ 'circle2.table_version':'还原数据与当前型号不匹配，请更新应用。'})
+EN.update({'poly.circle2_input':'Enter the inner and outer panels as seen. Arrows change faces. Solutions are replay-verified.',
+ 'poly.circle_input':'Paint inner and outer panels separately. Arrows change faces; 0=fixed disc, 1=turning disc.',
+ 'circle.search_limit':'The state calculation reached its limit without a solution. Keep this input.',
+ 'circle.state_unreachable':'This input is outside the legal move group of this model. Check inner/outer colours and model.',
+ 'circle.replay_failed':'The solution failed physical replay verification.',
+ 'circle2.table_missing':'Solver data is missing or unreadable. Update the app.',
+ 'circle2.table_version':'Solver data does not match this model. Update the app.'})
+JA.update({'poly.circle2_input':'実物の内円と外側の色を入力します。矢印で面を切り替えます。解法はモデル上で再生検証します。',
+ 'poly.circle_input':'内円と外側を別々に入力します。矢印で面を変更。0は円盤固定、1は連動です。',
+ 'circle.search_limit':'状態計算が上限に達し、解法は未発見です。入力を保持してください。',
+ 'circle.state_unreachable':'このモデルの合法回転では到達できません。内外の色とモデルを確認してください。',
+ 'circle.replay_failed':'解法の回転再生検証に失敗しました。',
+ 'circle2.table_missing':'解法データが見つからないか読めません。アプリを更新してください。',
+ 'circle2.table_version':'解法データとモデルが一致しません。アプリを更新してください。'})

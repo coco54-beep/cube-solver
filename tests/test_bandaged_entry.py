@@ -218,3 +218,21 @@ def test_scene_cache_includes_confirmed_bonds():
     grid=build_variant_scene(cube)[2]
     assert grid!=bonded
     assert all(edges==(0,1,2,3) for pos,face,edges in grid)
+
+
+@pytest.mark.parametrize('kind',('bandaged_c',None))
+def test_check_distinguishes_rigid_matching_from_standard_reachability(monkeypatch,kind):
+    import ui.screens.input_screen as entry
+    from cube.cube3 import Cube3
+    from cube.conversion import cubies_to_facelets
+    cube=BandagedCube.solved(kind) if kind else Cube3.solved()
+    data=cubies_to_facelets(cube.cubies,3)
+    app=SimpleNamespace(puzzle_kind=kind,theme=SimpleNamespace(accent=(0,1,0,1),danger=(1,0,0,1)))
+    monkeypatch.setattr(entry,'_app',lambda:app)
+    fake=SimpleNamespace(collect_facelets=lambda:data,_n=lambda:3,_penrose=lambda:False,
+        _error_cells=set(),entry_can_edit=lambda:True,_refresh_view=lambda:None,
+        _bandage_connections={(p.face,p.cells) for p in plates(cube)} if kind else set(),
+        msg=SimpleNamespace(text='',color=None))
+    entry.InputScreen.check(fake)
+    assert fake._valid
+    assert fake.msg.text==entry.tr('bandage.entry_checked' if kind else 'input.valid')

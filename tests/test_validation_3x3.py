@@ -34,7 +34,10 @@ class TestCorruptions:
         pos = (1, 1, 1)  # R-U-F 角块
         faces = faces_of(pos)
         assert set(faces) == {"R", "U", "F"}
-        do_swap(fl, cell(faces[0], pos), cell(faces[1], pos))
+        cells=[cell(face,pos) for face in faces]
+        colors=[fl[f][r][c] for f,r,c in cells]
+        for (f,r,c),color in zip(cells,colors[1:]+colors[:1]):
+            fl[f][r][c]=color
         errors = validate_3x3(fl)
         assert errors
         assert any("扭转" in e for e in errors)

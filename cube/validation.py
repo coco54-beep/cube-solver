@@ -10,12 +10,13 @@
     7. 棱块翻转总和 ≡ 0 (mod 2)。
     8. 置换奇偶: (角置换) + (棱置换) ≡ 0 (mod 2)。
 
-4x4 校验（结构性检查）：
+4x4 校验（颜色、实体朝向与轨道检查）：
     1. 结构: 6面 x 16格，均为合法颜色。
     2. 每种颜色恰好出现 16 次。
     3. 24 个中心块（单色），每种颜色恰好 4 个。
     4. 8 个角块（三色）。
     5. 24 个棱翼（双色）。
+    6. 角块手性及扭转总和、棱翼身份及方向、中心轨道。
 """
 
 from collections import Counter
@@ -86,6 +87,15 @@ _MESSAGES = {
     "角块扭转和 {s} 不≡0 (mod 3)": {
         "en": "Corner twist sum {s} is not ≡ 0 (mod 3)",
         "ja": "コーナーねじれ和 {s} が ≡0 (mod 3) ではありません"},
+    "角块存在镜像朝向，不能通过转动得到": {
+        "en": "A corner has a mirrored sticker order that cannot be reached by turns",
+        "ja": "コーナーの色順が鏡像で、回転では到達できません"},
+    "棱翼存在重复、缺失、翻转或轨道错误": {
+        "en": "An edge-wing orbit has duplicate, missing or flipped pieces",
+        "ja": "ウイングに重複・欠落・反転または軌道の誤りがあります"},
+    "中心块在各自轨道内的颜色数量不正确": {
+        "en": "Center colors have incorrect counts within a piece orbit",
+        "ja": "センターの軌道ごとの色数が正しくありません"},
     "棱块翻转和 {s} 不≡0 (mod 2)": {
         "en": "Edge flip sum {s} is not ≡ 0 (mod 2)",
         "ja": "エッジ反転和 {s} が ≡0 (mod 2) ではありません"},
@@ -252,6 +262,65 @@ def _edge_flip(pos: Tuple[int, int, int], colors: List[str],
     return 0 if col_at_f1 == home_first_color else 1
 
 
+def _corner_orientation_errors(corners, reference, lang):
+    """Check rigid handedness and total twist after corner inventory checks."""
+    face_by_color={color:face for face,color in reference.items()}
+    twist_sum=0
+    for pos,colors in corners:
+        a,b,c=(FACE_NORMALS[face_by_color[color]] for color in colors)
+        determinant=sum(a[i]*(b[(i+1)%3]*c[(i+2)%3]-b[(i+2)%3]*c[(i+1)%3]) for i in range(3))
+        target=(1 if pos[0]>0 else -1)*(1 if pos[1]>0 else -1)*(1 if pos[2]>0 else -1)
+        if determinant!=target:
+            return [_msg(lang,"角块存在镜像朝向，不能通过转动得到")]
+        ud=next(color for color in colors if face_by_color[color] in ('U','D'))
+        twist_sum+=_corner_twist(pos,ud,colors)
+    if twist_sum%3:
+        return [_msg(lang,"角块扭转和 {s} 不≡0 (mod 3)",s=twist_sum)]
+    return []
+
+
+def _higher_piece_errors(facelets, n, lang="zh"):
+    """Inspect visible standard N-cube invariants without loading solve tables.
+
+    An odd cube's corner/middle-edge core obeys 3-cube invariants. Even cubes
+    have no corner/wing parity equality: legal reduction parity must pass.
+    Wing identities include sticker direction and cannot be freely flipped.
+    """
+    reference=({face:facelets[face][n//2][n//2] for face in FACE_NORMALS}
+               if n%2 else DEFAULT_COLORS)
+    if len(set(reference.values()))!=6:
+        return [_msg(lang,"6个中心块颜色必须互不相同")]
+    _,corners,_,_=_extract_pieces(facelets,n)
+    expected=sorted(tuple(sorted(reference[f] for f in _faces_at(pos,n))) for pos,_ in corners)
+    if sorted(tuple(sorted(colors)) for _,colors in corners)!=expected:
+        return [_msg(lang,"角块颜色组合与槽位不匹配")]
+    errors=_corner_orientation_errors(corners,reference,lang)
+    if errors:return errors
+    if n%2:
+        indices=(0,n//2,n-1)
+        core={face:[[facelets[face][r][c] for c in indices] for r in indices] for face in FACE_NORMALS}
+        errors=validate_3x3(core,lang)
+        if errors:return errors
+    from cube.cube_n import CubeN
+    from cube.conversion import facelets_to_cubies
+    from solver.nxn_orbits import orbits,wing_permutation,center_permutation
+    cube=CubeN(facelets_to_cubies(facelets,n),n)
+    mapping={reference[face]:DEFAULT_COLORS[face] for face in reference}
+    for cubie in cube.cubies.values():
+        cubie.stickers={normal:mapping[color] for normal,color in cubie.stickers.items()}
+    for positions in orbits(n,2):
+        if len(positions)!=24:continue
+        try:wing_permutation(cube,positions)
+        except ValueError:
+            return [_msg(lang,"棱翼存在重复、缺失、翻转或轨道错误")]
+    for positions in orbits(n,1):
+        if len(positions)!=24:continue
+        try:center_permutation(cube,positions)
+        except ValueError:
+            return [_msg(lang,"中心块在各自轨道内的颜色数量不正确")]
+    return []
+
+
 def validate_3x3(facelets: Dict[str, List[List[str]]], lang: str = "zh") -> List[str]:
     """校验 3x3 facelet 是否可达。返回错误列表（空=合法）。"""
     errors: List[str] = []
@@ -331,20 +400,8 @@ def validate_3x3(facelets: Dict[str, List[List[str]]], lang: str = "zh") -> List
     if errors:
         return errors
 
-    # 6. 角块扭转
-    twist_sum = 0
-    for pos, colors in corners:
-        ud = None
-        for c in colors:
-            if face_by_color.get(c) in ("U", "D"):
-                ud = c
-                break
-        if ud is None:
-            # 理论上不可能（中心色已覆盖）
-            continue
-        twist_sum += _corner_twist(pos, ud, colors)
-    if twist_sum % 3 != 0:
-        errors.append(_msg(lang, "角块扭转和 {s} 不≡0 (mod 3)", s=twist_sum))
+    # 6. 角块的刚性朝向及扭转和
+    errors.extend(_corner_orientation_errors(corners,center_of,lang))
 
     # 7. 棱块翻转
     flip_sum = 0
@@ -475,20 +532,14 @@ def validate_2x2(facelets: Dict[str, List[List[str]]], lang: str = "zh") -> List
         errors.append(_msg(lang, "角块颜色组合与槽位不匹配"))
         return errors
 
-    # 4. 角块扭转（用命名面 U/D 作为 ud 轴）
-    twist_sum = 0
-    for pos, colors in corners:
-        # colors 按轴序 [x,y,z]，y 轴面为 U 或 D
-        ud = colors[1]  # y 轴面颜色，必须是 U 或 D 之一
-        twist_sum += _corner_twist(pos, ud, colors)
-    if twist_sum % 3 != 0:
-        errors.append(_msg(lang, "角块扭转和 {s} 不≡0 (mod 3)", s=twist_sum))
+    # Use the actual U/D colour, not whichever sticker currently points up.
+    errors.extend(_corner_orientation_errors(corners,DEFAULT_COLORS,lang))
 
     return errors
 
 
 def validate_4x4(facelets: Dict[str, List[List[str]]], lang: str = "zh") -> List[str]:
-    """校验 4x4 facelet 结构性合法性。返回错误列表（空=合法）。"""
+    """校验 4x4 的配色、刚性朝向及块轨道；不依赖打乱历史。"""
     errors: List[str] = []
     n = 4
 
@@ -560,19 +611,19 @@ def validate_4x4(facelets: Dict[str, List[List[str]]], lang: str = "zh") -> List
             errors.append(_msg(lang, "中心色 {c} 出现 {n} 次（应为4）",
                                c=c, n=center_colors[c]))
 
+    if not errors:errors.extend(_higher_piece_errors(facelets,n,lang))
     return errors
 
 
 def validate_5x5(facelets: Dict[str, List[List[str]]], lang: str = "zh") -> List[str]:
-    """校验 5x5 facelet 结构性合法性。返回错误列表（空=合法）。
+    """校验 5x5 的配色、朝向、三阶核心与块轨道。
 
-    5x5 为奇数阶，中心块固定（每面 9 个单色中心，其中 1 个真中心固定），
-    降阶为 3x3 后可解、无 parity。可达性检查做结构性约束：
+    5x5 为奇数阶，每面 9 个单色中心，其中真中心决定颜色参考。
+    在数量检查后继续校验三阶核心、翼棱方向和各中心轨道：
         1. 结构: 6面 x 25格，均为合法颜色。
         2. 每种颜色恰好出现 25 次。
         3. 8 个角块（三色），其颜色组合与角槽(由真中心决定)匹配。
-        4. 36 个棱块（双色），12 个棱槽各 3 块，同槽三块颜色组合一致，
-           且各棱槽颜色组合与槽位匹配。
+        4. 36 个棱块（双色），每种相邻双色各 3 块，按中棱与翼棱轨道检查。
         5. 54 个单色中心块，每种颜色恰好 9 个。
     """
     errors: List[str] = []
@@ -654,4 +705,5 @@ def validate_5x5(facelets: Dict[str, List[List[str]]], lang: str = "zh") -> List
                 errors.append(_msg(lang, "中心色 {c} 出现 {n} 次（应为9）",
                                    c=c, n=center_colors[c]))
 
+    if not errors:errors.extend(_higher_piece_errors(facelets,n,lang))
     return errors

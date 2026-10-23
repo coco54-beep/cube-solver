@@ -4,6 +4,15 @@
 
 [下载 Windows / Android 版](https://github.com/coco54-beep/cube-solver/releases/latest) · [English technical overview](README.md) · [日本語](README.ja.md) · [源代码](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.34 更新
+
+- 无历史手动求解现覆盖 **Fused、AI、Burr、Bandaged C、Two-Bar、BiCube**，以及 **Circle 2／疯狂星球** 和 **Tangram／Tangram Extreme**。
+- 录入校验补充二至五阶角块/棱块翻转、扭转、奇偶和轨道约束；审计发现的二阶及高阶误接受输入现在会被拒绝。
+- 重新测试了输入按钮、颜色选择、块选择、Mixup 内棱组合和棱角配对。
+- 全部自动化测试通过：**2225 passed, 8 skipped**。
+
+[1.2.34 更新说明](docs/release-1.2.34.md)
+
 ## 1.2.33 更新
 
 - **Mixup 系列**：Mixup 3×3、3×3×4、3×4×4、4×4×4 及 Mixup Plus 变体，各自带几何感知的外形/核心降阶求解流程。Plus 3×4×4 不再因外形搜索达到上限而直接失败，可从部分外形帧继续收尾；内棱翻转收尾已对所有 Plus 型号启用。

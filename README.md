@@ -4,6 +4,15 @@
 
 [Windows and Android downloads](https://github.com/coco54-beep/cube-solver/releases/latest) · [中文技术说明](README.zh-CN.md) · [日本語](README.ja.md) · [Source code](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.34 update
+
+- Manual, history-free solving now covers **Fused, AI, Burr, Bandaged C, Two-Bar and BiCube**, plus **Circle 2 and the Crazy Planet series**, and **Tangram / Tangram Extreme**.
+- Input validation now checks standard 2×2–5×5 corner/edge parity, orientation and orbit constraints before accepting a face entry; the 2×2 and higher-order false accepts found in the audit are rejected.
+- Input controls, color swatches, block picking, Mixup inner-edge variants and edge/corner pairing were re-tested.
+- The full automated test suite passes: **2225 passed, 8 skipped**.
+
+[1.2.34 release notes](docs/release-1.2.34.md)
+
 ## 1.2.33 update
 
 - **Mixup family**: Mixup 3×3, 3×3×4, 3×4×4 and 4×4×4 plus the Mixup Plus variants, each with a geometry-aware shape/core reduction pipeline. The Plus 3×4×4 path no longer aborts when the shape search hits its limit and now finishes from the partial shape frame, and the inner-edge flip finish runs for every Plus model.

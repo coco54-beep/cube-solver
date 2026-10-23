@@ -1,4 +1,4 @@
-"""Legal inverse solutions for app-generated bandaged-cube positions."""
+"""History and verified state solutions for rigid cube bandages."""
 
 from cube.bandaged_cube import BandagedCube
 
@@ -9,6 +9,12 @@ def solve_bandaged_cube(cube, cancelled=None):
     if cancelled is not None and cancelled():
         raise InterruptedError()
     moves = cube.solution_from_history()
+    if not moves and not cube.is_solved() and cube.puzzle_kind=='fused_cube':
+        from solver.bandaged_state import solve_fused
+        moves=solve_fused(cube,cancelled)
+    elif not moves and not cube.is_solved() and cube.puzzle_kind in ('ai_cube','burr_cube'):
+        from solver.bandaged_state import solve_bandaged_state
+        moves=solve_bandaged_state(cube,cancelled)
     if not moves and not cube.is_solved() and cube.n == 3:
         from solver.bandaged_search import solve_bandaged_search
         try:

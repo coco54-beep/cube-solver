@@ -61,10 +61,10 @@ def search_model(kind):
     return atoms, tuple(transitions), tuple(legal), tuple(goals), patterns, tuple(aliases)
 
 
-def build_patterns(kind, destination, report=None, strong=True):
+def build_patterns(kind, destination, report=None, strong=True, model=None, metadata=None):
     """Developer-only generator; never builds search tables on a phone."""
     import numpy as np
-    atoms, transitions, legal, goals, patterns, aliases = search_model(kind)
+    atoms, transitions, legal, goals, patterns, aliases = model or search_model(kind)
     if strong:
         cells = layout(kind)[0]
         heavy = sorted(range(len(cells)), key=lambda p: (-len(cells[p]), p))
@@ -123,7 +123,7 @@ def build_patterns(kind, destination, report=None, strong=True):
         blobs.append(payload)
         if report:
             report(number+1, len(patterns), int(np.count_nonzero(distance != 255)), int(distance[distance != 255].max()))
-    header = json.dumps({'kind': kind, 'patterns': records}, separators=(',', ':')).encode()
+    header = json.dumps({'kind': kind, 'patterns': records, **(metadata or {})}, separators=(',', ':')).encode()
     Path(destination).write_bytes(b'CP02'+struct.pack('<I', len(header))+header+zlib.compress(b''.join(blobs), 9))
 
 
@@ -326,16 +326,36 @@ def solve_bandaged_cuboid(original, cancel=None, progress=None, seconds=45.):
     initial_h, initial_score = estimates(start)
     records = [(start, -1, -1, 0, -1, -1)]
     pending = [(initial_score, initial_h, 0)]; best = {(start, -1): 0}
-    fast_deadline = min(deadline, monotonic()+max(.1, min(3., seconds*.12)))
-    while pending and len(records) < 6000 and monotonic() < fast_deadline:
+    fast_deadline = min(deadline, monotonic()+max(.1, seconds*.8))
+    processed = {}
+    while pending and monotonic() < fast_deadline:
         if cancel and cancel():
             raise InterruptedError()
+        if len(records) >= 50000:
+            keep = heapq.nsmallest(1500, (item for item in pending
+                if best.get((records[item[2]][0], records[item[2]][5])) == records[item[2]][3]))
+            needed = set()
+            for _, _, index in keep:
+                while index >= 0 and index not in needed:
+                    needed.add(index); index = records[index][1]
+            ordered = sorted(needed); remap = {old: new for new, old in enumerate(ordered)}
+            records = [(s, remap.get(parent, -1), i, d, a, b)
+                       for s, parent, i, d, a, b in (records[old] for old in ordered)]
+            pending = [(score, h, remap[i]) for score, h, i in keep]; heapq.heapify(pending)
+            best = {(s, b): d for s, _, _, d, _, b in records}
+            if len(processed) > 50000:
+                processed = dict(list(processed.items())[-25000:])
+            if not pending:
+                break
         _, h, record = heapq.heappop(pending)
         state, parent, move_index, depth, last_axis, last_band = records[record]
         if best.get((state, last_band)) != depth:
             continue
+        if processed.get((state, last_band), 1000000) <= depth:
+            continue
+        processed[state, last_band] = depth
         tail = ending(state)
-        if h == 0 or tail is not None:
+        if (h == 0 and all(f in goal_sets[p] for p, f in enumerate(state))) or tail is not None:
             word = []
             while parent >= 0:
                 word.append(atoms[move_index]); record = parent
@@ -343,14 +363,14 @@ def solve_bandaged_cuboid(original, cancel=None, progress=None, seconds=45.):
             return replay(tuple(reversed(word))+(tail or ()))
         for next_h, score, index, nxt in children(state, last_axis, last_band):
             axis, band = groups[index]; key = (nxt, band)
-            if next_h == 255 or best.get(key, 1000000) <= depth+1:
+            if next_h == 255 or best.get(key, 1000000) <= depth+1 or processed.get(key, 1000000) <= depth+1:
                 continue
             best[key] = depth+1; position = len(records)
             records.append((nxt, record, index, depth+1, axis, band))
-            heapq.heappush(pending, (3*(depth+1)+score, next_h, position))
-            if len(records) >= 6000:
+            heapq.heappush(pending, (depth+1+score, next_h, position))
+            if len(records) >= 50000:
                 break
-    del records, pending, best
+    del records, pending, best, processed
     def visit(state, remaining, last_axis=-1, last_band=-1, known_h=None):
         nonlocal nodes
         nodes += 1

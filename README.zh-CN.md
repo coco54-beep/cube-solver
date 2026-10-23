@@ -39,6 +39,11 @@
 
 [1.2.31 更新说明](docs/release-1.2.31.md)
 
+
+## Optional solver data
+
+Large optional solver tables are published as GitHub Release assets instead of requiring every package to embed them. Download links and the current data tag are documented in [docs/optional-solver-data.md](docs/optional-solver-data.md).
+
 ## 1.2.30 更新
 
 - **新增异形系列**：转棱四面体／二十面体（有中心块、无中心块）、SQ-0、SQ-2、Super SQ-1、镜面风车／移棱的仅高度不等与偏心切版本、鬼魔、斜转终极、空心五魔方、四色恐龙，以及 4 阶 Axis／Windmill／Fisher。

@@ -39,6 +39,11 @@
 
 [1.2.31 リリースノート](docs/release-1.2.31.md)
 
+
+## Optional solver data
+
+Large optional solver tables are published as GitHub Release assets instead of requiring every package to embed them. Download links and the current data tag are documented in [docs/optional-solver-data.md](docs/optional-solver-data.md).
+
 ## 1.2.30 の更新
 
 - **新しい異形シリーズ**：辺回転四面体／二十面体（中心あり・なし）、SQ-0、SQ-2、Super SQ-1、ミラーウィンドミル／フィッシャーの高さ不均等・偏心カット版、ゴーストキューブ、スキューブアルティメット、空洞メガミンクス、4色ダイノ、4段 Axis／Windmill／Fisher を追加。

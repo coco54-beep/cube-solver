@@ -39,6 +39,11 @@
 
 [1.2.31 release notes](docs/release-1.2.31.md)
 
+
+## Optional solver data
+
+Large optional solver tables are published as GitHub Release assets instead of requiring every package to embed them. Download links and the current data tag are documented in [docs/optional-solver-data.md](docs/optional-solver-data.md).
+
 ## 1.2.30 update
 
 - **New irregular families**: Petal Tetrahedron / Icosahedron (with and without centres), SQ-0, SQ-2, Super SQ-1, Mirror Windmill/Fisher unequal-height and offset-cut variants, Ghost Cube, Skewb Ultimate, Void Megaminx, Four-Colour Dino, plus order-4 Axis/Windmill/Fisher cubes.

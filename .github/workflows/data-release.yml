@@ -1,0 +1,29 @@
+name: Optional solver data
+
+on:
+  push:
+    tags: ["data-v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify data files
+        run: |
+          ls -lh solver/data/twobar_table.bin solver/data/bandaged_c_table.bin             solver/data/circle2_table.bin solver/data/fused_table.bin
+      - name: Publish data release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Optional solver data ${{ github.ref_name }}
+          body_path: docs/optional-solver-data.md
+          files: |
+            solver/data/twobar_table.bin
+            solver/data/bandaged_c_table.bin
+            solver/data/circle2_table.bin
+            solver/data/fused_table.bin

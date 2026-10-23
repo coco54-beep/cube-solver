@@ -5,6 +5,8 @@ from types import SimpleNamespace
 from time import monotonic
 import pytest
 
+pytest.importorskip('kivy')
+
 from tests.test_bandaged_manual_controls import pump,until,Tap,CaptureSolve
 from kivy.app import App
 from kivy.core.window import Window

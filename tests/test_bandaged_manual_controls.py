@@ -7,6 +7,8 @@ from types import SimpleNamespace
 
 import pytest
 
+pytest.importorskip('kivy')
+
 os.environ.setdefault('KIVY_NO_ARGS','1')
 os.environ.setdefault('KIVY_METRICS_DENSITY','1')
 os.environ.setdefault('KIVY_DPI','96')

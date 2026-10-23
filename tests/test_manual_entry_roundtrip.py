@@ -2,6 +2,8 @@
 import random
 import pytest
 
+pytest.importorskip('kivy')
+
 
 @pytest.mark.parametrize('kind',('square1','square0','square2','super_square1'))
 @pytest.mark.parametrize('seed',range(8))

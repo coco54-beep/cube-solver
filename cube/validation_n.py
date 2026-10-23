@@ -4,7 +4,7 @@ from cube.colors import VALID_COLORS
 
 
 def validate_nxn(facelets, n, lang="zh"):
-    from app.i18n import tr
+    from solver.messages import tr
     faces = ("U", "R", "F", "D", "L", "B")
     if any(face not in facelets or len(facelets[face]) != n
            or any(len(row) != n for row in facelets[face]) for face in faces):

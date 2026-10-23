@@ -1,6 +1,8 @@
 from collections import Counter
 from types import SimpleNamespace
 import pytest
+
+pytest.importorskip('kivy')
 from cube.bandaged_cube import BandagedCube,KINDS,_FACE_PLATES
 from cube.bandaged_entry import plates,steps,plate_shape,completed
 from cube.coordinates import FACE_NORMALS

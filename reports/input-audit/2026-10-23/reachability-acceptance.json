@@ -1,0 +1,53 @@
+{
+  "cases": [
+    {
+      "order": 2,
+      "corruption": "single_corner_twist",
+      "previously_accepted": true,
+      "now_rejected": true,
+      "errors": [
+        "角块扭转和 2 不≡0 (mod 3)"
+      ]
+    },
+    {
+      "order": 3,
+      "corruption": "mirrored_corner",
+      "previously_accepted": true,
+      "now_rejected": true,
+      "errors": [
+        "角块存在镜像朝向，不能通过转动得到"
+      ]
+    },
+    {
+      "order": 4,
+      "corruption": "flipped_wing",
+      "previously_accepted": true,
+      "now_rejected": true,
+      "errors": [
+        "棱翼存在重复、缺失、翻转或轨道错误"
+      ]
+    },
+    {
+      "order": 5,
+      "corruption": "flipped_middle_edge",
+      "previously_accepted": true,
+      "now_rejected": true,
+      "errors": [
+        "棱块翻转和 1 不≡0 (mod 2)"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "file": "reachability-core-tests.xml",
+      "passed": 84,
+      "seconds": 1.113
+    },
+    {
+      "file": "reachability-entry-tests.xml",
+      "passed": 36,
+      "seconds": 1.262
+    }
+  ],
+  "total_passed": 120
+}

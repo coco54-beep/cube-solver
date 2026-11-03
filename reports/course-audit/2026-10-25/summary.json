@@ -1,0 +1,358 @@
+{
+  "tests": {
+    "passed": 513,
+    "failed": 0,
+    "skipped": 0
+  },
+  "models": [
+    {
+      "kind": "i_cube",
+      "moves": 24,
+      "sections": 1
+    },
+    {
+      "kind": "l_cube",
+      "moves": 26,
+      "sections": 1
+    },
+    {
+      "kind": "t_cube",
+      "moves": 301,
+      "sections": 5
+    },
+    {
+      "kind": "x_cube",
+      "moves": 603,
+      "sections": 10
+    },
+    {
+      "kind": "tri_cube",
+      "moves": 422,
+      "sections": 7
+    },
+    {
+      "kind": "temple_cube",
+      "moves": 799,
+      "sections": 13
+    },
+    {
+      "kind": "cross_cube",
+      "moves": 878,
+      "sections": 14
+    },
+    {
+      "kind": "siamese_a",
+      "moves": 112,
+      "sections": 2
+    },
+    {
+      "kind": "siamese_b",
+      "moves": 72,
+      "sections": 2
+    },
+    {
+      "kind": "trajber",
+      "moves": 338,
+      "sections": 6
+    },
+    {
+      "kind": "pyraminx_diamond",
+      "moves": 31,
+      "sections": 1
+    },
+    {
+      "kind": "pyraminx_crystal",
+      "moves": 483,
+      "sections": 8
+    },
+    {
+      "kind": "starminx_i",
+      "moves": 147,
+      "sections": 3
+    },
+    {
+      "kind": "pentultimate",
+      "moves": 326,
+      "sections": 6
+    },
+    {
+      "kind": "master_pentultimate",
+      "moves": 1724,
+      "sections": 27
+    },
+    {
+      "kind": "dodecahedron_2",
+      "moves": 18,
+      "sections": 1
+    },
+    {
+      "kind": "rediminx",
+      "moves": 147,
+      "sections": 3
+    },
+    {
+      "kind": "dodecahedron_3",
+      "moves": 32,
+      "sections": 1
+    },
+    {
+      "kind": "dogic_i",
+      "moves": 291,
+      "sections": 5
+    },
+    {
+      "kind": "container",
+      "moves": 51,
+      "sections": 1
+    },
+    {
+      "kind": "rubik_cheese",
+      "moves": 39,
+      "sections": 1
+    },
+    {
+      "kind": "cheese_3",
+      "moves": 35,
+      "sections": 1
+    },
+    {
+      "kind": "masterball",
+      "moves": 152,
+      "sections": 3
+    },
+    {
+      "kind": "pentagonal_domino",
+      "moves": 48,
+      "sections": 1
+    },
+    {
+      "kind": "pentagonal_prism",
+      "moves": 101,
+      "sections": 2
+    },
+    {
+      "kind": "pentagonal_4",
+      "moves": 136,
+      "sections": 3
+    },
+    {
+      "kind": "professor_pentagonal",
+      "moves": 630,
+      "sections": 10
+    },
+    {
+      "kind": "dogic_20",
+      "moves": 223,
+      "sections": 4
+    },
+    {
+      "kind": "master_brilic",
+      "moves": 2456,
+      "sections": 39
+    },
+    {
+      "kind": "blanker",
+      "moves": 17,
+      "sections": 1
+    },
+    {
+      "kind": "mirror_kilominx",
+      "moves": 144,
+      "sections": 3
+    },
+    {
+      "kind": "mirror_megaminx",
+      "moves": 148,
+      "sections": 3
+    }
+  ],
+  "total_moves": 10954,
+  "course_resource_bytes": 41519,
+  "course_sha256": "cc7e6d3c2e91795262683d8718694da5c98dfe0117c2eebcacc68cf103bab93a",
+  "videos": [
+    {
+      "output": "reports\\course-audit\\2026-10-25\\container-complete-silent.mp4",
+      "course_moves": 51,
+      "rendered_moves": 51,
+      "start": 0,
+      "end": 51,
+      "final_state_matches_replay": true,
+      "frames": 405,
+      "fps": 12,
+      "input_unchanged": true,
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 480,
+          "height": 640,
+          "duration": "33.750000",
+          "nb_frames": "405"
+        }
+      ]
+    },
+    {
+      "output": "reports\\course-audit\\2026-10-25\\i_cube-complete-narrated.mp4",
+      "course_moves": 24,
+      "rendered_moves": 24,
+      "start": 0,
+      "end": 24,
+      "final_state_matches_replay": true,
+      "frames": 798,
+      "fps": 12,
+      "input_unchanged": true,
+      "elapsed": 3.89,
+      "checked_geometry_frames": 12,
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 480,
+          "height": 640,
+          "duration": "66.500000",
+          "nb_frames": "798"
+        },
+        {
+          "codec_name": "aac",
+          "codec_type": "audio",
+          "duration": "66.500000",
+          "nb_frames": "1433"
+        }
+      ]
+    },
+    {
+      "output": "reports\\course-audit\\2026-10-25\\master_brilic-complete-silent.mp4",
+      "course_moves": 2456,
+      "rendered_moves": 2456,
+      "start": 0,
+      "end": 2456,
+      "final_state_matches_replay": true,
+      "frames": 27231,
+      "fps": 12,
+      "input_unchanged": true,
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 480,
+          "height": 640,
+          "duration": "2269.250000",
+          "nb_frames": "27231"
+        }
+      ]
+    },
+    {
+      "output": "reports\\course-audit\\2026-10-25\\master_brilic-section-silent.mp4",
+      "course_moves": 2456,
+      "rendered_moves": 24,
+      "start": 2432,
+      "end": 2456,
+      "final_state_matches_replay": true,
+      "frames": 448,
+      "fps": 12,
+      "input_unchanged": true,
+      "elapsed": 3.61,
+      "checked_geometry_frames": 12,
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 480,
+          "height": 640,
+          "duration": "37.333333",
+          "nb_frames": "448"
+        }
+      ]
+    },
+    {
+      "output": "reports\\course-audit\\2026-10-25\\mirror_kilominx-complete-silent.mp4",
+      "course_moves": 144,
+      "rendered_moves": 144,
+      "start": 0,
+      "end": 144,
+      "final_state_matches_replay": true,
+      "frames": 1809,
+      "fps": 12,
+      "input_unchanged": true,
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 480,
+          "height": 640,
+          "duration": "150.750000",
+          "nb_frames": "1809"
+        }
+      ]
+    },
+    {
+      "output": "reports\\course-audit\\2026-10-25\\mirror_kilominx-section-silent.mp4",
+      "course_moves": 144,
+      "rendered_moves": 16,
+      "start": 128,
+      "end": 144,
+      "final_state_matches_replay": true,
+      "frames": 160,
+      "fps": 12,
+      "input_unchanged": true,
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 480,
+          "height": 640,
+          "duration": "13.333333",
+          "nb_frames": "160"
+        }
+      ]
+    },
+    {
+      "output": "reports\\course-audit\\2026-10-25\\professor_pentagonal-section-silent.mp4",
+      "course_moves": 630,
+      "rendered_moves": 64,
+      "start": 0,
+      "end": 64,
+      "final_state_matches_replay": true,
+      "frames": 496,
+      "fps": 12,
+      "input_unchanged": true,
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 480,
+          "height": 640,
+          "duration": "41.333333",
+          "nb_frames": "496"
+        }
+      ]
+    },
+    {
+      "output": "reports\\course-audit\\2026-10-25\\trajber-section-silent.mp4",
+      "course_moves": 338,
+      "rendered_moves": 18,
+      "start": 320,
+      "end": 338,
+      "final_state_matches_replay": true,
+      "frames": 408,
+      "fps": 12,
+      "input_unchanged": true,
+      "elapsed": 1.42,
+      "checked_geometry_frames": 12,
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 480,
+          "height": 640,
+          "duration": "34.000000",
+          "nb_frames": "408"
+        }
+      ]
+    }
+  ],
+  "narration_pcm_rms": 1847.63,
+  "android_native_encoding": "passed on API 33 emulator",
+  "android_system_tts_and_document_save": "not verified on a physical phone",
+  "release_package_built": false
+}

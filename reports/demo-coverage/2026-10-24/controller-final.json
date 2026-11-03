@@ -1,0 +1,803 @@
+[
+  {
+    "kind": "cube",
+    "n": 6,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "cube",
+    "n": 7,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "cube",
+    "n": 8,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "cube",
+    "n": 9,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "cube",
+    "n": 10,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "cube",
+    "n": 11,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "cube",
+    "n": 12,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "cube",
+    "n": 13,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "cube",
+    "n": 14,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "cube",
+    "n": 15,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "cube",
+    "n": 16,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "cube",
+    "n": 17,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "mirror",
+    "n": 6,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "mirror",
+    "n": 7,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "mirror",
+    "n": 8,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "mirror",
+    "n": 9,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "mastermorphix",
+    "n": 6,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "mastermorphix",
+    "n": 7,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "mastermorphix",
+    "n": 8,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "mastermorphix",
+    "n": 9,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "pyraminx",
+    "n": 6,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "pyraminx",
+    "n": 7,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "skewb",
+    "n": 7,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "dino",
+    "n": 6,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "megaminx",
+    "n": 6,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "megaminx",
+    "n": 7,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "megaminx",
+    "n": 8,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "megaminx",
+    "n": 9,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "megaminx",
+    "n": 10,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "megaminx",
+    "n": 11,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "megaminx",
+    "n": 12,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "megaminx",
+    "n": 13,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "moyu",
+    "n": 6,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "moyu",
+    "n": 7,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "axis",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "windmill",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "fisher",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "mixup_333",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "mixup_334",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "mixup_344",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "mixup_444",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "mixup_plus_333",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "mixup_plus_334",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "mixup_plus_344",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "mixup_plus_444",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "tangram",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "tangram_extreme",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "ghost",
+    "n": 1,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "ghost",
+    "n": 2,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "ghost",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "ghost",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "pentacle",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "ghost_pyramid",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "mirror_pyraminx",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "mirror_pyraminx",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "mirror_skewb",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "circle_2",
+    "n": 2,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "o2",
+    "n": 1,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "ancient_coin",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "crazy_mercury",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "crazy_venus",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "crazy_earth",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "crazy_mars",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "crazy_jupiter",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "crazy_saturn",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "crazy_uranus",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "crazy_neptune",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "cuboid_332",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "cuboid_223",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "cuboid_334",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "cuboid_224",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "cuboid_442",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "cuboid_234",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "cuboid_133",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "cuboid_335",
+    "n": 5,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "cuboid_446",
+    "n": 6,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "camouflage_3",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "fused_cube",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "two_bar_cube",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "bandaged_c",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "bicube",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "ai_cube",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "burr_cube",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "penrose_3",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "penrose_2",
+    "n": 2,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "penrose_4",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "square0",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "square2",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "super_square1",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  }
+]

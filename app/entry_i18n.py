@@ -1,0 +1,48 @@
+"""Shared input-workflow feedback, separate from solver diagnostics."""
+MESSAGES={
+ 'zh':{'input.incompatible_draft':'录入数据的尺寸与当前阶数不符，当前输入已保留。',
+       'entry.input_failed':'输入未通过：{detail}',
+       'entry.operation_failed':'操作未完成：{detail}。录入已保留。',
+       'entry.solver_failed':'求解未完成：{detail}。录入已保留，可以重试或继续编辑。',
+       'entry.cancelled':'已取消求解，录入已保留。'},
+ 'en':{'input.incompatible_draft':'The draft dimensions do not match this order. Your input is kept.',
+       'entry.input_failed':'Check the input: {detail}',
+       'entry.operation_failed':'Could not complete the operation: {detail}. Your input is kept.',
+       'entry.solver_failed':'Could not complete the solve: {detail}. Your input is kept. Retry or return to editing.',
+       'entry.cancelled':'Solve cancelled. Your input is kept.'},
+ 'ja':{'input.incompatible_draft':'入力データの大きさが現在の次数と一致しません。入力は保持されています。',
+       'entry.input_failed':'入力を確認してください：{detail}',
+       'entry.operation_failed':'操作未完了：{detail}。入力は保持されています。',
+       'entry.solver_failed':'求解未完了：{detail}。入力は保持されています。編集して再試行できます。',
+       'entry.cancelled':'求解を中止しました。入力は保持されています。'},
+}
+
+_EXTRA={
+ 'model_reset':('重置魔方','Reset puzzle','パズルを初期化'),
+ 'model_continue':('继续操作','Continue','操作を続ける'),
+ 'preview_repeat':('这一个块上出现重复颜色，请核对高亮块相邻的贴面。','A piece has repeated colours; check its highlighted adjacent panels.','同じピースに同色があります。強調された隣接面を確認してください。'),
+ 'preview_opposite':('相对的两种颜色出现在同一块上，请核对高亮贴面。','Opposite colours are on one piece; check the highlighted panels.','対面色が同じピースにあります。強調部分を確認してください。'),
+ 'preview_count':('{colour} 已填 {count} 格，本型号应为 {expected} 格；请检查多填的位置。','{colour}: {count} entered, expected {expected}; check excess entries.','{colour} は {count} 箇所、必要数は {expected} です。余分な入力を確認してください。'),
+ 'solve_elapsed':('本次已用 {seconds} 秒','Elapsed: {seconds}s','今回の経過：{seconds}秒'),
+ 'search_metrics':('累计探索 {nodes} 个状态 · 阈值 {depth} · {seconds} 秒','Explored {nodes} states · threshold {depth} · {seconds}s total','探索 {nodes} 状態・しきい値 {depth}・累計 {seconds}秒'),
+ 'search_resumed':('已接续搜索','Search resumed','探索を再開'),
+ 'failure_incomplete':('录入不完整：{detail}。请补齐未录入区域。','Incomplete input: {detail}. Fill the missing areas.','未入力があります：{detail}。未入力部分を補ってください。'),
+ 'failure_illegal':('状态不合法：{detail}。请核对颜色、块位或方向。','Invalid state: {detail}. Check the colours, pieces or directions.','無効な状態：{detail}。色・位置・向きを確認してください。'),
+ 'location_unknown':('无法唯一定位，请逐面核对。','The cause cannot be uniquely located; check each face.','原因箇所を特定できません。各面を確認してください。'),
+ 'failure_timeout':('搜索超时或达到限额：{detail}。录入已保留，可重试或继续编辑。','Search timed out or reached its limit: {detail}. Input is kept; retry or edit.','探索が時間・計算上限に達しました：{detail}。入力を保持しています。'),
+ 'failure_internal':('程序异常：{detail}。录入已保留，可重试或继续编辑。','Program error: {detail}. Input is kept; retry or edit.','プログラムエラー：{detail}。入力を保持しています。'),
+ 'locate':('定位问题','Locate','場所を表示'), 'retry':('重试','Retry','再試行'), 'edit':('继续编辑','Keep editing','編集を続ける'),
+ 'more':('更多','More','その他'), 'action_undo':('撤销','Undo','元に戻す'), 'action_solve':('还原','Solve','復元'),
+ 'action_twist':('拧动模型','Twist model','モデルを回す'), 'action_random':('随机打乱','Scramble','スクランブル'),
+ 'action_clear':('清空录入','Clear input','入力を消去'), 'action_target':('填入还原态','Load solved state','完成状態を入力'),
+ 'action_clear_piece':('清除选中块','Clear selected piece','選択ピースを消去'),
+ 'action_pick':('配色 / 取色','Palette / picker','配色・色の選択'),
+ 'action_fill':('当前面填色','Fill this face','現在面を塗る'),
+ 'action_redo':('重做','Redo','やり直す'),
+ 'action_scramble':('粘贴打乱公式','Paste scramble','手順を貼り付け'),
+ 'mode_paint':('连续上色','Paint continuously','連続で着色'), 'mode_piece':('选块 / 调方向','Select / orient','選択・向き'),
+ 'color_active':('当前颜色：{color}','Colour: {color}','現在の色：{color}'),
+ 'cached_solution':('已校验并复用相同状态的解法','Verified and reused the solution for this exact state','同じ状態の解法を検証して再利用しました'),
+}
+for _key,_values in _EXTRA.items():
+ for _lang,_value in zip(('zh','en','ja'),_values):MESSAGES[_lang]['entry.'+_key]=_value

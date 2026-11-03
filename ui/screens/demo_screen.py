@@ -27,6 +27,7 @@ from renderer.camera_follow import follow_turn,layer_target,polyhedral_target,sq
 from ui.widgets.camera_follow import CameraFollowControl
 from ui.widgets import metrics as m
 from ui.widgets.layouts import ResponsiveBoxLayout, AdaptiveSceneLayout
+from ui.demo_media import DemoMediaMixin
 
 
 def _theme():
@@ -38,12 +39,20 @@ def _mode_title(n):
     if n == "cfop":
         return tr("formula.title")
     if isinstance(n, tuple):
+        from candidate_puzzles import BY_KIND
+        if n[0] in BY_KIND:return tr('directory.'+BY_KIND[n[0]].kind)
+        from demo.coverage import supports
+        if supports(*n) and n[0] not in ('cube','mirror','mastermorphix','ghost','mirror_pyraminx',
+                                        'megaminx','pyraminx','skewb','dino','moyu','axis','windmill','fisher'):
+            return tr('directory.'+n[0])
         if n[0] in ('blossom','ivy','pyraminx_duo','coin_tetrahedron'):
             return tr('directory.'+n[0])
         if n[0]=='dino':
             kind='dinosaur' if n[1]==2 else 'lattice'
             return tr('directory.'+kind)+' · '+tr('directory.order',order=n[1])
         return tr('directory.' + n[0]) + ' · ' + tr('directory.order', order=n[1])
+    if isinstance(n,int) and n>=6:
+        return tr('directory.cube')+' · '+tr('directory.order',order=n)
     return tr(f"demo.mode.title.{n}")
 
 
@@ -56,6 +65,9 @@ def _steps_for(n):
         return CFOP_CASES
     if isinstance(n, tuple):
         return lessons(*n)
+    if isinstance(n,int) and n>=6:
+        from demo.coverage import lessons as coverage_lessons
+        return coverage_lessons('cube',n)
     return {2: CASE_2X2, 3: CASE_3X3, 4: CASE_4X4, 5: CASE_5X5,
             "mastermorphix": CASE_MASTERMORPHIX}[n]
 
@@ -69,6 +81,12 @@ def _inverse_demo_move(move, cube):
 
 
 def _demo_view_class(cube):
+    from candidate_puzzles import BY_KIND
+    if getattr(cube,'puzzle_kind',None) in BY_KIND:
+        from demo.expanded_support import view_class
+        return view_class(cube.puzzle_kind)
+    from demo.coverage import supports,view_class
+    if supports(getattr(cube,'puzzle_kind','cube'),cube.n):return view_class(cube)
     if getattr(cube,'puzzle_kind',None)=='fisher_skewb':
         from renderer.fisher_skewb_view import FisherSkewbView
         return FisherSkewbView
@@ -97,6 +115,7 @@ def _demo_view_for(cube, **kwargs):
 
 
 def _set_demo_cube(view, cube, highlight=None):
+    from candidate_puzzles import BY_KIND
     if isinstance(cube, PolyhedralPuzzle):
         view.set_cube(cube)
         from app.prefs import get
@@ -106,6 +125,8 @@ def _set_demo_cube(view, cube, highlight=None):
                         and all(isinstance(v, (int, float)) and 0 <= v <= 1 for v in c)
                         for c in palette)):
             view.palette = tuple(tuple(c) for c in palette)
+    elif not hasattr(cube,'cubies'):
+        view.set_cube(cube)
     elif cube.__class__.__name__ in ('Square1Cube','MirrorTowerCube','FisherSkewbCube'):
         view.set_cube(cube)
     else:
@@ -128,7 +149,7 @@ def _autofit(lbl, pad=1):
     lbl.bind(texture_size=_h)
 
 
-class DemoScreen(Screen):
+class DemoScreen(DemoMediaMixin,Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.mode = 3
@@ -144,6 +165,7 @@ class DemoScreen(Screen):
         self._queue = []
         self._busy = False
         self._playing = False
+        self._init_media()
         self.build_ui()
 
     def build_ui(self):
@@ -183,12 +205,15 @@ class DemoScreen(Screen):
                              valign="middle", color=_theme().text_muted)
         self.lbl_progress = Label(text="", font_size="14sp", halign="center",
                                   valign="middle", color=_theme().text_muted)
+        self.lbl_action=Label(text='',font_size='13sp',halign='left',color=_theme().text_muted)
         for w in (self.lbl_title, self.lbl_desc, self.lbl_case,
                   self.lbl_text, self.lbl_tip, self.lbl_progress):
             _autofit(w)
             info.add_widget(w)
         sv.add_widget(info)
         panel.add_widget(sv)
+        _autofit(self.lbl_action)
+        panel.add_widget(self.lbl_action)
 
         # 控制区（两行：播放步进 + 视角）
         control = ResponsiveBoxLayout(height_px=52, gap_px=8,
@@ -207,6 +232,7 @@ class DemoScreen(Screen):
                   self.btn_next, self.btn_reset):
             control.add_widget(b)
         panel.add_widget(control)
+        self._build_media_controls(panel)
         self.follow_control=CameraFollowControl()
         self.follow_control.bind_view(self.view)
         panel.add_widget(self.follow_control)
@@ -232,6 +258,7 @@ class DemoScreen(Screen):
         self.lbl_case.color = t.text
         self.lbl_tip.color = t.text_muted
         self.lbl_progress.color = t.text_muted
+        self.lbl_action.color = t.text_muted
 
     # ---- 模式 / 导航 ----
     def enter_case(self, mode, si, ci, steps=None, return_screen=None):
@@ -263,6 +290,7 @@ class DemoScreen(Screen):
 
     def _show_case(self):
         self._stop()
+        self._cancel_export()
         case = self._case()
         cube = _build_case_cube(self.mode, case)
         expected_view=_demo_view_class(cube)
@@ -276,9 +304,15 @@ class DemoScreen(Screen):
         self._initial = cube.clone()
         self._moves = list(case["moves"])
         self._move_index = 0
+        self._media_reset()
         # 聚焦：只给被移动/参与公式的块上色，其余灰色
         self._highlight = None if "initial" in case or case.get('show_all') or self.mode == "mastermorphix" or isinstance(self.mode, tuple) else _changed_homes(cube)
         _set_demo_cube(self.view, cube, self._highlight)
+        from renderer.move_guide import MoveGuide
+        if hasattr(self,'move_guide'):self.move_guide.dispose()
+        self.move_guide=MoveGuide(self.view);self.move_guide.start()
+        if hasattr(self.view,'set_tutorial_reference'):
+            self.view.set_tutorial_reference(case.get('reference_cube'))
         if hasattr(self.view,'set_tutorial_targets'):
             self.view.set_tutorial_targets(case.get('tutorial_targets',{}))
         if 'camera' in case:
@@ -338,7 +372,11 @@ class DemoScreen(Screen):
             self._playing = False
             self._update_controls()
             return
+        if self._maybe_narrate():return
         self._start_move(self._moves[self._move_index], self._move_index + 1)
+
+    def _follow(self,target,begin):
+        follow_turn(self.view,target,begin)
 
     def _start_move(self, move, target_index):
         if isinstance(move, str) and getattr(self._work, 'standard_notation', False):
@@ -353,13 +391,17 @@ class DemoScreen(Screen):
         if isinstance(move, str):
             self._step_queue()
         else:
-            target=square1_target(move) if getattr(self._work,'puzzle_kind',None)=='square1' else polyhedral_target(self._work,move)
+            kind=getattr(self._work,'puzzle_kind',None)
+            if kind in ('square0','square2','super_square1'):
+                target=(0.,0.,0.)
+            else:
+                target=square1_target(move) if kind=='square1' else polyhedral_target(self._work,move)
             def begin():
                 if self._pending_move is not move:
                     return
-                if self.view.animate_move(move,on_done=self._step_queue,duration=.5) is False:
+                if self.view.animate_move(move,on_done=self._step_queue,duration=.5/self._playback_speed) is False:
                     self._stop()
-            follow_turn(self.view,target,begin)
+            self._follow(target,begin)
 
     def _step_queue(self):
         if self._queue:
@@ -371,6 +413,7 @@ class DemoScreen(Screen):
             self._pending_index = None
             self._pending_move = None
             self._busy = False
+            self._remember_checkpoint()
             if self._move_index >= len(self._moves):
                 self._playing = False
             self._update_controls()
@@ -378,14 +421,15 @@ class DemoScreen(Screen):
                 self._advance()
 
     def _animate_step(self, step):
-        dur = 0.5 * abs(step.angle) / 90.0
+        if hasattr(self,'move_guide'):self.move_guide.set_move(self._work,step)
+        dur = 0.5 * abs(step.angle) / 90.0/self._playback_speed
         def begin():
             if not self._busy:
                 return
             self.view.start_turn(step.axis,step.layers[0],step.angle,dur,
                                  on_done=lambda:self._after_turn(step),layer_positions=step.layers,
-                                 include_fixed_centers=getattr(self._work, 'standard_notation', False) or step.move_str[:1] in ('x','y','z'))
-        follow_turn(self.view,layer_target(step.axis,step.layers),begin)
+                                 include_fixed_centers=getattr(self._work, 'standard_notation', False) or step.move_str[:1] in ('x','y','z','@'))
+        self._follow(layer_target(step.axis,step.layers),begin)
 
     def _after_turn(self, step):
         if not self._busy or self._pending_index is None:
@@ -395,6 +439,7 @@ class DemoScreen(Screen):
         self._step_queue()
 
     def _stop(self):
+        self._media_stop()
         interrupted = self._busy
         self._playing = False
         self._busy = False
@@ -408,9 +453,7 @@ class DemoScreen(Screen):
             self.view.cancel_animation()
         if interrupted and self._initial is not None:
             # Keep the state at the last fully completed formula action.
-            self._work = self._initial.clone()
-            for move in self._moves[:self._move_index]:
-                self._work.apply_move(move)
+            self._restore_index(self._move_index)
             _set_demo_cube(self.view, self._work, self._highlight)
         self._update_controls()
 
@@ -424,7 +467,10 @@ class DemoScreen(Screen):
             self._moves[self._move_index - 1] if self._move_index else tr("playback.ready")
         )
         spec=getattr(getattr(self._work,'geometry',None),'spec',None)
-        move_text=token(move,spec)
+        from demo.coverage import supports,notation
+        move_text=(notation(move,self._work) if self._work is not None and
+                   supports(getattr(self._work,'puzzle_kind','cube'),self._work.n)
+                   else token(move,spec))
         if getattr(self._work,'puzzle_kind',None)=='blossom' and not isinstance(move,str):
             from cube.polyhedral import dot
             spec=self._work.geometry.spec
@@ -434,11 +480,26 @@ class DemoScreen(Screen):
                            if abs(dot(normal,axis)-nearest)<1e-7)
             move_text=tr('poly.blossom_turn',faces=faces)
         self.lbl_progress.text = tr(
-            "demo.progress", i=self._move_index, total=len(self._moves), move=move_text,
+            "demo.progress", i=self._pending_index if self._pending_index is not None else self._move_index,
+            total=len(self._moves), move=move_text,
         )
+        from demo.media import action_description
+        next_move=self._pending_move if self._pending_move is not None else self._moves[self._move_index] if self._move_index<len(self._moves) else None
+        if next_move is not None:
+            text=(notation(next_move,self._work) if self._work is not None and supports(getattr(self._work,'puzzle_kind','cube'),self._work.n) else token(next_move,spec))
+            self.lbl_action.text=action_description(self._work,next_move,text)
+        else:self.lbl_action.text=''
+        if hasattr(self,'move_guide'):self.move_guide.set_move(self._work,next_move)
+        self._media_controls()
 
     def on_pre_leave(self, *args):
+        if hasattr(self,'move_guide'):self.move_guide.stop()
         self._stop()
+        self._cancel_export()
+        self._close_chapters()
+
+    def on_enter(self,*_):
+        if hasattr(self,'move_guide'):self.move_guide.start()
 
     def go_menu(self):
         self._stop()

@@ -1,0 +1,110 @@
+[
+  {
+    "kind": "time_machine",
+    "seed": 20261110,
+    "turns": 30,
+    "moves": 851,
+    "seconds": 0.218,
+    "replay_solved": true,
+    "history_empty": true
+  },
+  {
+    "kind": "time_machine",
+    "seed": 20261111,
+    "turns": 30,
+    "moves": 872,
+    "seconds": 0.108,
+    "replay_solved": true,
+    "history_empty": true
+  },
+  {
+    "kind": "time_machine",
+    "seed": 20261110,
+    "turns": 100,
+    "moves": 907,
+    "seconds": 0.083,
+    "replay_solved": true,
+    "history_empty": true
+  },
+  {
+    "kind": "time_machine",
+    "seed": 20261111,
+    "turns": 100,
+    "moves": 859,
+    "seconds": 0.153,
+    "replay_solved": true,
+    "history_empty": true
+  },
+  {
+    "kind": "bean_6",
+    "seed": 20261110,
+    "turns": 30,
+    "moves": 619,
+    "seconds": 0.036,
+    "replay_solved": true,
+    "history_empty": true
+  },
+  {
+    "kind": "bean_6",
+    "seed": 20261111,
+    "turns": 30,
+    "moves": 466,
+    "seconds": 0.031,
+    "replay_solved": true,
+    "history_empty": true
+  },
+  {
+    "kind": "bean_6",
+    "seed": 20261110,
+    "turns": 100,
+    "moves": 712,
+    "seconds": 0.031,
+    "replay_solved": true,
+    "history_empty": true
+  },
+  {
+    "kind": "bean_6",
+    "seed": 20261111,
+    "turns": 100,
+    "moves": 712,
+    "seconds": 0.035,
+    "replay_solved": true,
+    "history_empty": true
+  },
+  {
+    "kind": "bean_10",
+    "seed": 20261110,
+    "turns": 30,
+    "moves": 841,
+    "seconds": 0.282,
+    "replay_solved": true,
+    "history_empty": true
+  },
+  {
+    "kind": "bean_10",
+    "seed": 20261111,
+    "turns": 30,
+    "moves": 1027,
+    "seconds": 0.285,
+    "replay_solved": true,
+    "history_empty": true
+  },
+  {
+    "kind": "bean_10",
+    "seed": 20261110,
+    "turns": 100,
+    "moves": 1048,
+    "seconds": 0.251,
+    "replay_solved": true,
+    "history_empty": true
+  },
+  {
+    "kind": "bean_10",
+    "seed": 20261111,
+    "turns": 100,
+    "moves": 1193,
+    "seconds": 0.232,
+    "replay_solved": true,
+    "history_empty": true
+  }
+]

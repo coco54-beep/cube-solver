@@ -15,6 +15,7 @@ from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
 from ui.widgets.buttons import UIButton
 from kivy.uix.label import Label
+from ui.widgets.entry_guidance import EntryGuidance
 from kivy.uix.screenmanager import Screen
 
 from app.constants import FACES
@@ -158,16 +159,10 @@ class TwistScreen(Screen):
                                    padding_px=[8, 6, 8, 8])
 
         # 顶栏
-        top = ResponsiveBoxLayout(height_px=48, gap_px=8)
-        back = UIButton(text="", icon_name="back", size_hint_x=0.22)
-        back.bind(on_release=lambda *a: self.go_back())
+        from ui.widgets.entry_controls import twist_header
         self.title = Label(text=tr("input.twist"), size_hint_x=0.56, halign="center",
                            font_size="20sp", bold=True)
-        done = PrimaryButton(text="", icon_name="done", size_hint_x=0.22)
-        done.bind(on_release=lambda *a: self.go_back())
-        top.add_widget(back)
-        top.add_widget(self.title)
-        top.add_widget(done)
+        top,self.btn_back,self.btn_done=twist_header(self.title,self.go_back)
         root.add_widget(top)
 
         # 3D 视图
@@ -201,7 +196,7 @@ class TwistScreen(Screen):
         panel.add_widget(control)
 
         # 提示
-        self.msg = Label(text="", size_hint_y=None, height=m.h(34),
+        self.msg = EntryGuidance(text="", size_hint_y=None, height=m.h(34),
                          color=(0.7, 0.85, 0.7, 1), halign="center",
                          font_size="14sp")
         self.msg.bind(size=lambda widget, *_: setattr(widget, "text_size", widget.size))
@@ -273,6 +268,11 @@ class TwistScreen(Screen):
 
     def _input_screen(self):
         try:
+            from cube.bandaged_cube import KINDS
+            if getattr(_app(),'puzzle_kind',None) in KINDS and getattr(self.manager,'has_screen',lambda _:False)('BandagedSixViewScreen'):
+                entry=self.manager.get_screen('BandagedSixViewScreen')
+                if entry._six_state is not None and (entry._draft is None or entry._draft.state()!=entry._six_state):entry.on_pre_enter()
+                if entry._draft is not None:return entry
             return self.manager.get_screen("InputScreen")
         except Exception:
             return None
@@ -306,7 +306,8 @@ class TwistScreen(Screen):
         if self._busy:
             return
         if hasattr(self._work, 'can_turn') and not self._work.can_turn(spec.axis, spec.layer_positions):
-            self.msg.text = tr('bandage.blocked')
+            from ui.entry_feedback import show_feedback
+            show_feedback(self.msg,tr('bandage.blocked'))
             return
         self._history.append((spec.axis, tuple(spec.layer_positions), spec.sign))
         self._future.clear()
@@ -402,7 +403,8 @@ class TwistScreen(Screen):
         app = _app()
         if hasattr(self._work, 'puzzle_kind') and hasattr(self._work, 'history'):
             app.cube = self._work.clone()
-        app.facelets_input = clean
+        from app.facelet_cache import remember_recent
+        remember_recent(app,clean)
         cache = getattr(app, "facelets_cache", None)
         if cache is not None:
             cache[input_screen.input_cache_key()] = clean
@@ -415,7 +417,7 @@ class TwistScreen(Screen):
         if self._busy:
             return
         self._write_back()
-        self.manager.current = "InputScreen"
+        self.manager.current = getattr(self._input_screen(),'name','InputScreen')
 
     def on_leave(self,*args):
         cancel_follow(self.view)

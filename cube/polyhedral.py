@@ -150,6 +150,21 @@ DINO4_FACE_COLORS=(3,0,1,3,0,2)
 
 
 def solved_colors(cube):
+    if getattr(cube,'puzzle_kind',None) in ('jewel_fto','helicopter_14'):
+        from cube.lanlan_polyhedra import face_color
+        return tuple(face_color(cube.puzzle_kind,s.face) for s in cube.geometry.stickers)
+    if getattr(cube,'puzzle_kind',None) in ('time_machine','bean_6','bean_10'):
+        from cube.dial_beans import goal
+        return goal(cube.puzzle_kind)
+    if getattr(cube,'puzzle_kind',None)=='cheese_3':
+        from cube.cheese_3 import goal_colors
+        return goal_colors()
+    if getattr(cube,'puzzle_kind',None)=='rubik_cheese':
+        from cube.rubik_cheese import goal_colors
+        return goal_colors()
+    if getattr(cube,'puzzle_kind',None) in ('dogic_i','dogic_20'):
+        from cube.expanded_polyhedra import dogic_colors
+        return dogic_colors(cube)
     """Solved sticker colours, honouring the four-colour Dino mapping."""
     if getattr(cube,'puzzle_kind',None)=='dino4':
         return tuple(DINO4_FACE_COLORS[sticker.face] for sticker in cube.geometry.stickers)
@@ -182,6 +197,42 @@ def _skewb_ultimate_axes():
 
 
 def specification(kind, n):
+    if kind=='kairis_star_finder':
+        if n!=3:raise ValueError('Unsupported Star Finder order')
+        from cube.star_finder import specification as star_finder_specification
+        return star_finder_specification()
+    if kind=='megaminx_ball':
+        if n!=3:raise ValueError('Unsupported Megaminx Ball order')
+        from cube.megaminx_ball import geometry as ball_geometry
+        return ball_geometry().spec
+    if kind=='aj_curvy_dinominx_4' and n==4:
+        from cube.curvy_dinominx import geometry as dino_geometry
+        return dino_geometry().spec
+    if kind=='mf8_bauhinia_minx' and n==3:
+        from cube.rex_dodecahedron import geometry as rex_geometry
+        return rex_geometry().spec
+    if kind=='yeet_ball':
+        if n!=3:raise ValueError('Unsupported Yeet Ball order')
+        from cube.yeet_ball import geometry as ball_geometry
+        return ball_geometry().spec
+    from cube.lanlan_polyhedra import KINDS as LANLAN_KINDS
+    if kind in LANLAN_KINDS:
+        from cube.lanlan_polyhedra import specification as lanlan_specification
+        return lanlan_specification(kind,n)
+    if kind=='twins' and n==3:
+        from cube.twins import specification as twins_specification
+        return twins_specification()
+    if kind=='rediminx':return geometry(kind,n).spec
+    from cube.pentagonal_prism import KINDS as PRISMS
+    if kind in PRISMS:
+        from cube.pentagonal_prism import specification as prism_specification
+        return prism_specification(kind,n)
+    if kind in ('dogic_i','dogic_20','siamese_a','siamese_b','pyraminx_diamond','masterball','rubik_cheese','cheese_3'):
+        return geometry(kind,n).spec
+    from candidate_puzzles import POLYHEDRAL_KINDS
+    if kind in POLYHEDRAL_KINDS or kind=='dinominx':
+        from cube.expanded_polyhedra import specification as expanded_specification
+        return expanded_specification(kind,n)
     if kind=='ancient_coin' and n==3:
         from cube.ancient_coin import specification as coin_specification
         return coin_specification()
@@ -506,6 +557,51 @@ def _even_geometry(n,kind='megaminx'):
 
 @lru_cache(maxsize=4)
 def geometry(kind,n):
+    if kind=='megaminx_ball':
+        if n!=3:raise ValueError('Unsupported Megaminx Ball order')
+        from cube.megaminx_ball import geometry as ball_geometry
+        return ball_geometry()
+    if kind=='aj_curvy_dinominx_4' and n==4:
+        from cube.curvy_dinominx import geometry as dino_geometry
+        return dino_geometry()
+    if kind=='mf8_bauhinia_minx' and n==3:
+        from cube.rex_dodecahedron import geometry as rex_geometry
+        return rex_geometry()
+    if kind=='yeet_ball':
+        if n!=3:raise ValueError('Unsupported Yeet Ball order')
+        from cube.yeet_ball import geometry as ball_geometry
+        return ball_geometry()
+    if kind in ('time_machine','bean_6','bean_10'):
+        from cube.dial_beans import geometry as dial_geometry
+        return dial_geometry(kind,n)
+    if kind=='rediminx':
+        if n!=3:raise ValueError('Unsupported Rediminx order')
+        from cube.rediminx import rediminx_geometry
+        return rediminx_geometry()
+    if kind=='cheese_3':
+        if n!=3:raise ValueError('Unsupported three-layer Cheese order')
+        from cube.cheese_3 import cheese_geometry
+        return cheese_geometry()
+    if kind=='pyraminx_diamond':
+        if n!=3:raise ValueError('Unsupported Pyraminx Diamond order')
+        from cube.expanded_polyhedra import diamond_geometry
+        return diamond_geometry()
+    if kind=='rubik_cheese':
+        if n!=2:raise ValueError('This Rubik Cheese has two layers')
+        from cube.rubik_cheese import cheese_geometry
+        return cheese_geometry()
+    if kind=='masterball':
+        if n!=4:raise ValueError('Unsupported Masterball order')
+        from cube.masterball import masterball_geometry
+        return masterball_geometry()
+    if kind in ('dogic_i','dogic_20'):
+        if n!=3:raise ValueError('Unsupported Dogic order')
+        from cube.expanded_polyhedra import dogic_geometry
+        return dogic_geometry(kind)
+    if kind in ('siamese_a','siamese_b'):
+        if n!=3:raise ValueError('Unsupported Siamese order')
+        from cube.siamese import siamese_geometry
+        return siamese_geometry(kind)
     if kind=='o2' and n==1:
         from cube.o2 import geometry as o2_geometry
         return o2_geometry()
@@ -530,7 +626,10 @@ def geometry(kind,n):
         return _even_geometry(n)
     if kind=='moyu' and n in (4,6):
         return _even_geometry(n,kind)
-    if kind=='blossom':
+    if kind=='twins':
+        from cube.twins import skin as twins_skin
+        fragments=twins_skin(spec)
+    elif kind=='blossom':
         from cube.blossom import blossom_skin
         fragments=blossom_skin(spec)
     elif kind=='ancient_coin':
@@ -554,6 +653,8 @@ def geometry(kind,n):
     groups=defaultdict(list)
     for signature,face,poly in fragments:
         if n==2 and kind=='pyraminx' and not any(signature):
+            signature=('centre',face)
+        if kind=='dinominx' and not any(signature):
             signature=('centre',face)
         groups[signature].append((face,poly))
     stickers=[]
@@ -606,10 +707,12 @@ def geometry(kind,n):
             cap=scale(axis,math.sqrt(3))
             bands=[{i for i,p in enumerate(centres)
                     if dot(add(p,scale(cap,-1)),add(p,scale(cap,-1)))<4-EPS}]
-        elif kind=='clover':
+        elif kind=='clover' or kind=='twins' and axis_id<12:
             cap=scale(axis,math.sqrt(2))
             bands=[{i for i,p in enumerate(centres)
                     if dot(add(p,scale(cap,-1)),add(p,scale(cap,-1)))<1-EPS}]
+        elif kind=='twins':
+            bands=[{i for i,p in enumerate(projections) if p>EPS}]
         elif kind=='dayan_dino_skewb':
             if len(spec.axis_cuts[axis_id])==1:
                 bands=[{i for i,p in enumerate(projections) if p>spec.axis_cuts[axis_id][0]+EPS}]
@@ -667,7 +770,7 @@ def geometry(kind,n):
         return drum_even_geometry(result, spec)
     if kind == 'eight_petals':
         return _flower_geometry(result, spec)
-    if kind in ('clover','blossom','ivy','super_ivy','pyraminx_duo','coin_tetrahedron','ancient_coin'):
+    if kind in ('twins','clover','blossom','ivy','super_ivy','pyraminx_duo','coin_tetrahedron','ancient_coin'):
         return _patch_faces(result)
     return _without_centres(result, spec) if kind == 'void_cube' else result
 
@@ -876,9 +979,24 @@ class PolyhedralPuzzle:
 
     @property
     def color_count(self):
+        if self.puzzle_kind=='jewel_fto':return 9
+        if self.puzzle_kind=='helicopter_14':return 7
+        if self.puzzle_kind=='time_machine':return 78
+        if self.puzzle_kind in ('bean_6','bean_10'):return int(self.puzzle_kind.split('_')[1])
+        if self.puzzle_kind=='masterball':return 8
+        if self.puzzle_kind=='dogic_i':return 12
         return 4 if self.puzzle_kind == 'dino4' else len(self.geometry.spec.normals)
 
     def is_solved(self):
+        if self.puzzle_kind in ('jewel_fto','helicopter_14'):
+            return tuple(self.colors)==tuple(solved_colors(self))
+        if self.puzzle_kind in ('bean_6','bean_10'):
+            from cube.dial_beans import beans_solved
+            return beans_solved(self.puzzle_kind,self.colors)
+        if self.puzzle_kind=='time_machine':
+            return tuple(self.colors)==tuple(solved_colors(self))
+        if self.puzzle_kind in ('dogic_i','dogic_20','rubik_cheese','cheese_3'):
+            return tuple(self.colors)==tuple(solved_colors(self))
         if self.puzzle_kind=='o2':
             from cube.o2 import is_solved
             return is_solved(self.colors)

@@ -1,0 +1,274 @@
+{
+  "requested": 32,
+  "active": 32,
+  "source_files_parsed": 342,
+  "removed_alias": "tuttminx: use football 3",
+  "entries": [
+    {
+      "kind": "i_cube",
+      "n": 3,
+      "mechanism": "extended",
+      "thumbnail": true,
+      "prepared": true,
+      "group_order": "288",
+      "data_bytes": 1055
+    },
+    {
+      "kind": "l_cube",
+      "n": 3,
+      "mechanism": "extended",
+      "thumbnail": true,
+      "prepared": true,
+      "group_order": "812851200",
+      "data_bytes": 3019
+    },
+    {
+      "kind": "t_cube",
+      "n": 3,
+      "mechanism": "extended",
+      "thumbnail": true,
+      "prepared": true,
+      "group_order": "114721266401280000",
+      "data_bytes": 6409
+    },
+    {
+      "kind": "x_cube",
+      "n": 3,
+      "mechanism": "extended",
+      "thumbnail": true,
+      "prepared": true,
+      "group_order": "218881568348697526272000000",
+      "data_bytes": 11291
+    },
+    {
+      "kind": "tri_cube",
+      "n": 3,
+      "mechanism": "extended",
+      "thumbnail": true,
+      "prepared": true,
+      "group_order": "114721266401280000",
+      "data_bytes": 5951
+    },
+    {
+      "kind": "temple_cube",
+      "n": 3,
+      "mechanism": "extended",
+      "thumbnail": true,
+      "prepared": true,
+      "group_order": "2959506090694963842708720844800000000",
+      "data_bytes": 16499
+    },
+    {
+      "kind": "cross_cube",
+      "n": 3,
+      "mechanism": "extended",
+      "thumbnail": true,
+      "prepared": true,
+      "group_order": "192478109606665638469868501076483558604800000000",
+      "data_bytes": 24948
+    },
+    {
+      "kind": "siamese_a",
+      "n": 3,
+      "mechanism": "siamese",
+      "thumbnail": true,
+      "pieces": 48,
+      "stickers": 94,
+      "prepared": true
+    },
+    {
+      "kind": "siamese_b",
+      "n": 3,
+      "mechanism": "siamese",
+      "thumbnail": true,
+      "pieces": 44,
+      "stickers": 86,
+      "prepared": true
+    },
+    {
+      "kind": "trajber",
+      "n": 4,
+      "mechanism": "shape",
+      "thumbnail": true
+    },
+    {
+      "kind": "pyraminx_diamond",
+      "n": 3,
+      "mechanism": "diamond",
+      "thumbnail": true,
+      "pieces": 14,
+      "stickers": 32,
+      "prepared": true
+    },
+    {
+      "kind": "pyraminx_crystal",
+      "n": 3,
+      "mechanism": "polyhedral",
+      "thumbnail": true,
+      "pieces": 50,
+      "stickers": 120,
+      "prepared": true
+    },
+    {
+      "kind": "starminx_i",
+      "n": 3,
+      "mechanism": "polyhedral",
+      "thumbnail": true,
+      "pieces": 62,
+      "stickers": 132,
+      "prepared": true
+    },
+    {
+      "kind": "pentultimate",
+      "n": 3,
+      "mechanism": "polyhedral",
+      "thumbnail": true,
+      "pieces": 32,
+      "stickers": 72,
+      "prepared": true
+    },
+    {
+      "kind": "master_pentultimate",
+      "n": 3,
+      "mechanism": "polyhedral",
+      "thumbnail": true,
+      "pieces": 122,
+      "stickers": 192,
+      "prepared": true
+    },
+    {
+      "kind": "dodecahedron_2",
+      "n": 2,
+      "mechanism": "shape",
+      "thumbnail": true
+    },
+    {
+      "kind": "rediminx",
+      "n": 3,
+      "mechanism": "polyhedral",
+      "thumbnail": true,
+      "pieces": 62,
+      "stickers": 132,
+      "prepared": true
+    },
+    {
+      "kind": "dodecahedron_3",
+      "n": 3,
+      "mechanism": "shape",
+      "thumbnail": true
+    },
+    {
+      "kind": "dogic_i",
+      "n": 3,
+      "mechanism": "dogic",
+      "thumbnail": true,
+      "pieces": 80,
+      "stickers": 120,
+      "prepared": true
+    },
+    {
+      "kind": "container",
+      "n": 3,
+      "mechanism": "skewb_shell",
+      "thumbnail": true
+    },
+    {
+      "kind": "rubik_cheese",
+      "n": 2,
+      "mechanism": "cheese",
+      "thumbnail": true,
+      "pieces": 12,
+      "stickers": 24,
+      "prepared": true
+    },
+    {
+      "kind": "cheese_3",
+      "n": 3,
+      "mechanism": "cheese",
+      "thumbnail": true,
+      "pieces": 18,
+      "stickers": 30,
+      "prepared": true
+    },
+    {
+      "kind": "masterball",
+      "n": 4,
+      "mechanism": "masterball",
+      "thumbnail": true,
+      "pieces": 32,
+      "stickers": 32,
+      "prepared": true
+    },
+    {
+      "kind": "pentagonal_domino",
+      "n": 2,
+      "mechanism": "prism",
+      "thumbnail": true,
+      "pieces": 22,
+      "stickers": 52,
+      "prepared": true
+    },
+    {
+      "kind": "pentagonal_prism",
+      "n": 3,
+      "mechanism": "prism",
+      "thumbnail": true,
+      "pieces": 32,
+      "stickers": 67,
+      "prepared": true
+    },
+    {
+      "kind": "pentagonal_4",
+      "n": 4,
+      "mechanism": "prism",
+      "thumbnail": true,
+      "pieces": 42,
+      "stickers": 82,
+      "prepared": true
+    },
+    {
+      "kind": "professor_pentagonal",
+      "n": 5,
+      "mechanism": "prism",
+      "thumbnail": true,
+      "pieces": 122,
+      "stickers": 187,
+      "prepared": true
+    },
+    {
+      "kind": "dogic_20",
+      "n": 3,
+      "mechanism": "dogic",
+      "thumbnail": true,
+      "pieces": 80,
+      "stickers": 80,
+      "prepared": true
+    },
+    {
+      "kind": "master_brilic",
+      "n": 3,
+      "mechanism": "polyhedral",
+      "thumbnail": true,
+      "prepared": true,
+      "data_bytes": 206
+    },
+    {
+      "kind": "blanker",
+      "n": 2,
+      "mechanism": "blanker",
+      "thumbnail": true
+    },
+    {
+      "kind": "mirror_kilominx",
+      "n": 2,
+      "mechanism": "mirror_minx",
+      "thumbnail": true
+    },
+    {
+      "kind": "mirror_megaminx",
+      "n": 3,
+      "mechanism": "mirror_minx",
+      "thumbnail": true
+    }
+  ]
+}

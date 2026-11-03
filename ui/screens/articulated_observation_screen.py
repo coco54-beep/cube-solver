@@ -5,6 +5,7 @@ from kivy.app import App
 from kivy.clock import Clock
 from kivy.uix.screenmanager import Screen
 from kivy.uix.label import Label
+from ui.widgets.entry_guidance import EntryGuidance
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.spinner import Spinner
 from app.i18n import tr
@@ -16,6 +17,7 @@ from ui.widgets.articulated_observation import ObservationBoard,OutlineCard,Obse
 from ui.widgets.buttons import UIButton,PrimaryButton,DangerButton
 from ui.widgets.layouts import AdaptiveSceneLayout,ResponsiveBoxLayout
 from ui.widgets import metrics as m
+from ui.widgets.entry_controls import entry_header,entry_actions
 
 
 class ArticulatedObservationEntry:
@@ -28,9 +30,9 @@ class ArticulatedObservationEntry:
         self._ao_dirty=True;self._ao_region=0;self._color=0;self._point=None;self._groups=[];self._shape=0
         self._variant=0;self._page=0;self._depth=None;self._message='';self._buttons=[];self._mode_kind=None
         root=AdaptiveSceneLayout();self._root_layout=root
-        top=ResponsiveBoxLayout(height_px=44,gap_px=6)
-        self._button(top,'back',self.back);self.title=Label(font_size='17sp');top.add_widget(self.title)
-        self._button(top,'gear',self.customize);root.add_widget(top)
+        self.title=Label(font_size='20sp')
+        top,self.btn_back,self.demo_button=entry_header(self.title,self.back,self.open_entry_help)
+        root.add_widget(top)
         scene=ResponsiveBoxLayout(orientation='vertical',gap_px=4)
         self.face_label=Label(size_hint_y=None,height=m.h(30),font_size='14sp');scene.add_widget(self.face_label)
         self.board=ObservationBoard();self.board.on_point=self.query_point;self.board.on_region=self.new_region
@@ -61,17 +63,17 @@ class ArticulatedObservationEntry:
         self.depth_button=self._button(row,'',self.change_depth);self._button(row,'clear',self.remove_panel,DangerButton)
         self.face_done=self._button(row,'',self.complete_face);self.skip_button=self._button(row,'next',self.skip_face)
         panel.add_widget(row)
-        self.hint=Label(size_hint_y=None,height=m.h(42),font_size='12sp',halign='center',valign='middle')
+        self.hint=EntryGuidance(size_hint_y=None,height=m.h(42),font_size='12sp',halign='center',valign='middle')
         self.hint.bind(size=lambda w,*_:setattr(w,'text_size',w.size));panel.add_widget(self.hint)
         self.view=ObservationPreview(size_hint_y=None,height=m.h(130));self.preview=self.view;panel.add_widget(self.view)
         self.preview_label=Label(size_hint_y=None,height=m.h(23),font_size='12sp');panel.add_widget(self.preview_label)
         row=ResponsiveBoxLayout(height_px=42,gap_px=4)
-        for icon,fn in (('undo',self.undo),('clear',self.clear),('check',self.apply),('cancel',self.cancel_matching)):
+        for icon,fn in (('gear',self.customize),('check',self.apply),('cancel',self.cancel_matching)):
             self._button(row,icon,fn)
         panel.add_widget(row)
-        row=ResponsiveBoxLayout(height_px=44,gap_px=4)
-        for icon,fn in (('twist',self.open_twist),('random',self.randomize),('target',self.assign_initial),('solve',self.solve)):
-            self._button(row,icon,fn)
+        row,self.entry_action_buttons=entry_actions(twist=self.open_twist,
+            randomize=self.randomize,clear=self.clear,undo=self.undo,
+            assign=self.assign_initial,solve=self.solve)
         panel.add_widget(row)
         self.status=Label(size_hint_y=None,height=m.h(50),font_size='12sp',halign='center',valign='middle')
         self.status.bind(size=lambda w,*_:setattr(w,'text_size',w.size));panel.add_widget(self.status)
@@ -125,6 +127,15 @@ class ArticulatedObservationEntry:
             self._ao_applied=tuple(cube.frames);self._recorded=set(range(len(cube.solids)));self._ao_region=0
         self._ao_cube_key=tuple(cube.frames);self._build_colors();self.retranslate()
         Clock.schedule_once(lambda *_:self._root_layout._adapt(),0)
+
+    def import_camera_observations(self,cube,draft):
+        if cube.puzzle_kind!='tangram' or draft.kind!='tangram':raise ValueError('observe.invalid')
+        if self._cube is cube and self._ao_state is not None:self._remember()
+        else:self._ao_undo=[];self._history=[]
+        self._cube=cube;self._ao_state=draft.state();self._ao_cube_key=tuple(cube.frames)
+        self._ao_applied=None;self._ao_dirty=True;self._ao_region=0
+        self._draft=None;self._draft_stamp=None;self._recorded=set();self._point=None
+        self._clear_options();self._message=''
 
     def _build_colors(self):
         from ui.screens.mastermorphix_screen import _Swatch
@@ -231,20 +242,26 @@ class ArticulatedObservationEntry:
 
     def _start(self,worker,finish,message):
         if not self.entry_can_edit():return
-        token=object();self._job=token;self._cancel.clear();self._message=tr(message);self._refresh()
+        token=self.entry_state.begin('scrambling' if message=='rigid.shuffling' else 'matching')
+        self._cancel.clear();self._message=tr(message);self._refresh()
         def cancelled():return self._cancel.is_set() or self._job is not token
         def run():
-            result=None;error=None
+            result=None;error=None;error_kind='operation'
             try:result=worker(cancelled)
             except InterruptedError:return
-            except Exception as exc:error=str(exc) if str(exc).startswith(('observe.','rigid.','mixup.')) else 'observe.invalid'
+            except Exception as exc:
+                known=str(exc).startswith(('observe.','rigid.','mixup.'))
+                error=str(exc) if known else 'observe.invalid'
+                if known and isinstance(exc,ValueError) and message!='rigid.shuffling':error_kind='input'
             def done(_):
                 if cancelled():return
                 self._job=None
-                if error:self._message=tr(error);self._refresh()
+                if error:self._message=tr(error);self._refresh();self.entry_show_error(self._message,kind=error_kind)
                 else:finish(result)
             Clock.schedule_once(done,0)
-        threading.Thread(target=run,daemon=True).start()
+        try:threading.Thread(target=run,daemon=True).start()
+        except Exception as exc:
+            self._job=None;self.entry_show_exception(exc)
 
     def query_point(self,point):
         if not self.entry_can_edit():return
@@ -340,7 +357,7 @@ class ArticulatedObservationEntry:
     def apply(self,after=None):
         if not self.entry_can_edit():return
         if self._option() is not None:
-            self._message=tr('observe.pending');self._refresh();return
+            self._message=tr('observe.pending');self._refresh();self.entry_show_error(self._message);return
         if self._applied():
             if after=='twist':super().open_twist()
             elif after=='solve':super().solve()
@@ -355,6 +372,10 @@ class ArticulatedObservationEntry:
                 self._ao_applied=self._ao_cube_key=tuple(self._cube.frames);self._ao_dirty=False
                 App.get_running_app().cube=self._cube;App.get_running_app().polyhedral_solution=None
             self._refresh()
+            if result.status!='matched':
+                from services.failures import matching_category
+                self.entry_show_error(self._message,category=matching_category(result.status),
+                    locations=[dict(observation_face=result.face)] if result.face is not None else None)
             if result.status=='matched':
                 if after=='twist':super(ArticulatedObservationEntry,self).open_twist()
                 elif after=='solve':super(ArticulatedObservationEntry,self).solve()
@@ -411,7 +432,10 @@ class ArticulatedObservationEntry:
             self._message=tr('observe.scramble_limited',n=len(cube.history));self._refresh()
     def cancel_matching(self):
         self._cancel.set();self._job=None;self._clear_options();self._message=tr('observe.cancelled');self._refresh()
-    def back(self):self.cancel_matching();self.manager.current='HomeScreen'
+    def back(self):
+        self.cancel_matching()
+        self.manager.current=('CameraScreen' if self._cube.puzzle_kind=='tangram' and
+                              getattr(App.get_running_app(),'input_from_camera',False) else 'HomeScreen')
     def reset_interaction(self):
         if self._color_layout is not None:self._color_layout.cancel_turn()
         self.board.cancel_touch();self.view.cancel_touch();self.view.cancel_animation()

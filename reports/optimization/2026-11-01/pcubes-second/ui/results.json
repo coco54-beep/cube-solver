@@ -1,0 +1,200 @@
+[
+  {
+    "kind": "masterball",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "screen": "PolyhedralScreen"
+  },
+  {
+    "kind": "master_brilic",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "screen": "PolyhedralScreen"
+  },
+  {
+    "kind": "master_pentultimate",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "screen": "PolyhedralScreen"
+  },
+  {
+    "kind": "rediminx",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "screen": "PolyhedralScreen"
+  },
+  {
+    "kind": "starminx_i",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "screen": "PolyhedralScreen"
+  },
+  {
+    "kind": "pyraminx_crystal",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "screen": "PolyhedralScreen"
+  },
+  {
+    "kind": "container",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "screen": "ContainerScreen"
+  },
+  {
+    "kind": "square1",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "screen": "Square1Screen"
+  },
+  {
+    "kind": "square0",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "screen": "SquareFamilyScreen"
+  },
+  {
+    "kind": "square2",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "screen": "SquareFamilyScreen"
+  },
+  {
+    "kind": "super_square1",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "screen": "SquareFamilyScreen"
+  },
+  {
+    "kind": "masterball",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "screen": "PolyhedralScreen"
+  },
+  {
+    "kind": "master_brilic",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "screen": "PolyhedralScreen"
+  },
+  {
+    "kind": "master_pentultimate",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "screen": "PolyhedralScreen"
+  },
+  {
+    "kind": "rediminx",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "screen": "PolyhedralScreen"
+  },
+  {
+    "kind": "starminx_i",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "screen": "PolyhedralScreen"
+  },
+  {
+    "kind": "pyraminx_crystal",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "screen": "PolyhedralScreen"
+  },
+  {
+    "kind": "container",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "screen": "ContainerScreen"
+  },
+  {
+    "kind": "square1",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "screen": "Square1Screen"
+  },
+  {
+    "kind": "square0",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "screen": "SquareFamilyScreen"
+  },
+  {
+    "kind": "square2",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "screen": "SquareFamilyScreen"
+  },
+  {
+    "kind": "super_square1",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "screen": "SquareFamilyScreen"
+  }
+]

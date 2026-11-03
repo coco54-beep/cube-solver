@@ -1,0 +1,28 @@
+{
+  "camouflage_completed": 17,
+  "camouflage_attempted": 18,
+  "mixup_completed": 8,
+  "regression_passed": 33,
+  "same_twelve_camouflage_median_before": 1.516,
+  "same_twelve_camouflage_median_after": 0.3205,
+  "measured_scope": "Desktop solver time excluding visible-input matching; legal-turn scrambles, not uniformly sampled states. Some timed runs overlapped other probes. No phone or release-package benchmark.",
+  "remaining_limit": "Camouflage 1000-turn seed 2 still continued full search when audit cancelled it at 30 seconds. Mixup arbitrary deep-state runtime is not guaranteed. Routes may use more moves.",
+  "assets": [
+    {
+      "path": "solver/data/camouflage_3_octants.bin",
+      "bytes": 596434,
+      "sha256": "4d80fe26e83c15dcb4615a82fa5829e315c8d1143cfaf7fe15cde7b31c53471f"
+    },
+    {
+      "path": "solver/data/camouflage_3_corners.bin",
+      "bytes": 1439,
+      "sha256": "7aac81858d00e112dcae6fb1f0a7d5197cd965628bdc7a61c6d320be10fbf4ff"
+    },
+    {
+      "path": "solver/data/camouflage_3_quotient_patterns.bin",
+      "bytes": 86018,
+      "sha256": "4702579fcf857ced55f822c1a8ffdeb4bb14b7c890a7bbe78f9a121d6e6bc0a3"
+    }
+  ],
+  "release_built": false
+}

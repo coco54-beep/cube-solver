@@ -769,6 +769,43 @@ from app.camera_i18n import MESSAGES as _CAMERA_MESSAGES
 for _language, _messages in _CAMERA_MESSAGES.items():
     CATALOG[_language].update(_messages)
 
+from app.expanded_i18n import MESSAGES as _EXPANDED_MESSAGES
+for _language, _messages in _EXPANDED_MESSAGES.items():
+    CATALOG[_language].update(_messages)
+
+
+from app.entry_i18n import MESSAGES as _ENTRY_MESSAGES
+for _language, _messages in _ENTRY_MESSAGES.items():
+    CATALOG[_language].update(_messages)
+
+from app.directory_name_i18n import MESSAGES as _DIRECTORY_NAME_MESSAGES
+for _language, _messages in _DIRECTORY_NAME_MESSAGES.items():
+    CATALOG[_language].update(_messages)
+
+
+_SESSION_MESSAGES = {
+    'zh': {
+        'session.recovery_title': '已安全返回首页',
+        'session.recovered': '上次进度未能安全恢复，已停止加载。\n原缓存已备份，可继续使用。',
+        'session.skipped': '上次进度未能安全恢复，已停止加载。\n原缓存已保留，可继续使用。',
+        'session.continue': '继续',
+    },
+    'en': {
+        'session.recovery_title': 'Returned safely to Home',
+        'session.recovered': 'The previous session could not be restored safely.\nThe original checkpoint was backed up. You can continue using the app.',
+        'session.skipped': 'The previous session could not be restored safely.\nThe original checkpoint was kept. You can continue using the app.',
+        'session.continue': 'Continue',
+    },
+    'ja': {
+        'session.recovery_title': 'ホームに戻りました',
+        'session.recovered': '前回の状態を安全に復元できませんでした。\n元のデータはバックアップ済みです。そのまま使用できます。',
+        'session.skipped': '前回の状態を安全に復元できませんでした。\n元のデータは保存されています。そのまま使用できます。',
+        'session.continue': '続ける',
+    },
+}
+for _language, _messages in _SESSION_MESSAGES.items():
+    CATALOG[_language].update(_messages)
+
 
 class Translator(EventDispatcher):
     """持有当前语言并提供 tr()。语言变更时派发 on_language。"""

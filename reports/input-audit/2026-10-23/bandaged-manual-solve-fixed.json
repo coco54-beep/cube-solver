@@ -1,0 +1,74 @@
+[
+  {
+    "kind": "ai_cube",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "actual_controls": true,
+    "history_empty": true,
+    "success": true,
+    "replay_solved": true,
+    "moves": 22,
+    "seconds": 0.219,
+    "message": ""
+  },
+  {
+    "kind": "bandaged_c",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "actual_controls": true,
+    "history_empty": true,
+    "success": true,
+    "replay_solved": true,
+    "moves": 10,
+    "seconds": 0.313,
+    "message": ""
+  },
+  {
+    "kind": "bicube",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "actual_controls": true,
+    "history_empty": true,
+    "success": true,
+    "replay_solved": true,
+    "moves": 1,
+    "seconds": 0.0,
+    "message": ""
+  },
+  {
+    "kind": "burr_cube",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "actual_controls": true,
+    "history_empty": true,
+    "success": true,
+    "replay_solved": true,
+    "moves": 8,
+    "seconds": 0.046,
+    "message": ""
+  },
+  {
+    "kind": "fused_cube",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "actual_controls": true,
+    "history_empty": true,
+    "success": true,
+    "replay_solved": true,
+    "moves": 112,
+    "seconds": 0.016,
+    "message": ""
+  },
+  {
+    "kind": "two_bar_cube",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "actual_controls": true,
+    "history_empty": true,
+    "success": true,
+    "replay_solved": true,
+    "moves": 12,
+    "seconds": 0.484,
+    "message": ""
+  }
+]

@@ -116,6 +116,7 @@ def test_a_continuous_fused_plate_is_coloured_and_undone_as_one_action():
     facelets['F']=[['']*3 for _ in range(3)]
     captured=[]
     fake=SimpleNamespace(_data=facelets,_n=lambda:3,
+                         entry_can_edit=lambda:True,
                          view=SimpleNamespace(cube=cube),
                          _bandage_step='2×2',
                          _update_bandage_step=lambda **kwargs:None,

@@ -1,0 +1,8 @@
+{
+  "checked": 235,
+  "expected": 235,
+  "passed": 235,
+  "failures": [],
+  "pending_entries_tested": false,
+  "scope": "actual directory navigation, reset/undo, clear/cancel/undo; play-only pages exclude manual input"
+}

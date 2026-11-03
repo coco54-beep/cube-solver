@@ -1,0 +1,7 @@
+{
+  "whole_rotation_piece_checks": 11664,
+  "complement_piece_checks": 31104,
+  "global_holdings": 24,
+  "max_alignment_turns": 4,
+  "all_passed": true
+}

@@ -1,0 +1,266 @@
+[
+  {
+    "kind": "mixup_333",
+    "seed": 20261103,
+    "scramble_turns": 100,
+    "evaluation_budget_seconds": 20.0,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\mixup-final-production\\inputs\\mixup_333-20261103-100.json",
+    "input_method": "blank assembly choices + actual rotation step + panel colours",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 1.125,
+    "success": true,
+    "moves": 54,
+    "failure_category": "",
+    "solve_seconds": 0.422,
+    "progress_stages": [
+      {
+        "label": "mixup.restoring",
+        "seconds": 0.0
+      },
+      {
+        "label": "mixup.core3",
+        "seconds": 0.313
+      }
+    ],
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.016,
+    "seconds": 1.563,
+    "shortening": [],
+    "colour_stage_plans": [],
+    "process_seconds": 1.812
+  },
+  {
+    "kind": "mixup_334",
+    "seed": 20261103,
+    "scramble_turns": 100,
+    "evaluation_budget_seconds": 20.0,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\mixup-final-production\\inputs\\mixup_334-20261103-100.json",
+    "input_method": "blank assembly choices + actual rotation step + panel colours",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 1.5,
+    "success": true,
+    "moves": 644,
+    "failure_category": "",
+    "solve_seconds": 1.188,
+    "progress_stages": [
+      {
+        "label": "mixup.restoring",
+        "seconds": 0.0
+      },
+      {
+        "label": "mixup.core3",
+        "seconds": 0.797
+      }
+    ],
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.156,
+    "seconds": 2.844,
+    "shortening": [],
+    "colour_stage_plans": [],
+    "process_seconds": 3.109
+  },
+  {
+    "kind": "mixup_344",
+    "seed": 20261103,
+    "scramble_turns": 100,
+    "evaluation_budget_seconds": 20.0,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\mixup-final-production\\inputs\\mixup_344-20261103-100.json",
+    "input_method": "blank assembly choices + actual rotation step + panel colours",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 2.375,
+    "success": true,
+    "moves": 567,
+    "failure_category": "",
+    "solve_seconds": 1.313,
+    "progress_stages": [
+      {
+        "label": "mixup.restoring",
+        "seconds": 0.0
+      },
+      {
+        "label": "mixup.core3",
+        "seconds": 0.782
+      }
+    ],
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.187,
+    "seconds": 3.875,
+    "shortening": [],
+    "colour_stage_plans": [],
+    "process_seconds": 4.125
+  },
+  {
+    "kind": "mixup_444",
+    "seed": 20261103,
+    "scramble_turns": 100,
+    "evaluation_budget_seconds": 20.0,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\mixup-final-production\\inputs\\mixup_444-20261103-100.json",
+    "input_method": "blank assembly choices + actual rotation step + panel colours",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 2.015,
+    "success": true,
+    "moves": 151,
+    "failure_category": "",
+    "solve_seconds": 1.656,
+    "progress_stages": [
+      {
+        "label": "mixup.restoring",
+        "seconds": 0.0
+      },
+      {
+        "label": "mixup.core4",
+        "seconds": 0.125
+      }
+    ],
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.079,
+    "seconds": 3.75,
+    "shortening": [],
+    "colour_stage_plans": [],
+    "process_seconds": 3.984
+  },
+  {
+    "kind": "mixup_plus_333",
+    "seed": 20261103,
+    "scramble_turns": 100,
+    "evaluation_budget_seconds": 20.0,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\mixup-final-production\\inputs\\mixup_plus_333-20261103-100.json",
+    "input_method": "blank assembly choices + actual rotation step + panel colours",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 2.125,
+    "success": true,
+    "moves": 383,
+    "failure_category": "",
+    "solve_seconds": 1.812,
+    "progress_stages": [
+      {
+        "label": "mixup.restoring",
+        "seconds": 0.0
+      },
+      {
+        "label": "mixup.core3",
+        "seconds": 1.468
+      }
+    ],
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.141,
+    "seconds": 4.078,
+    "shortening": [],
+    "colour_stage_plans": [],
+    "process_seconds": 4.313
+  },
+  {
+    "kind": "mixup_plus_334",
+    "seed": 20261103,
+    "scramble_turns": 100,
+    "evaluation_budget_seconds": 20.0,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\mixup-final-production\\inputs\\mixup_plus_334-20261103-100.json",
+    "input_method": "blank assembly choices + actual rotation step + panel colours",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 2.547,
+    "success": true,
+    "moves": 697,
+    "failure_category": "",
+    "solve_seconds": 3.969,
+    "progress_stages": [
+      {
+        "label": "mixup.restoring",
+        "seconds": 0.0
+      },
+      {
+        "label": "mixup.core3",
+        "seconds": 2.703
+      }
+    ],
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.328,
+    "seconds": 6.844,
+    "shortening": [],
+    "colour_stage_plans": [],
+    "process_seconds": 7.204
+  },
+  {
+    "kind": "mixup_plus_344",
+    "seed": 20261103,
+    "scramble_turns": 100,
+    "evaluation_budget_seconds": 20.0,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\mixup-final-production\\inputs\\mixup_plus_344-20261103-100.json",
+    "input_method": "blank assembly choices + actual rotation step + panel colours",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 3.328,
+    "success": true,
+    "moves": 1079,
+    "failure_category": "",
+    "solve_seconds": 6.016,
+    "progress_stages": [
+      {
+        "label": "mixup.restoring",
+        "seconds": 0.0
+      },
+      {
+        "label": "mixup.core3",
+        "seconds": 3.922
+      }
+    ],
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.671,
+    "seconds": 10.015,
+    "shortening": [],
+    "colour_stage_plans": [],
+    "process_seconds": 10.297
+  },
+  {
+    "kind": "mixup_plus_444",
+    "seed": 20261103,
+    "scramble_turns": 100,
+    "evaluation_budget_seconds": 20.0,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\mixup-final-production\\inputs\\mixup_plus_444-20261103-100.json",
+    "input_method": "blank assembly choices + actual rotation step + panel colours",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 3.641,
+    "success": true,
+    "moves": 1000,
+    "failure_category": "",
+    "solve_seconds": 9.14,
+    "progress_stages": [
+      {
+        "label": "mixup.restoring",
+        "seconds": 0.0
+      },
+      {
+        "label": "mixup.core4",
+        "seconds": 6.812
+      }
+    ],
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.813,
+    "seconds": 13.594,
+    "shortening": [],
+    "colour_stage_plans": [],
+    "process_seconds": 13.953
+  }
+]

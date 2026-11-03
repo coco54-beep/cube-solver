@@ -1,0 +1,126 @@
+[
+  {
+    "kind": "camouflage_3",
+    "seed": 1,
+    "scramble_length": 100,
+    "mode": "previous_patterns",
+    "success": true,
+    "input_unchanged": true,
+    "history_empty": true,
+    "moves": 80,
+    "seconds": 6.328
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 1,
+    "scramble_length": 100,
+    "mode": "anchor_patterns",
+    "success": true,
+    "input_unchanged": true,
+    "history_empty": true,
+    "moves": 61,
+    "seconds": 27.378
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 2,
+    "scramble_length": 100,
+    "mode": "previous_patterns",
+    "success": true,
+    "input_unchanged": true,
+    "history_empty": true,
+    "moves": 42,
+    "seconds": 11.188
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 2,
+    "scramble_length": 100,
+    "mode": "anchor_patterns",
+    "success": true,
+    "input_unchanged": true,
+    "history_empty": true,
+    "moves": 26,
+    "seconds": 30.44
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 8,
+    "scramble_length": 100,
+    "mode": "previous_patterns",
+    "success": true,
+    "input_unchanged": true,
+    "history_empty": true,
+    "moves": 42,
+    "seconds": 3.333
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 8,
+    "scramble_length": 100,
+    "mode": "anchor_patterns",
+    "success": true,
+    "input_unchanged": true,
+    "history_empty": true,
+    "moves": 75,
+    "seconds": 7.103
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 977,
+    "scramble_length": 300,
+    "mode": "previous_patterns",
+    "success": true,
+    "input_unchanged": true,
+    "history_empty": true,
+    "moves": 34,
+    "seconds": 1.965
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 977,
+    "scramble_length": 300,
+    "mode": "anchor_patterns",
+    "success": false,
+    "message": "InterruptedError",
+    "seconds": 45.0
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 223,
+    "scramble_length": 1000,
+    "mode": "previous_patterns",
+    "success": false,
+    "message": "InterruptedError",
+    "seconds": 45.0
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 223,
+    "scramble_length": 1000,
+    "mode": "anchor_patterns",
+    "success": false,
+    "message": "InterruptedError",
+    "seconds": 45.0
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 21,
+    "scramble_length": 400,
+    "mode": "previous_patterns",
+    "success": true,
+    "input_unchanged": true,
+    "history_empty": true,
+    "moves": 31,
+    "seconds": 1.038
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 21,
+    "scramble_length": 400,
+    "mode": "anchor_patterns",
+    "success": false,
+    "message": "InterruptedError",
+    "seconds": 45.0
+  }
+]

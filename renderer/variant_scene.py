@@ -8,6 +8,7 @@ import math
 
 from cube.appearance import PENROSE, PENROSE_RGB, kind_for, frame_for
 from cube.coordinates import FACE_NORMALS, get_d_maxc
+from renderer.entry_style import UNENTERED,PLASTIC,shade_unentered
 
 _FACES = (
     ('R', (1,0,0), ((.5,-.5,-.5),(.5,.5,-.5),(.5,.5,.5),(.5,-.5,.5))),
@@ -36,6 +37,11 @@ def _inverse(frame,p): return tuple(_dot(axis,p) for axis in frame)
 def _bilinear(verts,u,v):
     return tuple((1-u)*(1-v)*verts[0][i]+u*(1-v)*verts[1][i]
                  +u*v*verts[2][i]+(1-u)*v*verts[3][i] for i in range(3))
+
+
+def penrose_radius(n, half, cubie_width):
+    # Penrose Cube.xml: W=.5, R=2*W/3. Keep unverified orders independent.
+    return half if n==2 else 2*half/3 if n==3 else .78*cubie_width
 
 
 def _penrose_point(p,half,radius):
@@ -138,7 +144,7 @@ def _build_variant_scene(cube,moving_positions=None,rotation=None,highlight=None
     signatures={}
 
     def shell_point(p,pos):
-        return _penrose_point(p,half,.78*d) if kind in PENROSE and pos not in unresolved else p
+        return _penrose_point(p,half,penrose_radius(cube.n,half,d)) if kind in PENROSE and pos not in unresolved else p
 
     def signature(pos,face):
         key=(pos,face)
@@ -159,7 +165,8 @@ def _build_variant_scene(cube,moving_positions=None,rotation=None,highlight=None
         length=math.sqrt(_dot(normal,normal)) or 1.
         light=max(0.,_dot(normal,(.28,.73,.62))/length)
         shade=.77+.23*light
-        rgba=tuple(c*shade for c in color[:3])+(color[3],)
+        rgba=(shade_unentered(tuple(v/length for v in normal)) if color==UNENTERED else
+              tuple(c*shade for c in color[:3])+(color[3],))
         if highlight is not None and cube.cubies[pos].home not in highlight:
             rgba=tuple(c*.35+.12 for c in rgba[:3])+(rgba[3],)
         if moving_positions is not None and pos in moving_positions and rotation is not None:
@@ -182,15 +189,16 @@ def _build_variant_scene(cube,moving_positions=None,rotation=None,highlight=None
                     continue
             face_label=face if outer else None
             raw=cub.stickers.get(normal,'')
-            color=(PENROSE_RGB if kind in PENROSE else _RGB).get(raw,(.17,.19,.23,1.))
-            if not outer:color=(.045,.05,.055,1.)
+            color=(PENROSE_RGB if kind in PENROSE else _RGB).get(raw,UNENTERED)
+            if not outer:color=PLASTIC
             corners=tuple(tuple(pos[i]+d*p[i] for i in range(3)) for p in local)
             home_corners=tuple(_inverse(frame,p) for p in corners)
             if kind in PENROSE and pos not in unresolved:
-                radius=.78*d
+                radius=penrose_radius(cube.n,half,d)
                 # Only curved pieces need subdivision. Flat centre patches
                 # keep the ordinary renderer's small surface count.
-                curved=any(_penrose_point(p,half,radius)!=p for p in home_corners)
+                curved=any(any(abs(a-b)>1e-9 for a,b in zip(_penrose_point(p,half,radius),p))
+                           for p in home_corners)
                 steps_u=steps_v=1
                 cap=False
                 if curved:

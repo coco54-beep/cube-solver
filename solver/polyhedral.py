@@ -3,6 +3,7 @@
 Strong generating sequences are sifted on sticker permutations, rather than
 on stored scrambles. Input identification is restricted to legal piece orbits.
 """
+from cube.cuboid import CUBOID_PREFIXES
 from collections import Counter, defaultdict, deque
 from functools import lru_cache
 from pathlib import Path
@@ -467,7 +468,7 @@ _OPTIMIZE_BUDGET=3.0
 #: The prism family starts from much longer words, so its instability search is
 #: given a larger budget. A per-order target lets easy states stop early while
 #: hard states keep searching, which flattens the long tail of solution sizes.
-_OPTIMIZE_HEAVY_BUDGET=18.0
+_OPTIMIZE_HEAVY_BUDGET=6.0
 _OPTIMIZE_TARGETS={('pentahedron',4):600,('pentahedron',5):750}
 
 
@@ -483,13 +484,52 @@ def _optimize_plan(cube):
     if cube.puzzle_kind == 'dayan_dino_skewb':
         return .2, 160
     if cube.puzzle_kind=='war_drum':
-        return 6.0,None
+        return 1.5,None
     if cube.puzzle_kind in _OPTIMIZE_KINDS:
         return _OPTIMIZE_BUDGET,None
     return None
 
 
 def solve_polyhedral(cube,cancel=None,progress=None):
+    if cube.puzzle_kind=='kairis_star_finder':
+        from solver.star_finder import solve
+        solution=solve(cube,cancel,progress)
+        from solver.solution_loops import shorten_polyhedral_word
+        return shorten_polyhedral_word(cube,solution,cancel)
+    if cube.puzzle_kind=='megaminx_ball':
+        from cube.megaminx_ball import solve
+        return solve(cube,cancel,progress)
+    if cube.puzzle_kind=='aj_curvy_dinominx_4':
+        from solver.curvy_dinominx import solve
+        solution=solve(cube,cancel,progress)
+        from solver.solution_loops import shorten_polyhedral_word
+        return shorten_polyhedral_word(cube,solution,cancel)
+    if cube.puzzle_kind=='mf8_bauhinia_minx':
+        from solver.rex_dodecahedron import solve
+        solution=solve(cube,cancel,progress)
+        from solver.solution_loops import shorten_polyhedral_word
+        return shorten_polyhedral_word(cube,solution,cancel)
+    if cube.puzzle_kind=='yeet_ball':
+        from cube.yeet_ball import solve
+        return solve(cube,cancel,progress)
+    if cube.puzzle_kind in ('time_machine','bean_6','bean_10'):
+        from solver.dial_beans import solve
+        return solve(cube,cancel,progress)
+    if cube.puzzle_kind=='starminx_i':
+        from solver.starminx import solve_starminx
+        from solver.solution_loops import shorten_polyhedral_word
+        return shorten_polyhedral_word(cube,solve_starminx(cube,cancel,progress),cancel)
+    if cube.puzzle_kind=='master_brilic':
+        from solver.master_brilic import solve_master_brilic
+        solution=solve_master_brilic(cube,cancel,progress)
+        from solver.solution_loops import shorten_polyhedral_word
+        return shorten_polyhedral_word(cube,solution,cancel)
+    from candidate_puzzles import POLYHEDRAL_KINDS,DOGIC_KINDS,SIAMESE_KINDS,PRISM_KINDS
+    if cube.puzzle_kind in POLYHEDRAL_KINDS|DOGIC_KINDS|SIAMESE_KINDS|PRISM_KINDS|{'masterball','rubik_cheese','pyraminx_diamond','cheese_3'}:
+        from solver.expanded_polyhedra import solve_expanded
+        solution=solve_expanded(cube,cancel,progress)
+        from solver.solution_loops import shorten_polyhedral_word
+        return shorten_polyhedral_word(cube,solution,cancel)
     if cube.puzzle_kind=='o2':
         from solver.o2 import solve_o2
         return solve_o2(cube,cancel,progress)
@@ -520,7 +560,7 @@ def solve_polyhedral(cube,cancel=None,progress=None):
             if progress:
                 progress(1,1)
             return word
-    if cube.puzzle_kind.startswith(('cuboid_','camouflage_3')):
+    if cube.puzzle_kind.startswith(CUBOID_PREFIXES):
         from solver.cuboid import solve_cuboid
         return solve_cuboid(cube,cancel,progress)
     if cube.puzzle_kind.startswith(('crazy_','circle_2')):
@@ -535,13 +575,13 @@ def solve_polyhedral(cube,cancel=None,progress=None):
     if cube.puzzle_kind == 'pyraminx_duo':
         from solver.pyraminx_duo import solve_pyraminx_duo
         return solve_pyraminx_duo(cube,cancel,progress)
-    if cube.puzzle_kind == 'fisher_skewb':
+    if cube.puzzle_kind in ('fisher_skewb','container'):
         from solver.fisher_skewb import solve_fisher_skewb
         return solve_fisher_skewb(cube,cancel,progress)
     if cube.puzzle_kind == 'mirror_skewb':
         from solver.mirror_skewb import solve_mirror_skewb
         return solve_mirror_skewb(cube,cancel,progress)
-    if cube.puzzle_kind == 'mirror_pyraminx':
+    if cube.puzzle_kind in ('mirror_pyraminx','mirror_kilominx','mirror_megaminx'):
         from solver.mirror_pyraminx import solve_mirror_pyraminx
         return solve_mirror_pyraminx(cube,cancel,progress)
     solution=_solve_and_optimize(cube,cancel,progress)

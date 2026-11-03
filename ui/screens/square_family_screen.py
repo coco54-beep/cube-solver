@@ -1,4 +1,5 @@
 """SQ family piece-card entry and legal turns, sharing the SQ-1 player."""
+from ui.entry_feedback import validation_action
 from kivy.uix.label import Label
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.spinner import Spinner
@@ -15,6 +16,7 @@ from ui.widgets.buttons import UIButton,PrimaryButton,DangerButton
 from ui.widgets.layouts import AdaptiveSceneLayout,ResponsiveBoxLayout
 from ui.widgets import metrics as m
 from ui.widgets.puzzle_preview import PassivePreview
+from ui.widgets.entry_controls import entry_header,entry_actions,EntryGalleryPager,GALLERY_PAGE_SIZE
 
 
 class _PieceCard(PassivePreview,SquareFamilyView):
@@ -33,6 +35,9 @@ class SquareFamilyScreen(Square1Screen):
         keys = ('top','inner_top','inner_bottom','bottom') if self._cube.layer_count == 4 else ('top','bottom')
         return tuple(tr('sq.layer_'+key) for key in keys)
 
+    def entry_help_text(self):
+        return tr('sq.input',done=sum(p>=0 for p in self._entry.slots),total=len(self._entry.slots))
+
     def _build(self):
         if self._playback:
             super()._build()
@@ -42,11 +47,8 @@ class SquareFamilyScreen(Square1Screen):
             self._cancel_step()
         self.clear_widgets()
         root = AdaptiveSceneLayout()
-        top = ResponsiveBoxLayout(height_px=44,gap_px=8)
-        self._button(top,'back',self.back)
         self.title = Label(text=tr('directory.sq_family'),size_hint_x=4,font_size='20sp')
-        top.add_widget(self.title)
-        self._button(top,'reset',self.reset_view)
+        top,self.btn_back,self.demo_button=entry_header(self.title,self.back,self.open_entry_help)
         root.add_widget(top)
         self.view = self.view_class()
         self.view.lock_rotation = True
@@ -71,11 +73,9 @@ class SquareFamilyScreen(Square1Screen):
         panel.add_widget(self.ring)
         self.gallery = GridLayout(cols=4,size_hint_y=None,height=m.h(140),spacing=m.h(5))
         panel.add_widget(self.gallery)
-        pages = ResponsiveBoxLayout(height_px=32,gap_px=7)
-        self._button(pages,'prev',lambda:self.change_gallery(-1))
-        self.page_label = Label(font_size='13sp')
-        pages.add_widget(self.page_label)
-        self._button(pages,'next',lambda:self.change_gallery(1))
+        pages=EntryGalleryPager(self.change_gallery)
+        self.gallery_pages=pages
+        self.page_label=pages.label
         panel.add_widget(pages)
         row = ResponsiveBoxLayout(height_px=36,gap_px=7)
         self.middle_buttons = []
@@ -85,14 +85,12 @@ class SquareFamilyScreen(Square1Screen):
             self.middle_buttons.append(button)
             row.add_widget(button)
         panel.add_widget(row)
-        row = ResponsiveBoxLayout(height_px=48,gap_px=6)
-        for icon,callback,cls in (('random',self.randomize,UIButton),('clear',self.clear,DangerButton),
-                                  ('undo',self.undo,UIButton),('target',self.assign_initial,UIButton),
-                                  ('solve',self.solve,PrimaryButton)):
-            self._button(row,icon,callback,cls)
+        row,self.entry_action_buttons=entry_actions(randomize=self.randomize,clear=self.clear,
+            undo=self.undo,assign=self.assign_initial,solve=self.solve)
         panel.add_widget(row)
         row = ResponsiveBoxLayout(height_px=40,gap_px=6)
         self._button(row,'prev',lambda:self.view.turn_view(-1))
+        self._button(row,'reset',self.reset_view)
         self._button(row,'next',lambda:self.view.turn_view(1))
         panel.add_widget(row)
         self.panel = panel
@@ -171,16 +169,17 @@ class SquareFamilyScreen(Square1Screen):
         return [home for home in grouped.values() if home not in used]
 
     def _build_gallery(self):
+        token=self.entry_gallery_generation()
         self.gallery.clear_widgets()
         homes = self._homes()
-        pages = max(1,(len(homes)+7)//8)
-        self._gallery_page = max(0,min(self._gallery_page,pages-1))
-        self.page_label.text = f'{self._gallery_page+1}/{pages}'
+        pages = max(1,(len(homes)+GALLERY_PAGE_SIZE-1)//GALLERY_PAGE_SIZE)
+        self._gallery_page = self.gallery_pages.set_page(self._gallery_page,pages)
         current = self._entry.blocks.get(self._entry.slots[self._slot])
-        for home in homes[self._gallery_page*8:self._gallery_page*8+8]:
+        for home in homes[self._gallery_page*GALLERY_PAGE_SIZE:(self._gallery_page+1)*GALLERY_PAGE_SIZE]:
             button = UIButton(active=current is not None and current.confirmed and
                               self._cube.specs[current.home] == self._cube.specs[home])
             preview = self._entry.clone()
+            preview.show_entry_scaffold = False
             preview.slots = [-1]*len(preview.slots)
             preview.blocks = {0:SquareFamilyBlock(home,True)}
             for i in range(self._cube.specs[home].width):
@@ -195,7 +194,8 @@ class SquareFamilyScreen(Square1Screen):
             button.add_widget(view)
             button.bind(pos=lambda b,*_:setattr(b.children[0],'pos',(b.x+m.h(2),b.y+m.h(2))),
                         size=lambda b,*_:setattr(b.children[0],'size',(max(2,b.width-m.h(4)),max(2,b.height-m.h(4)))))
-            button.bind(on_release=lambda *_,h=home:self.choose_piece(h))
+            button.bind(on_release=lambda *_,h=home,t=token:
+                        self.entry_gallery_action(t,self.choose_piece,h))
             self.gallery.add_widget(button)
 
     def change_gallery(self,direction):
@@ -247,6 +247,7 @@ class SquareFamilyScreen(Square1Screen):
     def entry_can_assign(self):
         return self.entry_can_edit()
 
+    @validation_action
     def validate(self):
         if not self.entry_can_edit():
             return False

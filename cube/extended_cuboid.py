@@ -15,6 +15,8 @@ CORE_DIMENSIONS = {
     'cuboid_224': (2, 2, 2), 'cuboid_335': (3, 3, 3),
     'cuboid_446': (4, 4, 4), 'cuboid_234': (2, 2, 3),
 }
+from cube.letter_cube import EXTENSIONS
+CORE_DIMENSIONS.update({kind:(3,3,3) for kind in EXTENSIONS})
 
 
 @lru_cache(maxsize=4)
@@ -77,7 +79,8 @@ class ExtendedCuboid(CuboidCube):
         if self._geometry_cache is not None:
             return self._geometry_cache
         dims = self.core_dimensions
-        cells, boxes, entries, lookup, base = extended_layout(self.puzzle_kind)
+        from cube.cuboid import layout
+        cells, boxes, entries, lookup, base = layout(self.puzzle_kind)
         current = tuple(tuple(transform(f, p) for p in g) for f, g in zip(self.frames, cells))
         flat = [p for g in current for p in g]
         if len(set(flat)) != len(flat):
@@ -90,7 +93,10 @@ class ExtendedCuboid(CuboidCube):
         demanded = set()
         for i, g in enumerate(cells[:self.core_count]):
             p = g[0]
-            if abs(p[1]) == dims[1]-1:
+            if self.puzzle_kind in EXTENSIONS:
+                from cube.letter_cube import extension_demands
+                demanded.update(transform(self.frames[i],q) for q in extension_demands(self.puzzle_kind,p))
+            elif abs(p[1]) == dims[1]-1:
                 demanded.add(transform(self.frames[i], (p[0], (dims[1]+1)*(1 if p[1] > 0 else -1), p[2])))
         if outer != demanded:
             raise ValueError('Outer extensions do not match the core')
@@ -145,9 +151,10 @@ class ExtendedCuboid(CuboidCube):
     def is_solved(self):
         if any(c != s.face for c, s in zip(self.colors, self.geometry.stickers)):
             return False
-        _, boxes, *_ = extended_layout(self.puzzle_kind)
-        bounds = tuple(d/2 for d in self.dimensions)
-        return all(all(abs(p[a]) <= bounds[a]+1e-8 for a in range(3))
+        from cube.cuboid import layout
+        _, boxes, *_ = layout(self.puzzle_kind)
+        bounds=tuple((min(b[a][0] for b in boxes),max(b[a][1] for b in boxes)) for a in range(3))
+        return all(all(bounds[a][0]-1e-8 <= p[a] <= bounds[a][1]+1e-8 for a in range(3))
                    for f, box in zip(self.frames, boxes) for p in (transform(f, c) for c in product(*box)))
 
     def layer_labels(self, axis):

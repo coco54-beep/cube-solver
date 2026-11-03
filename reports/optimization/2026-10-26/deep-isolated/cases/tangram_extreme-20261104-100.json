@@ -1,0 +1,18 @@
+{
+  "kind": "tangram_extreme",
+  "seed": 20261104,
+  "scramble_turns": 100,
+  "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\deep-isolated\\inputs\\tangram_extreme-20261104-100.json",
+  "input_method": "visible panels / fixed bandage layout",
+  "history_empty": true,
+  "visible_entry_matches": true,
+  "input_seconds": 3.828,
+  "success": false,
+  "moves": 0,
+  "failure_category": "cancelled",
+  "solve_seconds": 20.047,
+  "message": "Cancelled",
+  "evaluation_budget_hit": true,
+  "seconds": 23.875,
+  "shortening": []
+}

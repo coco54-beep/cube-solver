@@ -100,6 +100,13 @@ class MirrorPyraminxCube:
     def piece_faces(self, home):
         return piece_faces(self.n, home, self.mechanism_kind)
 
+    def rotation_frames(self):return frames()
+
+    def marker_model(self):return marker_system(self.n,self.mechanism_kind)
+
+    def placement_frames(self,home,position):
+        return placements(self.n,home,position,self.mechanism_kind)
+
     def moves(self):
         return tuple(Move(axis, layer) for axis, layers in enumerate(self.geometry.layers)
                      for layer in range(len(layers)))
@@ -121,8 +128,9 @@ class MirrorPyraminxCube:
     def apply_move(self, move):
         g = self.geometry
         permutation = g.permutation(move)
-        turn = tuple(rotate(v, g.spec.axes[move.axis], 2*math.pi*(move.amount % 3)/3) for v in IDENTITY)
-        canonical = {frame_key(frame): frame for frame in frames()}
+        order=g.spec.turn_order
+        turn = tuple(rotate(v, g.spec.axes[move.axis], 2*math.pi*(move.amount % order)/order) for v in IDENTITY)
+        canonical = {frame_key(frame): frame for frame in self.rotation_frames()}
         result = dict(self.pieces)
         for position in g.layers[move.axis][move.layer]:
             piece = self.pieces[position]
@@ -132,7 +140,7 @@ class MirrorPyraminxCube:
         return self
 
     def labeled_state(self):
-        points, index, _ = marker_system(self.n, self.mechanism_kind)
+        points, index, _ = self.marker_model()
         expected = set(range(len(self.geometry.pieces)))
         if set(self.pieces) != expected:
             raise ValueError('Incomplete mirror piece state')
@@ -140,7 +148,7 @@ class MirrorPyraminxCube:
         if set(by_home) != expected:
             raise ValueError('Duplicate mirror piece')
         for position, piece in self.pieces.items():
-            if frame_key(piece.frame) not in {frame_key(f) for f in placements(self.n, piece.home, position, self.mechanism_kind)}:
+            if frame_key(piece.frame) not in {frame_key(f) for f in self.placement_frames(piece.home,position)}:
                 raise ValueError('Impossible mirror piece orientation')
         return tuple(index[(orbit, frame_key(multiply(by_home[home].frame, frame)))]
                      for orbit, home, frame in points)
@@ -155,7 +163,7 @@ class MirrorPyraminxCube:
 
     @colors.setter
     def colors(self, values):
-        points, _, _ = marker_system(self.n, self.mechanism_kind)
+        points, _, _ = self.marker_model()
         if sorted(values) != list(range(len(points))):
             raise ValueError('Incomplete mirror piece state')
         state = [0] * len(values)

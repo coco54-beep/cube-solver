@@ -19,3 +19,7 @@ class SolveResult:
     elapsed_ms: int
     move_count: int
     stages: list = field(default_factory=list)
+    failure_kind: str = ''
+    failure_category: str = ''
+    error_locations: list = field(default_factory=list)
+    prepared_cube: object = None  # Optional verified completion of invisible material.

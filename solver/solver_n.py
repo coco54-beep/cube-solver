@@ -15,6 +15,10 @@ from solver.result import SolveResult, SolveStage
 from solver import nxn_orbits as orbit
 
 
+class CoreParityError(ValueError):
+    """A legal odd-order middle slice has opposite corner/middle-edge parity."""
+
+
 def canonical_cube(cube):
     work = cube.clone()
     if cube.n % 2:
@@ -52,6 +56,10 @@ def core_facelets(cube):
         # corner permutation's parity to form a legal 3×3 search problem.
         cc.ep[0], cc.ep[1] = cc.ep[1], cc.ep[0]
     if cc.verify() != _tcubie.CUBE_OK:
+        if cube.n>=5 and cube.n%2 and cc.edge_parity()!=cc.corner_parity():
+            cc.ep[0],cc.ep[1]=cc.ep[1],cc.ep[0]
+            if cc.verify()==_tcubie.CUBE_OK:
+                raise CoreParityError('nxn.error.core')
         raise ValueError("nxn.error.core")
     string = cc.to_facelet_cube().to_string()
     return {face: [[DEFAULT_COLORS[string[k * 9 + r * 3 + c]] for c in range(3)]
@@ -150,6 +158,12 @@ def _compress_pass(moves, n):
         block_axis, block = None, []
 
     for move in moves:
+        if move and move[0] in 'MES':
+            # Physical middle slices preserve fixed centres. They cannot be
+            # folded into the rigid wide-turn vector used below.
+            flush()
+            result.append(move)
+            continue
         face, layers, count = parse_move_full(move)
         if face not in FACE_AXIS_SIGN:
             flush()
@@ -164,22 +178,16 @@ def _compress_pass(moves, n):
     return result
 
 
-def solve_nxn(cube, cancel_event=None, progress_callback=None,optimize_shapes=True):
-    if getattr(cube,'puzzle_kind',None) is not None and optimize_shapes:
-        started=time.perf_counter()
-        baseline=_solve_nxn(cube,cancel_event,progress_callback)
-        if not baseline.success:
-            return baseline
-        candidate=_solve_nxn(cube,cancel_event,progress_callback,short_shape_centers=True)
-        if cancel_event is not None and cancel_event.is_set():
-            return candidate
-        result=candidate if candidate.success and len(candidate.moves)<len(baseline.moves) else baseline
-        result.elapsed_ms=int((time.perf_counter()-started)*1000)
-        return result
-    return _solve_nxn(cube,cancel_event,progress_callback)
+def solve_nxn(cube, cancel_event=None, progress_callback=None, optimize_shapes=True):
+    # Shape puzzles use the same core/wing prefix for both centre plans.
+    # Compare the two centre suffixes inside one solve instead of solving the
+    # whole puzzle twice.
+    return _solve_nxn(cube, cancel_event, progress_callback,
+                      compare_shape_centers=optimize_shapes)
 
 
-def _solve_nxn(cube, cancel_event=None, progress_callback=None,short_shape_centers=False):
+def _solve_nxn(cube, cancel_event=None, progress_callback=None,short_shape_centers=False,
+               compare_shape_centers=False):
     started = time.perf_counter()
     all_moves, stages = [], []
 
@@ -204,7 +212,17 @@ def _solve_nxn(cube, cancel_event=None, progress_callback=None,short_shape_cente
     try:
         cancel()
         emit("nxn.solving.inspect", .02)
-        work, wings, centers = inspect_state(cube)
+        try:
+            work, wings, centers = inspect_state(cube)
+        except CoreParityError:
+            # Independent physical middle slices can give a 5x5 (or larger
+            # odd cube) a 3x3 core with odd edge parity. Correct it on the
+            # real cube; do not silently swap entered edge colours.
+            cancel()
+            corrected=cube.clone();corrected.apply_move('M')
+            work,wings,centers=inspect_state(corrected)
+            all_moves.append('M')
+            stages.append(SolveStage('nxn_core_parity','nxn.solving.core',['M']))
         emit("nxn.solving.core", .05)
         from solver.solver3 import solve_3x3
         core = solve_3x3(core_facelets(work))
@@ -304,7 +322,41 @@ def _solve_nxn(cube, cancel_event=None, progress_callback=None,short_shape_cente
                 stages[:]=alternate_stages
                 work=alternate_work
         else:
+            # Both centre plans start after the same core, wing and fixed-centre
+            # prefix. Build the alternative suffix from a clone, then pick the
+            # shorter complete word. This avoids a second full reduction.
+            prefix_work = work.clone()
+            prefix_moves = list(all_moves)
+            prefix_stages = list(stages)
             solve_center_orbits()
+            if compare_shape_centers:
+                try:
+                    from solver.nxn_optimize import identity_center_atoms
+                    alternate_work = prefix_work.clone()
+                    alternate_moves = list(prefix_moves)
+                    alternate_stages = list(prefix_stages)
+                    for k, positions in enumerate(centers):
+                        cancel()
+                        emit('nxn.solving.centers', .5 + .46 * k / max(1, len(centers)),
+                             i=k + 1, total=len(centers))
+                        other = _compress(orbit.expand(
+                            identity_center_atoms(alternate_work, positions, cancel),
+                            alternate_work.n), alternate_work.n)
+                        for move in other:
+                            cancel()
+                            alternate_work.apply_move(move)
+                        alternate_moves.extend(other)
+                        alternate_stages.append(SolveStage('nxn_centers',
+                                                            'nxn.solving.centers', other))
+                    baseline_moves = _compress(all_moves, work.n)
+                    alternate_moves = _compress(alternate_moves, alternate_work.n)
+                    if alternate_work.is_solved() and len(alternate_moves) < len(baseline_moves):
+                        all_moves[:] = alternate_moves
+                        stages[:] = alternate_stages
+                        work = alternate_work
+                except (ValueError, RuntimeError):
+                    # Keep the already verified baseline centres.
+                    pass
         emit("nxn.solving.replay", .98)
         moves = _compress(all_moves, work.n)
         replay = cube.clone()

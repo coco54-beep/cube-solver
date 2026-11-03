@@ -1,0 +1,22 @@
+[
+  {
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "moves": 230,
+    "randomize_undo": true,
+    "cancel_keeps_input": true
+  },
+  {
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "moves": 230,
+    "randomize_undo": true,
+    "cancel_keeps_input": true
+  }
+]

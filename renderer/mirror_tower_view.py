@@ -5,10 +5,12 @@ from cube.mastermorphix import transform
 from cube.polyhedral import add,scale,cross,dot,unit,rotate
 from renderer.square1_view import Square1View
 from renderer.polyhedral_view import PolyhedralTwistView
-from renderer.mirror_material import SILVER, PANEL_BORDER, inset_panel, shade_surface
+from renderer.mirror_material import SILVER, shade_surface
+from renderer.entry_style import surface_panel
 
 
 class MirrorTowerView(Square1View):
+    shell_scale=.64
     camera_target=scale(SHELL_OFFSET,.64)
     def _inset(self,points):
         return points
@@ -19,8 +21,8 @@ class MirrorTowerView(Square1View):
     def _surface_shade(self, normal, eye, light, rgba, color, recorded):
         return shade_surface(normal,eye,color>=0,recorded)
 
-    @staticmethod
-    def _surfaces(cube):
+    @classmethod
+    def _surfaces(cls,cube):
         result=[]
         for pos,piece in cube.pieces.items():
             faces=(cube.piece_faces(piece.home) if hasattr(cube,'piece_faces') else piece_faces(piece.home))
@@ -32,16 +34,15 @@ class MirrorTowerView(Square1View):
                     continue
                 normal=unit(normal)
                 def placed(p):
-                    return scale(transform(piece.frame,p),.64)
+                    return scale(transform(piece.frame,p),cls.shell_scale)
                 points=tuple(placed(p) for p in vertices)
                 world_normal=transform(piece.frame,normal)
-                # Black housing surrounds each inset silver panel. Keep a
-                # fixed border width even when neighbouring pieces differ.
+                # Closed housing behind a full face. Seams have screen width.
                 result.append((points,world_normal,-1,
                                cube.geometry.pieces[pos][0],0,pos,1))
                 if color<0:
                     continue
-                panel=inset_panel(tuple(vertices),normal,PANEL_BORDER/.64)
+                panel=surface_panel(vertices,normal)
                 if panel:
                     result.append((tuple(placed(p) for p in panel),
                                    world_normal,color,cube.geometry.pieces[pos][0],0,pos,1))

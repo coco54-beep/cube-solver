@@ -13,6 +13,7 @@ from ui.widgets.buttons import UIButton, PrimaryButton, DangerButton
 from ui.widgets.dialogs import theme_popup
 from ui.widgets.layouts import AdaptiveSceneLayout, ResponsiveBoxLayout
 from ui.widgets.camera_follow import follow_panel
+from ui.widgets.entry_controls import entry_actions
 
 
 class TangramColorLayout:
@@ -33,7 +34,7 @@ class TangramColorLayout:
         self._turn_token = None
         screen._busy_turn = False
         self.active = False
-        top = ResponsiveBoxLayout(height_px=44, gap_px=6)
+        top = ResponsiveBoxLayout(height_px=44, gap_px=8)
         back = self.button(top, 'back', screen.back)
         back.size_hint_x = .22
         self.top = top
@@ -48,7 +49,7 @@ class TangramColorLayout:
         self.face_info = Label(size_hint_y=None, height=m.h(48), font_size='12sp',
                                halign='center', valign='middle')
         self.face_info.bind(size=lambda w, *_: setattr(w, 'text_size', w.size))
-        nav = ResponsiveBoxLayout(height_px=44, gap_px=5)
+        nav = ResponsiveBoxLayout(height_px=44, gap_px=6)
         self.button(nav, 'prev', lambda: self.change_face(-1))
         self.button(nav, 'gear', screen.customize)
         self.rotate_button = self.button(nav, 'reset', self.shapes.rotate)
@@ -56,16 +57,10 @@ class TangramColorLayout:
         self.view_button.bind(on_release=lambda *_: self.toggle_view())
         nav.add_widget(self.view_button)
         self.button(nav, 'next', lambda: self.change_face(1))
-        actions = ResponsiveBoxLayout(height_px=48, gap_px=5)
-        self.edit_buttons = []
-        for icon, callback, cls in (
-                ('twist', screen.open_twist, UIButton),
-                ('random', screen.randomize, UIButton),
-                ('clear', self.confirm_clear, DangerButton),
-                ('undo', screen.undo, UIButton),
-                ('target', screen.assign_initial, UIButton),
-                ('solve', self.solve_or_cancel, PrimaryButton)):
-            self.edit_buttons.append(self.button(actions, icon, callback, cls))
+        actions,self.entry_action_buttons=entry_actions(twist=screen.open_twist,
+            randomize=screen.randomize,clear=self.confirm_clear,undo=screen.undo,
+            assign=screen.assign_initial,solve=self.solve_or_cancel)
+        self.edit_buttons=list(self.entry_action_buttons.values())
         self.undo_button = self.edit_buttons[3]
         self.solve_button = self.edit_buttons[-1]
         self.nav = nav
@@ -161,8 +156,9 @@ class TangramColorLayout:
         if extreme and self.shapes.location is not None and self.shapes.location[0] == screen._ao_face:
             self.view.selected = screen._ao_face * 1024 + self.shapes.location[1]
         if extreme and self.shapes.key is not None and self.shapes.key[0] == screen._ao_face:
+            item = self.shapes.selected_item()
             selected = next((i for i, p in enumerate(screen._ao_state['views'][screen._ao_face])
-                             if polygon_key(p['outline']) == self.shapes.key[1]), None)
+                             if p is item), None)
             if selected is not None:self.view.selected = screen._ao_face * 1024 + selected
         if not screen._busy_turn:
             self.view.set_whole_world(orientation.world)

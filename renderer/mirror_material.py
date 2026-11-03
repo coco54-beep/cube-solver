@@ -2,10 +2,11 @@
 from functools import lru_cache
 
 from cube.polyhedral import add, scale, cross, dot, unit, mean, clip
+from renderer.entry_style import UNENTERED,PLASTIC,shade_unentered,surface_panel
 
 SILVER = (.83, .84, .85, 1.)
-HOUSING = (.075, .085, .10, 1.)
-UNRECORDED = (.38, .45, .52, 1.)
+HOUSING = PLASTIC
+UNRECORDED = UNENTERED
 PANEL_BORDER = .028
 LIGHT = unit((-.3, .8, .52))
 
@@ -39,7 +40,7 @@ def shade_surface(normal, eye, silver=True, recorded=True):
     if not silver:
         return tuple(v*(.82+.18*diffuse) for v in HOUSING[:3])+(1.,)
     if not recorded:
-        return tuple(v*(.82+.18*diffuse) for v in UNRECORDED[:3])+(1.,)
+        return shade_unentered(normal)
     halfway = add(LIGHT, eye)
     highlight = (max(0., dot(normal, unit(halfway)))**28
                  if dot(halfway, halfway) > 1e-12 else 0.)
@@ -47,11 +48,11 @@ def shade_surface(normal, eye, silver=True, recorded=True):
 
 
 def panel_geometry(geometry):
-    """Keep the complete housing and overlay an inset silver exterior panel."""
+    """Closed housing with full silver panels and shared screen-space seams."""
     for points, normal, color, finish, outline in geometry:
         yield points, normal, color, 'cut', outline
         if finish != 'sticker':
             continue
-        panel = inset_panel(tuple(points), tuple(normal))
+        panel = surface_panel(points, normal)
         if panel:
             yield panel, normal, color, 'sticker', tuple((i, (i+1) % len(panel)) for i in range(len(panel)))

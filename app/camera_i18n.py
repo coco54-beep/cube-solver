@@ -122,7 +122,7 @@ for _lang, _text in {
     'zh': {
         'camera.choose_puzzle': '选择要拍照识别的魔方',
         'camera.ordinary': '普通魔方',
-        'camera.limit': '拍照识别仅支持五阶及以下',
+        'camera.limit': '按现有分类选择支持拍照的型号（五阶以内）',
         'camera.shape_title': '{name} · {n} 阶 · 拍照识别',
         'camera.surface_tip': '对齐各顶点和切线；点小模型改色。近似色可用取色校准',
         'camera.surface_progress': '{face} · 已识别 {done}/{total}',
@@ -140,7 +140,7 @@ for _lang, _text in {
     'en': {
         'camera.choose_puzzle': 'Choose a puzzle to scan',
         'camera.ordinary': 'Standard cube',
-        'camera.limit': 'Photo scanning supports orders up to five',
+        'camera.limit': 'Choose a supported model from the current catalogue (up to order five).',
         'camera.shape_title': '{name} · Order {n} · Photo scan',
         'camera.surface_tip': 'Align vertices and cuts. Tap the model to edit; calibrate similar colors.',
         'camera.surface_progress': '{face} · {done}/{total} faces',
@@ -158,7 +158,7 @@ for _lang, _text in {
     'ja': {
         'camera.choose_puzzle': '読み取るパズルを選択',
         'camera.ordinary': '通常のキューブ',
-        'camera.limit': '写真読み取りは5段以下に対応',
+        'camera.limit': '現在の分類から対応モデルを選択（5段以下）',
         'camera.shape_title': '{name} · {n}段 · 写真読み取り',
         'camera.surface_tip': '頂点と切れ目を合わせ、モデルで色を修正。似た色は校正できます。',
         'camera.surface_progress': '{face} · 認識済み {done}/{total} 面',

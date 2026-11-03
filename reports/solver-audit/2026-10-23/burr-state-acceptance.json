@@ -1,0 +1,434 @@
+[
+  {
+    "seed": 0,
+    "scramble_turns": 40,
+    "success": true,
+    "moves": 262,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.125
+  },
+  {
+    "seed": 1,
+    "scramble_turns": 40,
+    "success": true,
+    "moves": 193,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.047
+  },
+  {
+    "seed": 2,
+    "scramble_turns": 40,
+    "success": true,
+    "moves": 196,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.031
+  },
+  {
+    "seed": 3,
+    "scramble_turns": 40,
+    "success": true,
+    "moves": 249,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.063
+  },
+  {
+    "seed": 4,
+    "scramble_turns": 40,
+    "success": true,
+    "moves": 367,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.078
+  },
+  {
+    "seed": 5,
+    "scramble_turns": 40,
+    "success": true,
+    "moves": 191,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.047
+  },
+  {
+    "seed": 6,
+    "scramble_turns": 40,
+    "success": true,
+    "moves": 790,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.172
+  },
+  {
+    "seed": 7,
+    "scramble_turns": 40,
+    "success": true,
+    "moves": 173,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.047
+  },
+  {
+    "seed": 8,
+    "scramble_turns": 40,
+    "success": true,
+    "moves": 164,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.032
+  },
+  {
+    "seed": 9,
+    "scramble_turns": 40,
+    "success": true,
+    "moves": 301,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.063
+  },
+  {
+    "seed": 10,
+    "scramble_turns": 40,
+    "success": true,
+    "moves": 248,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.063
+  },
+  {
+    "seed": 11,
+    "scramble_turns": 40,
+    "success": true,
+    "moves": 400,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.093
+  },
+  {
+    "seed": 12,
+    "scramble_turns": 40,
+    "success": true,
+    "moves": 6,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.016
+  },
+  {
+    "seed": 13,
+    "scramble_turns": 40,
+    "success": true,
+    "moves": 318,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.062
+  },
+  {
+    "seed": 14,
+    "scramble_turns": 40,
+    "success": true,
+    "moves": 143,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.031
+  },
+  {
+    "seed": 15,
+    "scramble_turns": 40,
+    "success": true,
+    "moves": 288,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.078
+  },
+  {
+    "seed": 16,
+    "scramble_turns": 40,
+    "success": true,
+    "moves": 10,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.015
+  },
+  {
+    "seed": 17,
+    "scramble_turns": 40,
+    "success": true,
+    "moves": 813,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.172
+  },
+  {
+    "seed": 18,
+    "scramble_turns": 40,
+    "success": true,
+    "moves": 133,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.032
+  },
+  {
+    "seed": 19,
+    "scramble_turns": 40,
+    "success": true,
+    "moves": 6,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.0
+  },
+  {
+    "seed": 20,
+    "scramble_turns": 40,
+    "success": true,
+    "moves": 353,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.078
+  },
+  {
+    "seed": 21,
+    "scramble_turns": 40,
+    "success": true,
+    "moves": 216,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.047
+  },
+  {
+    "seed": 22,
+    "scramble_turns": 40,
+    "success": true,
+    "moves": 572,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.14
+  },
+  {
+    "seed": 23,
+    "scramble_turns": 40,
+    "success": true,
+    "moves": 264,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.063
+  },
+  {
+    "seed": 0,
+    "scramble_turns": 100,
+    "success": true,
+    "moves": 727,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.172
+  },
+  {
+    "seed": 1,
+    "scramble_turns": 100,
+    "success": true,
+    "moves": 374,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.078
+  },
+  {
+    "seed": 2,
+    "scramble_turns": 100,
+    "success": true,
+    "moves": 706,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.156
+  },
+  {
+    "seed": 3,
+    "scramble_turns": 100,
+    "success": true,
+    "moves": 216,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.047
+  },
+  {
+    "seed": 4,
+    "scramble_turns": 100,
+    "success": true,
+    "moves": 278,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.063
+  },
+  {
+    "seed": 5,
+    "scramble_turns": 100,
+    "success": true,
+    "moves": 992,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.235
+  },
+  {
+    "seed": 6,
+    "scramble_turns": 100,
+    "success": true,
+    "moves": 602,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.157
+  },
+  {
+    "seed": 7,
+    "scramble_turns": 100,
+    "success": true,
+    "moves": 178,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.047
+  },
+  {
+    "seed": 8,
+    "scramble_turns": 100,
+    "success": true,
+    "moves": 859,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.204
+  },
+  {
+    "seed": 9,
+    "scramble_turns": 100,
+    "success": true,
+    "moves": 344,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.078
+  },
+  {
+    "seed": 10,
+    "scramble_turns": 100,
+    "success": true,
+    "moves": 261,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.063
+  },
+  {
+    "seed": 11,
+    "scramble_turns": 100,
+    "success": true,
+    "moves": 376,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.094
+  },
+  {
+    "seed": 12,
+    "scramble_turns": 100,
+    "success": true,
+    "moves": 402,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.094
+  },
+  {
+    "seed": 13,
+    "scramble_turns": 100,
+    "success": true,
+    "moves": 538,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.125
+  },
+  {
+    "seed": 14,
+    "scramble_turns": 100,
+    "success": true,
+    "moves": 74,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.031
+  },
+  {
+    "seed": 15,
+    "scramble_turns": 100,
+    "success": true,
+    "moves": 264,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.063
+  },
+  {
+    "seed": 16,
+    "scramble_turns": 100,
+    "success": true,
+    "moves": 489,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.125
+  },
+  {
+    "seed": 17,
+    "scramble_turns": 100,
+    "success": true,
+    "moves": 211,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.063
+  },
+  {
+    "seed": 18,
+    "scramble_turns": 100,
+    "success": true,
+    "moves": 283,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.063
+  },
+  {
+    "seed": 19,
+    "scramble_turns": 100,
+    "success": true,
+    "moves": 116,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.031
+  },
+  {
+    "seed": 20,
+    "scramble_turns": 100,
+    "success": true,
+    "moves": 180,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.032
+  },
+  {
+    "seed": 21,
+    "scramble_turns": 100,
+    "success": true,
+    "moves": 181,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.047
+  },
+  {
+    "seed": 22,
+    "scramble_turns": 100,
+    "success": true,
+    "moves": 261,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.063
+  },
+  {
+    "seed": 23,
+    "scramble_turns": 100,
+    "success": true,
+    "moves": 359,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 0.094
+  }
+]

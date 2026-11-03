@@ -1,0 +1,158 @@
+[
+  {
+    "kind": "fused_cube",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "manual_scramble_steps": 100,
+    "no_scramble_history": true,
+    "matching": true,
+    "legal_turn": true,
+    "return_and_undo": true
+  },
+  {
+    "kind": "two_bar_cube",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "manual_scramble_steps": 100,
+    "no_scramble_history": true,
+    "matching": true,
+    "legal_turn": true,
+    "return_and_undo": true
+  },
+  {
+    "kind": "bandaged_c",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "manual_scramble_steps": 100,
+    "no_scramble_history": true,
+    "matching": true,
+    "legal_turn": true,
+    "return_and_undo": true
+  },
+  {
+    "kind": "bicube",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "manual_scramble_steps": 100,
+    "no_scramble_history": true,
+    "matching": true,
+    "legal_turn": true,
+    "return_and_undo": true
+  },
+  {
+    "kind": "ai_cube",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "manual_scramble_steps": 100,
+    "no_scramble_history": true,
+    "matching": true,
+    "legal_turn": true,
+    "return_and_undo": true
+  },
+  {
+    "kind": "burr_cube",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "manual_scramble_steps": 100,
+    "no_scramble_history": true,
+    "matching": true,
+    "legal_turn": true,
+    "return_and_undo": true
+  },
+  {
+    "kind": "fused_cube",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "manual_scramble_steps": 100,
+    "no_scramble_history": true,
+    "matching": true,
+    "legal_turn": true,
+    "return_and_undo": true
+  },
+  {
+    "kind": "two_bar_cube",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "manual_scramble_steps": 100,
+    "no_scramble_history": true,
+    "matching": true,
+    "legal_turn": true,
+    "return_and_undo": true
+  },
+  {
+    "kind": "bandaged_c",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "manual_scramble_steps": 100,
+    "no_scramble_history": true,
+    "matching": true,
+    "legal_turn": true,
+    "return_and_undo": true
+  },
+  {
+    "kind": "bicube",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "manual_scramble_steps": 100,
+    "no_scramble_history": true,
+    "matching": true,
+    "legal_turn": true,
+    "return_and_undo": true
+  },
+  {
+    "kind": "ai_cube",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "manual_scramble_steps": 100,
+    "no_scramble_history": true,
+    "matching": true,
+    "legal_turn": true,
+    "return_and_undo": true
+  },
+  {
+    "kind": "burr_cube",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "manual_scramble_steps": 100,
+    "no_scramble_history": true,
+    "matching": true,
+    "legal_turn": true,
+    "return_and_undo": true
+  }
+]

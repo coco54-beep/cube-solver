@@ -1,0 +1,62 @@
+[
+  {
+    "input_file": "reports\\optimization\\2026-10-26\\brilic-ranked\\inputs\\master_brilic-20261102-100.json",
+    "before": 3064,
+    "after": 2733,
+    "saved": 331,
+    "baseline_seconds": 0.709,
+    "optimized_seconds": 0.723,
+    "both_replay_solved": true,
+    "input_unchanged": true
+  },
+  {
+    "input_file": "reports\\optimization\\2026-10-26\\brilic-ranked\\inputs\\master_brilic-20261102-30.json",
+    "before": 2840,
+    "after": 2564,
+    "saved": 276,
+    "baseline_seconds": 0.441,
+    "optimized_seconds": 0.692,
+    "both_replay_solved": true,
+    "input_unchanged": true
+  },
+  {
+    "input_file": "reports\\optimization\\2026-10-26\\brilic-ranked\\inputs\\master_brilic-20261103-100.json",
+    "before": 3122,
+    "after": 2847,
+    "saved": 275,
+    "baseline_seconds": 0.442,
+    "optimized_seconds": 0.693,
+    "both_replay_solved": true,
+    "input_unchanged": true
+  },
+  {
+    "input_file": "reports\\optimization\\2026-10-26\\brilic-ranked\\inputs\\master_brilic-20261103-30.json",
+    "before": 2374,
+    "after": 2126,
+    "saved": 248,
+    "baseline_seconds": 0.436,
+    "optimized_seconds": 0.704,
+    "both_replay_solved": true,
+    "input_unchanged": true
+  },
+  {
+    "input_file": "reports\\optimization\\2026-10-26\\brilic-ranked\\inputs\\master_brilic-20261104-100.json",
+    "before": 3142,
+    "after": 2839,
+    "saved": 303,
+    "baseline_seconds": 0.419,
+    "optimized_seconds": 0.69,
+    "both_replay_solved": true,
+    "input_unchanged": true
+  },
+  {
+    "input_file": "reports\\optimization\\2026-10-26\\brilic-ranked\\inputs\\master_brilic-20261104-30.json",
+    "before": 2670,
+    "after": 2370,
+    "saved": 300,
+    "baseline_seconds": 0.409,
+    "optimized_seconds": 0.649,
+    "both_replay_solved": true,
+    "input_unchanged": true
+  }
+]

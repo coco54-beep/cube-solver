@@ -1,0 +1,226 @@
+[
+  {
+    "kind": "i_cube",
+    "mechanism": "extended",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "l_cube",
+    "mechanism": "extended",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "t_cube",
+    "mechanism": "extended",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "x_cube",
+    "mechanism": "extended",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "tri_cube",
+    "mechanism": "extended",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "temple_cube",
+    "mechanism": "extended",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "cross_cube",
+    "mechanism": "extended",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "siamese_a",
+    "mechanism": "siamese",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "siamese_b",
+    "mechanism": "siamese",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "trajber",
+    "mechanism": "shape",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "pyraminx_diamond",
+    "mechanism": "diamond",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "pyraminx_crystal",
+    "mechanism": "polyhedral",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "starminx_i",
+    "mechanism": "polyhedral",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "pentultimate",
+    "mechanism": "polyhedral",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "master_pentultimate",
+    "mechanism": "polyhedral",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "dodecahedron_2",
+    "mechanism": "shape",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "rediminx",
+    "mechanism": "polyhedral",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "dodecahedron_3",
+    "mechanism": "shape",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "dogic_i",
+    "mechanism": "dogic",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "container",
+    "mechanism": "skewb_shell",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "rubik_cheese",
+    "mechanism": "cheese",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "cheese_3",
+    "mechanism": "cheese",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "masterball",
+    "mechanism": "masterball",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "pentagonal_domino",
+    "mechanism": "prism",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "pentagonal_prism",
+    "mechanism": "prism",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "pentagonal_4",
+    "mechanism": "prism",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "professor_pentagonal",
+    "mechanism": "prism",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "dogic_20",
+    "mechanism": "dogic",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "master_brilic",
+    "mechanism": "polyhedral",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "blanker",
+    "mechanism": "blanker",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "mirror_kilominx",
+    "mechanism": "mirror_minx",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  },
+  {
+    "kind": "mirror_megaminx",
+    "mechanism": "mirror_minx",
+    "solved": true,
+    "saved_solved": true,
+    "thumbnail": true
+  }
+]

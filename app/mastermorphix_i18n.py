@@ -388,7 +388,7 @@ JA = dict(EN, **{
 ZH.update({
     'directory.cube': '普通魔方',
     'directory.edge_family': '转棱系列',
-    'directory.edge_hint': '均绕棱转动180°；选择外形或版本',
+    'directory.edge_hint': '选择型号；转轴和角度以各型号为准',
     'edge.clover': '六面体·四叶草',
     'directory.helicopter': '直升飞机魔方',
     'directory.mosaic': '马赛克魔方 · Mosaic',
@@ -419,7 +419,7 @@ ZH.update({
 EN.update({
     'directory.cube': 'Standard Cube',
     'directory.edge_family': 'Edge-Turning Series',
-    'directory.edge_hint': 'All edges turn 180°; choose a shape or version',
+    'directory.edge_hint': 'Choose a model; axes and turn angles vary by model',
     'edge.clover': 'Cube · Clover',
     'directory.helicopter': 'Helicopter Cube',
     'directory.mosaic': 'Mosaic Cube / Fadi Cube',
@@ -450,7 +450,7 @@ EN.update({
 JA.update({
     'directory.cube': '通常のキューブ',
     'directory.edge_family': '辺回転シリーズ',
-    'directory.edge_hint': 'すべて辺を180°回転：形状・種類を選択',
+    'directory.edge_hint': 'モデルを選択：回転軸と角度はモデルごとに異なります',
     'edge.clover': '六面体・クローバー',
     'directory.helicopter': 'ヘリコプターキューブ',
     'directory.mosaic': 'モザイクキューブ',

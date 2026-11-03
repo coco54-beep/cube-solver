@@ -1,0 +1,42 @@
+[
+  {
+    "case": "penrose3",
+    "screen": "InputScreen",
+    "size": [
+      800,
+      600
+    ],
+    "edge_choices": 9,
+    "screenshot": "penrose3-800x600.png"
+  },
+  {
+    "case": "penrose4",
+    "screen": "InputScreen",
+    "size": [
+      800,
+      600
+    ],
+    "edge_choices": 9,
+    "screenshot": "penrose4-800x600.png"
+  },
+  {
+    "case": "penrose3",
+    "screen": "InputScreen",
+    "size": [
+      400,
+      850
+    ],
+    "edge_choices": 9,
+    "screenshot": "penrose3-400x850.png"
+  },
+  {
+    "case": "penrose4",
+    "screen": "InputScreen",
+    "size": [
+      400,
+      850
+    ],
+    "edge_choices": 9,
+    "screenshot": "penrose4-400x850.png"
+  }
+]

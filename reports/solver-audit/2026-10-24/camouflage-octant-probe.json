@@ -1,0 +1,107 @@
+[
+  {
+    "length": 100,
+    "seed": 0,
+    "success": true,
+    "moves": 68,
+    "seconds": 0.985,
+    "stats": {
+      "nodes": 67,
+      "records": 2114,
+      "search_seconds": 0.9219999999913853,
+      "seconds": 0.9530000000086147,
+      "moves": 68
+    },
+    "input_unchanged": true
+  },
+  {
+    "length": 100,
+    "seed": 1,
+    "success": true,
+    "moves": 65,
+    "seconds": 0.328,
+    "stats": {
+      "nodes": 27,
+      "records": 834,
+      "search_seconds": 0.25,
+      "seconds": 0.2970000000204891,
+      "moves": 65
+    },
+    "input_unchanged": true
+  },
+  {
+    "length": 100,
+    "seed": 2,
+    "success": true,
+    "moves": 65,
+    "seconds": 0.468,
+    "stats": {
+      "nodes": 41,
+      "records": 1282,
+      "search_seconds": 0.375,
+      "seconds": 0.4210000000020955,
+      "moves": 65
+    },
+    "input_unchanged": true
+  },
+  {
+    "length": 100,
+    "seed": 8,
+    "success": true,
+    "moves": 83,
+    "seconds": 2.25,
+    "stats": {
+      "nodes": 189,
+      "records": 6018,
+      "search_seconds": 2.172000000020489,
+      "seconds": 2.2030000000086147,
+      "moves": 83
+    },
+    "input_unchanged": true
+  },
+  {
+    "length": 300,
+    "seed": 977,
+    "success": true,
+    "moves": 69,
+    "seconds": 0.953,
+    "stats": {
+      "nodes": 84,
+      "records": 2658,
+      "search_seconds": 0.8589999999967404,
+      "seconds": 0.9059999999881256,
+      "moves": 69
+    },
+    "input_unchanged": true
+  },
+  {
+    "length": 1000,
+    "seed": 223,
+    "success": true,
+    "moves": 97,
+    "seconds": 1.593,
+    "stats": {
+      "nodes": 145,
+      "records": 4610,
+      "search_seconds": 1.4839999999967404,
+      "seconds": 1.5309999999881256,
+      "moves": 97
+    },
+    "input_unchanged": true
+  },
+  {
+    "length": 400,
+    "seed": 21,
+    "success": true,
+    "moves": 42,
+    "seconds": 0.313,
+    "stats": {
+      "nodes": 28,
+      "records": 866,
+      "search_seconds": 0.25,
+      "seconds": 0.28099999998812564,
+      "moves": 42
+    },
+    "input_unchanged": true
+  }
+]

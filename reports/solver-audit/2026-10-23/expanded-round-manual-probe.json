@@ -1,0 +1,30 @@
+[
+  {
+    "kind": "rubik_cheese",
+    "status": "pass",
+    "moves": 6,
+    "seconds": 0.0,
+    "history": null
+  },
+  {
+    "kind": "pyraminx_diamond",
+    "status": "pass",
+    "moves": 29,
+    "seconds": 0.0,
+    "history": null
+  },
+  {
+    "kind": "masterball",
+    "status": "pass",
+    "moves": 142,
+    "seconds": 0.0,
+    "history": null
+  },
+  {
+    "kind": "siamese_a",
+    "status": "pass",
+    "moves": 187,
+    "seconds": 0.01600000000325963,
+    "history": null
+  }
+]

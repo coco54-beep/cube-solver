@@ -1,0 +1,50 @@
+[
+  {
+    "kind": "cross_cube",
+    "size": [
+      800,
+      600
+    ],
+    "status": "ok"
+  },
+  {
+    "kind": "blanker",
+    "size": [
+      800,
+      600
+    ],
+    "status": "ok"
+  },
+  {
+    "kind": "mirror_megaminx",
+    "size": [
+      800,
+      600
+    ],
+    "status": "ok"
+  },
+  {
+    "kind": "cross_cube",
+    "size": [
+      400,
+      850
+    ],
+    "status": "ok"
+  },
+  {
+    "kind": "blanker",
+    "size": [
+      400,
+      850
+    ],
+    "status": "ok"
+  },
+  {
+    "kind": "mirror_megaminx",
+    "size": [
+      400,
+      850
+    ],
+    "status": "ok"
+  }
+]

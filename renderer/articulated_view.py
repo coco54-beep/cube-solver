@@ -3,14 +3,14 @@ import math
 from cube.polyhedral import add,scale,cross,dot,unit,mean,rotate,Move
 from renderer.square1_view import Square1View
 from renderer.polyhedral_view import PolyhedralView,PolyhedralTwistView
+from renderer.entry_style import surface_panel
 
 
 class ArticulatedView(Square1View):
     piece_filter=None
 
     def _inset(self,points):
-        # Sticker borders are already built below. Shrinking every housing
-        # face independently opens seams between its sides and back cap.
+        # Full panels and closed housings share the renderer's screen strokes.
         return points
 
     def _surfaces(self,cube):
@@ -23,6 +23,13 @@ class ArticulatedView(Square1View):
         """Shared housing and sticker geometry for playback and rigid entry."""
         result=[]
         slots=iter(cube.geometry.pieces[home]);fallback=cube.geometry.pieces[home][0]
+        if getattr(cube,'family',None)=='mixup':
+            from renderer.mixup_housing import placed_housing
+            for polygon in placed_housing(cube.puzzle_kind,home,cube.frames[home]):
+                normal=(0.,0.,0.)
+                for a,b in zip(polygon,polygon[1:]+polygon[:1]):normal=add(normal,cross(a,b))
+                if dot(normal,normal)>1e-14:
+                    result.append((polygon,unit(normal),-1,fallback,0,home,1))
         for points,color in cube.placed_faces(home):
             slot=next(slots) if color>=0 else fallback
             if getattr(cube,'family',None)=='mixup' and color<0:continue
@@ -31,22 +38,8 @@ class ArticulatedView(Square1View):
             if dot(normal,normal)<1e-14:continue
             normal=unit(normal)
             result.append((points,normal,-1,slot,0,home,1))
-            if getattr(cube,'family',None)=='mixup':
-                # Close the body towards the turning core. A constant,
-                # shallow back plate leaves pieces looking hollow/missing
-                # after centre/edge exchange. Radial tapered housings keep
-                # their original panels and avoid the false rectangular
-                # internal caps of the construction boxes. These are
-                # display surfaces, never collision/solver geometry.
-                back=tuple(scale(p,.35) for p in points)
-                result.append((tuple(reversed(back)),scale(normal,-1),-1,slot,0,home,1))
-                for i,(p,q) in enumerate(zip(points,points[1:]+points[:1])):
-                    side=(p,back[i],back[(i+1)%len(back)],q)
-                    n=cross(add(side[1],scale(p,-1)),add(side[2],scale(p,-1)))
-                    if dot(n,n)>1e-14:result.append((side,unit(n),-1,slot,0,home,1))
             if color>=0:
-                centre=mean(points)
-                panel=tuple(add(add(centre,scale(add(p,scale(centre,-1)),.95)),scale(normal,.0015)) for p in points)
+                panel=surface_panel(points,normal)
                 result.append((panel,normal,color,slot,0,home,1))
         return tuple(result)
 

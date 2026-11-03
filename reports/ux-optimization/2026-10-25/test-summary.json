@@ -1,0 +1,39 @@
+{
+  "suites": {
+    "accepted-final": {
+      "passed": 241,
+      "skipped": 4,
+      "failed": 0
+    },
+    "manual-input": {
+      "passed": 83,
+      "skipped": 0,
+      "failed": 0
+    },
+    "media-final": {
+      "passed": 51,
+      "skipped": 0,
+      "failed": 0
+    }
+  },
+  "distinct_passed": 325,
+  "distinct_skipped": 4,
+  "skips": [
+    {
+      "test": "test_full_turn_of_scrambled_block_keeps_verified_state_and_solution_path[inner_edge-mixup_333]",
+      "reason": "This model has no editable inner_edge"
+    },
+    {
+      "test": "test_full_turn_of_scrambled_block_keeps_verified_state_and_solution_path[inner_edge-mixup_334]",
+      "reason": "This model has no editable inner_edge"
+    },
+    {
+      "test": "test_full_turn_of_scrambled_block_keeps_verified_state_and_solution_path[inner_edge-mixup_344]",
+      "reason": "This model has no editable inner_edge"
+    },
+    {
+      "test": "test_full_turn_of_scrambled_block_keeps_verified_state_and_solution_path[inner_edge-mixup_444]",
+      "reason": "This model has no editable inner_edge"
+    }
+  ]
+}

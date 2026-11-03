@@ -63,6 +63,38 @@ def generate(kind, depth=1, residuals=0):
                     following.append((setup.clone().apply_move(atom), prefix+(atom,)))
         frontier = following
         print(kind, 'setups depth', level, 'macros', len(macros), flush=True)
+    from cube.letter_cube import EXTENSIONS
+    if kind in EXTENSIONS:
+        from cube.appearance import ROTATIONS
+        from solver.cuboid_extended import _tokens
+        # PLL setups leave a full extension plane available while changing
+        # its anchors. Single-face I-Cube especially needs these conjugates.
+        formulas=("R U' R U R U R U' R' U' R2",
+                  "R U R' U' R' F R2 U' R' U' R U R' F'",
+                  "R' F R' B2 R F' R' B2 R2")
+        for rotation in ROTATIONS:
+            for text in formulas:
+                prefix=tuple(Move(CUBE.index(transform(rotation,CUBE[m.axis])),m.layer,m.amount)
+                             for m in _tokens(start,text.split()))
+                setup=start.clone().apply_moves(prefix)
+                for axis in range(6):
+                    atom=Move(axis,0,1)
+                    if not setup.can_apply(atom):continue
+                    end=setup.clone().apply_move(atom).apply_moves(inverse_word(prefix,4))
+                    if not core_solved(end):continue
+                    try:
+                        perm=tuple(destinations[transform(end.frames[p],entries[lookup[p,f]][0]),
+                                                transform(end.frames[p],CUBE[f])] for p,f in panels)
+                    except KeyError:continue
+                    word=simplify(prefix+(atom,)+inverse_word(prefix,4),4)
+                    if perm!=identity and (perm not in macros or len(word)<len(macros[perm])):macros[perm]=word
+        from sympy.combinatorics import Permutation,PermutationGroup
+        from math import factorial
+        group=PermutationGroup([Permutation(p) for p in macros])
+        expected=factorial(4*len(EXTENSIONS[kind]))**2//2
+        actual=group.order()
+        print(kind,'extension group',actual,'maximum',expected,flush=True)
+        if actual!=expected:raise ValueError(('Extension generators do not cover the complete group',kind,actual,expected))
     for seed in range(residuals):
         from solver.cuboid_extended import _core_cube, _tokens, _align_centres, _canonical_alignment, _solve_small_core, _solve_rectangular_core
         end = start.clone(); rng = random.Random(7751+seed); word = []
@@ -180,6 +212,11 @@ if __name__ == '__main__':
     args = parser.parse_args()
     for kind in args.kinds:
         generate(kind, args.depth, args.residuals)
+        from cube.letter_cube import EXTENSIONS
+        if kind in EXTENSIONS:
+            from tools.build_letter_groups import run
+            run(kind)
+            continue
         from solver.cuboid_static import write_phase_tables
         destination = Path(__file__).resolve().parents[1]/'solver'/'data'/f'{kind}_phases.bin'
         write_phase_tables(kind, destination, lambda *a: print(kind, 'phase', *a, flush=True))

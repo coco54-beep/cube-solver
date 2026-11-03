@@ -20,6 +20,10 @@ def shorten(kind, source_path):
         if p not in pool or len(word) < len(pool[p]):pool[p] = word
     for index, record in enumerate(source.records):
         remember(original, tuple(record['permutation']), source.strong_word(index+1))
+    from cube.polyhedral import Move
+    raw=json.loads(zlib.decompress(Path(source_path).read_bytes()))
+    for record in raw.get('short_loops',()):
+        remember(original,tuple(record['permutation']),tuple(Move(*m) for m in record['word']))
     pool = original.copy()
     transversals = []
     for level, base in enumerate(source.base):

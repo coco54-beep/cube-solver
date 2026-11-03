@@ -1,0 +1,28 @@
+[
+  {
+    "kind": "mf8_twins",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "shape_animation": true,
+    "second_cut_animation": true,
+    "manual_colour": false,
+    "manual_pose": false,
+    "reset_and_undo": true
+  },
+  {
+    "kind": "mf8_twins",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "shape_animation": true,
+    "second_cut_animation": true,
+    "manual_colour": false,
+    "manual_pose": false,
+    "reset_and_undo": true
+  }
+]

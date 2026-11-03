@@ -65,10 +65,23 @@ JA = {
 MESSAGES = {'zh': ZH, 'en': EN, 'ja': JA}
 
 ZH.update({
+ 'bandage.six_hint':'选颜色后连续点面片上色；拖框标出同一张绑块面片，按 ✓ 匹配固定布局。',
+ 'bandage.six_help':'按实物逐面录入，六个视图保持同一朝向。\n\n先选颜色，再连续点击上色；拖框圈出同一张绑块面片。已有面片点一下即可整片换色；相邻同色但有切缝的块请分别圈出。\n\n无需先选择 1×1、2×1 或旋转卡片。✓ 会按当前型号的固定绑块库存匹配六面的颜色与切缝；失败时保留草稿。\n\n录入确认后可拧动或求解，返回录入页保留真实绑块位置。匹配结构通过不等于已证明任意状态都能求解。',
+})
+EN.update({
+ 'bandage.six_hint':'Choose a colour and tap panels repeatedly. Drag one bonded panel; ✓ matches the preset.',
+ 'bandage.six_help':'Record six views using a consistent orientation.\n\nChoose a colour, then tap to paint. Drag around one bonded panel. Tapping an existing panel repaints the whole panel. Draw adjacent same-colour panels separately when a cut divides them.\n\nNo size cards or rotation steps are needed. ✓ matches colours and seams against the fixed preset inventory and keeps your draft on failure.\n\nTwisting and solving use the matched state. Structural matching does not prove every state solvable.',
+})
+JA.update({
+ 'bandage.six_hint':'色を選んで連続入力。ドラッグで一枚の連結面を囲み、✓で固定構造を照合します。',
+ 'bandage.six_help':'同じ向きを基準に六方向を入力します。\n\n色を選んで面片をタップし、連結された一枚の面をドラッグで囲みます。同色でも切れ目がある面片は別々に囲んでください。既存の面片はタップで全体を塗り替えられます。\n\nサイズカードや回転設定は不要です。✓は固定モデルの構造・色・切れ目を照合し、失敗しても入力を保持します。照合後に回転や求解ができます。',
+})
+
+ZH.update({
  'poly.cuboid_input':'按实体色块逐面录入。固定外形长方体支持从当前状态求解；可变形型号使用六视图。',
  'six.model_note':'4×4×6 使用四阶核心与独立外层延伸件，外层完整时才可单独转动。',
  'cuboid.extension_layer':'独立外层', 'cuboid.core_layers':'核心外侧 {i} 层',
- 'cuboid.search_budget':'计算达到本次时间上限，录入已保留。复杂迷彩和 4×4×2 状态可能需要更多时间；这不表示无解。',
+ 'cuboid.search_budget':'计算达到本次时间上限，录入已保留。这不表示无解；复杂状态可能需要更多时间。',
  'cuboid.identity_conflict':'块的颜色或方向存在冲突，请检查录入。',
  'cuboid.identity_unreachable':'当前颜色、块位或朝向不符合此型号，请核对录入。',
  'cuboid.identity_ambiguous':'块位仍有歧义，请在六视图补充局部高度与切缝。',
@@ -81,7 +94,7 @@ EN.update({
  'poly.cuboid_input':'Enter the physical panels face by face. Fixed cuboids solve from the entered state; shape-changing models use six views.',
  'six.model_note':'4×4×6 uses a four-order core with separate extensions. An outer layer turns independently only when complete.',
  'cuboid.extension_layer':'Independent outer layer', 'cuboid.core_layers':'Outer {i} core layer(s)',
- 'cuboid.search_budget':'The calculation reached its time limit; your input is kept. Complex Camouflage and 4×4×2 states may take longer. This does not mean unsolvable.',
+ 'cuboid.search_budget':'The calculation reached its time limit; your input is kept. This does not mean unsolvable. Complex states may need more time.',
  'cuboid.identity_conflict':'Piece colours or orientations conflict. Review the input.',
  'cuboid.identity_unreachable':'The colours, positions or orientations do not fit this model. Review the input.',
  'cuboid.identity_ambiguous':'Positions are ambiguous. Add local depth and cuts in the six views.',
@@ -94,7 +107,7 @@ JA.update({
  'poly.cuboid_input':'実物の面片を一面ずつ入力します。固定形状は入力状態から求解し、変形モデルは六方向を使います。',
  'six.model_note':'4×4×6 は四階コアと独立した延長部を使用し、外層がそろった時だけ単独で回転できます。',
  'cuboid.extension_layer':'独立した外層', 'cuboid.core_layers':'コアの外側 {i} 層',
- 'cuboid.search_budget':'計算が時間上限に達しました。入力は保持しています。複雑な迷彩・4×4×2 はさらに時間が必要な場合があります。解なしという意味ではありません。',
+ 'cuboid.search_budget':'計算が時間上限に達しました。入力は保持しています。解なしという意味ではありません。複雑な状態ではさらに時間が必要な場合があります。',
  'cuboid.identity_conflict':'色または向きが矛盾しています。入力を確認してください。',
  'cuboid.identity_unreachable':'色・位置・向きがこのモデルに一致しません。入力を確認してください。',
  'cuboid.identity_ambiguous':'位置が曖昧です。六方向で局所の奥行きと切れ目を補ってください。',
@@ -104,9 +117,12 @@ JA.update({
  'cuboid.replay_failed':'解法全体の再生検証に失敗しました。入力は保持しています。',
 })
 
+ZH['cuboid.solver_data']='4×4×2 还原数据缺失或与模型不匹配，请更新应用。'
+EN['cuboid.solver_data']='4×4×2 solver data is missing or does not match the model. Update the app.'
+JA['cuboid.solver_data']='4×4×2 の解法データがないかモデルと一致しません。アプリを更新してください。'
 ZH['six.help'] = ZH['six.help'].replace('复杂手动状态仍受现有求解器范围限制。',
- '长方体支持从输入状态求解。复杂迷彩和 4×4×2 采用 45 秒限时搜索；可取消，超时保留录入，不表示无解。')
+ '长方体支持从输入状态求解。4×4×2 先恢复形状再还原配色；复杂迷彩会继续搜索，可随时取消并保留录入。')
 EN['six.help'] = EN['six.help'].replace('General manual solving remains limited by the existing solver.',
- 'Cuboids solve from the entered state. Complex Camouflage and 4×4×2 use a cancellable 45-second search. A timeout keeps the input and does not mean unsolvable.')
+ 'Cuboids solve from the entered state. 4×4×2 restores shape before colours. Complex Camouflage continues searching; cancel at any time and keep the input.')
 JA['six.help'] = JA['six.help'].replace('複雑な手動求解は既存ソルバーの制限があります。',
- '入力状態から求解します。複雑な迷彩・4×4×2 は45秒の探索を行います。中止でき、時間切れでも入力は保持し、解なしとは判定しません。')
+ '入力状態から求解します。4×4×2 は形状を戻してから配色を解きます。複雑な迷彩は探索を続け、いつでも中止でき、入力は保持します。')

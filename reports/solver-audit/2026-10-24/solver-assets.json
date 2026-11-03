@@ -1,0 +1,110 @@
+{
+  "excluded_tables": [
+    {
+      "path": "solver/data/twobar_table.bin",
+      "bytes": 18015130,
+      "replacements": [
+        "solver/data/two_bar_shapes.bin",
+        "solver/data/two_bar_group.bin"
+      ]
+    },
+    {
+      "path": "solver/data/bandaged_c_table.bin",
+      "bytes": 25604071,
+      "replacements": [
+        "solver/data/bandaged_c_shapes.bin",
+        "solver/data/bandaged_c_group.bin"
+      ]
+    },
+    {
+      "path": "solver/data/circle2_table.bin",
+      "bytes": 41557389,
+      "replacements": [
+        "solver/data/circle2_group.bin"
+      ]
+    },
+    {
+      "path": "solver/data/fused_table.bin",
+      "bytes": 11466391,
+      "replacements": [
+        "solver/data/fused_group.bin"
+      ]
+    },
+    {
+      "path": "solver/data/ai_cube_patterns.bin",
+      "bytes": 2513607,
+      "replacements": [
+        "solver/data/ai_shapes.bin",
+        "solver/data/ai_group.bin"
+      ]
+    },
+    {
+      "path": "solver/data/burr_cube_patterns.bin",
+      "bytes": 5427627,
+      "replacements": [
+        "solver/data/burr_shapes.bin",
+        "solver/data/burr_group.bin"
+      ]
+    },
+    {
+      "path": "solver/data/cuboid_442_patterns.bin",
+      "bytes": 3807706,
+      "replacements": [
+        "solver/data/cuboid_442_orientations.bin",
+        "solver/data/cuboid_442_group.bin"
+      ]
+    },
+    {
+      "path": "solver/data/cuboid_442_endgame.bin",
+      "bytes": 2430105,
+      "replacements": [
+        "solver/data/cuboid_442_orientations.bin",
+        "solver/data/cuboid_442_group.bin"
+      ]
+    }
+  ],
+  "excluded_bytes": 110822026,
+  "windows_asset_bytes": 491795440,
+  "largest_retained_assets": [
+    {
+      "path": "p4_table.bin",
+      "bytes": 315315008
+    },
+    {
+      "path": "joint_dist.bin",
+      "bytes": 51482970
+    },
+    {
+      "path": "twophase/phase1_prun",
+      "bytes": 35227104
+    },
+    {
+      "path": "twophase/phase2_prun",
+      "bytes": 27901440
+    },
+    {
+      "path": "assets/fonts/NotoSansSC.ttf",
+      "bytes": 17773244
+    },
+    {
+      "path": "solver/data/tangram_extreme_shape_patterns.bin",
+      "bytes": 3082217
+    },
+    {
+      "path": "solver/data/camouflage_3_patterns.bin",
+      "bytes": 2793078
+    },
+    {
+      "path": "solver/data/camouflage_3_endgame.bin",
+      "bytes": 2474542
+    },
+    {
+      "path": "solver/data/pentahedron_3.bin",
+      "bytes": 2183309
+    },
+    {
+      "path": "twophase/fs_classidx",
+      "bytes": 2027520
+    }
+  ]
+}

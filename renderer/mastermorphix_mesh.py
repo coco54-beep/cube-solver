@@ -13,12 +13,11 @@ from cube.mastermorphix import (NORMALS, VERTICES, _clip, cross, dot,
                                cut_boundaries, positions_for_order)
 from renderer.polygon_visibility import plane
 
-STYLE_VERSION = "smooth_morphix_closed_edges_v4"
+STYLE_VERSION = "smooth_morphix_screen_seams_v5"
 _SUBDIVISIONS = 14
 _CURVATURE = 2.8
 _FACE_HEIGHT = 2. / math.sqrt(3.)
 _NORMALS = tuple(tuple(v / math.sqrt(3.) for v in n) for n in NORMALS)
-_SEAM = .012
 _DISPLAY_SCALE = 1.4
 
 
@@ -111,11 +110,10 @@ def _display_pieces(n, subdivisions):
 @lru_cache(maxsize=2048)
 def rounded_piece_geometry(home, subdivisions=_SUBDIVISIONS, n=3):
     """Return curved exterior facets and flat internal caps for one piece."""
-    # A curved facet is never given its own border. Piece/color boundaries
-    # below are the only places where the white backing is exposed.
+    # Curved facets share full colour panels. The renderer traces the real
+    # piece/colour boundaries without exposing a white backing.
     polygons = (_curved_body(subdivisions) if n <= 3 else
                 _display_pieces(n, max(12, subdivisions))[home])
-    bounds = []
     from cube.mastermorphix import positions_for_order
     vals = sorted({p[0] for p in positions_for_order(n)})
     # Cut the curved body with flat mechanism planes, rather than bending a
@@ -127,9 +125,6 @@ def rounded_piece_geometry(home, subdivisions=_SUBDIVISIONS, n=3):
         if n <= 3:
             polygons = _clip(polygons, axis, 1, hi)
             polygons = _clip(polygons, axis, -1, -lo)
-        for sign, bound in ((1, hi), (-1, -lo)):
-            normal = tuple(float(sign) if i == axis else 0. for i in range(3))
-            bounds.append((normal, bound-_SEAM))
     output = []
     exterior_colors = sorted({color for _, color in polygons if color >= 0})
     for points, color in polygons:
@@ -153,25 +148,7 @@ def rounded_piece_geometry(home, subdivisions=_SUBDIVISIONS, n=3):
                 if len(patch) >= 3 and plane(patch) is not None:
                     output.append((patch, adjacent_color, "internal"))
             continue
-        if n > 3:
-            # Draw the complete continuous color patch. The renderer traces
-            # its real boundary once, instead of offsetting every tiny facet
-            # against a coplanar white backing (which produces dotted seams).
-            output.append((points, color, "sticker"))
-            continue
-        output.append((points, color, "shell"))
-        sticker = points
-        # Trim only real piece boundaries and colored seams, not tessellation.
-        seam_bounds = [(tuple(other[i]-_NORMALS[color][i] for i in range(3)), -_SEAM)
-                       for index, other in enumerate(_NORMALS) if index != color]
-        for normal, bound in bounds + seam_bounds:
-            sticker = _clip_patch(sticker, normal, bound)
-            if len(sticker) < 3:
-                break
-        if len(sticker) >= 3 and plane(sticker) is not None:
-            # Shell and sticker are coplanar; painter order preserves this
-            # insertion order without depth fighting or raised flat tiles.
-            output.append((sticker, color, "sticker"))
+        output.append((points, color, "sticker"))
     # Match the previous model's visible size after rounding the overall body.
     display_scale = _DISPLAY_SCALE
     return tuple((tuple(tuple(v*display_scale for v in p) for p in points), color, finish)
@@ -184,7 +161,7 @@ def _edge_key(a, b):
 
 @lru_cache(maxsize=2048)
 def piece_outline_indices(home, subdivisions=_SUBDIVISIONS, n=3):
-    """Suppress tessellation diagonals when outlining a selected piece."""
+    """Outline physical boundaries while suppressing tessellation diagonals."""
     geometry = rounded_piece_geometry(home, subdivisions, n)
     counts = Counter((finish, color, _edge_key(a, b))
                      for points, color, finish in geometry

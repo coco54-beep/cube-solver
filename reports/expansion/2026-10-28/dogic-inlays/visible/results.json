@@ -1,0 +1,38 @@
+[
+  {
+    "kind": "dogic_i",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "moves": 247
+  },
+  {
+    "kind": "dogic_20",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "moves": 272
+  },
+  {
+    "kind": "dogic_i",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "moves": 247
+  },
+  {
+    "kind": "dogic_20",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "moves": 272
+  }
+]

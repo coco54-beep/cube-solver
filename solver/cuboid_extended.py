@@ -169,6 +169,10 @@ def _extension_state(cube):
     adapter, panels, _, _ = extension_mechanism(cube.puzzle_kind)
     cells, boxes, entries, lookup, base = layout(cube.puzzle_kind)
     position_at = {(entries[lookup[p, f]][0], CUBE[f]): i for i, (p, f) in enumerate(panels)}
+    from cube.letter_cube import EXTENSIONS
+    if cube.puzzle_kind in EXTENSIONS:
+        return tuple(position_at[transform(cube.frames[p],entries[lookup[p,f]][0]),
+                                 transform(cube.frames[p],CUBE[f])] for p,f in panels)
     by_piece = defaultdict(list)
     for i, (p, f) in enumerate(panels):
         by_piece[p].append((i, f))
@@ -194,7 +198,14 @@ def _extension_state(cube):
 def solve_extended_cuboid(original, cancel=None, progress=None):
     from solver.cuboid_static import normalize, phase_tables, mechanism
     from solver.cuboid_extensions import expand
-    cube = normalize(original, cancel).clone(); cube.history = None
+    from cube.letter_cube import EXTENSIONS
+    letter=original.puzzle_kind in EXTENSIONS
+    if letter:
+        from solver.letter_cube import normalize as normalize_letter
+        cube=normalize_letter(original,cancel)
+    else:
+        cube = normalize(original, cancel).clone()
+    cube.history = None
     def check():
         if cancel and cancel():
             raise InterruptedError()
@@ -202,7 +213,8 @@ def solve_extended_cuboid(original, cancel=None, progress=None):
     if cube.puzzle_kind == 'cuboid_234':
         word.extend(_solve_rectangular_core(cube, cancel))
     else:
-        word.extend(_align_centres(cube)); check(); _legal_three_core(cube)
+        word.extend(_align_centres(cube)); check()
+        if not letter:_legal_three_core(cube)
         core = _core_cube(cube)
         if core.n <= 3:
             result = _solve_small_core(core)
@@ -223,6 +235,13 @@ def solve_extended_cuboid(original, cancel=None, progress=None):
     check()
     if progress:
         progress(1, 2)
+    if letter:
+        from solver.letter_cube import solve_extensions
+        word.extend(solve_extensions(cube,cancel,progress))
+        replay=original.entered()
+        for move in word:check();replay.apply_move(move)
+        if not replay.is_solved():raise ValueError('cuboid.replay_failed')
+        return tuple(word)
     current = _extension_state(cube)
     g = mechanism(cube.puzzle_kind)[0].geometry
     for table in phase_tables(cube.puzzle_kind):

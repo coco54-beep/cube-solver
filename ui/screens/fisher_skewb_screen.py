@@ -9,9 +9,11 @@ from cube.fisher_skewb import SHELL_NORMALS
 
 
 class FisherSkewbScreen(MirrorSkewbScreen):
+    supports_palette_settings=True
     cube_class=FisherSkewbCube
     view_class=FisherSkewbView
     hint_key='fisher_skewb.hint'
+    appearance=staticmethod(appearance)
 
     def on_pre_enter(self,*args):
         super().on_pre_enter(*args)
@@ -29,7 +31,7 @@ class FisherSkewbScreen(MirrorSkewbScreen):
         result=[]
         seen=set()
         for frame in super()._placements(home,position):
-            signature=appearance(home,frame)
+            signature=self.appearance(home,frame)
             if signature not in seen:
                 seen.add(signature)
                 result.append(frame)
@@ -41,8 +43,8 @@ class FisherSkewbScreen(MirrorSkewbScreen):
         piece=self._cube.pieces[self._position]
         options=self._placements(piece.home,self._position)
         if len(options)<2: return
-        current=appearance(piece.home,piece.frame)
-        index=next(i for i,f in enumerate(options) if appearance(piece.home,f)==current)
+        current=self.appearance(piece.home,piece.frame)
+        index=next(i for i,f in enumerate(options) if self.appearance(piece.home,f)==current)
         self._remember()
         self._cube.pieces[self._position]=Piece(piece.home,options[(index+1)%len(options)])
         self._refresh()

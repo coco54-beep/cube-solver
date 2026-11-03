@@ -117,6 +117,7 @@ def choose_target(screen, item):
     found = next(((gi, vi) for gi, group in enumerate(shapes.groups)
                   for vi, option in enumerate(group)
                   if option['color'] == item['color'] and polygon_key(option['outline']) == target
+                  and (not item.get('piece_key') or option.get('piece_key') == item['piece_key'])
                   and (not option.get('physical') or 'preview' not in item or
                        any(polygon_key(p.world) == polygon_key(item['preview']) for p in option['panels']))), None)
     assert found is not None, (screen._ao_face, item, screen._message)
@@ -127,7 +128,7 @@ def choose_target(screen, item):
     for _ in range(len(shapes.groups[group])):
         if shapes.group == group and shapes.variant == variant:break
         screen._color_layout.rotate_button.dispatch('on_release')
-    assert shapes.group == group and shapes.variant == variant
+    assert shapes.group == group and shapes.variant == variant, (screen._message, shapes.key, shapes.selected_item(), group, variant)
     assert any(polygon_key(p['outline']) == target and p['color'] == item['color']
                for p in screen._ao_state['views'][screen._ao_face])
 
@@ -157,6 +158,34 @@ def test_blank_model_tap_opens_colour_shape_cards_and_highlights(editor):
     before = screen._ao_state
     screen.undo()
     assert screen._ao_state != before and not any(screen._ao_state['views'])
+
+
+@pytest.mark.parametrize('colours', [2, 3])
+def test_physical_card_loads_all_piece_colours_and_undoes_as_one_action(editor, colours):
+    import json
+    screen=editor
+    for _ in range(4):Clock.tick()
+    target=ObservationDraft.from_cube(screen._cube)
+    item=next(p for p in target.views[screen._ao_face] if len(p['piece_key'])==colours)
+    tap_point(screen,centre2(item['outline']))
+    before=screen._ao_state
+    choose_target(screen,item)
+    selected=screen._color_layout.shapes.selected_item()
+    body=selected['body_key']
+    # Both the persisted draft and the actual renderer know every coloured
+    # skin of the selected closed solid, including skins on other views.
+    linked=[(f,p) for f,view in enumerate(screen._ao_state['views']) for p in view]
+    assert {p['body_key'] for _,p in linked}=={body}
+    assert all(p['whole_piece'] for _,p in linked)
+    assert {(p['color'],polygon_key(p['preview'])) for _,p in linked}==set(item['piece_key'])
+    assert len({f for f,_ in linked})>=2
+    assert {s[2] for s in screen.view._surfaces(screen._cube) if s[2]>=0}=={c for c,_ in item['piece_key']}
+    restored=ObservationDraft('tangram_extreme',json.loads(json.dumps(screen._ao_state)))
+    assert all(p['piece_key']==item['piece_key'] and p['whole_piece'] for view in restored.views for p in view)
+    assert len(screen._ao_undo)==1
+    screen.undo()
+    assert screen._ao_state==before
+    assert not any(s[2]>=0 for s in screen.view._surfaces(screen._cube))
 
 
 @pytest.mark.parametrize('seed,size', [(0, (800, 600)), (37, (390, 844)), (91, (800, 600))])
@@ -200,6 +229,13 @@ def test_six_faces_enter_from_blank_and_match_without_history(editor, seed, size
     assert screen._applied(), screen._message
     assert not screen._cube.history
     assert signature(screen._cube) == signature(source)
+    # Continue through the same production solver used by the actual solve page,
+    # using only the cube rebuilt by the six visible input faces.
+    from services.solve_service import SolveService,CancelToken
+    answers=[];SolveService()._run(screen._cube.clone(),answers.append,None,CancelToken())
+    assert len(answers)==1 and answers[0].success
+    replay=screen._cube.clone();replay.apply_moves(answers[0].moves)
+    assert replay.is_solved() and signature(screen._cube)==signature(source)
 
 
 def test_reselect_recolour_rotate_and_undo_keep_neighbour_panels(editor):
@@ -226,10 +262,11 @@ def test_reselect_recolour_rotate_and_undo_keep_neighbour_panels(editor):
                      if option['color'] != first['color']
                      and polygon_key(option['outline']) == polygon_key(first['outline']))
     choose_target(screen, alternate)
-    old_key = polygon_key(first['outline'])
+    old_body = next(p['body_key'] for p in before['views'][face]
+                    if polygon_key(p['outline']) == polygon_key(first['outline']))
     for f in range(6):
-        assert [p for p in screen._ao_state['views'][f] if f != face or polygon_key(p['outline']) != old_key] == [
-            p for p in before['views'][f] if f != face or polygon_key(p['outline']) != old_key]
+        assert [p for p in screen._ao_state['views'][f] if p.get('body_key') != old_body] == [
+            p for p in before['views'][f] if p.get('body_key') != old_body]
     screen.undo()
     assert screen._ao_state == before
 
@@ -276,7 +313,9 @@ def test_tapping_black_housing_border_selects_panel_without_adding(editor):
     alternate = next(option for choices in shapes.groups for option in choices
                      if option['color'] != item['color'] and polygon_key(option['outline']) == polygon_key(item['outline']))
     choose_target(screen, alternate)
-    assert sum(map(len, screen._ao_state['views'])) == 1
+    bodies={p['body_key'] for view in screen._ao_state['views'] for p in view}
+    assert len(bodies)==1
+    assert sum(map(len, screen._ao_state['views'])) == 3
 
 
 def test_direction_button_can_change_a_real_multi_direction_shape(editor):
@@ -290,6 +329,9 @@ def test_direction_button_can_change_a_real_multi_direction_shape(editor):
     before = polygon_key(shapes.selected_item()['outline'])
     screen._color_layout.rotate_button.dispatch('on_release')
     assert polygon_key(shapes.selected_item()['outline']) != before
+    rotated=screen._ao_state
+    shapes.choose(shapes.group)
+    assert screen._ao_state is rotated
     for _ in range(len(shapes.groups[group]) - 1):
         screen._color_layout.rotate_button.dispatch('on_release')
     assert polygon_key(shapes.selected_item()['outline']) == before

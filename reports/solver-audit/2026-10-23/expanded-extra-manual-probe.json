@@ -1,0 +1,97 @@
+[
+  {
+    "kind": "i_cube",
+    "seed": 977,
+    "scramble": 45,
+    "input": "six_views",
+    "status": "ok",
+    "history": null,
+    "moves": 26,
+    "solved": true,
+    "seconds": 0.641
+  },
+  {
+    "kind": "l_cube",
+    "seed": 977,
+    "scramble": 45,
+    "input": "six_views",
+    "status": "ok",
+    "history": null,
+    "moves": 91,
+    "solved": true,
+    "seconds": 0.515
+  },
+  {
+    "kind": "t_cube",
+    "seed": 977,
+    "scramble": 45,
+    "input": "six_views",
+    "status": "ok",
+    "history": null,
+    "moves": 452,
+    "solved": true,
+    "seconds": 1.75
+  },
+  {
+    "kind": "x_cube",
+    "seed": 977,
+    "scramble": 45,
+    "input": "six_views",
+    "status": "ok",
+    "history": null,
+    "moves": 675,
+    "solved": true,
+    "seconds": 3.094
+  },
+  {
+    "kind": "tri_cube",
+    "seed": 977,
+    "scramble": 45,
+    "input": "six_views",
+    "status": "ok",
+    "history": null,
+    "moves": 239,
+    "solved": true,
+    "seconds": 0.984
+  },
+  {
+    "kind": "temple_cube",
+    "seed": 977,
+    "scramble": 45,
+    "input": "six_views",
+    "status": "ok",
+    "history": null,
+    "moves": 916,
+    "solved": true,
+    "seconds": 5.125
+  },
+  {
+    "kind": "cross_cube",
+    "seed": 977,
+    "scramble": 45,
+    "input": "six_views",
+    "status": "ok",
+    "history": null,
+    "moves": 1023,
+    "solved": true,
+    "seconds": 9.156
+  },
+  {
+    "kind": "master_brilic",
+    "seed": 1,
+    "scramble": 72,
+    "history": null,
+    "moves": 3148,
+    "solved": true,
+    "seconds": 0.734
+  },
+  {
+    "kind": "master_brilic",
+    "seed": 977,
+    "scramble": 72,
+    "history": null,
+    "moves": 3023,
+    "solved": true,
+    "seconds": 0.453
+  }
+]

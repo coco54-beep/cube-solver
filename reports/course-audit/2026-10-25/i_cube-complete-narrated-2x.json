@@ -1,0 +1,14 @@
+{
+  "output": "reports\\course-audit\\2026-10-25\\i_cube-complete-narrated-2x.mp4",
+  "course_moves": 24,
+  "rendered_moves": 24,
+  "start": 0,
+  "end": 24,
+  "final_state_matches_replay": true,
+  "frames": 862,
+  "fps": 12,
+  "input_unchanged": true,
+  "elapsed": 2.97,
+  "speed": 2.0,
+  "checked_geometry_frames": 12
+}

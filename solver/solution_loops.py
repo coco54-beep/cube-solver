@@ -112,8 +112,61 @@ def shorten_polyhedral_word(cube,word,cancel=None):
         candidate=_commute_reduce(cube,candidate,cancel,
                                   budget=min(1.5,0.15+len(candidate)/6000.0))
     candidate=shorten_visible_loops(cube,candidate,cancel)
+    if len(candidate)>64:
+        candidate=_state_bridges(cube,candidate,cancel)
     if len(candidate)>=len(original):return original
     return tuple(candidate) if _replay_solved(cube,candidate,cancel) else original
+
+
+def _state_bridges(cube,word,cancel=None,budget=.75):
+    """Replace a long part of the solution by one legal fixed-slot turn.
+
+    Compare full colours, never just a hash or the number of correct pieces.
+    The caller verifies the resulting solution. This is for fixed permutation
+    models only: a shape-changing puzzle needs its complete physical state.
+    """
+    from solver.polyhedral_optimize import _atoms
+    try:
+        import numpy as np
+    except ImportError:
+        return tuple(word)
+    deadline=monotonic()+max(0.,budget)
+    def check():
+        if cancel and cancel():raise InterruptedError()
+        return monotonic()<deadline
+    if not check():return tuple(word)
+    state=bytes(cube.colors);states=[state];last={state:0};actions=OrderedDict()
+    limit=min(4096,max(1,8*1024*1024//max(1,len(state))))
+    dtype=np.uint16 if len(state)<=65536 else np.uint32
+    action_limit=max(1,4*1024*1024//max(1,len(state)*np.dtype(dtype).itemsize))
+    def action(move):
+        found=actions.get(move)
+        if found is None:
+            found=np.asarray(cube.geometry.inverse_permutation(move),dtype=dtype)
+            actions[move]=found
+            if len(actions)>action_limit:actions.popitem(last=False)
+        else:actions.move_to_end(move)
+        return found
+    for index,move in enumerate(word[:limit]):
+        if index%64==0 and not check():return tuple(word)
+        state=np.frombuffer(state,dtype=np.uint8)[action(move)].tobytes()
+        states.append(state);last[state]=index+1
+    atoms=[]
+    for move in _atoms(cube):
+        if not check():return tuple(word)
+        atoms.append((move,action(move)))
+        if len(atoms)>=action_limit:break
+    result=[];index=0
+    while index<len(states)-1:
+        if not check():break
+        source=np.frombuffer(states[index],dtype=np.uint8)
+        best=index+1;shortcut=None
+        for move,permutation in atoms:
+            end=last.get(source[permutation].tobytes(),-1)
+            if end>best:best=end;shortcut=move
+        result.append(word[index] if shortcut is None else shortcut)
+        index=best
+    return simplify(tuple(result)+tuple(word[index:]),cube.geometry.spec.turn_order)
 
 
 def shorten_visible_loops(cube,word,cancel=None):

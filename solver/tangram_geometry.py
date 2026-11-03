@@ -6,7 +6,6 @@ Returned solutions must still be replayed on the physical cube model.
 """
 import math
 from collections import deque
-from time import monotonic
 from functools import lru_cache
 
 from cube.articulated import ArticulatedCube, multiply, turn_frame, frame_key, vertices
@@ -23,12 +22,14 @@ class TangramGeometry:
         cube = self.cube
         self.axes, self.cuts = cube._bands()
         self.moves = tuple(Move(axis, layer, amount)
-                           for axis in range(4)
-                           for layer in (range(3) if axis == 3 else (0,))
+                           for axis in range(len(self.axes))
+                           for layer in (range(3) if axis == cube.principal_axis else (0,))
                            for amount in range(cube.step(axis, layer), 6, cube.step(axis, layer)))
         self.move_indices = {m: i for i, m in enumerate(self.moves)}
         self.features = {}
         shapes = {}
+        from cube.articulated import proper_poses
+        cube_proper=proper_poses(cube.family)
         for home, solid in enumerate(cube.solids):
             for pose, frame in enumerate(cube.orientations):
                 faces = cube.placed_faces(home, pose)
@@ -42,13 +43,16 @@ class TangramGeometry:
                 for i, move in enumerate(self.moves):
                     axis, layer = move.axis, move.layer
                     boundaries = self.cuts[axis]
-                    if axis == 3:
+                    if axis == cube.principal_axis:
                         boundaries = boundaries[max(0, layer-1):min(len(boundaries), layer+1)]
                         membership = sum(dot(self.axes[axis], anchor) > b+1e-7 for b in self.cuts[axis]) == layer
                     else:
                         membership = dot(self.axes[axis], anchor) > self.cuts[axis][0]+1e-7
                     values = [dot(self.axes[axis], p) for p in points]
                     if any(min(values) < b-1e-7 and max(values) > b+1e-7 for b in boundaries):blocked |= 1 << i
+                    if kind=='tangram_extreme' and solid.role=='band' and axis!=cube.principal_axis:
+                        phase=pose not in cube_proper
+                        if (axis>=3)!=phase:blocked |= 1 << i
                     if membership:selected |= 1 << i
                 self.features[home, pose] = shape_id, blocked, selected
         self.turns = {}
@@ -133,38 +137,14 @@ class TangramGeometry:
         self._atlas=found
         return found
 
-    def restore_shape(self, frames, cancel=None, progress=None, seconds=20.):
-        if self.shape_code(frames).bit_count()!=len(frames):raise ValueError('rigid.invalid')
-        roots=self.shape_atlas(cancel)
-        begun=monotonic();beam=[(self.shape_code(frames),())];seen=set()
-        for depth in range(60):
-            if cancel and cancel():raise InterruptedError()
-            if progress:progress(depth+1,60)
-            following={};pending=set()
-            for state,path in beam:
-                if len(seen)>=500000 or monotonic()-begun>seconds:
-                    raise ValueError('rigid.search_limit')
-                key=state
-                if key in seen:continue
-                seen.add(key)
-                if key in roots:return path+tuple(m.inverse(6) for m in reversed(roots[key]))
-                for child,move in self.shape_children(state):
-                    if cancel and cancel():raise InterruptedError()
-                    if monotonic()-begun>seconds:raise ValueError('rigid.search_limit')
-                    key=child
-                    if key in seen or key in pending:continue
-                    word=path+(move,)
-                    if key in roots:return word+tuple(m.inverse(6) for m in reversed(roots[key]))
-                    pending.add(key)
-                    score=(child&~self.root_code).bit_count()
-                    bucket=following.setdefault(score,[])
-                    if len(bucket)<500:bucket.append((child,word))
-            # A temporarily more deformed assembly may be needed to unlock
-            # a side turn. Keep every deformation count represented instead
-            # of letting a flat, low-score plateau consume the whole beam.
-            beam=[item for score in sorted(following) for item in following[score]]
-            if not beam:break
-        raise ValueError('rigid.search_limit')
+    def restore_shape(self, frames, cancel=None, progress=None, seconds=None):
+        if cancel and cancel():raise InterruptedError()
+        if self.kind=='tangram':
+            if self.shape_code(frames).bit_count()!=len(frames) or self.shape_code(frames)!=self.root_code:
+                raise ValueError('rigid.invalid')
+            return ()
+        from solver.tangram_shapes import restore_shape
+        return restore_shape(self,frames,cancel,progress,seconds)
 
 
 @lru_cache(maxsize=2)

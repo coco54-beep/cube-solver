@@ -17,6 +17,17 @@ SUPPORTED = {
     'megaminx': (2, 3, 4, 5), 'football': (3, 5), 'blossom': (3,),
     'moyu': (3, 4, 5), 'void_tower': (3,),
     'skewb_ultimate': (3,), 'void_minx': (3,), 'dino4': (2,),
+    'super_ivy':(3,), 'pyraminx_duo':(3,), 'coin_tetrahedron':(3,),
+    'dino_skewb':(4,), 'dayan_dino_skewb':(4,),
+    'petal_tetrahedron':(3,), 'petal_tetrahedron_nocentre':(3,),
+    'petal_icosahedron':(3,), 'petal_icosahedron_nocentre':(3,),
+    'pyraminx_diamond':(3,), 'pyraminx_crystal':(3,), 'starminx_i':(3,),
+    'pentultimate':(3,), 'master_pentultimate':(3,), 'rediminx':(3,),
+    'dogic_i':(3,), 'dogic_20':(3,), 'master_brilic':(3,),
+    'pentagonal_domino':(2,), 'pentagonal_prism':(3,),
+    'pentagonal_4':(4,), 'professor_pentagonal':(5,),
+    'floppy_133':(3,), 'cuboid_332':(3,), 'cuboid_223':(3,), 'cuboid_334':(4,),
+    'tangram':(3,),
 }
 DINO4_SCAN_PALETTE=((1,.85,0,1),(.9,.04,.05,1),(.06,.19,.9,1),(.98,.98,.98,1))
 CUBE_CODES = ('W', 'R', 'G', 'Y', 'O', 'B')
@@ -26,6 +37,8 @@ DEFAULT_PALETTES = {
     8: ((.98,.98,.98,1),(.02,.65,.18,1),(.9,.05,.06,1),(.51,.12,.73,1),
         (.97,.31,.61,1),(1,.47,.02,1),(.05,.2,.91,1),(.62,.86,.12,1)),
 }
+DEFAULT_PALETTES[7]=((.04,.08,.85,1),(.02,.65,.14,1),(.9,.035,.035,1),
+                    (1.,.42,.01,1),(.98,.83,.02,1),(.55,.57,.59,1),(.98,.98,.98,1))
 DEFAULT_PALETTES[20] = DEFAULT_PALETTES[8] + (
     (1,.85,.02,1),(.02,.73,.83,1),(.58,.6,.64,1),(.2,.08,.47,1),
     (.46,.22,.1,1),(.94,.63,.46,1),(.49,.78,.97,1),(.86,.55,.95,1),
@@ -138,15 +151,42 @@ class ScanProfile:
                     r,c=rc_from_pos(3,face,home)
                     surfaces.append(Surface(len(surfaces),color,polygon,(polygon,),(face,r,c)))
             self.surfaces=tuple(surfaces)
+        elif kind=='tangram':
+            from cube.articulated import ArticulatedCube
+            from cube.articulated_observation import color_templates,face_world
+            model=ArticulatedCube(kind);self.spec=model.geometry.spec
+            self.normals=CUBE;self.body=body_faces(self.spec)
+            surfaces=[]
+            for face,templates in enumerate(color_templates()):
+                for sample,outline in enumerate(templates):
+                    polygon=face_world(outline,face)
+                    surfaces.append(Surface(len(surfaces),face,polygon,(polygon,),(face,sample)))
+            self.surfaces=tuple(surfaces)
         else:
-            g=geometry(kind,n)
+            from cube.polyhedral import PolyhedralPuzzle
+            if (kind.startswith('cuboid_') or kind=='floppy_133'):
+                from cube.cuboid import CuboidCube
+                model=CuboidCube.solved(kind)
+            else:model=PolyhedralPuzzle(kind,n)
+            g=model.geometry
             self.spec=g.spec
             self.normals=g.spec.normals
             self.body=body_faces(g.spec)
-            self.surfaces=tuple(Surface(i,s.face,s.polygon,s.patches or (s.polygon,)) for i,s in enumerate(g.stickers))
+            if (kind.startswith('cuboid_') or kind=='floppy_133'):
+                from cube.polyhedral import body
+                from renderer.cuboid_surfaces import surfaces
+                panels=[(poly,normal,slot) for poly,normal,colour,slot,*_ in surfaces(model) if colour>=0]
+                points=[p for poly,normal,slot in panels for p in poly]
+                bounds=[(min(p[a] for p in points),max(p[a] for p in points)) for a in range(3)]
+                self.body=tuple(tuple(tuple(bounds[a][v>0] for a,v in enumerate(p)) for p in face) for face in body(CUBE))
+                self.surfaces=tuple(Surface(slot,next(i for i,n in enumerate(CUBE) if sum(a*b for a,b in zip(n,normal))>1-1e-7),poly,(poly,),
+                                    tuple(i for i,s in enumerate(g.stickers) if s.piece==g.stickers[slot].piece and s.face==g.stickers[slot].face))
+                                    for poly,normal,slot in sorted(panels,key=lambda p:p[2]))
+            else:self.surfaces=tuple(Surface(i,s.face,s.polygon,s.patches or (s.polygon,)) for i,s in enumerate(g.stickers))
         self.cubic=len(self.normals)==6 and tuple(self.normals)==CUBE
         self.face_keys=tuple(next(f for f,v in FACE_NORMALS.items() if tuple(v)==normal) for normal in self.normals) if self.cubic else tuple(str(i+1) for i in range(len(self.normals)))
-        default=DINO4_SCAN_PALETTE if kind=='dino4' else DEFAULT_PALETTES[len(self.normals)]
+        count=12 if kind=='dogic_i' else len(self.normals)
+        default=DINO4_SCAN_PALETTE if kind=='dino4' else DEFAULT_PALETTES[count]
         self.palette=tuple(tuple(c) for c in (palette or default))
         self._templates={}
 
@@ -198,6 +238,10 @@ class ScanProfile:
 
     def from_cube(self,cube,recorded=None):
         data=self.blank()
+        if self.kind=='tangram':
+            if recorded is not None and not recorded:return data
+            from cube.articulated_observation import ObservationDraft
+            return self.from_observations(ObservationDraft.from_cube(cube).state())
         if self.kind!='pandora':
             for s in self.surfaces:data[self.face_keys[s.face]][s.index]=int(cube.colors[s.index])
         elif recorded:
@@ -223,11 +267,20 @@ class ScanProfile:
                 and all(0<=v<len(self.palette) for v in values.values()))
 
     def apply(self,data,cube):
+        if getattr(cube,'puzzle_kind',None)!=self.kind or cube.n!=self.n:raise ValueError('camera.invalid_input')
+        if not isinstance(data,dict) or any(not isinstance(data.get(face,{}),dict) for face in self.face_keys):
+            raise ValueError('camera.invalid_input')
+        if self.kind=='tangram':raise ValueError('camera.observation_input')
         if self.kind!='pandora':
-            colors=[data.get(self.face_keys[s.face],{}).get(s.index,-1) for s in self.surfaces]
-            if any(v < -1 or v >= len(self.palette) for v in colors):raise ValueError('camera.invalid_input')
+            colors=[-1]*len(cube.colors)
+            for s in self.surfaces:
+                value=data.get(self.face_keys[s.face],{}).get(s.index,-1)
+                for index in s.cell if (self.kind.startswith('cuboid_') or self.kind=='floppy_133') else (s.index,):colors[index]=value
+            if any(type(v) is not int or v < -1 or v >= len(self.palette) for v in colors):raise ValueError('camera.invalid_input')
             result=cube.clone()
             result.colors=colors
+            if hasattr(result,'history'):result.history=None
+            if hasattr(result,'scramble_history'):result.scramble_history=None
             return result
         if not all(self.complete(data,f) for f in self.face_keys):
             raise ValueError('camera.complete_first')
@@ -264,6 +317,30 @@ class ScanProfile:
                       else CUBE_CODES)
         palette=tuple(base_palette[CUBE_CODES.index(c)] for c in centres)
         return PandoraCube(pieces,palette=palette)
+
+    @property
+    def entry_screen(self):
+        return {'pandora':'InputScreen','tangram':'ArticulatedEntryScreen'}.get(self.kind,'PolyhedralScreen')
+
+    def observations(self,data):
+        from cube.articulated_observation import ObservationDraft
+        if self.kind!='tangram' or not isinstance(data,dict) or any(not isinstance(data.get(face,{}),dict) for face in self.face_keys):
+            raise ValueError('camera.invalid_input')
+        draft=ObservationDraft(self.kind)
+        for surface in self.surfaces:
+            value=data.get(self.face_keys[surface.face],{}).get(surface.index,-1)
+            if type(value) is not int or not -1<=value<len(self.palette):raise ValueError('camera.invalid_input')
+            if value>=0:draft.paint_samples(surface.cell[0],(surface.cell[1],),value)
+        return draft
+
+    def from_observations(self,state):
+        from cube.articulated_observation import ObservationDraft,color_templates,polygon_key
+        draft=ObservationDraft(self.kind,state);data=self.blank()
+        for surface in self.surfaces:
+            face,index=surface.cell;key=polygon_key(color_templates()[face][index])
+            data[self.face_keys[face]][surface.index]=next((p['color'] for p in draft.views[face]
+                if polygon_key(p['outline'])==key),-1)
+        return data
 
 
 def _interior(polygon,patches):

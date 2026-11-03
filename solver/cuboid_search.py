@@ -28,7 +28,7 @@ def search_model(kind):
     rotations = {m: turn_frame(m.axis, m.amount) for m in atoms}
     transitions = []; legal = []; goals = []; aliases = []
     home_panels = {p: tuple({s.face for s in base.stickers if s.piece == p}) for p in range(len(cells))}
-    bounds = ((-2., 3.),)*3 if kind == 'camouflage_3' else tuple((-d/2, d/2) for d in cube.dimensions)
+    bounds = getattr(cube, 'shell_bounds', ((-2., 3.),)*3 if kind == 'camouflage_3' else tuple((-d/2, d/2) for d in cube.dimensions))
     for piece, group in enumerate(cells):
         equivalence = {}; canonical = []
         for f, frame in enumerate(ROTATIONS):
@@ -50,9 +50,11 @@ def search_model(kind):
                 if dest != 255:
                     allowed |= 1 << i
             rows.append(bytes(row)); masks.append(allowed)
-            if (all(transform(frame, CUBE[face]) == CUBE[face] for face in home_panels[piece]) and
+            solved_pose = (cube.pose_is_solved(piece, frame) if hasattr(cube, 'pose_is_solved') else
+                (all(transform(frame, CUBE[face]) == CUBE[face] for face in home_panels[piece]) and
                 all(bounds[a][0]-1e-8 <= p[a] <= bounds[a][1]+1e-8
-                    for corner in product(*boxes[piece]) for p in (transform(frame, corner),) for a in range(3))):
+                    for corner in product(*boxes[piece]) for p in (transform(frame, corner),) for a in range(3))))
+            if solved_pose:
                 target.append(canonical[f])
         transitions.append(tuple(rows)); legal.append(tuple(masks)); goals.append(tuple(sorted(set(target))))
     anchor = max(range(len(cells)), key=lambda p: len(cells[p]))
@@ -171,7 +173,47 @@ def packed_actions(kind):
 
 
 def packed_turn(state, tables):
+    if len(tables)==4:
+        # Camouflage and the common 4x4 cuboid layouts occupy four blocks.
+        # Avoid a generator, zip and join on every expanded search edge.
+        return (state[:8].translate(tables[0])+state[8:16].translate(tables[1])
+                +state[16:24].translate(tables[2])+state[24:32].translate(tables[3]))
     return b''.join(state[start:start+8].translate(table) for start, table in zip(range(0, len(state), 8), tables))
+
+
+def camouflage_anchor(state,cancel=None,kind='camouflage_3'):
+    """Hold the unique 2x2x2 corner brick fixed, using actual legal turns.
+
+    Every bonded span is contained in one side of each zero plane. Therefore
+    complementary half-cube turns always implement a whole rotation. A legal
+    slab turn moving the anchor has an equivalent complementary slab turn in
+    the anchor's frame. After alignment, excluding anchor turns preserves
+    reachability, while removing the 24 equivalent global holdings.
+    """
+    from collections import deque
+    atoms,transitions,legal,goals,_,aliases=search_model(kind)
+    masks,actions=packed_actions(kind)
+    cells=layout(kind)[0];anchor=max(range(len(cells)),key=lambda p:len(cells[p]))
+    target=(anchor%8)*24+aliases[anchor][ROTATIONS.index(IDENTITY)]
+    whole=tuple((atoms.index(Move(face,1,amount)),atoms.index(Move((face+3)%6,1,(-amount)%4)))
+                for face in range(3) for amount in (1,2,3))
+    pending=deque([(state,())]);seen={state[anchor]}
+    while pending:
+        if cancel and cancel():raise InterruptedError()
+        current,prefix=pending.popleft()
+        if current[anchor]==target:
+            pose=target-(anchor%8)*24
+            fixed=sum(1<<i for i,dest in enumerate(transitions[anchor][pose]) if dest==pose)
+            return current,prefix,fixed
+        for pair in whole:
+            child=current
+            for index in pair:
+                if any(not masks[p][f]&(1<<index) for p,f in enumerate(child)):break
+                child=packed_turn(child,actions[index])
+            else:
+                if child[anchor] not in seen:
+                    seen.add(child[anchor]);pending.append((child,prefix+tuple(atoms[i] for i in pair)))
+    raise ValueError('cuboid.identity_unreachable')
 
 
 def build_endgame(kind, destination, maximum=220000, depth=5, report=None):
@@ -233,15 +275,67 @@ def endgame_table(kind):
     return keys, words, blob[count*12:]
 
 
-def solve_bandaged_cuboid(original, cancel=None, progress=None, seconds=45.):
+def solve_bandaged_cuboid(original, cancel=None, progress=None, seconds=None):
+    """Try fast orderings, then continue a complete cancellable search.
+
+    Overlapping pattern distances can favour a long dead end. Counting
+    physically misplaced pieces provides an independent ordering, while every
+    candidate still uses the same exact legal moves and final replay.
+    """
+    deadline=monotonic()+seconds if seconds is not None else float('inf')
+    attempts=((4.,(1.,1.,0.,0.)),(4.,(.1,1.,0.,0.)),
+              (4.,(5.,5.,1.,1.)),(5.,(1.,0.,1.,2.)),
+              (5.,(1.,1.,0.,1.)),(7.,(1.,1.,0.,2.)),(5.,(1.,0.,5.,1.)))
+    if original.puzzle_kind not in ('camouflage_3','mirror_camouflage_3') or seconds is not None and seconds<10:
+        return _search_bandaged_cuboid(original,cancel,progress,seconds)
+    from cube.cuboid import CuboidCube
+    if isinstance(original,CuboidCube):
+        # Always-legal half-cube turns absorb corner permutations. Search the
+        # much smaller remaining graph before the full physical graph. This
+        # bounded shortcut has its own visited set and never prunes fallback.
+        from solver.camouflage_reduction import solve_octants
+        remaining=deadline-monotonic()
+        if remaining<=0:raise TimeoutError('cuboid.search_budget')
+        try:
+            word=solve_octants(original,cancel,seconds=min(3.,remaining))
+        except FileNotFoundError:
+            word=None  # Optional acceleration data may be absent in old installs.
+        if word is not None:
+            if progress:progress(1,1)
+            return word
+    context={}
+    for budget,weights in attempts:
+        if cancel and cancel():raise InterruptedError()
+        remaining=deadline-monotonic()
+        if remaining<=0:raise TimeoutError('cuboid.search_budget')
+        try:
+            return _search_bandaged_cuboid(original,cancel,progress,min(budget,remaining),
+                                           weights=weights,fast_fraction=1.,_context=context)
+        except TimeoutError:pass
+    remaining=deadline-monotonic()
+    if remaining<=0:raise TimeoutError('cuboid.search_budget')
+    return _search_bandaged_cuboid(original,cancel,progress,None if seconds is None else remaining,
+                                   _context=context)
+
+
+def _search_bandaged_cuboid(original, cancel=None, progress=None, seconds=45., *, weights=(1.,1.,0.,0.), fast_fraction=.8,
+                            _context=None):
     from solver.cuboid_static import normalize
-    cube = normalize(original, cancel)
+    if cancel and cancel():raise InterruptedError()
+    context={} if _context is None else _context
+    if 'cube' not in context:context['cube']=normalize(original,cancel)
+    cube=context['cube']
     atoms, transitions, legal, goals, _, aliases = search_model(cube.puzzle_kind)
-    tables = pattern_tables(cube.puzzle_kind)
+    tables=pattern_tables(cube.puzzle_kind)
     frame_at = {frame: i for i, frame in enumerate(ROTATIONS)}
     start = bytes((p % 8)*24+aliases[p][frame_at[f]] for p, f in enumerate(cube.frames))
     goal_sets = tuple(frozenset((p % 8)*24+f for f in g) for p, g in enumerate(goals))
     masks, actions = packed_actions(cube.puzzle_kind)
+    if 'alignment' not in context:
+        aligned,prefix,fixed=(camouflage_anchor(start,cancel,cube.puzzle_kind) if cube.puzzle_kind in ('camouflage_3','mirror_camouflage_3')
+                              else (start,(),(1<<len(atoms))-1))
+        context['alignment']=aligned,prefix,fixed
+    start,alignment,fixed_moves=context['alignment']
     four = []; five = []; small = []
     for pieces, distances, packed in tables:
         offset = 0
@@ -277,10 +371,15 @@ def solve_bandaged_cuboid(original, cancel=None, progress=None, seconds=45.):
                 best = value
             total += value
         return best, total
+    # Search orderings share only immutable facts about a physical state.
+    # Their visited sets stay separate: failure in a bounded search must not
+    # prune a branch from the complete fallback. These caches are per solve.
+    if 'estimates' not in context:
+        context['estimates']=lru_cache(maxsize=16000)(estimates)
+    estimates=context['estimates']
     def heuristic(state):
         return estimates(state)[0]
-    deadline = monotonic()+seconds; nodes = 0; path = []; seen = {}
-    all_moves = (1 << len(atoms))-1
+    deadline = monotonic()+seconds if seconds is not None else float('inf'); nodes = 0; path = []; seen = {}
     groups = tuple((m.axis % 3, m.axis* cube.core_n+m.layer) for m in atoms)
     endings = endgame_table(cube.puzzle_kind)
     def ending(state):
@@ -299,8 +398,11 @@ def solve_bandaged_cuboid(original, cancel=None, progress=None, seconds=45.):
         # Fingerprints are only an index. Full state checking prevents a
         # collision from ever accepting an incorrect or illegal solution.
         return tuple(tail) if all(f in goal_sets[p] for p, f in enumerate(current)) else None
+    if 'ending' not in context:
+        context['ending']=lru_cache(maxsize=8000)(ending)
+    ending=context['ending']
     def children(state, last_axis=-1, last_band=-1):
-        mask = all_moves
+        mask = fixed_moves
         for p, f in enumerate(state):
             mask &= masks[p][f]
         while mask:
@@ -310,9 +412,9 @@ def solve_bandaged_cuboid(original, cancel=None, progress=None, seconds=45.):
                 continue
             nxt = packed_turn(state, actions[index])
             if nxt != state:
-                h, score = estimates(nxt)
-                yield h, score, index, nxt
+                yield index, nxt
     def replay(word):
+        word=tuple(alignment)+tuple(word)
         result = original.entered()
         for move in word:
             if cancel and cancel():
@@ -324,9 +426,13 @@ def solve_bandaged_cuboid(original, cancel=None, progress=None, seconds=45.):
     # Find an economical legal answer before trying to prove the shortest
     # depth. Memory is capped explicitly, independently of the puzzle depth.
     initial_h, initial_score = estimates(start)
+    wg,ws,wh,we=weights
+    def priority(state,depth,h,score):
+        incorrect=sum(f not in goal_sets[p] for p,f in enumerate(state)) if we else 0
+        return wg*depth+ws*score+wh*h+we*incorrect
     records = [(start, -1, -1, 0, -1, -1)]
-    pending = [(initial_score, initial_h, 0)]; best = {(start, -1): 0}
-    fast_deadline = min(deadline, monotonic()+max(.1, seconds*.8))
+    pending = [(priority(start,0,initial_h,initial_score), initial_h, 0)]; best = {(start, -1): 0}
+    fast_deadline = min(deadline, monotonic()+max(.1, seconds*fast_fraction)) if seconds is not None else 0.
     processed = {}
     while pending and monotonic() < fast_deadline:
         if cancel and cancel():
@@ -361,16 +467,38 @@ def solve_bandaged_cuboid(original, cancel=None, progress=None, seconds=45.):
                 word.append(atoms[move_index]); record = parent
                 state, parent, move_index, depth, last_axis, last_band = records[record]
             return replay(tuple(reversed(word))+(tail or ()))
-        for next_h, score, index, nxt in children(state, last_axis, last_band):
+        for index, nxt in children(state, last_axis, last_band):
             axis, band = groups[index]; key = (nxt, band)
-            if next_h == 255 or best.get(key, 1000000) <= depth+1 or processed.get(key, 1000000) <= depth+1:
+            if best.get(key, 1000000) <= depth+1 or processed.get(key, 1000000) <= depth+1:
                 continue
+            next_h,score=estimates(nxt)
+            if next_h==255:continue
             best[key] = depth+1; position = len(records)
             records.append((nxt, record, index, depth+1, axis, band))
-            heapq.heappush(pending, (depth+1+score, next_h, position))
+            heapq.heappush(pending, (priority(nxt,depth+1,next_h,score), next_h, position))
             if len(records) >= 50000:
                 break
     del records, pending, best, processed
+    if seconds is None:
+        from solver.complete_search import deepen,Exhausted
+        def complete_children(node):
+            state,last_axis,last_band=node
+            for index,nxt in children(state,last_axis,last_band):
+                h,score=estimates(nxt)
+                if h!=255:yield (nxt,*groups[index]),atoms[index]
+        def complete_goal(node):
+            state=node[0]
+            if all(f in goal_sets[p] for p,f in enumerate(state)):return ()
+            return ending(state)
+        def complete_estimate(node):return estimates(node[0])[1]
+        def complete_progress(bound,expanded):
+            if progress:progress(-1,0)
+        try:
+            word=deepen((start,-1,-1),complete_goal,complete_children,complete_estimate,
+                        cancel=cancel,progress=complete_progress,cache_limit=50000,
+                        resume_key=('cuboid-physical-v1',cube.puzzle_kind,fixed_moves))
+        except Exhausted:raise ValueError('cuboid.identity_unreachable') from None
+        return replay(word)
     def visit(state, remaining, last_axis=-1, last_band=-1, known_h=None):
         nonlocal nodes
         nodes += 1
@@ -392,7 +520,7 @@ def solve_bandaged_cuboid(original, cancel=None, progress=None, seconds=45.):
             return 1000000000
         if len(seen) < 50000:
             seen[key] = remaining
-        candidates = children(state, last_axis, last_band)
+        candidates = ((*estimates(nxt),index,nxt) for index,nxt in children(state,last_axis,last_band))
         minimum = 1000000000
         for h, score, index, nxt in sorted(candidates):
             if h >= remaining:

@@ -19,6 +19,7 @@ def prepared():
 
 
 def solve_fisher_skewb(cube,cancel=None,progress=None):
+    appearance=getattr(cube,'appearance',globals()['appearance'])
     if cancel and cancel(): raise InterruptedError()
     cube.labeled_state()
     if cube.is_solved(): return ()

@@ -1,0 +1,35 @@
+[
+  {
+    "kind": "time_machine",
+    "cycle_length": 3,
+    "cycle_word_moves": 18,
+    "all_other_slots_fixed": true,
+    "orbit_size": 72,
+    "conjugate_cycles": 119280,
+    "expected_cycles": 119280,
+    "complete": true,
+    "seconds": 0.215
+  },
+  {
+    "kind": "bean_6",
+    "cycle_length": 3,
+    "cycle_word_moves": 8,
+    "all_other_slots_fixed": true,
+    "orbit_size": 60,
+    "conjugate_cycles": 68440,
+    "expected_cycles": 68440,
+    "complete": true,
+    "seconds": 0.047
+  },
+  {
+    "kind": "bean_10",
+    "cycle_length": 3,
+    "cycle_word_moves": 8,
+    "all_other_slots_fixed": true,
+    "orbit_size": 100,
+    "conjugate_cycles": 323400,
+    "expected_cycles": 323400,
+    "complete": true,
+    "seconds": 0.371
+  }
+]

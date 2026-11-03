@@ -1,0 +1,65 @@
+[
+  {
+    "kind": "i_cube",
+    "seed": 223,
+    "scramble": 30,
+    "history": null,
+    "moves": 26,
+    "solved": true,
+    "seconds": 0.329
+  },
+  {
+    "kind": "l_cube",
+    "seed": 223,
+    "scramble": 30,
+    "history": null,
+    "moves": 265,
+    "solved": true,
+    "seconds": 0.578
+  },
+  {
+    "kind": "t_cube",
+    "seed": 223,
+    "scramble": 30,
+    "history": null,
+    "moves": 356,
+    "solved": true,
+    "seconds": 0.922
+  },
+  {
+    "kind": "x_cube",
+    "seed": 223,
+    "scramble": 30,
+    "history": null,
+    "moves": 582,
+    "solved": true,
+    "seconds": 1.796
+  },
+  {
+    "kind": "tri_cube",
+    "seed": 223,
+    "scramble": 30,
+    "history": null,
+    "moves": 188,
+    "solved": true,
+    "seconds": 0.688
+  },
+  {
+    "kind": "temple_cube",
+    "seed": 223,
+    "scramble": 30,
+    "history": null,
+    "moves": 941,
+    "solved": true,
+    "seconds": 3.328
+  },
+  {
+    "kind": "cross_cube",
+    "seed": 223,
+    "scramble": 30,
+    "history": null,
+    "moves": 1068,
+    "solved": true,
+    "seconds": 5.047
+  }
+]

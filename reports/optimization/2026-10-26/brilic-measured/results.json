@@ -1,0 +1,266 @@
+[
+  {
+    "kind": "master_brilic",
+    "seed": 20261102,
+    "scramble_turns": 30,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\brilic-measured\\inputs\\master_brilic-20261102-30.json",
+    "input_method": "fixed visible model panels, colours only",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 0.078,
+    "success": true,
+    "moves": 2565,
+    "failure_category": "",
+    "solve_seconds": 0.891,
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.015,
+    "seconds": 0.984,
+    "shortening": [
+      {
+        "before": 2567,
+        "after": 2565,
+        "seconds": 0.125
+      }
+    ],
+    "colour_stage_plans": [
+      {
+        "pieces": 60,
+        "before": 1168,
+        "after": 938
+      },
+      {
+        "pieces": 60,
+        "before": 1130,
+        "after": 1130
+      },
+      {
+        "pieces": 60,
+        "before": 348,
+        "after": 303
+      }
+    ],
+    "process_seconds": 1.203
+  },
+  {
+    "kind": "master_brilic",
+    "seed": 20261103,
+    "scramble_turns": 30,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\brilic-measured\\inputs\\master_brilic-20261103-30.json",
+    "input_method": "fixed visible model panels, colours only",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 0.094,
+    "success": true,
+    "moves": 2175,
+    "failure_category": "",
+    "solve_seconds": 0.875,
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.015,
+    "seconds": 0.984,
+    "shortening": [
+      {
+        "before": 2181,
+        "after": 2175,
+        "seconds": 0.11
+      }
+    ],
+    "colour_stage_plans": [
+      {
+        "pieces": 60,
+        "before": 1016,
+        "after": 887
+      },
+      {
+        "pieces": 60,
+        "before": 833,
+        "after": 833
+      },
+      {
+        "pieces": 60,
+        "before": 352,
+        "after": 288
+      }
+    ],
+    "process_seconds": 1.172
+  },
+  {
+    "kind": "master_brilic",
+    "seed": 20261104,
+    "scramble_turns": 30,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\brilic-measured\\inputs\\master_brilic-20261104-30.json",
+    "input_method": "fixed visible model panels, colours only",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 0.093,
+    "success": true,
+    "moves": 2377,
+    "failure_category": "",
+    "solve_seconds": 0.844,
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.016,
+    "seconds": 0.953,
+    "shortening": [
+      {
+        "before": 2381,
+        "after": 2377,
+        "seconds": 0.109
+      }
+    ],
+    "colour_stage_plans": [
+      {
+        "pieces": 60,
+        "before": 1111,
+        "after": 888
+      },
+      {
+        "pieces": 60,
+        "before": 994,
+        "after": 994
+      },
+      {
+        "pieces": 60,
+        "before": 369,
+        "after": 304
+      }
+    ],
+    "process_seconds": 1.14
+  },
+  {
+    "kind": "master_brilic",
+    "seed": 20261102,
+    "scramble_turns": 100,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\brilic-measured\\inputs\\master_brilic-20261102-100.json",
+    "input_method": "fixed visible model panels, colours only",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 0.094,
+    "success": true,
+    "moves": 2730,
+    "failure_category": "",
+    "solve_seconds": 0.922,
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.0,
+    "seconds": 1.016,
+    "shortening": [
+      {
+        "before": 2733,
+        "after": 2730,
+        "seconds": 0.141
+      }
+    ],
+    "colour_stage_plans": [
+      {
+        "pieces": 60,
+        "before": 1253,
+        "after": 987
+      },
+      {
+        "pieces": 60,
+        "before": 1238,
+        "after": 1238
+      },
+      {
+        "pieces": 60,
+        "before": 378,
+        "after": 313
+      }
+    ],
+    "process_seconds": 1.204
+  },
+  {
+    "kind": "master_brilic",
+    "seed": 20261103,
+    "scramble_turns": 100,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\brilic-measured\\inputs\\master_brilic-20261103-100.json",
+    "input_method": "fixed visible model panels, colours only",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 0.094,
+    "success": true,
+    "moves": 2822,
+    "failure_category": "",
+    "solve_seconds": 0.89,
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.016,
+    "seconds": 1.0,
+    "shortening": [
+      {
+        "before": 2831,
+        "after": 2822,
+        "seconds": 0.14
+      }
+    ],
+    "colour_stage_plans": [
+      {
+        "pieces": 60,
+        "before": 1205,
+        "after": 974
+      },
+      {
+        "pieces": 60,
+        "before": 1335,
+        "after": 1335
+      },
+      {
+        "pieces": 60,
+        "before": 357,
+        "after": 297
+      }
+    ],
+    "process_seconds": 1.718
+  },
+  {
+    "kind": "master_brilic",
+    "seed": 20261104,
+    "scramble_turns": 100,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\brilic-measured\\inputs\\master_brilic-20261104-100.json",
+    "input_method": "fixed visible model panels, colours only",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 0.094,
+    "success": true,
+    "moves": 2845,
+    "failure_category": "",
+    "solve_seconds": 0.906,
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.016,
+    "seconds": 1.016,
+    "shortening": [
+      {
+        "before": 2848,
+        "after": 2845,
+        "seconds": 0.14
+      }
+    ],
+    "colour_stage_plans": [
+      {
+        "pieces": 60,
+        "before": 1168,
+        "after": 944
+      },
+      {
+        "pieces": 60,
+        "before": 1395,
+        "after": 1395
+      },
+      {
+        "pieces": 60,
+        "before": 375,
+        "after": 294
+      }
+    ],
+    "process_seconds": 1.203
+  }
+]

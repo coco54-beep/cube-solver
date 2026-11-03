@@ -1,0 +1,190 @@
+{
+  "ordinary_orders": [
+    2,
+    3,
+    4,
+    5
+  ],
+  "irregular_kinds": 44,
+  "total_kind_order_options": 65,
+  "added_kinds": [
+    "coin_tetrahedron",
+    "cuboid_223",
+    "cuboid_332",
+    "cuboid_334",
+    "dayan_dino_skewb",
+    "dino_skewb",
+    "dogic_20",
+    "dogic_i",
+    "master_brilic",
+    "master_pentultimate",
+    "pentagonal_4",
+    "pentagonal_domino",
+    "pentagonal_prism",
+    "pentultimate",
+    "petal_icosahedron",
+    "petal_icosahedron_nocentre",
+    "petal_tetrahedron",
+    "petal_tetrahedron_nocentre",
+    "professor_pentagonal",
+    "pyraminx_crystal",
+    "pyraminx_diamond",
+    "pyraminx_duo",
+    "rediminx",
+    "starminx_i",
+    "super_ivy",
+    "tangram"
+  ],
+  "added_count": 26,
+  "orders": {
+    "skewb": [
+      3,
+      5
+    ],
+    "dino": [
+      2,
+      4
+    ],
+    "clover": [
+      3
+    ],
+    "eight_petals": [
+      3
+    ],
+    "ivy": [
+      3
+    ],
+    "void_cube": [
+      3
+    ],
+    "pandora": [
+      3
+    ],
+    "pyraminx": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "fto": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "icosahedron": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "megaminx": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "football": [
+      3,
+      5
+    ],
+    "blossom": [
+      3
+    ],
+    "moyu": [
+      3,
+      4,
+      5
+    ],
+    "void_tower": [
+      3
+    ],
+    "skewb_ultimate": [
+      3
+    ],
+    "void_minx": [
+      3
+    ],
+    "dino4": [
+      2
+    ],
+    "super_ivy": [
+      3
+    ],
+    "pyraminx_duo": [
+      3
+    ],
+    "coin_tetrahedron": [
+      3
+    ],
+    "dino_skewb": [
+      4
+    ],
+    "dayan_dino_skewb": [
+      4
+    ],
+    "petal_tetrahedron": [
+      3
+    ],
+    "petal_tetrahedron_nocentre": [
+      3
+    ],
+    "petal_icosahedron": [
+      3
+    ],
+    "petal_icosahedron_nocentre": [
+      3
+    ],
+    "pyraminx_diamond": [
+      3
+    ],
+    "pyraminx_crystal": [
+      3
+    ],
+    "starminx_i": [
+      3
+    ],
+    "pentultimate": [
+      3
+    ],
+    "master_pentultimate": [
+      3
+    ],
+    "rediminx": [
+      3
+    ],
+    "dogic_i": [
+      3
+    ],
+    "dogic_20": [
+      3
+    ],
+    "master_brilic": [
+      3
+    ],
+    "pentagonal_domino": [
+      2
+    ],
+    "pentagonal_prism": [
+      3
+    ],
+    "pentagonal_4": [
+      4
+    ],
+    "professor_pentagonal": [
+      5
+    ],
+    "cuboid_332": [
+      3
+    ],
+    "cuboid_223": [
+      3
+    ],
+    "cuboid_334": [
+      4
+    ],
+    "tangram": [
+      3
+    ]
+  }
+}

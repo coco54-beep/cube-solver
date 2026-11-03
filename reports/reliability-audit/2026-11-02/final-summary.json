@@ -1,0 +1,47 @@
+{
+  "status": "pass_with_skips",
+  "collected_not_slow": 4187,
+  "passed": 4176,
+  "conditional_skips": 11,
+  "skipped_tests": [
+    "tests/test_freeslice_atomic_insert_gate.py::test_atomic_insert_deterministic",
+    "tests/test_freeslice_atomic_insert_gate.py::test_atomic_insert_no_input_mutation",
+    "tests/test_freeslice_complete_tredge_gate.py::test_gate5_requires_recoverable_partial",
+    "tests/test_freeslice_store_partial_gate.py::test_store_no_input_mutation_and_deterministic",
+    "tests/test_master_clover.py::test_bonded_corner_observation_and_isolated_three_wing_lesson",
+    "tests/test_master_clover.py::test_routes_and_current_asset_selection_are_native_not_pending_aliases",
+    "tests/test_mixup_input_screen.py::test_full_turn_of_scrambled_block_keeps_verified_state_and_solution_path[inner_edge-mixup_333]",
+    "tests/test_mixup_input_screen.py::test_full_turn_of_scrambled_block_keeps_verified_state_and_solution_path[inner_edge-mixup_334]",
+    "tests/test_mixup_input_screen.py::test_full_turn_of_scrambled_block_keeps_verified_state_and_solution_path[inner_edge-mixup_344]",
+    "tests/test_mixup_input_screen.py::test_full_turn_of_scrambled_block_keeps_verified_state_and_solution_path[inner_edge-mixup_444]",
+    "tests/test_pisces.py::test_single_directory_home_public_entry_twist_replay_and_original_lessons"
+  ],
+  "slow_deselected": 4,
+  "uncovered_selected_tests": [],
+  "rechecked_after_fixes": 52,
+  "initial_failures_resolved_by_rechecks": [
+    "tests/test_warmup.py::test_5x5_warmup_on_demand",
+    "tests/test_optimization_regressions.py::test_bad_checkpoint_does_not_change_live_puzzle[bad_screens0]",
+    "tests/test_optimization_regressions.py::test_bad_checkpoint_does_not_change_live_puzzle[bad_screens1]"
+  ],
+  "catalogue_routes": 235,
+  "catalogue_errors": 0,
+  "visible_pages": 76,
+  "visible_page_errors": 0,
+  "python_sources_syntax_checked": 506,
+  "desktop_startup": {
+    "normal_startup": true,
+    "startup_seconds": 1.5,
+    "pause_accepted": true,
+    "resume_preserved_page": true,
+    "frames": 32,
+    "maximum_observed_frame_gap": 0.328,
+    "window_size": [
+      800,
+      600
+    ]
+  },
+  "android_device_tested": false,
+  "package_built": false,
+  "remaining_issue": "Some deep manual shape solves remain slow; no arbitrary-state performance guarantee."
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "kind": "rediminx",
+    "seed": 223,
+    "scramble": 30,
+    "history": null,
+    "moves": 135,
+    "solved": true,
+    "seconds": 0.734
+  },
+  {
+    "kind": "blanker",
+    "seed": 223,
+    "scramble": 30,
+    "history": null,
+    "moves": 20,
+    "solved": true,
+    "seconds": 0.25
+  },
+  {
+    "kind": "mirror_kilominx",
+    "seed": 223,
+    "scramble": 30,
+    "history": null,
+    "moves": 125,
+    "solved": true,
+    "seconds": 6.453
+  },
+  {
+    "kind": "mirror_megaminx",
+    "seed": 223,
+    "scramble": 30,
+    "history": null,
+    "moves": 150,
+    "solved": true,
+    "seconds": 6.75
+  }
+]

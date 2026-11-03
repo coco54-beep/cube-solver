@@ -1,0 +1,9 @@
+{
+  "success": false,
+  "message": "Cancelled",
+  "progress": [
+    {
+      "label": "mixup.restoring"
+    }
+  ]
+}

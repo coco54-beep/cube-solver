@@ -9,9 +9,10 @@ from ui.widgets.buttons import UIButton
 from kivy.graphics import Line, Color
 
 from app.constants import COLOR_INFO
+from renderer.entry_style import UNENTERED,SEAM,stroke
 
-_BORDER = (0.05, 0.05, 0.05, 1)  # 黑色边框
-_EMPTY = (0.20, 0.23, 0.30, 1)   # 空格的深蓝灰底（与白色/浅色格明显区分）
+_BORDER = SEAM
+_EMPTY = UNENTERED
 
 
 class FaceGrid(GridLayout):
@@ -62,17 +63,17 @@ class FaceGrid(GridLayout):
         self.canvas.after.clear()
         with self.canvas.after:
             Color(*_BORDER)
-            self._outer = Line(rectangle=(0, 0, self.width, self.height), width=3)
+            self._outer = Line(rectangle=(0, 0, self.width, self.height), width=stroke('outline'))
             self._glines = []
             grid_x0 = extra * cs
             grid_x1 = grid_x0 + n * cs
             grid_y1 = n * cs
             for i in range(n + 1):
                 x = grid_x0 + i * cs
-                self._glines.append(Line(points=[x, 0, x, grid_y1], width=2))
+                self._glines.append(Line(points=[x, 0, x, grid_y1], width=stroke()))
             for j in range(n + 1):
                 y = j * cs
-                self._glines.append(Line(points=[grid_x0, y, grid_x1, y], width=2))
+                self._glines.append(Line(points=[grid_x0, y, grid_x1, y], width=stroke()))
         self.bind(pos=self._update_outer, size=self._update_outer)
 
     def _update_outer(self, *args):

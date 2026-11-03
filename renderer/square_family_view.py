@@ -3,23 +3,24 @@ import math
 
 from kivy.clock import Clock
 from cube.polyhedral import add,scale,dot,cross,unit,rotate,mean
-from renderer.square1_view import Square1View,surfaces as square1_surfaces
-from renderer.mirror_material import inset_panel
+from renderer.square1_view import (Square1View,surfaces as square1_surfaces,
+                                   OUTER_HEIGHT,MIDDLE_HEIGHT,entry_groups,empty_ring)
+from renderer.entry_style import surface_panel
 
 
 def family_surfaces(cube):
     result = []
     count = cube.layer_count
-    for layer,start,width,piece in cube.groups():
-        outline = cube.outline(layer,start,width,piece)
+    for layer,start,width,piece in entry_groups(cube):
+        outline = empty_ring(layer,start,count) if piece is None else cube.outline(layer,start,width,piece)
         if count == 2:
-            low,high = (.27,1.1) if layer == 0 else (-1.1,-.27)
+            low,high = (MIDDLE_HEIGHT,OUTER_HEIGHT) if layer == 0 else (-OUTER_HEIGHT,-MIDDLE_HEIGHT)
         else:
-            high = 1.1-layer*.55-.012
-            low = high-.526
+            high = OUTER_HEIGHT-layer*.5
+            low = high-.5
         bottom = tuple((x,low,z) for x,z in outline)
         top = tuple((x,high,z) for x,z in outline)
-        cap,sides = cube.piece_colors(piece)
+        cap,sides = (-2,(-2,)) if piece is None else cube.piece_colors(piece)
         polygons = [(top,cap if layer == 0 else -1,0),
                     (bottom,cap if layer == count-1 else -1,0)]
         for i,(a,b) in enumerate(zip(outline,outline[1:]+outline[:1])):
@@ -43,10 +44,10 @@ def family_surfaces(cube):
         spindle = (math.sin(math.radians(75)),0.,math.cos(math.radians(75)))
         perpendicular = (math.cos(math.radians(75)),0.,-math.sin(math.radians(75)))
         for half in (0,1):
-            arc = tuple((.19*(spindle[0]*math.cos(t)+perpendicular[0]*math.sin(t)),
-                         .19*(spindle[2]*math.cos(t)+perpendicular[2]*math.sin(t)))
+            arc = tuple((.5*(spindle[0]*math.cos(t)+perpendicular[0]*math.sin(t)),
+                         .5*(spindle[2]*math.cos(t)+perpendicular[2]*math.sin(t)))
                         for t in ((math.pi/2+math.pi*i/12+math.pi*half) for i in range(13)))
-            for y,color,normal in ((1.105,0,(0.,1.,0.)),(-1.105,3,(0.,-1.,0.))):
+            for y,color,normal in ((1.004,0,(0.,1.,0.)),(-1.004,3,(0.,-1.,0.))):
                 points = tuple((x,y,z) for x,z in arc)
                 if half == 0 and cube.middle:
                     points = tuple(rotate(p,spindle,math.pi) for p in points)
@@ -56,7 +57,7 @@ def family_surfaces(cube):
     for points,normal,color,slot,layer,start,width in result:
         panels.append((points,normal,-1,slot,layer,start,width))
         if color >= 0 or color == -2:
-            panel = inset_panel(tuple(points),tuple(normal),.012)
+            panel = surface_panel(points,normal)
             if panel:
                 panels.append((panel,normal,color,slot,layer,start,width))
     return tuple(panels)

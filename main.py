@@ -39,8 +39,6 @@ def main():
     if here not in sys.path:
         sys.path.insert(0, here)
 
-    from app.application import CubeApp
-
     # Kivy 的正常错误也应写入日志
     try:
         from kivy.logger import Logger
@@ -49,6 +47,7 @@ def main():
         pass
 
     try:
+        from app.application import CubeApp
         CubeApp().run()
     except Exception:
         try:

@@ -102,4 +102,34 @@ JA={**EN,'directory.mixup_family':'Mixup シリーズ','directory.tangram_family
  'pentacle.disc_layer':'円盤 · 1°調整',
  'pentacle.core_layer':'層 · 90°',
 }
+ZH.update({'pentacle.entry_hint':'逐面录入颜色与圆盘角度；切线连成直线后才能拧层。滑块预览角度，再点“转动圆盘”。',
+ 'pentacle.solver_data':'五角星还原数据缺失或与模型不匹配，请更新应用。',
+ 'pentacle.invalid_geometry':'圆盘形状未能对齐，请检查录入的角度。',
+ 'pentacle.invalid_colours':'颜色或各类块的颜色数量不匹配，请检查六面的录入。',
+ 'pentacle.state_unreachable':'此配色无法由当前型号的合法转动得到，请检查录入。',
+ 'pentacle.replay_failed':'五角星公式未通过实际转动回放检查，请保留当前录入。'})
+EN.update({'pentacle.entry_hint':'Enter each face’s colours and disc angle. Align the star cuts before a layer turn. Preview an angle, then rotate the disc.',
+ 'pentacle.solver_data':'Pentacle solver data is missing or does not match the model. Update the app.',
+ 'pentacle.invalid_geometry':'The disc geometry could not be aligned. Check the entered angles.',
+ 'pentacle.invalid_colours':'Colours or piece-orbit counts do not match. Check all six faces.',
+ 'pentacle.state_unreachable':'This colouring is outside the model’s legal move group. Check the input.',
+ 'pentacle.replay_failed':'The Pentacle solution failed legal replay verification. Keep this input.'})
+JA.update({'pentacle.entry_hint':'各面の色と円盤角度を入力します。星の切れ目を一直線にしてから層を回します。角度をプレビューして適用します。',
+ 'pentacle.solver_data':'五角星の解法データがないかモデルと一致しません。アプリを更新してください。',
+ 'pentacle.invalid_geometry':'円盤の形状を合わせられません。入力角度を確認してください。',
+ 'pentacle.invalid_colours':'色またはパーツの色数が一致しません。六面の入力を確認してください。',
+ 'pentacle.state_unreachable':'この配色は合法回転では到達できません。入力を確認してください。',
+ 'pentacle.replay_failed':'五角星の解法の再生検証に失敗しました。入力を保持してください。'})
+ZH.update({'solver.continuing':'正在继续求解，可随时取消',
+ 'rigid.solver_data':'形状还原数据缺失或与当前型号不匹配，请更新应用。',
+ 'rigid.state_unreachable':'完整状态搜索已穷尽合法转动，未找到还原路径，请核对型号及录入。',
+ 'mixup.state_unreachable':'完整实体搜索已穷尽合法转动，未找到还原路径，请核对型号及录入。'})
+EN.update({'solver.continuing':'Continuing the solve. You can cancel at any time.',
+ 'rigid.solver_data':'Shape solver data is missing or does not match this model. Update the app.',
+ 'rigid.state_unreachable':'The complete state search exhausted legal moves without a solution. Check the model and input.',
+ 'mixup.state_unreachable':'The complete physical search exhausted legal moves without a solution. Check the model and input.'})
+JA.update({'solver.continuing':'求解を続けています。いつでも中止できます。',
+ 'rigid.solver_data':'形状解法データがないかモデルと一致しません。アプリを更新してください。',
+ 'rigid.state_unreachable':'合法回転の探索を尽くしましたが解法がありません。モデルと入力を確認してください。',
+ 'mixup.state_unreachable':'実体モデルの合法回転の探索を尽くしましたが解法がありません。モデルと入力を確認してください。'})
 MESSAGES={'zh':ZH,'en':EN,'ja':JA}

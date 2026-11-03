@@ -19,5 +19,5 @@ class MirrorPyraminxScreen(MirrorTowerScreen):
     def _refresh(self):
         super()._refresh()
         # A formula tutorial needs its own shape cases before being offered.
-        self.demo_button.disabled = True
-        self.demo_button.opacity = 0
+        self.demo_button.disabled = False
+        self.demo_button.opacity = 1

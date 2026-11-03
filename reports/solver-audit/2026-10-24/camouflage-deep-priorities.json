@@ -1,0 +1,101 @@
+[
+  {
+    "seed": 2,
+    "penalty": 0.1,
+    "success": false,
+    "seconds": 5.016,
+    "stats": {
+      "nodes": 473,
+      "records": 15137,
+      "search_seconds": 5.0
+    }
+  },
+  {
+    "seed": 2,
+    "penalty": 0.0,
+    "success": false,
+    "seconds": 5.015,
+    "stats": {
+      "nodes": 513,
+      "records": 16417,
+      "search_seconds": 5.0
+    }
+  },
+  {
+    "seed": 2,
+    "penalty": 0.3,
+    "success": false,
+    "seconds": 5.0,
+    "stats": {
+      "nodes": 473,
+      "records": 15137,
+      "search_seconds": 5.0
+    }
+  },
+  {
+    "seed": 0,
+    "penalty": 0.1,
+    "success": false,
+    "seconds": 5.0,
+    "stats": {
+      "nodes": 485,
+      "records": 15521,
+      "search_seconds": 5.0
+    }
+  },
+  {
+    "seed": 0,
+    "penalty": 0.0,
+    "success": false,
+    "seconds": 5.0,
+    "stats": {
+      "nodes": 495,
+      "records": 15841,
+      "search_seconds": 5.0
+    }
+  },
+  {
+    "seed": 0,
+    "penalty": 0.3,
+    "success": false,
+    "seconds": 5.0,
+    "stats": {
+      "nodes": 470,
+      "records": 15041,
+      "search_seconds": 5.0
+    }
+  },
+  {
+    "seed": 1,
+    "penalty": 0.1,
+    "success": false,
+    "seconds": 5.016,
+    "stats": {
+      "nodes": 511,
+      "records": 16353,
+      "search_seconds": 5.0
+    }
+  },
+  {
+    "seed": 1,
+    "penalty": 0.0,
+    "success": false,
+    "seconds": 5.0,
+    "stats": {
+      "nodes": 508,
+      "records": 16257,
+      "search_seconds": 5.0
+    }
+  },
+  {
+    "seed": 1,
+    "penalty": 0.3,
+    "success": false,
+    "seconds": 5.0,
+    "stats": {
+      "nodes": 491,
+      "records": 15713,
+      "search_seconds": 5.0
+    }
+  }
+]

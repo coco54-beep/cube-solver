@@ -31,11 +31,12 @@ def appearance(home,frame):
 
 class FisherSkewbCube(MirrorSkewbCube):
     puzzle_kind='fisher_skewb'
+    appearance=staticmethod(appearance)
 
     def piece_faces(self,home):
         return piece_faces(home)
 
     def is_solved(self):
         return (len(self.pieces)==len(self.geometry.pieces) and all(
-            appearance(piece.home,piece.frame)==appearance(position,IDENTITY)
+            self.appearance(piece.home,piece.frame)==self.appearance(position,IDENTITY)
             for position,piece in self.pieces.items()))

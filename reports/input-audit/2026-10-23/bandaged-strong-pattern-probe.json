@@ -1,0 +1,48 @@
+[
+  {
+    "kind": "burr_cube",
+    "seed": 1,
+    "success": false,
+    "message": "rigid.search_limit",
+    "stats": {
+      "records": 67893,
+      "pending": 51280,
+      "expanded": 428754,
+      "seconds": 25.014999999999418
+    },
+    "seconds": 25.078
+  },
+  {
+    "kind": "burr_cube",
+    "seed": 2,
+    "success": false,
+    "message": "rigid.search_limit",
+    "stats": {
+      "records": 57951,
+      "pending": 42367,
+      "expanded": 437241,
+      "seconds": 25.014999999999418
+    },
+    "seconds": 25.015
+  },
+  {
+    "kind": "ai_cube",
+    "seed": 2,
+    "success": false,
+    "message": "rigid.search_limit",
+    "stats": {
+      "records": 96560,
+      "pending": 82880,
+      "expanded": 223482,
+      "seconds": 25.01600000000326
+    },
+    "seconds": 25.047
+  },
+  {
+    "kind": "ai_cube",
+    "seed": 7,
+    "success": true,
+    "moves": 30,
+    "seconds": 0.312
+  }
+]

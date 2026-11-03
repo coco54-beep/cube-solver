@@ -1,0 +1,39 @@
+{
+  "reference": "pCubes Bandaged-4/Burr.xml",
+  "layout_version": 2,
+  "automated_checks_passed": 203,
+  "manual_cases": 4,
+  "all_manual_replays_solved": true,
+  "ui_pages": 2,
+  "demo_cases": 4,
+  "solver_certificate": {
+    "layout_version": 2,
+    "groups": 28,
+    "shell_cells": 56,
+    "layouts": 182070,
+    "verified_graph_edges": 1294884,
+    "verified_transversals": 178,
+    "setup": [
+      "U",
+      "D",
+      "2U",
+      "F",
+      "B",
+      "2U",
+      "R2",
+      "L2",
+      "F2",
+      "B2",
+      "2U",
+      "R",
+      "L",
+      "U",
+      "D",
+      "2U"
+    ],
+    "geometry": "ddc8a3bb68e0a0fc737cde57db54bf6867de7c4ba4e0d62be3ac6e8bcc7a4879",
+    "seconds": 2.735
+  },
+  "packaged": false,
+  "android_device_tested": false
+}

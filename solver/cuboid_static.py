@@ -276,6 +276,10 @@ def chain_for(kind):
 def normalize(cube, cancel=None):
     """Recover physical home identities from manually painted panels."""
     cells, boxes, entries, lookup, base = layout(cube.puzzle_kind)
+    if getattr(cube, 'material_only', False):
+        # Shapes already identify the solids; a silver panel is not a face ID.
+        if any(c != 0 for c in cube.colors):raise ValueError('cuboid.colours')
+        return cube
     if getattr(cube, 'panel_anchored', False):
         if all(color == sticker.face for color, sticker in zip(cube.colors, base.stickers)):
             return cube

@@ -9,6 +9,21 @@ from cube.mastermorphix import ROTATIONS,IDENTITY,positions_for_order,placements
 from cube.shape_cube import faces_for
 
 
+def _corner_twist_sum(cube):
+    """Cubic corner orientation; no solver tables or hidden shape IDs needed."""
+    from cube.colors import DEFAULT_COLORS
+    total=0
+    for pos,piece in cube.cubies.items():
+        if len(piece.stickers)!=3:continue
+        normal=next(n for n,color in piece.stickers.items() if color in
+                    (DEFAULT_COLORS['U'],DEFAULT_COLORS['D']))
+        axis=next(i for i,v in enumerate(normal) if v)
+        # The incident faces have opposite cyclic order on alternate corners.
+        order=(1,0,2) if pos[0]*pos[1]*pos[2]>0 else (1,2,0)
+        total+=order.index(axis)
+    return total%3
+
+
 @lru_cache(maxsize=2048)
 def surface_signature(kind,n,home,frame=IDENTITY):
     return tuple(sorted((color,tuple(sorted(tuple(round(v,6) for v in transform(frame,p)) for p in points)))
@@ -89,4 +104,16 @@ def normalize_high_shape_input(cube,cancelled=lambda:False):
             raise ValueError('shape.error.parity')
     result = cube.clone()
     result.cubies = {pos:make_piece(home,pos,frame,cube.n) for pos,(home,frame) in assigned.items()}
+    if _corner_twist_sum(result):
+        # A single-colour triangular cap has three identical visible poses.
+        # Keep every coloured surface exactly as entered while choosing a
+        # legal virtual orientation, instead of rejecting an invisible label.
+        for pos in corners:
+            home,frame=assigned[pos]
+            for candidate,rotation in choices[pos]:
+                if candidate!=home:continue
+                result.cubies[pos]=make_piece(home,pos,rotation,cube.n)
+                if not _corner_twist_sum(result):return result
+            result.cubies[pos]=make_piece(home,pos,frame,cube.n)
+        raise ValueError('shape.error.corner_twist')
     return result

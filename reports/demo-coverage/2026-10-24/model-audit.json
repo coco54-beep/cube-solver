@@ -1,0 +1,625 @@
+[
+  {
+    "kind": "cube",
+    "n": 6,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.031
+  },
+  {
+    "kind": "cube",
+    "n": 7,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.031
+  },
+  {
+    "kind": "cube",
+    "n": 8,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.032
+  },
+  {
+    "kind": "cube",
+    "n": 9,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.046
+  },
+  {
+    "kind": "cube",
+    "n": 10,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.063
+  },
+  {
+    "kind": "cube",
+    "n": 11,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.078
+  },
+  {
+    "kind": "cube",
+    "n": 12,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.078
+  },
+  {
+    "kind": "cube",
+    "n": 13,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.11
+  },
+  {
+    "kind": "cube",
+    "n": 14,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.14
+  },
+  {
+    "kind": "cube",
+    "n": 15,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.172
+  },
+  {
+    "kind": "cube",
+    "n": 16,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.203
+  },
+  {
+    "kind": "cube",
+    "n": 17,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.235
+  },
+  {
+    "kind": "mirror",
+    "n": 6,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.109
+  },
+  {
+    "kind": "mirror",
+    "n": 7,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.125
+  },
+  {
+    "kind": "mirror",
+    "n": 8,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.156
+  },
+  {
+    "kind": "mirror",
+    "n": 9,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.203
+  },
+  {
+    "kind": "mastermorphix",
+    "n": 6,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.407
+  },
+  {
+    "kind": "mastermorphix",
+    "n": 7,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.578
+  },
+  {
+    "kind": "mastermorphix",
+    "n": 8,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.64
+  },
+  {
+    "kind": "mastermorphix",
+    "n": 9,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.875
+  },
+  {
+    "kind": "pyraminx",
+    "n": 6,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.032
+  },
+  {
+    "kind": "pyraminx",
+    "n": 7,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.031
+  },
+  {
+    "kind": "skewb",
+    "n": 7,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.015
+  },
+  {
+    "kind": "dino",
+    "n": 6,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.032
+  },
+  {
+    "kind": "megaminx",
+    "n": 6,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.265
+  },
+  {
+    "kind": "megaminx",
+    "n": 7,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.0
+  },
+  {
+    "kind": "megaminx",
+    "n": 8,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.532
+  },
+  {
+    "kind": "megaminx",
+    "n": 9,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.015
+  },
+  {
+    "kind": "megaminx",
+    "n": 10,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 1.0
+  },
+  {
+    "kind": "megaminx",
+    "n": 11,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.016
+  },
+  {
+    "kind": "megaminx",
+    "n": 12,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 1.578
+  },
+  {
+    "kind": "megaminx",
+    "n": 13,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.016
+  },
+  {
+    "kind": "moyu",
+    "n": 6,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.015
+  },
+  {
+    "kind": "moyu",
+    "n": 7,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.0
+  },
+  {
+    "kind": "axis",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.047
+  },
+  {
+    "kind": "windmill",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.031
+  },
+  {
+    "kind": "fisher",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.032
+  },
+  {
+    "kind": "mixup_333",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.062
+  },
+  {
+    "kind": "mixup_334",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.047
+  },
+  {
+    "kind": "mixup_344",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.062
+  },
+  {
+    "kind": "mixup_444",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.079
+  },
+  {
+    "kind": "mixup_plus_333",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.062
+  },
+  {
+    "kind": "mixup_plus_334",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.078
+  },
+  {
+    "kind": "mixup_plus_344",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.11
+  },
+  {
+    "kind": "mixup_plus_444",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.125
+  },
+  {
+    "kind": "tangram",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 1.671
+  },
+  {
+    "kind": "tangram_extreme",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 4.235
+  },
+  {
+    "kind": "ghost",
+    "n": 1,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.015
+  },
+  {
+    "kind": "ghost",
+    "n": 2,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.0
+  },
+  {
+    "kind": "ghost",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.0
+  },
+  {
+    "kind": "ghost",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.016
+  },
+  {
+    "kind": "pentacle",
+    "n": 3,
+    "status": "fail",
+    "error": "('pentacle', 3, 'reverse')",
+    "traceback": "Traceback (most recent call last):\n  File \"<stdin>\", line 17, in <module>\nAssertionError: ('pentacle', 3, 'reverse')\n"
+  },
+  {
+    "kind": "ghost_pyramid",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.031
+  },
+  {
+    "kind": "mirror_pyraminx",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.0
+  },
+  {
+    "kind": "mirror_pyraminx",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.031
+  },
+  {
+    "kind": "mirror_skewb",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.016
+  },
+  {
+    "kind": "circle_2",
+    "n": 2,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.015
+  },
+  {
+    "kind": "o2",
+    "n": 1,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.0
+  },
+  {
+    "kind": "ancient_coin",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.313
+  },
+  {
+    "kind": "crazy_mercury",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.016
+  },
+  {
+    "kind": "crazy_venus",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.0
+  },
+  {
+    "kind": "crazy_earth",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.015
+  },
+  {
+    "kind": "crazy_mars",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.0
+  },
+  {
+    "kind": "crazy_jupiter",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.016
+  },
+  {
+    "kind": "crazy_saturn",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.0
+  },
+  {
+    "kind": "crazy_uranus",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.0
+  },
+  {
+    "kind": "crazy_neptune",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.015
+  },
+  {
+    "kind": "cuboid_332",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.047
+  },
+  {
+    "kind": "cuboid_223",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.032
+  },
+  {
+    "kind": "cuboid_334",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.062
+  },
+  {
+    "kind": "cuboid_224",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.031
+  },
+  {
+    "kind": "cuboid_442",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.063
+  },
+  {
+    "kind": "cuboid_234",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.047
+  },
+  {
+    "kind": "cuboid_133",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.015
+  },
+  {
+    "kind": "cuboid_335",
+    "n": 5,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.078
+  },
+  {
+    "kind": "cuboid_446",
+    "n": 6,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.188
+  },
+  {
+    "kind": "camouflage_3",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.047
+  },
+  {
+    "kind": "fused_cube",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.015
+  },
+  {
+    "kind": "two_bar_cube",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.0
+  },
+  {
+    "kind": "bandaged_c",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.016
+  },
+  {
+    "kind": "bicube",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.016
+  },
+  {
+    "kind": "ai_cube",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.031
+  },
+  {
+    "kind": "burr_cube",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.016
+  },
+  {
+    "kind": "penrose_2",
+    "n": 2,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.0
+  },
+  {
+    "kind": "penrose_4",
+    "n": 4,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.015
+  },
+  {
+    "kind": "penrose_3",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.016
+  },
+  {
+    "kind": "square0",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.0
+  },
+  {
+    "kind": "square2",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.0
+  },
+  {
+    "kind": "super_square1",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "seconds": 0.0
+  }
+]

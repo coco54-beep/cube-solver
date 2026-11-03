@@ -15,6 +15,7 @@ from kivy.uix.widget import Widget
 
 from cube.polyhedral import dot,cross,unit,mean,add,scale,rotate,key,body,body_faces,Move
 from renderer.mat4 import Mat4
+from renderer.entry_style import UNENTERED,SEAM,SELECTION,stroke
 
 
 def _magnitude(v):
@@ -40,6 +41,15 @@ TUTT_PALETTE=ICOSA_PALETTE+((.95,.74,.85,1),(.31,.71,.46,1),(.91,.72,.38,1),
 
 
 def default_palette(cube):
+    if getattr(cube,'material_only',False):
+        from renderer.mirror_material import SILVER
+        return (SILVER,)
+    if cube.puzzle_kind=='lanlan_comet_physical':return PALETTE[:12]+((.72,.57,.29,1.),)
+    if cube.puzzle_kind=='jewel_fto':return PALETTE[:8]+((.68,.52,.22,1),)
+    if cube.puzzle_kind=='helicopter_14':return CUBE_PALETTE+((.68,.52,.22,1),)
+    if cube.puzzle_kind in ('time_machine','bean_6','bean_10'):
+        colours=CUBE_PALETTE+((.56,.2,.8,1),(.98,.4,.64,1),(.1,.78,.8,1),(.55,.34,.18,1))
+        return tuple(colours[(i//12 if i<72 else i-72)] for i in range(78)) if cube.puzzle_kind=='time_machine' else colours[:cube.color_count]
     """Return the same factory face colors used when a model is first opened."""
     if cube.puzzle_kind=='pentahedron':
         return (CUBE_PALETTE[2],CUBE_PALETTE[5],CUBE_PALETTE[1],
@@ -49,6 +59,13 @@ def default_palette(cube):
                 CUBE_PALETTE[3],CUBE_PALETTE[2],CUBE_PALETTE[0],PALETTE[7])
     if cube.puzzle_kind=='dino4':
         return DINO4_PALETTE
+    if cube.puzzle_kind in ('rubik_cheese','cheese_3'):
+        return ((.04,.08,.85,1),(.02,.65,.14,1),(.9,.035,.035,1),
+                (1.,.42,.01,1),(.98,.83,.02,1),(.55,.06,.8,1),
+                (.95,.4,.65,1),(.98,.98,.98,1))
+    if cube.puzzle_kind in ('pentagonal_domino','pentagonal_prism','pentagonal_4','professor_pentagonal'):
+        return ((.04,.08,.85,1),(.02,.65,.14,1),(.9,.035,.035,1),
+                (1.,.42,.01,1),(.98,.83,.02,1),(.55,.57,.59,1),(.98,.98,.98,1))
     count=len(cube.geometry.spec.normals)
     return {4:TETRA_PALETTE,6:CUBE_PALETTE,20:ICOSA_PALETTE,32:TUTT_PALETTE}.get(count,PALETTE)
 
@@ -92,12 +109,34 @@ def _outlines(sticker,normal):
 
 @lru_cache(maxsize=3)
 def outlines(kind,n):
+    if kind in ('dogic_i','dogic_20'):
+        from cube.expanded_polyhedra import dogic_physical_outlines
+        return dogic_physical_outlines(kind)
+    if kind=='time_machine':
+        from cube.dial_beans import time_geometry
+        result=[]
+        for s in time_geometry().stickers:
+            # These disjoint patches share complete edges. Cancel each
+            # shared edge directly instead of doing polygon union tests on
+            # every first draw; leave only the physical surface boundaries.
+            edges={}
+            for patch in s.patches or (s.polygon,):
+                for a,b in zip(patch,patch[1:]+patch[:1]):
+                    edge_key=tuple(sorted((key(a),key(b))))
+                    if edge_key in edges:del edges[edge_key]
+                    else:edges[edge_key]=(a,b)
+            result.append(tuple(edges.values()))
+        return tuple(result)
+    if kind=='masterball':
+        from cube.masterball import masterball_geometry
+        return tuple(tuple(zip(s.polygon,s.polygon[1:]+s.polygon[:1]))
+                     for s in masterball_geometry().stickers)
     if kind=='o2':
         from cube.o2 import outlines as o2_outlines
         return o2_outlines()
     from cube.polyhedral import geometry
     g=geometry(kind,n)
-    if kind.startswith('crazy_') or kind in ('eight_petals','clover','blossom','petal_icosahedron','petal_icosahedron_nocentre','petal_tetrahedron','petal_tetrahedron_nocentre','ivy','super_ivy','pyraminx_duo','coin_tetrahedron','ancient_coin'):
+    if kind.startswith('crazy_') or kind in ('megaminx_ball','aj_curvy_dinominx_4','mf8_bauhinia_minx','yeet_ball','rediminx','eight_petals','clover','blossom','petal_icosahedron','petal_icosahedron_nocentre','petal_tetrahedron','petal_tetrahedron_nocentre','ivy','super_ivy','pyraminx_duo','coin_tetrahedron','ancient_coin'):
         # Ear-clipped patches share the original concave outline. Walking the
         # source boundary avoids discovering internal triangle edges again.
         return tuple(tuple(zip(s.polygon,s.polygon[1:]+s.polygon[:1])) for s in g.stickers)
@@ -334,12 +373,26 @@ class PolyhedralView(Widget):
             right,up=(add(scale(right,math.cos(angle)),scale(up,math.sin(angle))),
                       add(scale(up,math.cos(angle)),scale(right,-math.sin(angle))))
         radius=max(math.sqrt(dot(p,p)) for face in body_faces(g.spec) for p in face)
+        if self.cube.puzzle_kind=='megaminx_ball':
+            from cube.megaminx_ball import RADIUS
+            radius=RADIUS
+        if self.cube.puzzle_kind in ('bean_6','bean_10'):
+            from renderer.bean_housing import radius as housing_radius
+            radius=housing_radius(self.cube.puzzle_kind)
+        compound=self.cube.puzzle_kind in ('siamese_a','siamese_b')
+        scene_centre=(0.,0.,0.)
+        if compound:
+            from cube.siamese import core_centres
+            scene_centre=mean(core_centres(self.cube.puzzle_kind))
+            radius=max(math.sqrt(dot(add(p,scale(scene_centre,-1)),add(p,scale(scene_centre,-1))))
+                       for s in g.stickers for p in s.polygon)
         # fit_margin > 1 leaves extra room for the rounded outer shell, which
         # extends past the flat body faces used for the radius above.
         factor=min(self.width,self.height)*.42/max(radius*self.fit_margin,1)
         cx,cy=self.width/2,self.height/2
         self._proj=(eye,right,up,factor,cx,cy)
         observation=self.observation_world()
+        self._projection_offset=observation.transform(*scene_centre)
         vertices=[]
         indices=[]
         chunks=[]
@@ -347,15 +400,35 @@ class PolyhedralView(Widget):
         self._polygons=[]
         boundaries=outlines(self.cube.puzzle_kind,self.cube.n)
         rounded_flower=self.cube.puzzle_kind in ('eight_petals','clover','ivy','super_ivy')
+        ivy_ball=self.cube.puzzle_kind=='yeet_ball'
+        minx_ball=self.cube.puzzle_kind=='megaminx_ball'
         football=self.cube.puzzle_kind=='football'
         rounded_variant=self.cube.puzzle_kind in ('war_drum','pentahedron')
-        curved=self.cube.puzzle_kind=='moyu' or rounded_flower or rounded_variant
-        if rounded_variant:
+        masterball=self.cube.puzzle_kind=='masterball'
+        layered_cheese=self.cube.puzzle_kind in ('rubik_cheese','cheese_3')
+        beans=self.cube.puzzle_kind in ('bean_6','bean_10')
+        curved=self.cube.puzzle_kind=='moyu' or rounded_flower or rounded_variant or masterball or layered_cheese or beans or ivy_ball or minx_ball
+        if beans:
+            from renderer.bean_skin import skin as bean_skin
+            skin=bean_skin(self.cube.puzzle_kind)
+        elif masterball:
+            from cube.masterball import skin as masterball_skin
+            skin=masterball_skin()
+        elif layered_cheese:
+            from cube.layered_cheese import skin as cheese_skin
+            skin=cheese_skin(self.cube.puzzle_kind)
+        elif rounded_variant:
             from renderer.drum_prism_mesh import curved_skin,curved_edge,surface_point
             skin=curved_skin(self.cube.n,self.cube.puzzle_kind)
         elif rounded_flower:
             from renderer.flower_mesh import flower_skin,flower_edge,flower_hubs
             skin=flower_skin(self.cube.n,self.cube.puzzle_kind)
+        elif ivy_ball:
+            from renderer.yeet_ball_mesh import skin as ball_skin,edge as ball_edge
+            skin=ball_skin()
+        elif minx_ball:
+            from cube.megaminx_ball import skin as minx_ball_skin
+            skin=minx_ball_skin()
         elif curved:
             from renderer.tower_mesh import tower_skin,tower_edge
             skin=tower_skin(self.cube.n,self.cube.puzzle_kind)
@@ -386,7 +459,18 @@ class PolyhedralView(Widget):
             return observation.transform(turn[0][0]*x+turn[1][0]*y+turn[2][0]*z,
                                          turn[0][1]*x+turn[1][1]*y+turn[2][1]*z,
                                          turn[0][2]*x+turn[1][2]*y+turn[2][2]*z)
+        translation=(0.,0.,0.)
+        if (compound or self.cube.puzzle_kind in ('time_machine','bean_6','bean_10')) and self._move and whole_axis is None:
+            if compound:
+                from cube.siamese import move_origin
+            else:
+                from cube.dial_beans import move_origin
+            origin=move_origin(self.cube.puzzle_kind,self._move)
+            translation=add(observation.transform(*origin),scale(transform(origin),-1))
+        def transform_point(p):
+            return add(transform(p),translation)
         def project(p):
+            p=add(p,scale(self._projection_offset,-1))
             return (cx+dot(p,right)*factor,cy+dot(p,up)*factor,-dot(p,eye)*.12)
         def polygon(points,rgba,bias=0,vertex_colors=None):
             if not gpu:
@@ -411,17 +495,109 @@ class PolyhedralView(Widget):
             polygon(((a[0]+nx,a[1]+ny,a[2]),(a[0]-nx,a[1]-ny,a[2]),
                      (b[0]-nx,b[1]-ny,b[2]),(b[0]+nx,b[1]+ny,b[2])),rgba,-.0015)
         light=unit((-.3,.8,.52))
+        dial_skin=None
+        if self.cube.puzzle_kind=='rediminx':
+            from cube.rediminx import skin as rediminx_skin
+            dial_skin=rediminx_skin()
+        if self.cube.puzzle_kind=='time_machine':
+            from renderer.time_machine_skin import skin as time_skin, outlines as time_outlines
+            dial_skin=time_skin();boundaries=time_outlines()
+            self._number_polygons=[]
+        if self.cube.puzzle_kind=='time_machine':
+            from itertools import product
+            from cube.dial_beans import basis
+            for piece,signs in enumerate(product((-1,1),repeat=3)):
+                centre=tuple(.5*v for v in signs);rotate_piece=piece in moving
+                for face,normal in enumerate(g.spec.normals):
+                    visible_normal=transform(normal) if rotate_piece else observation.transform(*normal)
+                    if dot(visible_normal,eye)<=1e-8:continue
+                    right_face,up_face=basis(face)
+                    patch=tuple(tuple(centre[a]+.494*(normal[a]+u*right_face[a]+v*up_face[a]) for a in range(3)) for u,v in ((-1,-1),(1,-1),(1,1),(-1,1)))
+                    points=tuple(project(transform_point(p) if rotate_piece else observation.transform(*p)) for p in patch)
+                    shade=.035+.025*max(0,dot(visible_normal,light))
+                    polygon(points,(shade,shade,shade,1),.0005)
+        if beans:
+            from renderer.bean_housing import housing,owner_moves
+            moving_owners={owner for owner in range(-3,(len(g.spec.axes)-2)//3) if self._move and
+                (whole_axis is not None or owner_moves(self.cube.puzzle_kind,owner,self._move.axis))}
+            shell_key=(self.cube.puzzle_kind,tuple(observation.m),eye,right,up,factor,cx,cy,
+                       self.x,self.y,gpu,tuple(sorted(moving_owners)),
+                       turn if moving_owners else None,translation if moving_owners else None)
+            cached=getattr(self,'_bean_shell_batch',None)
+            if cached and cached[0]==shell_key:
+                vertices.extend(cached[1]);indices.extend(cached[2])
+                compatible.extend(cached[3]);self._polygons.extend(cached[4])
+            else:
+                shell_colors={};shell_points={}
+                for patch,normals,material,owner in housing(self.cube.puzzle_kind):
+                    rotate_shell=owner in moving_owners
+                    normal=mean(normals)
+                    normal=transform(normal) if rotate_shell else observation.transform(*normal)
+                    if dot(normal,eye)<=1e-8:continue
+                    points=[]
+                    for p in patch:
+                        cache_key=(p,rotate_shell)
+                        point=shell_points.get(cache_key)
+                        if point is None:
+                            point=project(transform_point(p) if rotate_shell else observation.transform(*p))
+                            shell_points[cache_key]=point
+                        points.append(point)
+                    points=tuple(points)
+                    colors=[]
+                    for n in normals:
+                        cache_key=(n,material,rotate_shell)
+                        color=shell_colors.get(cache_key)
+                        if color is None:
+                            n=transform(n) if rotate_shell else observation.transform(*n)
+                            brightness=.70+.30*max(0,dot(n,light))
+                            color=tuple(c*brightness for c in material[:3])+(1,)
+                            shell_colors[cache_key]=color
+                        colors.append(color)
+                    polygon(points,colors[0],vertex_colors=tuple(colors))
+                    # Hubs and casing also stop picking an occluded bead.
+                    self._polygons.append((points,None))
+                # One compact batch per view: repainting or rolling beads
+                # reuses the shell; moving it or changing the camera rebuilds.
+                from array import array
+                self._bean_shell_batch=(shell_key,array('f',vertices),array('H',indices),
+                                        tuple(compatible),tuple(self._polygons))
+        if layered_cheese:
+            from cube.layered_cheese import housing
+            for piece,patch,normal in housing(self.cube.puzzle_kind):
+                rotate_piece=piece in moving
+                normal=transform(normal) if rotate_piece else observation.transform(*normal)
+                if dot(normal,eye)<=1e-8:continue
+                world=tuple(transform_point(p) if rotate_piece else observation.transform(*p) for p in patch)
+                polygon(tuple(project(p) for p in world),(.035,.04,.045,1),.0005)
         curved_colors={}
         tutorial_candidates={}
+        dogic=self.cube.puzzle_kind in ('dogic_i','dogic_20')
+        if dogic:
+            from renderer.dogic_skin import skin as dogic_skin
+            from cube.expanded_polyhedra import dogic_physical_layout
+            dogic_tiles=dogic_skin(self.cube.puzzle_kind)
+            # Draw housing before all paint. Inlays share one rigid triangle;
+            # painting one must not cover a neighbouring inlay with plastic.
+            for home,(face,patch,owner) in enumerate(dogic_physical_layout()[1]):
+                rotating=home in moving
+                n=transform(g.spec.normals[face]) if rotating else observation.transform(*g.spec.normals[face])
+                if dot(n,eye)<=1e-8:continue
+                world=tuple(transform_point(p) if rotating else observation.transform(*p) for p in patch)
+                points=tuple(project(p) for p in world)
+                polygon(points,SEAM,.0005)
+                self._polygons.append((points,None))
         for i,s in enumerate(g.stickers):
             rotate_piece=s.piece in moving
             normal=transform(g.spec.normals[s.face]) if rotate_piece else observation.transform(*g.spec.normals[s.face])
-            if not curved and dot(normal,eye)<=1e-8:
+            if dial_skin is None and (not curved or beans) and dot(normal,eye)<=1e-8:
                 continue
             color=self.cube.colors[i]
-            rgba=self.palette[color] if color>=0 else (.37,.43,.5,1)
-            patches=skin[i] if curved else tuple((patch,g.spec.normals[s.face],())
+            rgba=self.palette[color] if color>=0 else UNENTERED
+            patches=(dial_skin[i] if dial_skin is not None else
+                     tuple((patch,g.spec.normals[s.face],()) for patch in dogic_tiles[i]) if dogic else
+                     skin[i] if curved else tuple((patch,g.spec.normals[s.face],())
                                                 for patch in s.patches or (s.polygon,))
+                     )
             visible=False
             for patch,patch_normal,vertex_normals in patches:
                 patch_normal=transform(patch_normal) if rotate_piece else observation.transform(*patch_normal)
@@ -440,14 +616,17 @@ class PolyhedralView(Widget):
                         if color is None:
                             p=transform(p) if rotate_piece else observation.transform(*p)
                             brightness=.85+.15*max(0,dot(p,light))
-                            color=tuple(c*brightness for c in rgba[:3])+(1,)
+                            gloss=.30*max(0,dot(p,unit(add(light,eye))))**28 if beans else 0
+                            color=tuple(min(1,c*brightness+gloss) for c in rgba[:3])+(1,)
                             curved_colors[cache_key]=color
                         colors.append(color)
                     vertex_colors=tuple(colors)
-                world=tuple(transform(p) if rotate_piece else observation.transform(*p) for p in patch)
+                world=tuple(transform_point(p) if rotate_piece else observation.transform(*p) for p in patch)
                 pts=tuple(project(p) for p in world)
-                polygon(pts,shade,vertex_colors=vertex_colors)
+                polygon(pts,shade,bias=-.0005 if dogic else 0,vertex_colors=vertex_colors)
                 self._polygons.append((pts,i))
+                if self.cube.puzzle_kind=='time_machine' and i>=24 and patch is dial_skin[i][0][0]:
+                    self._number_polygons.append((pts,i))
                 if self._move is None and s.piece in self.tutorial_targets:
                     # Triangle centroids stay inside concave or curved patches.
                     a=pts[0]
@@ -458,20 +637,18 @@ class PolyhedralView(Widget):
             if not visible:
                 continue
             for a,b in boundaries[i]:
-                path=(flower_edge(a,b,self.cube.puzzle_kind) if rounded_flower else
+                path=(ball_edge(a,b) if ivy_ball else
+                      flower_edge(a,b,self.cube.puzzle_kind) if rounded_flower else
                       curved_edge(a,b,self.cube.n,self.cube.puzzle_kind) if rounded_variant else
-                      tower_edge(a,b,self.cube.n) if curved else (a,b))
+                      tower_edge(a,b,self.cube.n) if curved and not (masterball or layered_cheese or beans or minx_ball) else (a,b))
                 if rotate_piece:
-                    path=tuple(transform(p) for p in path)
+                    path=tuple(transform_point(p) for p in path)
                 else:
                     path=tuple(observation.transform(*p) for p in path)
                 for a,b in zip(path,path[1:]):
-                    super_ivy=self.cube.puzzle_kind=='super_ivy'
-                    seam=((.06,.07,.08,1) if super_ivy else
-                          tuple(c*.48 for c in rgba[:3])+(1,) if rounded_flower else (.12,.16,.2,1))
-                    edge(project(a),project(b),seam,.9 if super_ivy else .48 if rounded_flower else .6)
+                    edge(project(a),project(b),SEAM,stroke())
                     if i==self.selected:
-                        edge(project(a),project(b),(.05,.84,1,1),1.5)
+                        edge(project(a),project(b),SELECTION,stroke('selection'))
                     if self._move is None and s.piece in self.tutorial_targets:
                         edge(project(a),project(b),(1,.55,.08,1),1.3)
         if rounded_flower and self._move is None:
@@ -495,13 +672,15 @@ class PolyhedralView(Widget):
             if rounded_variant:
                 location=surface_point(mean(body_faces(g.spec)[g.spec.normals.index(normal)]),
                                        self.cube.puzzle_kind,self.cube.n)
+            elif layered_cheese:
+                location=scale(normal,g.spec.bounds[g.spec.normals.index(normal)] if abs(normal[1])>.5 else 1.)
             elif football:
                 location=scale(normal,g.spec.bounds[g.spec.normals.index(normal)])
             else:
-                location=normal
+                location=add(scene_centre,normal)
             location=observation.transform(*location)
             normal=observation.transform(*normal)
-            label.opacity=1 if not rounded_flower and self.cube.puzzle_kind!='void_tower' and self._move is None and dot(normal,eye)>.1 else 0
+            label.opacity=1 if not (rounded_flower or ivy_ball) and self.cube.puzzle_kind!='void_tower' and self._move is None and dot(normal,eye)>.1 else 0
             x,y,_=project(location)
             label.center=(self.x+x,self.y+y)
             if any(marker.opacity and math.hypot(marker.center_x-label.center_x,
@@ -561,6 +740,7 @@ class PolyhedralView(Widget):
         eye,right,up,factor,cx,cy=self._proj
         point=add(add(scale(right,(x-cx)/factor),scale(up,(y-cy)/factor)),
                   scale(eye,-depth/.12))
+        point=add(point,getattr(self,'_projection_offset',(0.,0.,0.)))
         return picked,point
 
     def cancel_touch(self):
@@ -693,6 +873,7 @@ class PolyhedralTwistView(PolyhedralView):
                 return None
         candidates=[]
         for axis,bands in enumerate(g.layers):
+            if self.cube.puzzle_kind in ('time_machine','bean_6','bean_10') and axis!=getattr(self,'selected_turn_axis',axis):continue
             for layer,band in enumerate(bands):
                 if self.cube.puzzle_kind=='dayan_dino_skewb':
                     mode=getattr(self,'dino_skewb_mode','skewb')
@@ -705,7 +886,15 @@ class PolyhedralTwistView(PolyhedralView):
                     continue
                 if sticker.piece not in band:
                     continue
-                velocity=cross(self.observation_world().transform(*g.spec.axes[axis]),point)
+                relative=point
+                if self.cube.puzzle_kind in ('siamese_a','siamese_b','time_machine','bean_6','bean_10'):
+                    if self.cube.puzzle_kind in ('siamese_a','siamese_b'):
+                        from cube.siamese import move_origin
+                    else:
+                        from cube.dial_beans import move_origin
+                    origin=self.observation_world().transform(*move_origin(self.cube.puzzle_kind,Move(axis,layer)))
+                    relative=add(point,scale(origin,-1))
+                velocity=cross(self.observation_world().transform(*g.spec.axes[axis]),relative)
                 candidates.append(((axis,layer),(dot(velocity,right),dot(velocity,up))))
                 break
         drag_length=math.hypot(*drag)

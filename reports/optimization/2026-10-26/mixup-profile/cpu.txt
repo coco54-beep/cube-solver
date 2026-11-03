@@ -1,0 +1,53 @@
+         103070210 function calls (103061267 primitive calls) in 24.533 seconds
+
+   Ordered by: cumulative time
+   List reduced from 282 to 45 due to restriction <45>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000   25.021   25.021 D:\coco\cube-solver\services\solve_service.py:58(_run)
+        1    0.000    0.000   25.019   25.019 D:\coco\cube-solver\services\solve_service.py:66(_execute)
+        1    0.000    0.000   25.016   25.016 D:\coco\cube-solver\solver\mixup.py:232(solve_mixup)
+        1    0.000    0.000   25.016   25.016 D:\coco\cube-solver\solver\mixup.py:78(_restore_shape)
+        1    0.083    0.083   25.015   25.015 D:\coco\cube-solver\solver\mixup_reduction.py:213(greedy_geometry)
+   511604    4.586    0.000   19.823    0.000 D:\coco\cube-solver\solver\mixup_reduction.py:136(apply)
+    44000    0.231    0.000   15.257    0.000 D:\coco\cube-solver\solver\mixup_reduction.py:176(long_macro_children)
+   103806    0.289    0.000   11.243    0.000 D:\coco\cube-solver\solver\mixup_reduction.py:153(macro_children)
+   561818    0.559    0.000    9.539    0.000 D:\coco\cube-solver\solver\mixup_reduction.py:97(state_features)
+   505518    3.503    0.000    8.980    0.000 D:\coco\cube-solver\solver\mixup_reduction.py:100(_features_for)
+610648/606594    3.090    0.000    7.452    0.000 {built-in method builtins.any}
+ 42969030    4.478    0.000    5.477    0.000 D:\coco\cube-solver\solver\mixup_reduction.py:101(<genexpr>)
+ 42983080    4.197    0.000    4.197    0.000 D:\coco\cube-solver\solver\mixup_reduction.py:141(<genexpr>)
+   526367    0.954    0.000    1.796    0.000 {built-in method builtins.sum}
+   114714    0.038    0.000    1.472    0.000 D:\coco\cube-solver\solver\mixup_reduction.py:221(score)
+     3518    0.101    0.000    0.999    0.000 D:\coco\cube-solver\solver\mixup_reduction.py:62(feature)
+   140180    0.494    0.000    0.846    0.000 D:\coco\cube-solver\solver\mixup_reduction.py:117(children)
+  9750690    0.664    0.000    0.664    0.000 D:\coco\cube-solver\solver\mixup_reduction.py:221(<genexpr>)
+   127112    0.102    0.000    0.592    0.000 D:\coco\cube-solver\cube\appearance.py:15(transform_frame)
+     3518    0.014    0.000    0.531    0.000 D:\coco\cube-solver\solver\mixup_reduction.py:49(shape)
+   508448    0.159    0.000    0.490    0.000 D:\coco\cube-solver\cube\appearance.py:16(<genexpr>)
+     3520    0.005    0.000    0.427    0.000 D:\coco\cube-solver\cube\articulated.py:189(placed_faces)
+    24424    0.020    0.000    0.422    0.000 D:\coco\cube-solver\cube\articulated.py:191(<genexpr>)
+   335480    0.121    0.000    0.254    0.000 D:\coco\cube-solver\cube\polyhedral.py:118(inverse)
+    31689    0.219    0.000    0.219    0.000 D:\coco\cube-solver\solver\mixup_reduction.py:124(<listcomp>)
+   230133    0.088    0.000    0.202    0.000 D:\coco\cube-solver\cube\mixup.py:20(inverse)
+   640610    0.144    0.000    0.144    0.000 D:\coco\cube-solver\solver\mixup_reduction.py:107(turn_tables)
+     7572    0.003    0.000    0.140    0.000 D:\coco\cube-solver\solver\mixup_reduction.py:80(<genexpr>)
+     3518    0.008    0.000    0.126    0.000 D:\coco\cube-solver\cube\mixup.py:70(_panel_bounds)
+    90262    0.036    0.000    0.100    0.000 D:\coco\cube-solver\solver\mixup_reduction.py:223(guard)
+   103254    0.024    0.000    0.089    0.000 D:\coco\cube-solver\solver\mixup_reduction.py:179(<genexpr>)
+    20658    0.006    0.000    0.085    0.000 D:\coco\cube-solver\cube\mixup.py:74(<genexpr>)
+8392/3518    0.008    0.000    0.063    0.000 {built-in method builtins.sorted}
+     8392    0.003    0.000    0.061    0.000 D:\coco\cube-solver\solver\mixup_reduction.py:52(<genexpr>)
+     4874    0.002    0.000    0.058    0.000 D:\coco\cube-solver\cube\articulated_observation.py:32(polygon_key)
+    90292    0.026    0.000    0.057    0.000 D:\coco\cube-solver\solver\mixup_reduction.py:216(cancelled)
+   511649    0.056    0.000    0.056    0.000 {method 'get' of 'dict' objects}
+    24370    0.015    0.000    0.050    0.000 D:\coco\cube-solver\cube\articulated_observation.py:35(<genexpr>)
+   511748    0.049    0.000    0.049    0.000 {built-in method builtins.getattr}
+    14072    0.007    0.000    0.033    0.000 D:\coco\cube-solver\cube\mixup.py:75(<genexpr>)
+    90296    0.023    0.000    0.031    0.000 D:\coco\cube-solver\services\solve_service.py:24(is_set)
+   272450    0.030    0.000    0.030    0.000 D:\coco\cube-solver\solver\mixup_reduction.py:74(<genexpr>)
+    19748    0.007    0.000    0.028    0.000 D:\coco\cube-solver\cube\polyhedral.py:15(dot)
+    69042    0.027    0.000    0.027    0.000 {built-in method builtins.round}
+    14072    0.004    0.000    0.015    0.000 D:\coco\cube-solver\solver\mixup_reduction.py:67(<genexpr>)
+
+

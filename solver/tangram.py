@@ -3,19 +3,32 @@ from solver.articulated import _simplify_rigid
 
 
 def _verify(cube, word, cancel, progress=None):
+    """Replay the frame transition instead of rebuilding every physical solid.
+
+    ``TangramGeometry.apply`` performs the same cut/collision legality checks
+    used by the table generator, but avoids repeatedly materialising faces for
+    each of the long solution's turns.
+    """
+    from solver.tangram_geometry import geometry
+    model = geometry(cube.puzzle_kind)
+    frames = tuple(cube.frames)
+    for index, move in enumerate(word):
+        if cancel and cancel():
+            raise InterruptedError()
+        if progress and index % 10 == 0:
+            progress(index, len(word))
+        frames = model.apply(frames, move)
+        if frames is None:
+            return False
+    if progress:
+        progress(len(word), len(word))
     work = cube.clone()
-    def guard():
-        if cancel and cancel():raise InterruptedError()
-    for index,move in enumerate(word):
-        guard()
-        if progress and index%10==0:progress(index,len(word))
-        try: work.apply_move(move,guard=guard)
-        except ValueError: return False
-    if progress:progress(len(word),len(word))
+    work.colors = frames
     return work.is_solved()
 
 
 def solve_tangram(cube, cancel=None, progress=None):
+    if cancel and cancel():raise InterruptedError()
     if cube.is_solved(): return ()
     period = cube.geometry.spec.turn_order
     if cube.history and cube.frames == cube._history_snapshot:

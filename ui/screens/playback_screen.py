@@ -390,9 +390,18 @@ class PlaybackScreen(Screen):
 
     def _do_go_back(self):
         self._stop_all()
-        self.manager.current = {'mastermorphix': 'MastermorphixScreen', 'mirror': 'MirrorScreen',
+        from cube.bandaged_cube import KINDS
+        if getattr(_app(),'puzzle_kind',None) in KINDS and self.manager.has_screen('BandagedSixViewScreen'):
+            self.manager.current='BandagedSixViewScreen'
+            return
+        self.manager.current = {'mastermorphix': 'MastermorphixScreen', 'mirror': 'MirrorScreen','blanker':'BlankerScreen',
                                 'axis':'ShapeCubeScreen','pandora':'InputScreen','windmill':'ShapeCubeScreen',
                                 'fisher':'ShapeCubeScreen',
+                                'trajber':'ShapeCubeScreen','trajber_4':'ShapeCubeScreen',
+                                'dodecahedron_2':'ShapeCubeScreen','dodecahedron_3':'ShapeCubeScreen',
+                                'rhombic_3':'ShapeCubeScreen','rhombic_4':'ShapeCubeScreen',
+                                'rhombic_mask_4':'ShapeCubeScreen',
+                                'caneball_4':'ShapeCubeScreen',
                                 'mirror_fisher':'MirrorFisherScreen',
                                 'mirror_fisher_unequal':'MirrorUnequalFisherScreen',
                                 'mirror_fisher_offset':'MirrorOffsetFisherScreen',

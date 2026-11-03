@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="2" skipped="0" tests="24" time="2.895" timestamp="2026-10-24T08:40:31.080511+08:00" hostname="DESKTOP-5GK8RN1"><testcase classname="tests.test_button_logic_audit" name="test_shape_cards_ignore_release_while_busy[camera-morphix]" time="0.698" /><testcase classname="tests.test_button_logic_audit" name="test_shape_cards_ignore_release_while_busy[camera-mirror]" time="0.075" /><testcase classname="tests.test_button_logic_audit" name="test_shape_cards_ignore_release_while_busy[camera-tower]" time="0.058" /><testcase classname="tests.test_button_logic_audit" name="test_shape_cards_ignore_release_while_busy[job-morphix]" time="0.058" /><testcase classname="tests.test_button_logic_audit" name="test_shape_cards_ignore_release_while_busy[job-mirror]" time="0.080" /><testcase classname="tests.test_button_logic_audit" name="test_shape_cards_ignore_release_while_busy[job-tower]" time="0.044" /><testcase classname="tests.test_button_logic_audit" name="test_removed_card_cannot_edit_a_new_position[morphix]" time="0.133" /><testcase classname="tests.test_button_logic_audit" name="test_removed_card_cannot_edit_a_new_position[mirror]" time="0.116" /><testcase classname="tests.test_button_logic_audit" name="test_removed_card_cannot_edit_a_new_position[tower]" time="0.047" /><testcase classname="tests.test_button_logic_audit" name="test_ordinary_input_cannot_edit_during_camera_follow[fill]" time="0.067" /><testcase classname="tests.test_button_logic_audit" name="test_ordinary_input_cannot_edit_during_camera_follow[next]" time="0.021" /><testcase classname="tests.test_button_logic_audit" name="test_ordinary_input_cannot_edit_during_camera_follow[previous]" time="0.023" /><testcase classname="tests.test_button_logic_audit" name="test_ordinary_input_cannot_edit_during_camera_follow[paint]" time="0.045" /><testcase classname="tests.test_button_logic_audit" name="test_cancel_before_solve_page_enters_never_starts_worker" time="0.010" /><testcase classname="tests.test_button_logic_audit" name="test_cancelled_solve_late_result_cannot_navigate" time="0.006" /><testcase classname="tests.test_button_logic_audit" name="test_large_palette_has_touch_sized_rows_and_saves_last_colour" time="0.065" /><testcase classname="tests.test_button_logic_audit" name="test_penrose_edge_card_links_two_sides_and_undo_redo[3]" time="0.126" /><testcase classname="tests.test_button_logic_audit" name="test_penrose_edge_card_links_two_sides_and_undo_redo[4]" time="0.196" /><testcase classname="tests.test_button_logic_audit" name="test_penrose_removed_card_is_inert_after_reselecting" time="0.065" /><testcase classname="tests.test_button_logic_audit" name="test_square_family_removed_card_cannot_fill_the_new_slot" time="0.074" /><testcase classname="tests.test_button_logic_audit" name="test_large_palette_old_swatch_cannot_select_invalid_new_index" time="0.034"><failure message="IndexError: list index out of range">tests\test_button_logic_audit.py:211: in test_large_palette_old_swatch_cannot_select_invalid_new_index
+    old.dispatch('on_release')
+kivy\\_event.pyx:727: in kivy._event.EventDispatcher.dispatch
+    ???
+kivy\\_event.pyx:1307: in kivy._event.EventObservers.dispatch
+    ???
+kivy\\_event.pyx:1231: in kivy._event.EventObservers._dispatch
+    ???
+ui\screens\piece_palette_screen.py:83: in &lt;lambda&gt;
+    button.bind(on_release=lambda *_,index=i:self.select(index))
+ui\screens\piece_palette_screen.py:93: in select
+    self._index=index;self._sync_picker()
+ui\screens\piece_palette_screen.py:88: in _sync_picker
+    try:self.picker.color=self._draft[self._index]
+E   IndexError: list index out of range</failure></testcase><testcase classname="tests.test_button_logic_audit" name="test_large_palette_old_swatch_cannot_select_invalid_new_index" time="0.010"><error message="failed on teardown with &quot;IndexError: list index out of range&quot;">tests\test_button_logic_audit.py:27: in app
+    Clock.tick()
+C:\Users\ASUS\AppData\Local\Programs\Python\Python310\lib\site-packages\kivy\clock.py:733: in tick
+    self.post_idle(ts, self.idle())
+C:\Users\ASUS\AppData\Local\Programs\Python\Python310\lib\site-packages\kivy\clock.py:776: in post_idle
+    self._process_events()
+kivy\\_clock.pyx:620: in kivy._clock.CyClockBase._process_events
+    ???
+kivy\\_clock.pyx:653: in kivy._clock.CyClockBase._process_events
+    ???
+kivy\\_clock.pyx:649: in kivy._clock.CyClockBase._process_events
+    ???
+kivy\\_clock.pyx:218: in kivy._clock.ClockEvent.tick
+    ???
+C:\Users\ASUS\AppData\Local\Programs\Python\Python310\lib\site-packages\kivy\uix\colorpicker.py:440: in _update_clr
+    self.color[:3] = hsv_to_rgb(*hsv)
+kivy\\properties.pyx:820: in kivy.properties.ObservableList.__setitem__
+    ???
+kivy\\properties.pyx:806: in kivy.properties.observable_list_dispatch
+    ???
+kivy\\properties.pyx:625: in kivy.properties.Property.dispatch
+    ???
+kivy\\properties.pyx:606: in kivy.properties.Property._dispatch
+    ???
+kivy\\_event.pyx:1307: in kivy._event.EventObservers.dispatch
+    ???
+kivy\\_event.pyx:1213: in kivy._event.EventObservers._dispatch
+    ???
+ui\screens\piece_palette_screen.py:97: in _change_color
+    value=tuple(rgba[:3])+(1.,);previous=self._draft[self._index]
+E   IndexError: list index out of range</error></testcase><testcase classname="tests.test_button_logic_audit" name="test_polyhedral_twist_cannot_start_second_camera_turn" time="0.041"><failure message="AssertionError: assert 1 == 0&#10; +  where 1 = &lt;Screen name=''&gt;._face">tests\test_button_logic_audit.py:223: in test_polyhedral_twist_cannot_start_second_camera_turn
+    assert screen._face==before
+E   AssertionError: assert 1 == 0
+E    +  where 1 = &lt;Screen name=''&gt;._face</failure></testcase><testcase classname="tests.test_button_logic_audit" name="test_reconfiguring_solve_after_early_cancel_starts_only_new_request" time="0.010" /></testsuite></testsuites>

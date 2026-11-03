@@ -60,6 +60,10 @@ from renderer.mirror_tower_view import MirrorTowerView  # noqa: E402
 from renderer.mirror_pyraminx_view import MirrorPyraminxView  # noqa: E402
 from renderer.mirror_skewb_view import MirrorSkewbView  # noqa: E402
 from renderer.ghost_view import GhostView  # noqa: E402
+from cube.container import ContainerCube
+from cube.solid_shape_mods import FACTORIES as SOLID_FACTORIES
+from renderer.shape_cube_view import SOLID_VIEWS
+from candidate_puzzles import REQUESTED
 
 P = PolyhedralPuzzle
 JOBS = [
@@ -73,6 +77,8 @@ JOBS = [
     ('ai_cube', CubeView, lambda: BandagedCube.solved('ai_cube')),
     ('burr_cube', CubeView, lambda: BandagedCube.solved('burr_cube')),
     ('camouflage_3', CuboidView, lambda: CuboidCube.solved('camouflage_3')),
+    ('mirror_camouflage_3', CuboidView, lambda: CuboidCube.solved('mirror_camouflage_3')),
+    ('floppy_133', CuboidView, lambda: CuboidCube.solved('floppy_133')),
     ('penrose_2', CubeView, lambda: with_appearance(Cube2.solved(), 'penrose_2')),
     ('penrose_3', CubeView, lambda: with_appearance(Cube3.solved(), 'penrose_3')),
     ('penrose_4', CubeView, lambda: with_appearance(Cube4.solved(), 'penrose_4')),
@@ -154,6 +160,43 @@ JOBS.append(('pentacle',PentacleView,PentacleCube))
 JOBS.extend((kind,ArticulatedView,lambda k=kind:ArticulatedCube(k)) for kind in ARTICULATED_KINDS)
 JOBS.extend((("o2",PolyhedralView,lambda:P('o2',1)),
              ("ancient_coin",PolyhedralView,lambda:P('ancient_coin',3))))
+for entry in REQUESTED:
+    if entry.mechanism in ('twins','suncube','pisces','hexagram','clover_pyraminx','flower_copter','butterflower','master_clover'):
+        from demo.expanded_support import make_cube,view_class
+        JOBS.append((entry.kind,view_class(entry.kind),lambda e=entry:make_cube(e.kind,e.n)))
+    elif entry.mechanism=='lanlan_comet':
+        from cube.lanlan_comet import LanlanCometCube
+        from renderer.comet_view import LanlanCometView
+        JOBS.append((entry.kind,LanlanCometView,LanlanCometCube))
+    elif entry.mechanism=='comet':
+        from cube.crazy_comet import CometCube
+        from renderer.comet_view import CometView
+        JOBS.append((entry.kind,CometView,CometCube))
+    elif entry.mechanism=='copter':
+        from cube.copter_input import CopterCube
+        from renderer.copter_view import CopterView
+        JOBS.append((entry.kind,CopterView,CopterCube))
+    elif entry.mechanism=='dial_beans':
+        from renderer.dial_bean_view import DialBeanView
+        JOBS.append((entry.kind,DialBeanView,lambda e=entry:P(e.kind,e.n)))
+    elif entry.mechanism in ('polyhedral','prism','siamese','diamond','masterball','cheese','dogic','ivy','spherical_minx'):
+        JOBS.append((entry.kind,PolyhedralView,lambda e=entry:P(e.kind,e.n)))
+    elif entry.mechanism=='shape':
+        JOBS.append((entry.kind,SOLID_VIEWS[entry.kind],
+                     lambda e=entry:SOLID_FACTORIES[e.kind].solved(n=e.n)))
+    elif entry.kind=='container':
+        JOBS.append((entry.kind,FisherSkewbView,ContainerCube))
+    elif entry.mechanism=='extended':
+        JOBS.append((entry.kind,CuboidView,lambda e=entry:CuboidCube.solved(e.kind)))
+    elif entry.mechanism=='mirror_minx':
+        from cube.mirror_minx import MirrorMinxCube
+        from renderer.mirror_minx_view import MirrorMinxView
+        JOBS.append((entry.kind,MirrorMinxView,lambda e=entry:MirrorMinxCube.solved(n=e.n)))
+    elif entry.mechanism=='blanker':
+        from cube.blanker import BlankerCube
+        from renderer.blanker_view import BlankerView
+        JOBS.append((entry.kind,BlankerView,BlankerCube.solved))
+JOBS.append(('expanded_family',SOLID_VIEWS['trajber'],lambda:SOLID_FACTORIES['trajber'].solved(n=4)))
 
 OUT = os.path.join(BASE, "assets", "puzzles")
 os.makedirs(OUT, exist_ok=True)

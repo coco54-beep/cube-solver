@@ -74,10 +74,15 @@ def test_camera_navigation_commits_only_after_animation(monkeypatch):
 
 def test_camera_screen_navigate_shows_rotation_hint(monkeypatch):
     app, scr = _make(monkeypatch, 3)
-    scr.navigate("next")
-    assert scr.msg.text  # 提示转动方向
-    from app.i18n import tr
-    assert tr("face.R") in scr.msg.text or "R" in scr.msg.text
+    try:
+        scr.navigate("next")
+        assert scr.msg.text  # 提示转动方向
+        from app.i18n import tr
+        assert tr("face.R") in scr.msg.text or "R" in scr.msg.text
+    finally:
+        # This test starts a real clock animation without entering a manager.
+        # Release it before the next test replaces the running app.
+        scr._cancel_turn()
 
 
 def test_camera_screen_apply_partial_goes_to_input(monkeypatch):
@@ -236,5 +241,47 @@ def test_camera_late_entry_does_not_clear_restored_scan(monkeypatch):
     callbacks[-1](.1)
     assert scr._data == expected
     # Simulate the first transition dispatching on_enter after restore finished.
+    scr.on_enter()
+    assert scr._data == expected
+
+
+def test_polyhedral_camera_session_keeps_pending_scan_after_input_return(monkeypatch):
+    from copy import deepcopy
+    from types import SimpleNamespace
+    from kivy.clock import Clock
+    from cube.polyhedral import PolyhedralPuzzle
+    from app.session import ENTRY_NAMES, SessionStore
+    app, scr = _make(monkeypatch, 3)
+    app.puzzle_kind = 'pentagonal_prism'
+    app.cube = PolyhedralPuzzle(app.puzzle_kind, 3)
+    app.cube.colors = [-1] * len(app.cube.colors)
+    app.input_from_camera = True
+    scr._reset_for_n(3)
+    scr._input_baseline = deepcopy(scr._data)
+    sample = scr._profile.surfaces[0]
+    face = scr._profile.face_keys[sample.face]
+    scr._data[face][sample.index] = 6
+    expected = deepcopy(scr._data)
+    baseline = deepcopy(scr._input_baseline)
+    screens = {name: SimpleNamespace() for name in ENTRY_NAMES}
+    screens['CameraScreen'] = scr
+    class Manager:
+        current = 'CameraScreen'
+        current_screen = scr
+        transition = SimpleNamespace(duration=0)
+        def get_screen(self, name): return screens[name]
+        def has_screen(self, name): return name in screens
+    app.root = Manager()
+    store = SessionStore(app)
+    store.save(synchronous=True)
+    scr._data = {}
+    scr._input_baseline = None
+    callbacks = []
+    monkeypatch.setattr(Clock, 'schedule_once', lambda callback, delay: callbacks.append(callback))
+    monkeypatch.setattr(scr, '_ensure_source', lambda: None)
+    store.restore()
+    callbacks[-1](.1)
+    assert scr._data == expected and scr._input_baseline == baseline
+    assert scr._ori.profile is scr._profile
     scr.on_enter()
     assert scr._data == expected

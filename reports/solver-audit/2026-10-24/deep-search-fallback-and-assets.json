@@ -1,0 +1,31 @@
+{
+  "complete_fallback_called": true,
+  "fallback_budgets": [
+    4.0,
+    4.0,
+    4.0,
+    5.0,
+    5.0,
+    7.0,
+    5.0,
+    null
+  ],
+  "cancellation_passed": true,
+  "input_unchanged": true,
+  "assets": [
+    {
+      "path": "solver/data/camouflage_3_octants.bin",
+      "bytes": 596434
+    },
+    {
+      "path": "solver/data/camouflage_3_corners.bin",
+      "bytes": 1439
+    },
+    {
+      "path": "solver/data/camouflage_3_quotient_patterns.bin",
+      "bytes": 86018
+    }
+  ],
+  "asset_bytes": 683891,
+  "bundle_excluded_bytes": 110822026
+}

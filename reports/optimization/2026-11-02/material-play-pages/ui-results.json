@@ -1,0 +1,64 @@
+[
+  {
+    "kind": "mf8_twins",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "solved": true,
+    "manual_colour": false,
+    "manual_pose": false,
+    "compact_menu_checked": true,
+    "view_bounds": [
+      8,
+      8,
+      353.28000000000003,
+      534.0
+    ],
+    "body_orientation": "horizontal",
+    "body_bounds": [
+      8,
+      8,
+      784,
+      534.0
+    ],
+    "root_bounds": [
+      0,
+      0,
+      800,
+      600
+    ]
+  },
+  {
+    "kind": "mf8_twins",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "solved": true,
+    "manual_colour": false,
+    "manual_pose": false,
+    "compact_menu_checked": true,
+    "view_bounds": [
+      8,
+      171,
+      374,
+      613.0
+    ],
+    "body_orientation": "vertical",
+    "body_bounds": [
+      8,
+      8,
+      374,
+      776.0
+    ],
+    "root_bounds": [
+      0,
+      0,
+      390,
+      844
+    ]
+  }
+]

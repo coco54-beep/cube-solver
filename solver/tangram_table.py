@@ -41,7 +41,7 @@ class TangramTable:
     def __init__(self, kind, path=None):
         self.kind=kind;self.model=geometry(kind)
         path=Path(path) if path is not None else Path(__file__).resolve().parent/'data'/(kind+'_group.bin')
-        if not path.exists():raise ValueError('rigid.search_limit')
+        if not path.exists():raise ValueError('rigid.solver_data')
         table=json.loads(zlib.decompress(path.read_bytes()))
         if (table.get('version')!=1 or table['kind']!=kind or table.get('geometry')!=geometry_fingerprint(kind)):
             raise ValueError('rigid.invalid')
@@ -71,7 +71,7 @@ class TangramTable:
         elif 'shortcut' in record:word=tuple(Move(*m) for m in record['shortcut'])
         elif record['original'] is not None:word=self.words[record['original']]
         else:word=compact(m for ref in reversed(record['product']) for m in self.strong_word(ref))
-        if len(word)>200000:raise ValueError('rigid.search_limit')
+        if len(word)>200000:raise ValueError('rigid.solver_data')
         self._words[index]=word
         return word
 
@@ -93,13 +93,35 @@ class TangramTable:
             state=tuple(inverse[x] for x in state);factors.append(product)
         return factors if state==tuple(range(self.degree)) else None
 
-    def solve(self, cube, cancel=None, seconds=20.):
+    def solve(self, cube, cancel=None, seconds=None):
         if cancel and cancel():raise InterruptedError()
         element=self.element(cube.frames)
         if element is None:raise ValueError('rigid.invalid')
-        factors=self.factors(element)
-        if factors is None:factors=self.coloured_factors(element,cancel,seconds)
-        word=compact(m for product in factors for ref in product for m in self.strong_word(-(ref+1)))
+        def word_for(value):
+            if cancel and cancel():raise InterruptedError()
+            factors=self.factors(value)
+            if factors is None:factors=self.coloured_factors(value,cancel,seconds)
+            return compact(m for product in factors for ref in product for m in self.strong_word(-(ref+1)))
+        word=word_for(element)
+        if self.kind=='tangram_extreme' and len(word)>600:
+            # Different short entries into the same stabilizer chain avoid
+            # a long late parity correction. This only shortens an already
+            # complete answer; it is never a limit on solving the state.
+            if not hasattr(self,'_preparations'):
+                root=self.model.cube.frames;basic=[]
+                for frames,move in self.model.children(root):
+                    action=self.element(frames)
+                    if action is not None:basic.append((action,(move,)))
+                choices=list(basic)
+                for p,pw in basic:
+                    for q,qw in basic:
+                        if (pw[-1].axis,pw[-1].layer)==(qw[0].axis,qw[0].layer):continue
+                        choices.append((tuple(q[a] for a in p),pw+qw))
+                self._preparations=tuple(choices)
+            for action,prefix in self._preparations:
+                candidate=compact(prefix+word_for(tuple(action[a] for a in element)))
+                if len(candidate)<len(word):word=candidate
+                if len(word)<=600:break
         frames=tuple(cube.frames)
         for move in word:
             if cancel and cancel():raise InterruptedError()
@@ -109,7 +131,7 @@ class TangramTable:
         if not replay.is_solved():raise ValueError('rigid.invalid')
         return word
 
-    def coloured_factors(self, element, cancel=None, seconds=20.):
+    def coloured_factors(self, element, cancel=None, seconds=None):
         """Resolve equivalent same-colour piece labels from manual matching."""
         wanted=tuple(self.desired);colours=[-1]*self.degree
         for src,dst in enumerate(element):colours[dst]=wanted[src]
@@ -118,10 +140,11 @@ class TangramTable:
             nonlocal nodes
             if cancel and cancel():raise InterruptedError()
             nodes+=1
-            if monotonic()-begun>seconds or nodes>50000:raise ValueError('rigid.search_limit')
+            if seconds is not None and monotonic()-begun>seconds:raise ValueError('rigid.search_limit')
             if state==wanted:return ()
             if level==len(self.base) or (level,state) in seen:return None
-            seen.add((level,state));base=self.base[level];following=[]
+            if len(seen)<12000:seen.add((level,state))
+            base=self.base[level];following=[]
             for beta,(inverse,product) in self.transversals[level].items():
                 if state[beta]!=wanted[base]:continue
                 permutation=[0]*self.degree
@@ -134,5 +157,5 @@ class TangramTable:
                 if result is not None:return (product,)+result
             return None
         answer=visit(0,tuple(colours))
-        if answer is None:raise ValueError('rigid.search_limit')
+        if answer is None:raise ValueError('rigid.state_unreachable')
         return answer

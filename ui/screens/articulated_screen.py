@@ -7,6 +7,7 @@ from kivy.app import App
 from kivy.clock import Clock
 from kivy.uix.screenmanager import Screen
 from kivy.uix.label import Label
+from ui.widgets.entry_guidance import EntryGuidance
 from kivy.uix.spinner import Spinner
 from app.i18n import tr
 from cube.articulated import ArticulatedCube,multiply,turn_frame,frame_key
@@ -44,7 +45,7 @@ class RigidEntryScreen(EntryActionsMixin,Screen):
             button=UIButton(icon_name=icon);button.bind(on_release=lambda *_,d=delta:self.rotate_piece(d));row.add_widget(button)
         self.confirm=PrimaryButton(icon_name='check');self.confirm.bind(on_release=lambda *_:self.confirm_piece());row.add_widget(self.confirm)
         panel.add_widget(row)
-        self.hint=Label(text=tr('rigid.entry_hint'),size_hint_y=None,height=66,font_size='13sp',halign='center',valign='middle')
+        self.hint=EntryGuidance(text=tr('rigid.entry_hint'),size_hint_y=None,height=66,font_size='13sp',halign='center',valign='middle')
         self.hint.bind(size=lambda w,*_:setattr(w,'text_size',w.size));panel.add_widget(self.hint)
         actions=ResponsiveBoxLayout(height_px=48,gap_px=5)
         for cls,icon,fn in ((UIButton,'twist',self.open_twist),(UIButton,'random',self.randomize),
@@ -66,7 +67,7 @@ class RigidEntryScreen(EntryActionsMixin,Screen):
         else:self.view.palette=CUBE_PALETTE
         self.view.set_cube(cube)
         if palette and len(palette)==6:self.view.palette=tuple(tuple(c) for c in palette)
-        self.axis.values=('X','Y','Z') if cube.family=='mixup' else tuple(tr('poly.axis',i=i+1) for i in range(4))
+        self.axis.values=('X','Y','Z') if cube.family=='mixup' else tuple(tr('poly.axis',i=i+1) for i in range(len(cube.geometry.spec.axes)))
         self.axis.text=self.axis.values[0];self._rigid_pose=cube.frames[self._position]
         self.retranslate();self._refresh()
     def retranslate(self):
@@ -100,7 +101,7 @@ class RigidEntryScreen(EntryActionsMixin,Screen):
     def rotate_piece(self,direction):
         if not self.entry_can_edit():return
         cube=self._cube;axis=self.axis.values.index(self.axis.text)
-        angle=math.pi/4 if cube.family=='mixup' else math.pi if axis<3 else math.pi/(3 if cube.family=='tangram_extreme' else 1.5)
+        angle=math.pi/4 if cube.family=='mixup' else math.pi if axis!=cube.principal_axis else math.pi/(3 if cube.family=='tangram_extreme' else 1.5)
         turn=turn_frame(cube.geometry.spec.axes[axis],angle*direction)
         frame=cube.orientations[self._rigid_pose]
         # Corners have 90-degree orientations; a 45-degree intermediate
@@ -138,7 +139,7 @@ class RigidEntryScreen(EntryActionsMixin,Screen):
         app=App.get_running_app();app.cube=self._cube;app.polyhedral_solution=None;self._refresh()
     def entry_set_status(self,text,error=False):self.status.text=text
     def entry_can_twist(self):
-        if len(self._recorded)!=len(self._cube.solids):self.status.text=tr('rigid.incomplete');return False
+        if len(self._recorded)!=len(self._cube.solids):return self.entry_show_error('rigid.incomplete')
         return True
     def entry_prepare_twist(self):App.get_running_app().cube=self._cube
     def randomize(self):
@@ -195,7 +196,7 @@ class RigidEntryScreen(EntryActionsMixin,Screen):
             App.get_running_app().polyhedral_solution=(entered,result.moves,palette)
             self.manager.current='PolyhedralPlaybackScreen'
         screen=self.manager.get_screen('SolvingScreen')
-        screen.configure(entered,self.name,solved,ArticulatedView,palette);self.manager.current='SolvingScreen'
+        if screen.configure(entered,self.name,solved,ArticulatedView,palette) is not False:self.manager.current='SolvingScreen'
     def palette_colors(self):return self.view.palette
     def default_palette_colors(self):return CUBE_PALETTE
     def apply_palette_colors(self,colors):

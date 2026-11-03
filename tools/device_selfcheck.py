@@ -38,27 +38,54 @@ def _find_adb(explicit):
 
 
 def _run(adb, *args, timeout=60):
-    return subprocess.run([adb, *args], capture_output=True, text=True, timeout=timeout)
+    prefix=list(adb) if isinstance(adb,(tuple,list)) else [adb]
+    return subprocess.run([*prefix, *args], capture_output=True, text=True, timeout=timeout)
+
+
+def verified_report(data):
+    """Older checks did not navigate; their success cannot certify visible UI."""
+    rows=data.get('results',[])
+    return (data.get('schema')==2 and data.get('status')=='pass' and data.get('errors')==0
+            and data.get('image_validation')=='visible_pixels_and_variance'
+            and data.get('screenshots_requested') is True and data.get('checked',0)>0
+            and len(rows)==data['checked'] and all(row.get('status')=='ok'
+                and row.get('screen')==row.get('current_screen') and isinstance(row.get('shot'),str) and row.get('shot')
+                and not row['shot'].startswith('shot-failed:') for row in rows))
 
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--adb", default=None)
+    ap.add_argument('--serial',default=None,help='Select one connected device explicitly')
     ap.add_argument("--out", default="reports/device-selfcheck")
     ap.add_argument("--timeout", type=float, default=120.0)
     args = ap.parse_args(argv)
     adb = _find_adb(args.adb)
 
     devices = _run(adb, "devices")
-    if "device\n" not in devices.stdout + "\n":
+    available=[parts[0] for line in devices.stdout.splitlines() if len(parts:=line.split())>=2 and parts[1]=='device']
+    if not available:
         print("no device/emulator attached:\n" + devices.stdout)
         return 2
+    if args.serial is not None and args.serial not in available:
+        print('selected device is not ready: '+args.serial);return 2
+    if args.serial is None and len(available)!=1:
+        print('multiple devices attached; choose --serial: '+', '.join(available));return 2
+    adb=[adb,'-s',args.serial or available[0]]
 
     os.makedirs(args.out, exist_ok=True)
     print("launching self-check on device ...")
     _run(adb, "shell", "am", "force-stop", PKG)
-    _run(adb, "shell", "am", "start", "-n", "%s/%s" % (PKG, ACTIVITY),
-         "--ez", "ui_selfcheck", "true")
+    # A stale success report must not mask a crash or a missing test trigger.
+    removed = _run(adb, "shell", "rm", "-f", REMOTE_JSON)
+    if removed.returncode:
+        print("could not remove previous self-check report: " + removed.stderr)
+        return 1
+    started = _run(adb, "shell", "am", "start", "-n", "%s/%s" % (PKG, ACTIVITY),
+                   "--ez", "ui_selfcheck", "true")
+    if started.returncode or "Error:" in started.stdout + started.stderr:
+        print("could not start self-check: " + started.stdout + started.stderr)
+        return 1
 
     deadline = time.time() + args.timeout
     report = ""
@@ -78,7 +105,7 @@ def main(argv=None):
         return 1
 
     # 拉回整个目录（报告 + 截图）
-    _run(adb, "pull", REMOTE_DIR, args.out)
+    pulled = _run(adb, "pull", REMOTE_DIR, args.out)
     try:
         import json
         data = json.loads(report)
@@ -87,11 +114,15 @@ def main(argv=None):
         for item in data.get("results", []):
             if item.get("status") != "ok":
                 print("  FAIL %s\n%s" % (item.get("screen"), item.get("traceback", "")))
+        passed=verified_report(data)
+        if data.get('schema')!=2 or data.get('image_validation')!='visible_pixels_and_variance':
+            print('installed app uses the older check without verified navigation/images; this run cannot certify the updated source')
     except Exception:
         print(report)
+        return 1
 
     print("pulled to %s" % args.out)
-    return 0
+    return 0 if passed and not pulled.returncode else 1
 
 
 if __name__ == "__main__":

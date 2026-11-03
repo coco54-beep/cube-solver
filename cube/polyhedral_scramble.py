@@ -20,7 +20,7 @@ def scramble(cube,length=30,seed=None):
     word=[]
     spec=cube.geometry.spec
     for _ in range(length):
-        if cube.puzzle_kind.startswith(('cuboid_','camouflage_3')):
+        if getattr(cube,'can_change_shape',False):
             moves=cube.moves()
         options=[move for move in moves if move.axis!=last] or moves
         if not options:

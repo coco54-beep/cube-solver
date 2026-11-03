@@ -1,0 +1,32 @@
+{
+  "version": "1.2.35",
+  "android": {
+    "apk": "D:\\coco\\cube-solver\\bin\\cubesolver-1.2.35-arm64-v8a-debug.apk",
+    "sha256": "6cef9e0fa441a6abe18dfbe49a9c70ea35d37c8ed728a104922b69d4a55046fa",
+    "bytes": 272508986,
+    "verified_files": 742,
+    "status": "pass"
+  },
+  "windows": {
+    "status": "pass",
+    "version": "1.2.35",
+    "bytes": 328751675,
+    "sha256": "aed6edff3898181aa6a53ee07fa57d1dc65dc93e0eba1209904266b7a2823239",
+    "new_modules": [
+      "demo.expanded_support",
+      "demo.expanded_tutorials",
+      "demo.expanded_curriculum",
+      "demo.expanded_checkpoints",
+      "renderer.tutorial_markers"
+    ],
+    "macro_asset_sha256": "27e3d78c04be0f51a431342cddbbacf5de0895f1d3c96c30961cc4e6dd21f6dd",
+    "verified_assets": 439,
+    "archive_crc": "pass",
+    "self_check": "pass",
+    "excluded_tables": 8,
+    "excluded_bytes": 110822026
+  },
+  "android_device_tested": false,
+  "build_type": "Android debug signed; Windows portable",
+  "includes": "32 original tutorials; 128 chapters; 156 examples"
+}

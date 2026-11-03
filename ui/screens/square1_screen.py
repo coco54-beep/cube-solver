@@ -1,4 +1,5 @@
 """Direct piece/shape entry, legal turns and solution playback for Square-1."""
+from ui.entry_feedback import validation_action
 import threading
 
 from kivy.app import App
@@ -56,21 +57,15 @@ class Square1Screen(EntryActionsMixin, Screen):
         return button
 
     def _build(self):
+        from ui.widgets.entry_controls import entry_header,entry_actions
         if hasattr(self,'view'):
             self.stop()
             self._cancel_step()
         self.clear_widgets()
         root=AdaptiveSceneLayout()
-        top=ResponsiveBoxLayout(height_px=44,gap_px=8)
-        self._button(top,'back',self.back)
         self.title=Label(text=tr('directory.square1'),size_hint_x=4,font_size='20sp')
-        top.add_widget(self.title)
-        if self.demo_mode:
-            demo=UIButton(icon_name='demo')
-            demo.bind(on_release=lambda *_:self.open_demo())
-            top.add_widget(demo)
-        if not self._playback:
-            self._button(top,'reset',self.reset_view)
+        top,self.btn_back,self.demo_button=entry_header(self.title,self.back,
+            self.open_demo)
         root.add_widget(top)
         self.view=self.view_class()
         self._simple=bool(getattr(_app(),'simple_input',False))
@@ -127,10 +122,9 @@ class Square1Screen(EntryActionsMixin, Screen):
                 self.middle_buttons.append(button)
                 row.add_widget(button)
             panel.add_widget(row)
-            row=ResponsiveBoxLayout(height_px=44,gap_px=6)
-            for icon,callback,cls in (('random',self.randomize,UIButton),('clear',self.clear,DangerButton),
-                                      ('undo',self.undo,UIButton),('target',self.assign_initial,UIButton),('solve',self.solve,PrimaryButton)):
-                self._button(row,icon,callback,cls)
+            self._button(row,'reset',self.reset_view)
+            row,self.entry_action_buttons=entry_actions(randomize=self.randomize,clear=self.clear,
+                undo=self.undo,assign=self.assign_initial,solve=self.solve)
             panel.add_widget(row)
         else:
             self.track=Slider(min=0,max=max(1,len(self._moves)),value=self._index,step=1,size_hint_y=None,height=m.h(38))
@@ -339,6 +333,7 @@ class Square1Screen(EntryActionsMixin, Screen):
         self._entry.middle=value
         self._refresh()
 
+    @validation_action
     def validate(self):
         if not self.entry_can_edit():
             return
@@ -385,7 +380,7 @@ class Square1Screen(EntryActionsMixin, Screen):
             self._refresh()
             self.manager.current=self.name
         screen=self.manager.get_screen('SolvingScreen')
-        screen.configure(initial,self.name,solved,self.view_class)
+        if screen.configure(initial,self.name,solved,self.view_class) is False:return
         self.manager.current='SolvingScreen'
 
     def next(self):

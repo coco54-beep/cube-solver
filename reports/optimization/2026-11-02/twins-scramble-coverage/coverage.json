@@ -1,0 +1,182 @@
+{
+  "scope": "Current Drawing3 Twins regular scramble, before deformation suffix. Not a certification of manufactured rails. Red dots are screen annotations, not exact panel IDs. Every panel was checked instead.",
+  "panels": 192,
+  "orbits": [
+    {
+      "size": 24,
+      "distinct_home_faces": 6
+    },
+    {
+      "size": 24,
+      "distinct_home_faces": 6
+    },
+    {
+      "size": 24,
+      "distinct_home_faces": 6
+    },
+    {
+      "size": 24,
+      "distinct_home_faces": 6
+    },
+    {
+      "size": 24,
+      "distinct_home_faces": 6
+    },
+    {
+      "size": 24,
+      "distinct_home_faces": 6
+    },
+    {
+      "size": 24,
+      "distinct_home_faces": 6
+    },
+    {
+      "size": 24,
+      "distinct_home_faces": 6
+    }
+  ],
+  "cases": [
+    {
+      "seed": 0,
+      "turns": 30,
+      "changed_per_orbit": [
+        19,
+        18,
+        14,
+        18,
+        19,
+        19,
+        15,
+        15
+      ]
+    },
+    {
+      "seed": 1,
+      "turns": 30,
+      "changed_per_orbit": [
+        20,
+        18,
+        17,
+        18,
+        21,
+        21,
+        21,
+        21
+      ]
+    },
+    {
+      "seed": 2,
+      "turns": 30,
+      "changed_per_orbit": [
+        20,
+        20,
+        22,
+        20,
+        22,
+        22,
+        20,
+        20
+      ]
+    },
+    {
+      "seed": 3,
+      "turns": 30,
+      "changed_per_orbit": [
+        21,
+        21,
+        21,
+        18,
+        20,
+        20,
+        21,
+        21
+      ]
+    },
+    {
+      "seed": 4,
+      "turns": 30,
+      "changed_per_orbit": [
+        21,
+        21,
+        22,
+        21,
+        17,
+        17,
+        19,
+        19
+      ]
+    },
+    {
+      "seed": 5,
+      "turns": 30,
+      "changed_per_orbit": [
+        19,
+        19,
+        22,
+        23,
+        22,
+        22,
+        21,
+        21
+      ]
+    },
+    {
+      "seed": 6,
+      "turns": 30,
+      "changed_per_orbit": [
+        23,
+        20,
+        18,
+        19,
+        20,
+        20,
+        21,
+        21
+      ]
+    },
+    {
+      "seed": 7,
+      "turns": 30,
+      "changed_per_orbit": [
+        22,
+        19,
+        24,
+        22,
+        18,
+        18,
+        21,
+        21
+      ]
+    },
+    {
+      "seed": 8,
+      "turns": 30,
+      "changed_per_orbit": [
+        20,
+        22,
+        22,
+        23,
+        19,
+        19,
+        22,
+        22
+      ]
+    },
+    {
+      "seed": 9,
+      "turns": 30,
+      "changed_per_orbit": [
+        19,
+        20,
+        21,
+        19,
+        21,
+        21,
+        21,
+        21
+      ]
+    }
+  ],
+  "panels_that_never_changed_home_colour": [],
+  "min_distinct_colours_across_10_cases": 3
+}

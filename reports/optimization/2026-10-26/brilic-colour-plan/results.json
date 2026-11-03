@@ -1,0 +1,164 @@
+[
+  {
+    "kind": "master_brilic",
+    "seed": 20261102,
+    "scramble_turns": 30,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\brilic-colour-plan\\inputs\\master_brilic-20261102-30.json",
+    "input_method": "fixed visible model panels, colours only",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 0.094,
+    "success": true,
+    "moves": 2565,
+    "failure_category": "",
+    "solve_seconds": 0.969,
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.0,
+    "seconds": 1.063,
+    "shortening": [
+      {
+        "before": 2567,
+        "after": 2565,
+        "seconds": 0.125
+      }
+    ],
+    "process_seconds": 1.187
+  },
+  {
+    "kind": "master_brilic",
+    "seed": 20261103,
+    "scramble_turns": 30,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\brilic-colour-plan\\inputs\\master_brilic-20261103-30.json",
+    "input_method": "fixed visible model panels, colours only",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 0.703,
+    "success": true,
+    "moves": 2175,
+    "failure_category": "",
+    "solve_seconds": 0.937,
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.016,
+    "seconds": 1.656,
+    "shortening": [
+      {
+        "before": 2181,
+        "after": 2175,
+        "seconds": 0.109
+      }
+    ],
+    "process_seconds": 1.782
+  },
+  {
+    "kind": "master_brilic",
+    "seed": 20261104,
+    "scramble_turns": 30,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\brilic-colour-plan\\inputs\\master_brilic-20261104-30.json",
+    "input_method": "fixed visible model panels, colours only",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 0.078,
+    "success": true,
+    "moves": 2377,
+    "failure_category": "",
+    "solve_seconds": 0.922,
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.0,
+    "seconds": 1.0,
+    "shortening": [
+      {
+        "before": 2381,
+        "after": 2377,
+        "seconds": 0.109
+      }
+    ],
+    "process_seconds": 1.14
+  },
+  {
+    "kind": "master_brilic",
+    "seed": 20261102,
+    "scramble_turns": 100,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\brilic-colour-plan\\inputs\\master_brilic-20261102-100.json",
+    "input_method": "fixed visible model panels, colours only",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 0.078,
+    "success": true,
+    "moves": 2730,
+    "failure_category": "",
+    "solve_seconds": 1.031,
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.0,
+    "seconds": 1.109,
+    "shortening": [
+      {
+        "before": 2733,
+        "after": 2730,
+        "seconds": 0.187
+      }
+    ],
+    "process_seconds": 1.25
+  },
+  {
+    "kind": "master_brilic",
+    "seed": 20261103,
+    "scramble_turns": 100,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\brilic-colour-plan\\inputs\\master_brilic-20261103-100.json",
+    "input_method": "fixed visible model panels, colours only",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 0.093,
+    "success": true,
+    "moves": 2822,
+    "failure_category": "",
+    "solve_seconds": 0.985,
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.0,
+    "seconds": 1.078,
+    "shortening": [
+      {
+        "before": 2831,
+        "after": 2822,
+        "seconds": 0.141
+      }
+    ],
+    "process_seconds": 1.328
+  },
+  {
+    "kind": "master_brilic",
+    "seed": 20261104,
+    "scramble_turns": 100,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\brilic-colour-plan\\inputs\\master_brilic-20261104-100.json",
+    "input_method": "fixed visible model panels, colours only",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 0.094,
+    "success": true,
+    "moves": 2845,
+    "failure_category": "",
+    "solve_seconds": 0.984,
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.016,
+    "seconds": 1.094,
+    "shortening": [
+      {
+        "before": 2848,
+        "after": 2845,
+        "seconds": 0.141
+      }
+    ],
+    "process_seconds": 1.219
+  }
+]

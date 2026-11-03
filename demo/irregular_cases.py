@@ -123,6 +123,22 @@ def token(move,spec=None):
     if getattr(move,'layers',()):label=f'A{move.axis+1}:'+','.join(str(l+1) for l in move.layers)
     if spec is None:
         return label if move.amount==1 else f'{label} ×{move.amount}'
+    if spec.kind=='kairis_star_finder':
+        amount=move.amount%3
+        if amount>1:amount-=3
+        return f'F{move.axis+13} {amount*120:+g}°'
+    if spec.kind in ('time_machine','bean_6','bean_10'):
+        amount=move.amount%spec.turn_order
+        if amount>spec.turn_order/2:amount-=spec.turn_order
+        if spec.kind=='time_machine':
+            from cube.dial_beans import FACES
+            label=FACES[move.axis%6]
+            if move.axis>=6:label=label.lower()
+        else:
+            from cube.dial_beans import petals
+            p=petals(spec.kind)
+            label=f'F{move.axis+1}' if move.axis<p else f'B{move.axis-p+1}' if move.axis<2*p else f'W{move.axis-2*p+1}' if move.axis<3*p else 'CF' if move.axis==3*p else 'CB'
+        return f'{label} {amount*360/spec.turn_order:+g}°'
     if spec.kind.startswith(('crazy_','circle_2','cuboid_','camouflage_3')):
         from cube.circle_cube import FACES
         power=(-move.amount)%4
@@ -327,6 +343,12 @@ def _cycle_camera(g,pieces):
 
 @lru_cache(maxsize=32)
 def lessons(kind,n):
+    from candidate_puzzles import BY_KIND
+    if kind in BY_KIND:
+        from demo.expanded_tutorials import lessons as expanded_lessons
+        return expanded_lessons(kind,n)
+    from demo.coverage import supports,lessons as coverage_lessons
+    if supports(kind,n):return coverage_lessons(kind,n)
     if not 2<=n<=5:
         raise ValueError('Teaching demos support orders up to five')
     if kind=='coin_tetrahedron':

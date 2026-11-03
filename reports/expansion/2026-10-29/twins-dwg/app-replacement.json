@@ -1,0 +1,21 @@
+{
+  "kind": "mf8_twins",
+  "source": "78ad81cbe7b9d0fb591602143a453365bf57a05384c6442b42dcfa1f9965319c",
+  "cad_sha256": "b586334c54c1e8d5190dc74df428245a7856968a8af380cdad004c7755f2081c",
+  "replaces_old_profile": true,
+  "fields": 192,
+  "fields_per_face": 32,
+  "material_groups": 190,
+  "positive_atoms": 288,
+  "regular_edge_degrees": 180,
+  "regular_corner_degrees": 120,
+  "physical_jumbling_verified": false,
+  "central_radius_status": "provisional",
+  "solver_fields": 144,
+  "independent_input_fields": 192,
+  "production_assets": {
+    "twins_cad_regular.bin": 36707,
+    "twins_cad_skin.bin": 577728,
+    "twins_cad_colour_group.bin": 36652
+  }
+}

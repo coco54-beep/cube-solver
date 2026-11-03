@@ -1,0 +1,18 @@
+[
+  {
+    "case": "existing_family_constructs_correct_model",
+    "passed": true
+  },
+  {
+    "case": "seven_colour_face_recognized_and_partial_input_preserved",
+    "passed": true
+  },
+  {
+    "case": "tangram_photo_opens_original_partial_colour_entry",
+    "passed": true
+  },
+  {
+    "case": "return_to_photo_keeps_manual_draft",
+    "passed": true
+  }
+]

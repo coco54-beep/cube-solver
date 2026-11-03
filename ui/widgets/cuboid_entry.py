@@ -51,7 +51,8 @@ class CuboidEntryPopup(Popup):
         self.position=self.direction=self.page=0
         self.history=[]
         root=ResponsiveBoxLayout(orientation='vertical',gap_px=5)
-        self.hint=Label(text=tr('cuboid.entry_hint'),size_hint_y=None,height=m.h(40),font_size='13sp')
+        from ui.widgets.entry_guidance import EntryGuidance
+        self.hint=EntryGuidance(text=tr('cuboid.entry_hint'),size_hint_y=None,height=m.h(40),font_size='13sp')
         self.hint.bind(size=lambda w,*_:setattr(w,'text_size',w.size))
         root.add_widget(self.hint)
         self.view=PlacementView()

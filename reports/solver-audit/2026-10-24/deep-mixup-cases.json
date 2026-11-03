@@ -1,0 +1,74 @@
+[
+  {
+    "kind": "mixup_333",
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 313,
+    "seconds": 1.235
+  },
+  {
+    "kind": "mixup_334",
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 627,
+    "seconds": 1.578
+  },
+  {
+    "kind": "mixup_344",
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 577,
+    "seconds": 1.938
+  },
+  {
+    "kind": "mixup_444",
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 162,
+    "seconds": 2.234
+  },
+  {
+    "kind": "mixup_plus_333",
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 367,
+    "seconds": 2.781
+  },
+  {
+    "kind": "mixup_plus_334",
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 797,
+    "seconds": 4.656
+  },
+  {
+    "kind": "mixup_plus_344",
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 932,
+    "seconds": 11.562
+  },
+  {
+    "kind": "mixup_plus_444",
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 956,
+    "seconds": 13.047
+  }
+]

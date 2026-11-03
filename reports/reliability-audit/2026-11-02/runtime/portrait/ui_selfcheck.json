@@ -1,0 +1,315 @@
+{
+  "schema": 2,
+  "method": "visible screen navigation and settled transitions",
+  "image_validation": "visible_pixels_and_variance",
+  "screenshots_requested": true,
+  "status": "pass",
+  "checked": 38,
+  "errors": 0,
+  "results": [
+    {
+      "screen": "HomeScreen",
+      "status": "ok",
+      "shot": "HomeScreen.png",
+      "puzzle_kind": "cube",
+      "order": 3,
+      "current_screen": "HomeScreen"
+    },
+    {
+      "screen": "InputScreen",
+      "status": "ok",
+      "shot": "InputScreen.png",
+      "puzzle_kind": "cube",
+      "order": 3,
+      "current_screen": "InputScreen"
+    },
+    {
+      "screen": "MastermorphixScreen",
+      "status": "ok",
+      "shot": "MastermorphixScreen.png",
+      "puzzle_kind": "mastermorphix",
+      "order": 3,
+      "current_screen": "MastermorphixScreen"
+    },
+    {
+      "screen": "MirrorScreen",
+      "status": "ok",
+      "shot": "MirrorScreen.png",
+      "puzzle_kind": "mirror",
+      "order": 3,
+      "current_screen": "MirrorScreen"
+    },
+    {
+      "screen": "MorphixTwistScreen",
+      "status": "ok",
+      "shot": "MorphixTwistScreen.png",
+      "puzzle_kind": "mastermorphix",
+      "order": 3,
+      "current_screen": "MorphixTwistScreen"
+    },
+    {
+      "screen": "PolyhedralScreen",
+      "status": "ok",
+      "shot": "PolyhedralScreen-fto-3.png",
+      "puzzle_kind": "fto",
+      "order": 3,
+      "current_screen": "PolyhedralScreen"
+    },
+    {
+      "screen": "PolyhedralTwistScreen",
+      "status": "ok",
+      "shot": "PolyhedralTwistScreen.png",
+      "puzzle_kind": "fto",
+      "order": 3,
+      "current_screen": "PolyhedralTwistScreen"
+    },
+    {
+      "screen": "FormulaLibraryScreen",
+      "status": "ok",
+      "shot": "FormulaLibraryScreen.png",
+      "puzzle_kind": "cube",
+      "order": 3,
+      "current_screen": "FormulaLibraryScreen"
+    },
+    {
+      "screen": "PracticeScreen",
+      "status": "ok",
+      "shot": "PracticeScreen.png",
+      "puzzle_kind": "cube",
+      "order": 3,
+      "current_screen": "PracticeScreen"
+    },
+    {
+      "screen": "TwistScreen",
+      "status": "ok",
+      "shot": "TwistScreen.png",
+      "puzzle_kind": "cube",
+      "order": 3,
+      "current_screen": "TwistScreen"
+    },
+    {
+      "screen": "SettingsScreen",
+      "status": "ok",
+      "shot": "SettingsScreen.png",
+      "puzzle_kind": "cube",
+      "order": 3,
+      "current_screen": "SettingsScreen"
+    },
+    {
+      "screen": "Square1Screen",
+      "status": "ok",
+      "shot": "Square1Screen.png",
+      "puzzle_kind": "square1",
+      "order": 3,
+      "current_screen": "Square1Screen"
+    },
+    {
+      "screen": "ShapeCubeScreen",
+      "status": "ok",
+      "shot": "ShapeCubeScreen.png",
+      "puzzle_kind": "axis",
+      "order": 3,
+      "current_screen": "ShapeCubeScreen"
+    },
+    {
+      "screen": "MirrorTowerScreen",
+      "status": "ok",
+      "shot": "MirrorTowerScreen.png",
+      "puzzle_kind": "mirror_tower",
+      "order": 3,
+      "current_screen": "MirrorTowerScreen"
+    },
+    {
+      "screen": "MixupInputScreen",
+      "status": "ok",
+      "shot": "MixupInputScreen-mixup_333-3.png",
+      "puzzle_kind": "mixup_333",
+      "order": 3,
+      "current_screen": "MixupInputScreen"
+    },
+    {
+      "screen": "MixupInputScreen",
+      "status": "ok",
+      "shot": "MixupInputScreen-mixup_334-4.png",
+      "puzzle_kind": "mixup_334",
+      "order": 4,
+      "current_screen": "MixupInputScreen"
+    },
+    {
+      "screen": "MixupInputScreen",
+      "status": "ok",
+      "shot": "MixupInputScreen-mixup_344-4.png",
+      "puzzle_kind": "mixup_344",
+      "order": 4,
+      "current_screen": "MixupInputScreen"
+    },
+    {
+      "screen": "MixupInputScreen",
+      "status": "ok",
+      "shot": "MixupInputScreen-mixup_444-4.png",
+      "puzzle_kind": "mixup_444",
+      "order": 4,
+      "current_screen": "MixupInputScreen"
+    },
+    {
+      "screen": "MixupInputScreen",
+      "status": "ok",
+      "shot": "MixupInputScreen-mixup_plus_333-3.png",
+      "puzzle_kind": "mixup_plus_333",
+      "order": 3,
+      "current_screen": "MixupInputScreen"
+    },
+    {
+      "screen": "MixupInputScreen",
+      "status": "ok",
+      "shot": "MixupInputScreen-mixup_plus_334-4.png",
+      "puzzle_kind": "mixup_plus_334",
+      "order": 4,
+      "current_screen": "MixupInputScreen"
+    },
+    {
+      "screen": "MixupInputScreen",
+      "status": "ok",
+      "shot": "MixupInputScreen-mixup_plus_344-4.png",
+      "puzzle_kind": "mixup_plus_344",
+      "order": 4,
+      "current_screen": "MixupInputScreen"
+    },
+    {
+      "screen": "MixupInputScreen",
+      "status": "ok",
+      "shot": "MixupInputScreen-mixup_plus_444-4.png",
+      "puzzle_kind": "mixup_plus_444",
+      "order": 4,
+      "current_screen": "MixupInputScreen"
+    },
+    {
+      "screen": "ArticulatedEntryScreen",
+      "status": "ok",
+      "shot": "ArticulatedEntryScreen-tangram-3.png",
+      "puzzle_kind": "tangram",
+      "order": 3,
+      "current_screen": "ArticulatedEntryScreen"
+    },
+    {
+      "screen": "ArticulatedEntryScreen",
+      "status": "ok",
+      "shot": "ArticulatedEntryScreen-tangram_extreme-3.png",
+      "puzzle_kind": "tangram_extreme",
+      "order": 3,
+      "current_screen": "ArticulatedEntryScreen"
+    },
+    {
+      "screen": "CuboidSixViewScreen",
+      "status": "ok",
+      "shot": "CuboidSixViewScreen-camouflage_3-3.png",
+      "puzzle_kind": "camouflage_3",
+      "order": 3,
+      "current_screen": "CuboidSixViewScreen"
+    },
+    {
+      "screen": "PentacleScreen",
+      "status": "ok",
+      "shot": "PentacleScreen.png",
+      "puzzle_kind": "pentacle",
+      "order": 3,
+      "current_screen": "PentacleScreen"
+    },
+    {
+      "screen": "BlankerScreen",
+      "status": "ok",
+      "shot": "BlankerScreen.png",
+      "puzzle_kind": "blanker",
+      "order": 2,
+      "current_screen": "BlankerScreen"
+    },
+    {
+      "screen": "ContainerScreen",
+      "status": "ok",
+      "shot": "ContainerScreen.png",
+      "puzzle_kind": "container",
+      "order": 3,
+      "current_screen": "ContainerScreen"
+    },
+    {
+      "screen": "MirrorMinxScreen",
+      "status": "ok",
+      "shot": "MirrorMinxScreen.png",
+      "puzzle_kind": "mirror_megaminx",
+      "order": 3,
+      "current_screen": "MirrorMinxScreen"
+    },
+    {
+      "screen": "PolyhedralScreen",
+      "status": "ok",
+      "shot": "PolyhedralScreen-floppy_133-3.png",
+      "puzzle_kind": "floppy_133",
+      "order": 3,
+      "current_screen": "PolyhedralScreen"
+    },
+    {
+      "screen": "CuboidSixViewScreen",
+      "status": "ok",
+      "shot": "CuboidSixViewScreen-mirror_camouflage_3-3.png",
+      "puzzle_kind": "mirror_camouflage_3",
+      "order": 3,
+      "current_screen": "CuboidSixViewScreen"
+    },
+    {
+      "screen": "CopterInputScreen",
+      "status": "ok",
+      "shot": "CopterInputScreen.png",
+      "puzzle_kind": "lanlan_curvy_copter",
+      "order": 3,
+      "current_screen": "CopterInputScreen"
+    },
+    {
+      "screen": "LanlanCometInputScreen",
+      "status": "ok",
+      "shot": "LanlanCometInputScreen.png",
+      "puzzle_kind": "lanlan_comet_physical",
+      "order": 3,
+      "current_screen": "LanlanCometInputScreen"
+    },
+    {
+      "screen": "TwinsInputScreen",
+      "status": "ok",
+      "shot": "TwinsInputScreen.png",
+      "puzzle_kind": "mf8_twins",
+      "order": 3,
+      "current_screen": "TwinsInputScreen"
+    },
+    {
+      "screen": "SunCubeInputScreen",
+      "status": "ok",
+      "shot": "SunCubeInputScreen.png",
+      "puzzle_kind": "mf8_suncube_2",
+      "order": 3,
+      "current_screen": "SunCubeInputScreen"
+    },
+    {
+      "screen": "HexagramInputScreen",
+      "status": "ok",
+      "shot": "HexagramInputScreen.png",
+      "puzzle_kind": "lanlan_hexagram",
+      "order": 3,
+      "current_screen": "HexagramInputScreen"
+    },
+    {
+      "screen": "FlowerCopterInputScreen",
+      "status": "ok",
+      "shot": "FlowerCopterInputScreen.png",
+      "puzzle_kind": "lanlan_flower_copter",
+      "order": 3,
+      "current_screen": "FlowerCopterInputScreen"
+    },
+    {
+      "screen": "ButterflowerInputScreen",
+      "status": "ok",
+      "shot": "ButterflowerInputScreen.png",
+      "puzzle_kind": "lanlan_butterflower",
+      "order": 3,
+      "current_screen": "ButterflowerInputScreen"
+    }
+  ]
+}

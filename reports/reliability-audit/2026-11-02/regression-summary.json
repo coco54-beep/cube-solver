@@ -1,0 +1,47 @@
+{
+  "previous_passes": 1580,
+  "collected": 4180,
+  "new_passes": 2586,
+  "skipped": 11,
+  "failures": [
+    {
+      "nodeid": "tests/test_warmup.py::test_5x5_warmup_on_demand",
+      "outcome": "failed",
+      "duration": 0.00012939993757754564,
+      "phase": "call",
+      "error": "tests\\test_warmup.py:28: in test_5x5_warmup_on_demand\n    thread.join(5)\nE   AttributeError: 'NoneType' object has no attribute 'join'"
+    },
+    {
+      "nodeid": "tests/test_optimization_regressions.py::test_bad_checkpoint_does_not_change_live_puzzle[bad_screens0]",
+      "outcome": "failed",
+      "duration": 0.003691100049763918,
+      "phase": "call",
+      "error": "tests\\test_optimization_regressions.py:52: in test_bad_checkpoint_does_not_change_live_puzzle\n    assert app.cube is original and app.n==4 and not store.restoring\nE   AssertionError: assert (<cube.cube3.Cube3 object at 0x000001D304C69300> is <cube.cube4.Cube4 object at 0x000001D387663310>)\nE    +  where <cube.cube3.Cube3 object at 0x000001D304C69300> = namespace(root=namespace(current='HomeScreen', has_screen=<function test_bad_checkpoint_does_not_change_live_puzzle.<locals>.<lambda> at 0x000001D304C01F30>), cube=<cube.cube3.Cube3 object at 0x000001D304C69300>, n=3, user_data_dir='C:\\\\Users\\\\ASUS\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-ASUS\\\\pytest-312\\\\test_bad_checkpoint_does_not_c0', facelets_input_key=None).cube"
+    },
+    {
+      "nodeid": "tests/test_optimization_regressions.py::test_bad_checkpoint_does_not_change_live_puzzle[bad_screens1]",
+      "outcome": "failed",
+      "duration": 0.002536299987696111,
+      "phase": "call",
+      "error": "tests\\test_optimization_regressions.py:52: in test_bad_checkpoint_does_not_change_live_puzzle\n    assert app.cube is original and app.n==4 and not store.restoring\nE   AssertionError: assert (<cube.cube3.Cube3 object at 0x000001D388716A70> is <cube.cube4.Cube4 object at 0x000001D3872C4820>)\nE    +  where <cube.cube3.Cube3 object at 0x000001D388716A70> = namespace(root=namespace(current='HomeScreen', has_screen=<function test_bad_checkpoint_does_not_change_live_puzzle.<locals>.<lambda> at 0x000001D307B78AF0>), cube=<cube.cube3.Cube3 object at 0x000001D388716A70>, n=3, user_data_dir='C:\\\\Users\\\\ASUS\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-ASUS\\\\pytest-312\\\\test_bad_checkpoint_does_not_c1', facelets_input_key=None).cube"
+    }
+  ],
+  "workers": [
+    {
+      "group": 0,
+      "exit_code": 0
+    },
+    {
+      "group": 1,
+      "exit_code": 1
+    },
+    {
+      "group": 2,
+      "exit_code": 1
+    },
+    {
+      "group": 3,
+      "exit_code": 0
+    }
+  ]
+}

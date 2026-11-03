@@ -19,7 +19,7 @@ class GhostPyramidScreen(MirrorSkewbScreen):
         super().__init__(**kwargs)
         self.alignment_button=UIButton(size_hint_y=None,height=m.h(40))
         self.alignment_button.bind(on_release=lambda *_:self.toggle_alignment())
-        self.panel.add_widget(self.alignment_button,index=2)
+        self.panel.add_widget(self.alignment_button,index=self.panel.children.index(self.navigation)+1)
 
     def _new_cube(self,pieces=None):
         return GhostPyramidCube(pieces,phase=getattr(self._cube,'phase',CLOSED_PHASE))

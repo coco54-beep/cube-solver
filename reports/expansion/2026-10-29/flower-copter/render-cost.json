@@ -1,0 +1,113 @@
+{
+  "construct_seconds": 0.02634,
+  "skin_load_seconds": 0.02539,
+  "full_triangles": 43704,
+  "rest_triangles": 5352,
+  "turns": [
+    {
+      "axis": 0,
+      "triangles": 7116,
+      "prepare_seconds": 0.03888
+    },
+    {
+      "axis": 1,
+      "triangles": 7116,
+      "prepare_seconds": 0.0427
+    },
+    {
+      "axis": 2,
+      "triangles": 7116,
+      "prepare_seconds": 0.03776
+    },
+    {
+      "axis": 3,
+      "triangles": 7116,
+      "prepare_seconds": 0.04195
+    },
+    {
+      "axis": 4,
+      "triangles": 7116,
+      "prepare_seconds": 0.0376
+    },
+    {
+      "axis": 5,
+      "triangles": 7116,
+      "prepare_seconds": 0.04181
+    },
+    {
+      "axis": 6,
+      "triangles": 7116,
+      "prepare_seconds": 0.03744
+    },
+    {
+      "axis": 7,
+      "triangles": 7116,
+      "prepare_seconds": 0.04048
+    },
+    {
+      "axis": 8,
+      "triangles": 7116,
+      "prepare_seconds": 0.03746
+    },
+    {
+      "axis": 9,
+      "triangles": 7116,
+      "prepare_seconds": 0.03977
+    },
+    {
+      "axis": 10,
+      "triangles": 7116,
+      "prepare_seconds": 0.0371
+    },
+    {
+      "axis": 11,
+      "triangles": 7116,
+      "prepare_seconds": 0.04036
+    },
+    {
+      "axis": 12,
+      "triangles": 7500,
+      "prepare_seconds": 0.04034
+    },
+    {
+      "axis": 13,
+      "triangles": 7500,
+      "prepare_seconds": 0.04192
+    },
+    {
+      "axis": 14,
+      "triangles": 7500,
+      "prepare_seconds": 0.03874
+    },
+    {
+      "axis": 15,
+      "triangles": 7500,
+      "prepare_seconds": 0.04243
+    },
+    {
+      "axis": 16,
+      "triangles": 7500,
+      "prepare_seconds": 0.03931
+    },
+    {
+      "axis": 17,
+      "triangles": 7500,
+      "prepare_seconds": 0.04215
+    },
+    {
+      "axis": 18,
+      "triangles": 7500,
+      "prepare_seconds": 0.03955
+    },
+    {
+      "axis": 19,
+      "triangles": 7500,
+      "prepare_seconds": 0.04279
+    }
+  ],
+  "asset_bytes": {
+    "cube/data/flower_regular_material.bin": 561,
+    "cube/data/flower_regular_skin.bin": 547819,
+    "solver/data/flower_copter_colour_group.bin": 26055
+  }
+}

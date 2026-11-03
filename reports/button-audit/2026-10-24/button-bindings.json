@@ -1,0 +1,1106 @@
+[
+  {
+    "file": "ui/screens/articulated_observation_screen.py",
+    "line": 83,
+    "event": "on_release",
+    "handler": "lambda *_: fn()"
+  },
+  {
+    "file": "ui/screens/articulated_observation_screen.py",
+    "line": 136,
+    "event": "on_release",
+    "handler": "lambda *_, c=color: self.select_color(c)"
+  },
+  {
+    "file": "ui/screens/articulated_observation_screen.py",
+    "line": 191,
+    "event": "on_release",
+    "handler": "lambda *_, i=index: self.select_shape(i)"
+  },
+  {
+    "file": "ui/screens/articulated_screen.py",
+    "line": 28,
+    "event": "on_release",
+    "handler": "lambda *_: self.back()"
+  },
+  {
+    "file": "ui/screens/articulated_screen.py",
+    "line": 29,
+    "event": "on_release",
+    "handler": "lambda *_: self.customize()"
+  },
+  {
+    "file": "ui/screens/articulated_screen.py",
+    "line": 45,
+    "event": "on_release",
+    "handler": "lambda *_: self.confirm_piece()"
+  },
+  {
+    "file": "ui/screens/articulated_screen.py",
+    "line": 38,
+    "event": "on_release",
+    "handler": "lambda *_, d=delta: self.select_piece(d)"
+  },
+  {
+    "file": "ui/screens/articulated_screen.py",
+    "line": 44,
+    "event": "on_release",
+    "handler": "lambda *_, d=delta: self.rotate_piece(d)"
+  },
+  {
+    "file": "ui/screens/articulated_screen.py",
+    "line": 53,
+    "event": "on_release",
+    "handler": "lambda *_, f=fn: f()"
+  },
+  {
+    "file": "ui/screens/camera_screen.py",
+    "line": 233,
+    "event": "on_release",
+    "handler": "lambda *a: self.go_back()"
+  },
+  {
+    "file": "ui/screens/camera_screen.py",
+    "line": 267,
+    "event": "on_release",
+    "handler": "lambda *_: self.rotate_photo()"
+  },
+  {
+    "file": "ui/screens/camera_screen.py",
+    "line": 269,
+    "event": "on_release",
+    "handler": "lambda *_: self.recheck()"
+  },
+  {
+    "file": "ui/screens/camera_screen.py",
+    "line": 271,
+    "event": "on_release",
+    "handler": "lambda *_: self.calibrate()"
+  },
+  {
+    "file": "ui/screens/camera_screen.py",
+    "line": 276,
+    "event": "on_release",
+    "handler": "lambda *_: self.reset_calibration()"
+  },
+  {
+    "file": "ui/screens/camera_screen.py",
+    "line": 289,
+    "event": "on_release",
+    "handler": "lambda *_: self.cancel_recognition()"
+  },
+  {
+    "file": "ui/screens/camera_screen.py",
+    "line": 298,
+    "event": "on_release",
+    "handler": "lambda *a: self.navigate('prev')"
+  },
+  {
+    "file": "ui/screens/camera_screen.py",
+    "line": 300,
+    "event": "on_release",
+    "handler": "lambda *a: self.navigate('next')"
+  },
+  {
+    "file": "ui/screens/camera_screen.py",
+    "line": 311,
+    "event": "on_release",
+    "handler": "lambda *a: self.capture()"
+  },
+  {
+    "file": "ui/screens/camera_screen.py",
+    "line": 313,
+    "event": "on_release",
+    "handler": "lambda *a: self.open_import()"
+  },
+  {
+    "file": "ui/screens/camera_screen.py",
+    "line": 315,
+    "event": "on_release",
+    "handler": "lambda *a: self.apply_to_input()"
+  },
+  {
+    "file": "ui/screens/camera_screen.py",
+    "line": 831,
+    "event": "on_release",
+    "handler": "lambda *a: popup.dismiss()"
+  },
+  {
+    "file": "ui/screens/camera_screen.py",
+    "line": 839,
+    "event": "on_release",
+    "handler": "_choose"
+  },
+  {
+    "file": "ui/screens/camera_screen.py",
+    "line": 1016,
+    "event": "on_release",
+    "handler": "lambda _, value=code: choose(value)"
+  },
+  {
+    "file": "ui/screens/camera_screen.py",
+    "line": 1048,
+    "event": "on_release",
+    "handler": "lambda _, value=i: selected(value)"
+  },
+  {
+    "file": "ui/screens/camera_screen.py",
+    "line": 1052,
+    "event": "on_release",
+    "handler": "lambda *_: selected(-1)"
+  },
+  {
+    "file": "ui/screens/cuboid_six_view_screen.py",
+    "line": 44,
+    "event": "on_release",
+    "handler": "lambda *_: callback()"
+  },
+  {
+    "file": "ui/screens/cuboid_six_view_screen.py",
+    "line": 129,
+    "event": "on_release",
+    "handler": "lambda *_, c=color: self.select_color(c)"
+  },
+  {
+    "file": "ui/screens/demo_menu.py",
+    "line": 133,
+    "event": "on_release",
+    "handler": "lambda *a: self.go_home()"
+  },
+  {
+    "file": "ui/screens/demo_menu.py",
+    "line": 262,
+    "event": "on_release",
+    "handler": "lambda *_: self._cancel_complete()"
+  },
+  {
+    "file": "ui/screens/demo_menu.py",
+    "line": 167,
+    "event": "on_release",
+    "handler": "lambda *_, fn=callback: fn()"
+  },
+  {
+    "file": "ui/screens/demo_screen.py",
+    "line": 157,
+    "event": "on_release",
+    "handler": "lambda *a: self.go_menu()"
+  },
+  {
+    "file": "ui/screens/demo_screen.py",
+    "line": 197,
+    "event": "on_release",
+    "handler": "lambda *a: self.to_start()"
+  },
+  {
+    "file": "ui/screens/demo_screen.py",
+    "line": 199,
+    "event": "on_release",
+    "handler": "lambda *a: self.prev_move()"
+  },
+  {
+    "file": "ui/screens/demo_screen.py",
+    "line": 201,
+    "event": "on_release",
+    "handler": "lambda *a: self.play()"
+  },
+  {
+    "file": "ui/screens/demo_screen.py",
+    "line": 203,
+    "event": "on_release",
+    "handler": "lambda *a: self.next_move()"
+  },
+  {
+    "file": "ui/screens/demo_screen.py",
+    "line": 205,
+    "event": "on_release",
+    "handler": "lambda *a: reset_camera_view(self.view) if not self._busy else None"
+  },
+  {
+    "file": "ui/screens/formula_library_screen.py",
+    "line": 45,
+    "event": "on_release",
+    "handler": "lambda *_: setattr(self.manager, 'current', 'HomeScreen')"
+  },
+  {
+    "file": "ui/screens/formula_library_screen.py",
+    "line": 48,
+    "event": "on_release",
+    "handler": "self.open_practice"
+  },
+  {
+    "file": "ui/screens/formula_library_screen.py",
+    "line": 70,
+    "event": "on_release",
+    "handler": "lambda *_: self.change_page(-1)"
+  },
+  {
+    "file": "ui/screens/formula_library_screen.py",
+    "line": 73,
+    "event": "on_release",
+    "handler": "lambda *_: self.change_page(1)"
+  },
+  {
+    "file": "ui/screens/formula_library_screen.py",
+    "line": 252,
+    "event": "on_release",
+    "handler": "lambda *_: popup.dismiss()"
+  },
+  {
+    "file": "ui/screens/formula_library_screen.py",
+    "line": 183,
+    "event": "on_release",
+    "handler": "lambda *_a, entry=item: self._open_case(entry)"
+  },
+  {
+    "file": "ui/screens/formula_library_screen.py",
+    "line": 188,
+    "event": "on_release",
+    "handler": "lambda *_a, entry=item: self._alternatives(entry)"
+  },
+  {
+    "file": "ui/screens/formula_library_screen.py",
+    "line": 190,
+    "event": "on_release",
+    "handler": "lambda *_a, entry=item: self._cycle_progress(entry)"
+  },
+  {
+    "file": "ui/screens/formula_library_screen.py",
+    "line": 249,
+    "event": "on_release",
+    "handler": "choose"
+  },
+  {
+    "file": "ui/screens/ghost_pyramid_screen.py",
+    "line": 21,
+    "event": "on_release",
+    "handler": "lambda *_: self.toggle_alignment()"
+  },
+  {
+    "file": "ui/screens/ghost_screen.py",
+    "line": 21,
+    "event": "on_release",
+    "handler": "lambda *_: self.toggle_alignment()"
+  },
+  {
+    "file": "ui/screens/ghost_twist_screen.py",
+    "line": 15,
+    "event": "on_release",
+    "handler": "lambda *_: self.toggle_alignment()"
+  },
+  {
+    "file": "ui/screens/home_screen.py",
+    "line": 22,
+    "event": "on_release",
+    "handler": "lambda *_: self.open_formula_help()"
+  },
+  {
+    "file": "ui/screens/home_screen.py",
+    "line": 25,
+    "event": "on_release",
+    "handler": "lambda *_: self.open_camera()"
+  },
+  {
+    "file": "ui/screens/home_screen.py",
+    "line": 28,
+    "event": "on_release",
+    "handler": "lambda *_: self.open_settings()"
+  },
+  {
+    "file": "ui/screens/input_screen.py",
+    "line": 294,
+    "event": "on_release",
+    "handler": "lambda *_: self.open_palette_settings()"
+  },
+  {
+    "file": "ui/screens/input_screen.py",
+    "line": 307,
+    "event": "on_release",
+    "handler": "lambda *a: self._zoom(1.15)"
+  },
+  {
+    "file": "ui/screens/input_screen.py",
+    "line": 309,
+    "event": "on_release",
+    "handler": "lambda *a: self._zoom(1 / 1.15)"
+  },
+  {
+    "file": "ui/screens/input_screen.py",
+    "line": 323,
+    "event": "on_release",
+    "handler": "lambda *_: self._rotate_bandage_block()"
+  },
+  {
+    "file": "ui/screens/input_screen.py",
+    "line": 327,
+    "event": "on_release",
+    "handler": "lambda *_: self._confirm_bandage_placement()"
+  },
+  {
+    "file": "ui/screens/input_screen.py",
+    "line": 353,
+    "event": "on_release",
+    "handler": "lambda *a: self.toggle_pick()"
+  },
+  {
+    "file": "ui/screens/input_screen.py",
+    "line": 356,
+    "event": "on_release",
+    "handler": "lambda *a: self.fill_face()"
+  },
+  {
+    "file": "ui/screens/input_screen.py",
+    "line": 359,
+    "event": "on_release",
+    "handler": "lambda *a: self.undo()"
+  },
+  {
+    "file": "ui/screens/input_screen.py",
+    "line": 362,
+    "event": "on_release",
+    "handler": "lambda *a: self.redo()"
+  },
+  {
+    "file": "ui/screens/input_screen.py",
+    "line": 366,
+    "event": "on_release",
+    "handler": "lambda *a: self.open_scramble()"
+  },
+  {
+    "file": "ui/screens/input_screen.py",
+    "line": 371,
+    "event": "on_release",
+    "handler": "lambda *a: self.prev_face()"
+  },
+  {
+    "file": "ui/screens/input_screen.py",
+    "line": 373,
+    "event": "on_release",
+    "handler": "lambda *a: self.next_face()"
+  },
+  {
+    "file": "ui/screens/input_screen.py",
+    "line": 378,
+    "event": "on_release",
+    "handler": "lambda *a: self.open_twist()"
+  },
+  {
+    "file": "ui/screens/input_screen.py",
+    "line": 384,
+    "event": "on_release",
+    "handler": "lambda *a: self.confirm_clear()"
+  },
+  {
+    "file": "ui/screens/input_screen.py",
+    "line": 387,
+    "event": "on_release",
+    "handler": "lambda *a: self.assign_initial()"
+  },
+  {
+    "file": "ui/screens/input_screen.py",
+    "line": 389,
+    "event": "on_release",
+    "handler": "lambda *a: self.start_solve()"
+  },
+  {
+    "file": "ui/screens/input_screen.py",
+    "line": 1158,
+    "event": "on_release",
+    "handler": "lambda *a: popup.dismiss()"
+  },
+  {
+    "file": "ui/screens/input_screen.py",
+    "line": 1160,
+    "event": "on_release",
+    "handler": "lambda *a: (self._apply_scramble_popup(ti.text), popup.dismiss())"
+  },
+  {
+    "file": "ui/screens/input_screen.py",
+    "line": 1212,
+    "event": "on_release",
+    "handler": "lambda *a: popup.dismiss()"
+  },
+  {
+    "file": "ui/screens/input_screen.py",
+    "line": 1214,
+    "event": "on_release",
+    "handler": "lambda *a: (self.clear_all(), popup.dismiss())"
+  },
+  {
+    "file": "ui/screens/input_screen.py",
+    "line": 656,
+    "event": "on_release",
+    "handler": "lambda _button, key=k: self._select_bandage_step(key)"
+  },
+  {
+    "file": "ui/screens/irregular_directory_screen.py",
+    "line": 263,
+    "event": "on_release",
+    "handler": "lambda *_: setattr(self.manager, 'current', self.parent_screen)"
+  },
+  {
+    "file": "ui/screens/irregular_directory_screen.py",
+    "line": 433,
+    "event": "on_release",
+    "handler": "lambda *_: popup.dismiss()"
+  },
+  {
+    "file": "ui/screens/irregular_directory_screen.py",
+    "line": 595,
+    "event": "on_release",
+    "handler": "lambda *_: popup.dismiss()"
+  },
+  {
+    "file": "ui/screens/irregular_directory_screen.py",
+    "line": 427,
+    "event": "on_release",
+    "handler": "lambda *_args, n=order: self.select_order(popup, puzzle, n)"
+  },
+  {
+    "file": "ui/screens/mastermorphix_screen.py",
+    "line": 82,
+    "event": "on_release",
+    "handler": "lambda *_: self.open_palette_settings()"
+  },
+  {
+    "file": "ui/screens/mastermorphix_screen.py",
+    "line": 111,
+    "event": "on_release",
+    "handler": "lambda *_: self.turn_view(-1)"
+  },
+  {
+    "file": "ui/screens/mastermorphix_screen.py",
+    "line": 113,
+    "event": "on_release",
+    "handler": "lambda *_: self.rotate_piece()"
+  },
+  {
+    "file": "ui/screens/mastermorphix_screen.py",
+    "line": 115,
+    "event": "on_release",
+    "handler": "lambda *_: self.turn_view(1)"
+  },
+  {
+    "file": "ui/screens/mastermorphix_screen.py",
+    "line": 386,
+    "event": "on_release",
+    "handler": "lambda *_: popup.dismiss()"
+  },
+  {
+    "file": "ui/screens/mastermorphix_screen.py",
+    "line": 387,
+    "event": "on_release",
+    "handler": "lambda *_: (self._clear_entries(), popup.dismiss())"
+  },
+  {
+    "file": "ui/screens/mastermorphix_screen.py",
+    "line": 430,
+    "event": "on_release",
+    "handler": "lambda *_: (popup.dismiss(), self.open_demo())"
+  },
+  {
+    "file": "ui/screens/mastermorphix_screen.py",
+    "line": 327,
+    "event": "on_release",
+    "handler": "lambda _, h=home, f=frame, t=token: self.entry_gallery_action(t, self.choose_piece, h, f)"
+  },
+  {
+    "file": "ui/screens/mirror_screen.py",
+    "line": 110,
+    "event": "on_release",
+    "handler": "lambda *_, h=home, f=frame, t=token: self.entry_gallery_action(t, self.choose_piece, h, f)"
+  },
+  {
+    "file": "ui/screens/mirror_tower_screen.py",
+    "line": 175,
+    "event": "on_release",
+    "handler": "lambda *_: (self._clear_now(), popup.dismiss())"
+  },
+  {
+    "file": "ui/screens/mirror_tower_screen.py",
+    "line": 176,
+    "event": "on_release",
+    "handler": "lambda *_: popup.dismiss()"
+  },
+  {
+    "file": "ui/screens/mirror_tower_screen.py",
+    "line": 50,
+    "event": "on_release",
+    "handler": "lambda *_: self.open_palette_settings()"
+  },
+  {
+    "file": "ui/screens/mirror_tower_screen.py",
+    "line": 114,
+    "event": "on_release",
+    "handler": "lambda *_, h=home, f=frame, t=token: self.entry_gallery_action(t, self.choose, h, f)"
+  },
+  {
+    "file": "ui/screens/mixup_input_screen.py",
+    "line": 98,
+    "event": "on_release",
+    "handler": "lambda *_: fn()"
+  },
+  {
+    "file": "ui/screens/mixup_input_screen.py",
+    "line": 396,
+    "event": "on_release",
+    "handler": "lambda *_: popup.dismiss()"
+  },
+  {
+    "file": "ui/screens/mixup_input_screen.py",
+    "line": 158,
+    "event": "on_release",
+    "handler": "lambda *_, i=c: self.select_color(i)"
+  },
+  {
+    "file": "ui/screens/mixup_input_screen.py",
+    "line": 395,
+    "event": "on_release",
+    "handler": "lambda *_, fn=action: perform(fn)"
+  },
+  {
+    "file": "ui/screens/mixup_input_screen.py",
+    "line": 225,
+    "event": "on_release",
+    "handler": "lambda *_, r=linked: self.restore_original(r)"
+  },
+  {
+    "file": "ui/screens/mixup_input_screen.py",
+    "line": 233,
+    "event": "on_release",
+    "handler": "lambda *_, a=assembly: self.select_assembly(a)"
+  },
+  {
+    "file": "ui/screens/morphix_twist_screen.py",
+    "line": 129,
+    "event": "on_release",
+    "handler": "lambda *_: self.back()"
+  },
+  {
+    "file": "ui/screens/morphix_twist_screen.py",
+    "line": 132,
+    "event": "on_release",
+    "handler": "lambda *_: self.back()"
+  },
+  {
+    "file": "ui/screens/morphix_twist_screen.py",
+    "line": 141,
+    "event": "on_release",
+    "handler": "lambda *_: self.undo()"
+  },
+  {
+    "file": "ui/screens/morphix_twist_screen.py",
+    "line": 143,
+    "event": "on_release",
+    "handler": "lambda *_: self.redo()"
+  },
+  {
+    "file": "ui/screens/morphix_twist_screen.py",
+    "line": 149,
+    "event": "on_release",
+    "handler": "lambda *_: self.toggle_lock()"
+  },
+  {
+    "file": "ui/screens/morphix_twist_screen.py",
+    "line": 151,
+    "event": "on_release",
+    "handler": "lambda *_: self.toggle_wide()"
+  },
+  {
+    "file": "ui/screens/morphix_twist_screen.py",
+    "line": 153,
+    "event": "on_release",
+    "handler": "lambda *_: self.reset_view()"
+  },
+  {
+    "file": "ui/screens/morphix_twist_screen.py",
+    "line": 160,
+    "event": "on_release",
+    "handler": "lambda *_: self.turn(-1)"
+  },
+  {
+    "file": "ui/screens/morphix_twist_screen.py",
+    "line": 162,
+    "event": "on_release",
+    "handler": "lambda *_: self.turn(1)"
+  },
+  {
+    "file": "ui/screens/pentacle_screen.py",
+    "line": 31,
+    "event": "on_release",
+    "handler": "lambda *_: self.commit_disc()"
+  },
+  {
+    "file": "ui/screens/pentacle_screen.py",
+    "line": 32,
+    "event": "on_release",
+    "handler": "lambda *_: self.align_current()"
+  },
+  {
+    "file": "ui/screens/piece_palette_screen.py",
+    "line": 24,
+    "event": "on_release",
+    "handler": "lambda *_: self.back()"
+  },
+  {
+    "file": "ui/screens/piece_palette_screen.py",
+    "line": 48,
+    "event": "on_release",
+    "handler": "lambda *_: self.back()"
+  },
+  {
+    "file": "ui/screens/piece_palette_screen.py",
+    "line": 49,
+    "event": "on_release",
+    "handler": "lambda *_: self.restore_defaults()"
+  },
+  {
+    "file": "ui/screens/piece_palette_screen.py",
+    "line": 50,
+    "event": "on_release",
+    "handler": "lambda *_: self.save()"
+  },
+  {
+    "file": "ui/screens/piece_palette_screen.py",
+    "line": 85,
+    "event": "on_release",
+    "handler": "lambda *_, index=i, g=generation: self.select(index, g)"
+  },
+  {
+    "file": "ui/screens/playback_screen.py",
+    "line": 103,
+    "event": "on_release",
+    "handler": "lambda *a: self.to_start()"
+  },
+  {
+    "file": "ui/screens/playback_screen.py",
+    "line": 105,
+    "event": "on_release",
+    "handler": "lambda *a: self.prev()"
+  },
+  {
+    "file": "ui/screens/playback_screen.py",
+    "line": 107,
+    "event": "on_release",
+    "handler": "lambda *a: self.toggle_play()"
+  },
+  {
+    "file": "ui/screens/playback_screen.py",
+    "line": 109,
+    "event": "on_release",
+    "handler": "lambda *a: self.next()"
+  },
+  {
+    "file": "ui/screens/playback_screen.py",
+    "line": 111,
+    "event": "on_release",
+    "handler": "lambda *a: self.to_end()"
+  },
+  {
+    "file": "ui/screens/playback_screen.py",
+    "line": 120,
+    "event": "on_release",
+    "handler": "lambda *a: self.reset_view()"
+  },
+  {
+    "file": "ui/screens/playback_screen.py",
+    "line": 122,
+    "event": "on_release",
+    "handler": "lambda *a: self.go_back()"
+  },
+  {
+    "file": "ui/screens/playback_screen.py",
+    "line": 420,
+    "event": "on_release",
+    "handler": "lambda *a: popup.dismiss()"
+  },
+  {
+    "file": "ui/screens/playback_screen.py",
+    "line": 422,
+    "event": "on_release",
+    "handler": "lambda *a: (on_ok(), popup.dismiss())"
+  },
+  {
+    "file": "ui/screens/polyhedral_screen.py",
+    "line": 132,
+    "event": "on_release",
+    "handler": "lambda *_: self.change_view(-1)"
+  },
+  {
+    "file": "ui/screens/polyhedral_screen.py",
+    "line": 134,
+    "event": "on_release",
+    "handler": "lambda *_: self.customize()"
+  },
+  {
+    "file": "ui/screens/polyhedral_screen.py",
+    "line": 136,
+    "event": "on_release",
+    "handler": "lambda *_: self.change_view(1)"
+  },
+  {
+    "file": "ui/screens/polyhedral_screen.py",
+    "line": 149,
+    "event": "on_release",
+    "handler": "lambda *_: self.open_shape_entry()"
+  },
+  {
+    "file": "ui/screens/polyhedral_screen.py",
+    "line": 452,
+    "event": "on_release",
+    "handler": "confirm"
+  },
+  {
+    "file": "ui/screens/polyhedral_screen.py",
+    "line": 453,
+    "event": "on_release",
+    "handler": "lambda *_: popup.dismiss()"
+  },
+  {
+    "file": "ui/screens/polyhedral_screen.py",
+    "line": 935,
+    "event": "on_release",
+    "handler": "lambda *_: popup.dismiss()"
+  },
+  {
+    "file": "ui/screens/polyhedral_screen.py",
+    "line": 937,
+    "event": "on_release",
+    "handler": "lambda *_: (on_confirm(), popup.dismiss())"
+  },
+  {
+    "file": "ui/screens/polyhedral_screen.py",
+    "line": 981,
+    "event": "on_release",
+    "handler": "lambda *_: self.back()"
+  },
+  {
+    "file": "ui/screens/polyhedral_screen.py",
+    "line": 984,
+    "event": "on_release",
+    "handler": "lambda *_: self.back()"
+  },
+  {
+    "file": "ui/screens/polyhedral_screen.py",
+    "line": 993,
+    "event": "on_release",
+    "handler": "lambda *_: self.undo()"
+  },
+  {
+    "file": "ui/screens/polyhedral_screen.py",
+    "line": 995,
+    "event": "on_release",
+    "handler": "lambda *_: self.redo()"
+  },
+  {
+    "file": "ui/screens/polyhedral_screen.py",
+    "line": 1001,
+    "event": "on_release",
+    "handler": "lambda *_: self.change_view(-1)"
+  },
+  {
+    "file": "ui/screens/polyhedral_screen.py",
+    "line": 1003,
+    "event": "on_release",
+    "handler": "lambda *_: self.toggle_lock()"
+  },
+  {
+    "file": "ui/screens/polyhedral_screen.py",
+    "line": 1005,
+    "event": "on_release",
+    "handler": "lambda *_: reset_camera_view(self.view)"
+  },
+  {
+    "file": "ui/screens/polyhedral_screen.py",
+    "line": 1007,
+    "event": "on_release",
+    "handler": "lambda *_: self.change_view(1)"
+  },
+  {
+    "file": "ui/screens/polyhedral_screen.py",
+    "line": 1017,
+    "event": "on_release",
+    "handler": "lambda *_: self.turn(-1)"
+  },
+  {
+    "file": "ui/screens/polyhedral_screen.py",
+    "line": 1019,
+    "event": "on_release",
+    "handler": "lambda *_: self.turn(1)"
+  },
+  {
+    "file": "ui/screens/polyhedral_screen.py",
+    "line": 1024,
+    "event": "on_release",
+    "handler": "lambda *_: self.toggle_alignment()"
+  },
+  {
+    "file": "ui/screens/polyhedral_screen.py",
+    "line": 219,
+    "event": "on_release",
+    "handler": "lambda *_, color=i: self.choose_color(color)"
+  },
+  {
+    "file": "ui/screens/polyhedral_screen.py",
+    "line": 698,
+    "event": "on_release",
+    "handler": "lambda *_, f=fn: f()"
+  },
+  {
+    "file": "ui/screens/polyhedral_screen.py",
+    "line": 708,
+    "event": "on_release",
+    "handler": "lambda *_, f=fn: f()"
+  },
+  {
+    "file": "ui/screens/practice_screen.py",
+    "line": 55,
+    "event": "on_release",
+    "handler": "lambda *_: setattr(self.manager, 'current', 'FormulaLibraryScreen')"
+  },
+  {
+    "file": "ui/screens/practice_screen.py",
+    "line": 60,
+    "event": "on_release",
+    "handler": "self.show_help"
+  },
+  {
+    "file": "ui/screens/practice_screen.py",
+    "line": 68,
+    "event": "on_release",
+    "handler": "self.choose_sets"
+  },
+  {
+    "file": "ui/screens/practice_screen.py",
+    "line": 76,
+    "event": "on_release",
+    "handler": "self.cycle_learning"
+  },
+  {
+    "file": "ui/screens/practice_screen.py",
+    "line": 87,
+    "event": "on_release",
+    "handler": "self.toggle_timer"
+  },
+  {
+    "file": "ui/screens/practice_screen.py",
+    "line": 92,
+    "event": "on_release",
+    "handler": "self.reveal_answer"
+  },
+  {
+    "file": "ui/screens/practice_screen.py",
+    "line": 94,
+    "event": "on_release",
+    "handler": "self.replay"
+  },
+  {
+    "file": "ui/screens/practice_screen.py",
+    "line": 96,
+    "event": "on_release",
+    "handler": "self.next_question"
+  },
+  {
+    "file": "ui/screens/practice_screen.py",
+    "line": 108,
+    "event": "on_release",
+    "handler": "self.show_history"
+  },
+  {
+    "file": "ui/screens/practice_screen.py",
+    "line": 202,
+    "event": "on_release",
+    "handler": "apply"
+  },
+  {
+    "file": "ui/screens/practice_screen.py",
+    "line": 229,
+    "event": "on_release",
+    "handler": "popup.dismiss"
+  },
+  {
+    "file": "ui/screens/practice_screen.py",
+    "line": 332,
+    "event": "on_release",
+    "handler": "lambda *_: popup.dismiss()"
+  },
+  {
+    "file": "ui/screens/practice_screen.py",
+    "line": 104,
+    "event": "on_release",
+    "handler": "lambda *_a, penalty=value: self.set_penalty(penalty)"
+  },
+  {
+    "file": "ui/screens/practice_screen.py",
+    "line": 193,
+    "event": "on_release",
+    "handler": "toggle"
+  },
+  {
+    "file": "ui/screens/settings_screen.py",
+    "line": 36,
+    "event": "on_release",
+    "handler": "lambda *a: self.go_home()"
+  },
+  {
+    "file": "ui/screens/settings_screen.py",
+    "line": 73,
+    "event": "on_release",
+    "handler": "lambda *a: self.open_help()"
+  },
+  {
+    "file": "ui/screens/settings_screen.py",
+    "line": 165,
+    "event": "on_release",
+    "handler": "lambda *a: on_pick()"
+  },
+  {
+    "file": "ui/screens/solving_screen.py",
+    "line": 45,
+    "event": "on_release",
+    "handler": "lambda *a: self.on_cancel()"
+  },
+  {
+    "file": "ui/screens/square1_screen.py",
+    "line": 54,
+    "event": "on_release",
+    "handler": "lambda *_: callback()"
+  },
+  {
+    "file": "ui/screens/square1_screen.py",
+    "line": 309,
+    "event": "on_release",
+    "handler": "lambda *_: popup.dismiss()"
+  },
+  {
+    "file": "ui/screens/square1_screen.py",
+    "line": 310,
+    "event": "on_release",
+    "handler": "lambda *_: (self._clear_now(), popup.dismiss())"
+  },
+  {
+    "file": "ui/screens/square1_screen.py",
+    "line": 481,
+    "event": "on_release",
+    "handler": "lambda *_: popup.dismiss()"
+  },
+  {
+    "file": "ui/screens/square1_screen.py",
+    "line": 482,
+    "event": "on_release",
+    "handler": "lambda *_: (action(), popup.dismiss())"
+  },
+  {
+    "file": "ui/screens/square1_screen.py",
+    "line": 91,
+    "event": "on_release",
+    "handler": "lambda *_, w=width: self.choose_shape(w)"
+  },
+  {
+    "file": "ui/screens/square1_screen.py",
+    "line": 96,
+    "event": "on_release",
+    "handler": "lambda *_, a=amount: self.rotate_layer(a)"
+  },
+  {
+    "file": "ui/screens/square1_screen.py",
+    "line": 103,
+    "event": "on_release",
+    "handler": "lambda *_, f=field: self.select_field(f)"
+  },
+  {
+    "file": "ui/screens/square1_screen.py",
+    "line": 112,
+    "event": "on_release",
+    "handler": "lambda *_, c=color: self.paint(c)"
+  },
+  {
+    "file": "ui/screens/square1_screen.py",
+    "line": 120,
+    "event": "on_release",
+    "handler": "lambda *_, v=value: self.set_middle(v)"
+  },
+  {
+    "file": "ui/screens/square_family_screen.py",
+    "line": 68,
+    "event": "on_release",
+    "handler": "lambda *_: self.slash()"
+  },
+  {
+    "file": "ui/screens/square_family_screen.py",
+    "line": 83,
+    "event": "on_release",
+    "handler": "lambda *_, v=value: self.set_middle(v)"
+  },
+  {
+    "file": "ui/screens/square_family_screen.py",
+    "line": 195,
+    "event": "on_release",
+    "handler": "lambda *_, h=home, t=token: self.entry_gallery_action(t, self.choose_piece, h)"
+  },
+  {
+    "file": "ui/screens/tangram_color_layout.py",
+    "line": 57,
+    "event": "on_release",
+    "handler": "lambda *_: self.toggle_view()"
+  },
+  {
+    "file": "ui/screens/tangram_color_layout.py",
+    "line": 77,
+    "event": "on_release",
+    "handler": "lambda *_: callback()"
+  },
+  {
+    "file": "ui/screens/tangram_shape_cards.py",
+    "line": 232,
+    "event": "on_release",
+    "handler": "lambda *_, i=index, g=generation: self.choose(i, g)"
+  },
+  {
+    "file": "ui/screens/twist_screen.py",
+    "line": 163,
+    "event": "on_release",
+    "handler": "lambda *a: self.go_back()"
+  },
+  {
+    "file": "ui/screens/twist_screen.py",
+    "line": 167,
+    "event": "on_release",
+    "handler": "lambda *a: self.go_back()"
+  },
+  {
+    "file": "ui/screens/twist_screen.py",
+    "line": 184,
+    "event": "on_release",
+    "handler": "lambda *a: self.undo()"
+  },
+  {
+    "file": "ui/screens/twist_screen.py",
+    "line": 186,
+    "event": "on_release",
+    "handler": "lambda *a: self.redo()"
+  },
+  {
+    "file": "ui/screens/twist_screen.py",
+    "line": 192,
+    "event": "on_release",
+    "handler": "lambda *a: self.toggle_lock()"
+  },
+  {
+    "file": "ui/screens/twist_screen.py",
+    "line": 194,
+    "event": "on_release",
+    "handler": "lambda *a: self.toggle_wide()"
+  },
+  {
+    "file": "ui/screens/twist_screen.py",
+    "line": 196,
+    "event": "on_release",
+    "handler": "lambda *a: reset_camera_view(self.view) if not self._busy else None"
+  },
+  {
+    "file": "ui/screens/twist_screen.py",
+    "line": 374,
+    "event": "on_release",
+    "handler": "lambda *a: popup.dismiss()"
+  }
+]

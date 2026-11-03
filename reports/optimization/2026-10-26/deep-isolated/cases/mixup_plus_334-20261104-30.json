@@ -1,0 +1,20 @@
+{
+  "kind": "mixup_plus_334",
+  "seed": 20261104,
+  "scramble_turns": 30,
+  "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\deep-isolated\\inputs\\mixup_plus_334-20261104-30.json",
+  "input_method": "blank assembly choices + actual rotation step + panel colours",
+  "history_empty": true,
+  "visible_entry_matches": true,
+  "input_seconds": 2.265,
+  "success": true,
+  "moves": 688,
+  "failure_category": "",
+  "solve_seconds": 3.344,
+  "message": "",
+  "evaluation_budget_hit": false,
+  "replay_solved": true,
+  "replay_seconds": 0.344,
+  "seconds": 5.953,
+  "shortening": []
+}

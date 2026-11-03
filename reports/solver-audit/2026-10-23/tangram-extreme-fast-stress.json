@@ -1,0 +1,76 @@
+{
+  "scope": "Fast geometry restoration and group replay only; not full visible-input/physical replay acceptance",
+  "scramble_turns": 100,
+  "cases": [
+    {
+      "seed": 0,
+      "success": true,
+      "prefix": 24,
+      "suffix": 483,
+      "seconds": 1.015
+    },
+    {
+      "seed": 1,
+      "success": true,
+      "prefix": 15,
+      "suffix": 318,
+      "seconds": 0.25
+    },
+    {
+      "seed": 2,
+      "success": true,
+      "prefix": 16,
+      "suffix": 335,
+      "seconds": 0.312
+    },
+    {
+      "seed": 3,
+      "success": true,
+      "prefix": 16,
+      "suffix": 424,
+      "seconds": 0.25
+    },
+    {
+      "seed": 4,
+      "success": true,
+      "prefix": 13,
+      "suffix": 275,
+      "seconds": 0.11
+    },
+    {
+      "seed": 5,
+      "success": true,
+      "prefix": 17,
+      "suffix": 486,
+      "seconds": 0.454
+    },
+    {
+      "seed": 6,
+      "success": true,
+      "prefix": 12,
+      "suffix": 554,
+      "seconds": 0.016
+    },
+    {
+      "seed": 7,
+      "success": true,
+      "prefix": 14,
+      "suffix": 259,
+      "seconds": 0.125
+    },
+    {
+      "seed": 8,
+      "success": true,
+      "prefix": 15,
+      "suffix": 548,
+      "seconds": 0.313
+    },
+    {
+      "seed": 9,
+      "success": true,
+      "prefix": 26,
+      "suffix": 302,
+      "seconds": 1.078
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 """History-independent Mixup reduction using physical geometry states."""
-from functools import lru_cache
+from functools import lru_cache,cached_property,reduce
+from operator import getitem,itemgetter,and_
 from heapq import heappop,heappush
 from itertools import count
 from time import monotonic
@@ -17,6 +18,19 @@ class ReductionLimit(ValueError):
         self.frames=tuple(frames);self.path=tuple(path)
 
 
+class StateFeatures(tuple):
+    """Immutable piece features with shared per-state cut checks.
+
+    These values live inside the existing bounded state cache. Reusing the
+    intersection avoids scanning every piece for every attempted macro turn.
+    """
+    @cached_property
+    def available(self):return reduce(and_,map(itemgetter(2),self),-1)
+
+    @cached_property
+    def bad(self):return sum(map(itemgetter(1),self))
+
+
 class ReductionGeometry:
     def __init__(self,kind):
         self.cube=MixupCube(kind);self.kind=kind
@@ -30,7 +44,20 @@ class ReductionGeometry:
                           if (a,tuple(range(first,last+1))) not in self.search_ranges)
         self.slabs=tuple((a,layers[0]) for a,layers in self.ranges)
         self.all_mask=(1<<len(self.slabs))-1
-        self.ids={};self.features={};self.turns={}
+        self.ids={};self.features=tuple([None]*len(self.cube.orientations) for _ in self.cube.solids);self.turns={}
+        self._turn_tables={}
+        self._corners=tuple(s.role=='corner' for s in self.cube.solids)
+        self._range_at={value:i for i,value in enumerate(self.ranges)}
+        self._moves=[]
+        for axis,layers in self.ranges:
+            step=2 if 0 in layers or len(self.cuts[axis]) in layers else 1
+            self._moves.append(tuple((amount,Move(axis,layers[0],amount) if len(layers)==1
+                                     else MixupSliceMove(axis,layers[0],amount,layers))
+                                    for amount in range(step,8,step)))
+        # Cache whole descriptions by compact poses. Eviction only repeats
+        # a calculation; it never removes a legal search branch.
+        self._state_features=lru_cache(maxsize=2048)(self._features_for)
+        self._description=lru_cache(maxsize=512)(self._describe)
         self.goals={self.shape(home,0) for home in range(len(self.cube.solids))}
 
     def shape(self,home,pose):
@@ -47,8 +74,8 @@ class ReductionGeometry:
         return self.ids[key]
 
     def feature(self,home,pose):
-        k=home,pose
-        if k in self.features:return self.features[k]
+        known=self.features[home][pose]
+        if known is not None:return known
         cube=self.cube;solid=cube.solids[home]
         anchor=transform_frame(cube.orientations[pose],solid.anchor)
         bins=tuple(sum(anchor[a]>bound+1e-7 for bound in cut) for a,cut in enumerate(self.cuts))
@@ -67,7 +94,7 @@ class ReductionGeometry:
         bad=any(not any(dot(transform_frame(frame,CUBE[colour]),n)>1-1e-7 for n in CUBE)
                 for poly,colour in solid.faces if colour>=0)
         result=shape,int(bad)*(1 if solid.role=='inner_edge' else 100),allowed,selected
-        self.features[k]=result;return result
+        self.features[home][pose]=result;return result
 
     def next_pose(self,axis,amount,pose):
         k=axis,amount,pose
@@ -79,58 +106,80 @@ class ReductionGeometry:
         return self.turns[k]
 
     def describe(self,frames):
-        features=tuple(self.feature(h,p) for h,p in enumerate(frames))
-        return features,tuple(sorted(f[0] for f in features)),sum(f[1] for f in features)
+        return self._description(bytes(frames))
 
-    def children(self,frames,features,last=None,guard=None):
-        available=self.all_mask
-        for f in features:available&=f[2]
-        proper=proper_poses('mixup')
+    def state_features(self,frames):
+        return self._state_features(bytes(frames))
+
+    def _features_for(self,frames):
+        known=tuple(map(getitem,self.features,frames))
+        if None in known:
+            known=tuple(value if value is not None else self.feature(h,frames[h]) for h,value in enumerate(known))
+        return StateFeatures(known)
+
+    def _describe(self,frames):
+        features=self.state_features(frames)
+        return features,tuple(sorted(f[0] for f in features)),features.bad
+
+    def turn_tables(self,axis,amount):
+        key=axis,amount
+        if key not in self._turn_tables:
+            proper=proper_poses('mixup')
+            ordinary=bytes(255 if (p:=self.next_pose(axis,amount,pose)) is None else p
+                           for pose in range(len(self.cube.orientations)))
+            corners=bytes(p if p in proper else 255 for p in ordinary)
+            self._turn_tables[key]=ordinary,corners
+        return self._turn_tables[key]
+
+    def children(self,frames,features,last=None,guard=None,complete=False):
+        available=features.available
         for bit,(axis,layers) in enumerate(self.ranges):
             if guard:guard()
-            if (axis,layers) not in self.search_ranges:continue
-            layer=layers[0]
+            if not complete and (axis,layers) not in self.search_ranges:continue
             if not available>>bit&1 or (axis,layers)==last:continue
             selected=[h for h,f in enumerate(features) if f[3]>>bit&1]
             if not selected:continue
-            step=2 if 0 in layers or len(self.cuts[axis]) in layers else 1
-            for amount in range(step,8,step):
+            for amount,move in self._moves[bit]:
+                ordinary,corners=self.turn_tables(axis,amount)
                 child=list(frames);valid=True
                 for home in selected:
-                    pose=self.next_pose(axis,amount,frames[home])
-                    if pose is None or self.cube.solids[home].role=='corner' and pose not in proper:
+                    pose=(corners if self._corners[home] else ordinary)[frames[home]]
+                    if pose==255:
                         valid=False;break
                     child[home]=pose
-                if valid:yield tuple(child),(Move(axis,layer,amount) if len(layers)==1 else MixupSliceMove(axis,layer,amount,layers))
+                if valid:yield tuple(child),move
 
     def apply(self,frames,features,move):
         layers=getattr(move,'layers',()) or (move.layer,)
-        bit=self.ranges.index((move.axis,tuple(layers)));flag=1<<bit
-        if any(not f[2]&flag for f in features):return None
-        child=list(frames);proper=proper_poses('mixup')
+        bit=self._range_at.get((move.axis,tuple(layers)))
+        if bit is None:return None
+        flag=1<<bit
+        if not features.available&flag:return None
+        ordinary,corners=self.turn_tables(move.axis,move.amount)
+        child=list(frames)
         selected=False
         for home,f in enumerate(features):
             if not f[3]&flag:continue
-            selected=True;pose=self.next_pose(move.axis,move.amount,frames[home])
-            if pose is None or self.cube.solids[home].role=='corner' and pose not in proper:return None
+            selected=True;pose=(corners if self._corners[home] else ordinary)[frames[home]]
+            if pose==255:return None
             child[home]=pose
         if not selected:return None
-        child=tuple(child);return child,self.describe(child)[0]
+        child=tuple(child);return child,self.state_features(child)
 
     def macro_children(self,frames,features,guard=None,compound=False):
         for a,move_a in self.children(frames,features,guard=guard):
             if move_a.amount not in (1,7):continue
-            fa=self.describe(a)[0]
+            fa=self.state_features(a)
             for b,move_b in self.children(a,fa,guard=guard):
                 if move_b.amount!=4 or move_b.axis==move_a.axis:continue
-                result=self.apply(b,self.describe(b)[0],move_a.inverse(8))
+                result=self.apply(b,self.state_features(b),move_a.inverse(8))
                 if result is not None:yield result[0],result[1],(move_a,move_b,move_a.inverse(8))
             for b,move_b in self.children(a,fa,guard=guard):
                 if move_b.amount not in ((1,7) if compound else (2,6)) or move_b.axis==move_a.axis:continue
-                fb=self.describe(b)[0]
+                fb=self.state_features(b)
                 for c,move_c in self.children(b,fb,guard=guard):
                     if move_c.amount not in (2,4,6) or move_c.axis==move_b.axis:continue
-                    fc=self.describe(c)[0]
+                    fc=self.state_features(c)
                     d=self.apply(c,fc,move_b.inverse(8))
                     if d is None:continue
                     e=self.apply(*d,move_a.inverse(8))
@@ -158,10 +207,10 @@ class ReductionGeometry:
     def proper_macro_children(self,frames,features,long=False):
         for a,ma in self.children(frames,features):
             if ma.amount not in (2,6):continue
-            fa=self.describe(a)[0]
+            fa=self.state_features(a)
             for b,mb in self.children(a,fa):
                 if mb.amount not in (2,6) or mb.axis==ma.axis:continue
-                fb=self.describe(b)[0]
+                fb=self.state_features(b)
                 if not long:
                     trial=self.apply(b,fb,ma.inverse(8))
                     if trial is not None:trial=self.apply(*trial,mb.inverse(8))
@@ -170,16 +219,22 @@ class ReductionGeometry:
                 for c,mc in self.children(b,fb):
                     if mc.amount not in (2,4,6) or mc.axis==mb.axis:continue
                     word=(ma,mb,mc,mb.inverse(8),ma.inverse(8),mb,mc.inverse(8),mb.inverse(8))
-                    trial=c,self.describe(c)[0]
+                    trial=c,self.state_features(c)
                     for move in word[3:]:
                         trial=self.apply(*trial,move)
                         if trial is None:break
                     if trial is not None:yield trial[0],trial[1],word
 
 
-def greedy_geometry(cube,cancel=None,seconds=30.):
-    model=geometry(cube.puzzle_kind);started=monotonic();s=cube.frames;f,_,_=model.describe(s);path=[]
-    def score(features):return sum(v[1] for v in features)
+def greedy_geometry(cube,cancel=None,seconds=30.,checkpoint=None):
+    model=geometry(cube.puzzle_kind);started=monotonic();s=cube.frames;f=model.state_features(s);path=[]
+    original_cancel=cancel
+    def cancelled():
+        stopped=bool(original_cancel and original_cancel())
+        if stopped and checkpoint is not None:checkpoint(tuple(path),tuple(s))
+        return stopped
+    cancel=cancelled
+    def score(features):return features.bad
     bad=score(f)
     def guard():
         if cancel and cancel():raise InterruptedError()
@@ -189,22 +244,34 @@ def greedy_geometry(cube,cancel=None,seconds=30.):
         if monotonic()-started>seconds:raise ReductionLimit(s,path)
         if bad==0:
             work=cube.clone();work.apply_moves(path);return tuple(path),work,it
+        # Test all genuine contiguous slab turns before enumerating long
+        # repairs. A tilted strip can often be repaired directly, including
+        # by a wide turn absent from the old narrow-layer shortlist.
+        best=(bad,100,None)
+        for child,mv in model.children(s,f,guard=guard,complete=True):
+            fs=model.state_features(child);b=score(fs)
+            if (b,1)<best[:2]:best=(b,1,(child,fs,(mv,)))
+        if best[0]<bad:
+            bad,_,(s,f,word)=best;path.extend(word)
+            continue
         if bad in (2,4,6,8) and 'mixup_plus_' in cube.puzzle_kind:
             trial=cube.clone();trial.colors=s
+            try:
+                repair,work=repair_inner_primitives(trial,cancel,seconds=min(8.,max(.1,seconds-(monotonic()-started))))
+            except ValueError:pass
+            else:
+                s=tuple(work.frames);f=model.state_features(s);bad=score(f);path.extend(repair)
+                continue
             try:finish,work=finish_inner_orientation(trial,cancel,seconds=min(20.,max(.1,seconds-(monotonic()-started))))
             except ValueError:pass
             else:
                 replay=cube.clone();replay.apply_moves(tuple(path)+finish)
                 return tuple(path)+finish,replay,it
-        best=(bad,100,None)
-        for child,mv in model.children(s,f):
-            fs,_,_=model.describe(child);b=score(fs)
-            if (b,1)<best[:2]:best=(b,1,(child,fs,(mv,)))
         if best[0]>=bad:
             for child,fs,word in model.macro_children(s,f,guard=guard):
                 b=score(fs)
                 if (b,len(word))<best[:2]:best=(b,len(word),(child,fs,word))
-                if b<bad and cube.puzzle_kind=='mixup_plus_444':break
+                if b<bad and cube.puzzle_kind in ('mixup_plus_344','mixup_plus_444'):break
         if best[0]>=bad:
             for child,fs,word in model.macro_children(s,f,guard=guard,compound=True):
                 b=score(fs)
@@ -213,18 +280,21 @@ def greedy_geometry(cube,cancel=None,seconds=30.):
             for child,fs,word in model.long_macro_children(s,f,guard=guard):
                 b=score(fs)
                 if (b,len(word))<best[:2]:best=(b,len(word),(child,fs,word))
-                if b<bad and cube.puzzle_kind=='mixup_plus_444':break
+                if b<bad and cube.puzzle_kind in ('mixup_plus_344','mixup_plus_444'):break
         if best[0]>=bad:
             # Neutral setup turns relocate isolated tilted strips. An odd
             # turn may exchange which strip is tilted without increasing it.
-            setups=[(s,f,())];visited={tuple(s)}
+            # Geometry repair is independent of sticker identities. Different
+            # colour permutations of the same physical shell have the same
+            # legal cuts and repair options, so visit that shell only once.
+            setups=[(s,f,())];visited={model.describe(s)[1]}
             for setup_depth in range(2):
                 next_setups=[]
                 for state,fs,prefix in setups:
                     if cancel and cancel():raise InterruptedError()
-                    if monotonic()-started>seconds:raise ValueError('mixup.shape_limit')
+                    if monotonic()-started>seconds:raise ReductionLimit(s,path)
                     for child,move in model.children(state,fs):
-                        ff,_,_=model.describe(child);key=tuple(child);value=score(ff)
+                        ff=model.state_features(child);key=model.describe(child)[1];value=score(ff)
                         if value!=bad or key in visited:continue
                         visited.add(key);word=prefix+(move,)
                         next_setups.append((child,ff,word))
@@ -244,7 +314,7 @@ def greedy_geometry(cube,cancel=None,seconds=30.):
         bad,_,(s,f,word)=best;path.extend(word)
 
 
-    raise ValueError('mixup.shape_limit')
+    raise ReductionLimit(s,path)
 
 @lru_cache(maxsize=2)
 def geometry(kind):return ReductionGeometry(kind)
@@ -274,7 +344,7 @@ def restore_layout(cube,cancel=None,seconds=45.,limit=150000,macros=True):
         if cancel and cancel():raise InterruptedError()
         if monotonic()-started>seconds or sum(map(len,parents))>limit:raise ValueError('mixup.shape_limit')
         nodes+=1
-        singles=((ch,model.describe(ch)[0],(mv,)) for ch,mv in model.children(frames,features) if mv.amount in (2,4,6))
+        singles=((ch,model.state_features(ch),(mv,)) for ch,mv in model.children(frames,features) if mv.amount in (2,4,6))
         for child,fs,word in chain(singles,model.macro_children(frames,features,guard) if macros else ()):
             if any(f[1] for f in fs):continue
             ck=model.describe(child)[1]
@@ -389,6 +459,60 @@ def repair_inner_layout(cube,cancel=None):
     return tuple(path),work
 
 
+def _inner_orientation_seeds(model,guard,limit=20000):
+    seeds=getattr(model,'_inner_orientation_seeds',None)
+    if seeds is not None:return seeds
+    root=(0,)*len(model.cube.solids);rf=model.describe(root)[0];unique={}
+    for frames,fs,word in model.long_macro_children(root,rf,guard):
+        if not any(f[1] for f in fs) or any(f[1] and model.cube.solids[h].role!='inner_edge' for h,f in enumerate(fs)):continue
+        key=model.describe(frames)[1]
+        if key not in unique or len(word)<len(unique[key][2]):unique[key]=(frames,fs,word)
+        if len(unique)>limit:raise ValueError('mixup.shape_limit')
+    seeds=tuple(unique.values());model._inner_orientation_seeds=seeds
+    return seeds
+
+
+def repair_inner_primitives(cube,cancel=None,seconds=8.,limit=800):
+    """Repair a local tilted pattern without matching every other piece.
+
+    A cached primitive is only a candidate. Every move must be legal on the
+    actual entered geometry, and it must strictly reduce the tilted count.
+    """
+    from collections import deque
+    model=geometry(cube.puzzle_kind);begun=monotonic()
+    def guard():
+        if cancel and cancel():raise InterruptedError()
+        if monotonic()-begun>seconds:raise ValueError('mixup.shape_limit')
+    seeds=_inner_orientation_seeds(model,guard)
+    patterns=[(frozenset(f[0] for f in fs if f[1]),tuple(m.inverse(8) for m in reversed(word))) for frames,fs,word in seeds]
+    root=tuple(cube.frames);features,key,bad=model.describe(root)
+    queue=deque([(root,features,(),0)]);seen={key};nodes=0
+    while queue and nodes<limit:
+        guard();frames,fs,prefix,depth=queue.popleft();nodes+=1
+        tilted={f[0] for f in fs if f[1]}
+        for needed,word in patterns:
+            if not needed<=tilted:continue
+            trial=frames,fs
+            for move in word:
+                guard();trial=model.apply(*trial,move)
+                if trial is None:break
+            if trial is None or sum(f[1] for f in trial[1])>=bad:continue
+            path=prefix+word;work=cube.clone();work.apply_moves(path)
+            if sum(f[1] for f in model.describe(work.frames)[0])>=bad:raise ValueError('mixup.replay_failed')
+            return path,work
+        if depth>=2:continue
+        following=[]
+        for child,move in model.children(frames,fs,guard=guard):
+            if move.amount not in (2,4,6):continue
+            cf,ck,cbad=model.describe(child)
+            if cbad!=bad or ck in seen:continue
+            seen.add(ck);defects={f[0] for f in cf if f[1]}
+            priority=min((len(needed-defects) for needed,word in patterns),default=100)
+            following.append((priority,child,cf,prefix+(move,),depth+1))
+        for _,child,cf,path,d in sorted(following,key=lambda item:item[0]):queue.append((child,cf,path,d))
+    raise ValueError('mixup.shape_limit')
+
+
 def finish_inner_orientation(cube,cancel=None,seconds=20.,limit=20000):
     """Meet a legal inner-flip primitive through ordinary setup turns."""
     model=geometry(cube.puzzle_kind);begun=monotonic();root=(0,)*len(cube.solids)
@@ -397,10 +521,9 @@ def finish_inner_orientation(cube,cancel=None,seconds=20.,limit=20000):
     def guard():
         if cancel and cancel():raise InterruptedError()
         if monotonic()-begun>seconds or len(parents)+len(forward)>limit:raise ValueError('mixup.shape_limit')
-    for frames,fs,word in model.long_macro_children(root,rf,guard):
-        if not any(f[1] for f in fs) or any(f[1] and cube.solids[h].role!='inner_edge' for h,f in enumerate(fs)):continue
-        key=model.describe(frames)[1]
-        if key in parents:continue
+    seeds=_inner_orientation_seeds(model,guard,limit)
+    for frames,fs,word in seeds:
+        guard();key=model.describe(frames)[1]
         parents[key]=(None,word)
         heappush(frontier,(sum(f[0] not in wanted for f in fs),len(word),next(serial),frames,fs,key))
     forward={target:(None,())};ff=model.describe(cube.frames)[0]

@@ -1,0 +1,50 @@
+[
+  {
+    "kind": "camouflage_3",
+    "turns": 30,
+    "before": 44,
+    "after": 32
+  },
+  {
+    "kind": "two_bar_cube",
+    "turns": 30,
+    "before": 83,
+    "after": 79
+  },
+  {
+    "kind": "burr_cube",
+    "turns": 30,
+    "before": 238,
+    "after": 208
+  },
+  {
+    "kind": "cuboid_234",
+    "turns": 100,
+    "before": 91,
+    "after": 82
+  },
+  {
+    "kind": "camouflage_3",
+    "turns": 100,
+    "before": 42,
+    "after": 30
+  },
+  {
+    "kind": "two_bar_cube",
+    "turns": 100,
+    "before": 81,
+    "after": 79
+  },
+  {
+    "kind": "ai_cube",
+    "turns": 100,
+    "before": 760,
+    "after": 758
+  },
+  {
+    "kind": "burr_cube",
+    "turns": 100,
+    "before": 451,
+    "after": 435
+  }
+]

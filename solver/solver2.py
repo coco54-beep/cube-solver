@@ -1,7 +1,7 @@
 """2x2 (二阶) 求解器。
 
-2 阶魔方只有 8 个角块，无棱块、无中心块。采用双向 BFS 恒输出最短解
-（2x2 在 HTM 度量下上帝数 <= 11）。
+2 阶魔方只有 8 个角块，无棱块、无中心块。先用角块投影距离引导短解搜索，
+超过快速阶段的时间后构造合法虚拟三阶继续求解，不把时间上限当作无解。
 
 状态：每个角位（槽）用一个小整数编码 (corner_id, orient)，其中 orient 为该角块
 3 个 canonical 颜色当前的 3D 世界法线方向（每个方向编码为 0..5）。整体状态为
@@ -133,7 +133,7 @@ class _2x2State:
         for face, count in _HTM:
             if last_face == face:
                 continue
-            if last_face is not None and _is_opposite(last_face, face):
+            if last_face is not None and _is_opposite(last_face, face) and last_face > face:
                 continue
             out.append((self.apply(state, face, count), _move_str(face, count)))
         return out
@@ -178,7 +178,7 @@ def _solve_bidir(engine: _2x2State, start, time_limit):
             for face, count in _HTM:
                 if last_face == face:
                     continue
-                if last_face is not None and _is_opposite(last_face, face):
+                if last_face is not None and _is_opposite(last_face, face) and last_face > face:
                     continue
                 nxt = engine.apply(node, face, count)
                 if nxt in parent:
@@ -230,27 +230,127 @@ def _invert_move(mv) -> str:
     return mv + "'"
 
 
-def solve_2x2(cube: Cube2, cancel_event=None, time_limit=5.0) -> SolveResult:
-    """求解 2x2 魔方。cube 为 Cube2 实例。"""
-    t0 = time.perf_counter()
-    engine = _get_engine()
-    state = engine.extract(cube)
+_CORNER_DISTANCES = None
+
+
+def _corner_distances(cancel):
+    """Exact relaxed distances: 40320 permutations and 2187 twists.
+
+    These reuse the already bundled move tables and need only 42507 bytes
+    for distances. The search never retains a full breadth-first frontier
+    of coloured 2x2 states.
+    """
+    global _CORNER_DISTANCES
+    if _CORNER_DISTANCES is None:
+        from collections import deque
+        from twophase import moves as tables
+        distances=[]
+        for size,turns in ((40320,tables.corners_move),(2187,tables.twist_move)):
+            dist=bytearray([255])*size;dist[0]=0;pending=deque([0])
+            while pending:
+                cancel()
+                state=pending.popleft();depth=dist[state]+1;offset=state*18
+                for move in range(18):
+                    child=turns[offset+move]
+                    if dist[child]==255:
+                        dist[child]=depth;pending.append(child)
+            distances.append(dist)
+        _CORNER_DISTANCES=tuple(distances)
+    return _CORNER_DISTANCES
+
+
+def _short_corner_solution(cc,cancel,seconds):
+    if seconds<=0:
+        cancel()
+        return None
+    from twophase import moves as tables
+    permutation_distance,twist_distance=_corner_distances(cancel)
+    permutation,twist=cc.get_corners(),cc.get_twist()
+    deadline=time.perf_counter()+max(0.,seconds)
+    path=[];nodes=0
+    def visit(p,t,remaining,last):
+        nonlocal nodes
+        nodes+=1
+        if nodes%1024==0:
+            cancel()
+            if time.perf_counter()>=deadline:raise TimeoutError()
+        if max(permutation_distance[p],twist_distance[t])>remaining:return False
+        if p==0 and t==0:return True
+        if remaining==0:return False
+        for face in range(6):
+            # Opposite faces commute: retain one order, not neither order.
+            if face==last or (last>=0 and last-face==3):continue
+            for move in range(face*3,face*3+3):
+                following=tables.corners_move[p*18+move]
+                orientation=tables.twist_move[t*18+move]
+                if max(permutation_distance[following],twist_distance[orientation])>=remaining:continue
+                path.append(move)
+                if visit(following,orientation,remaining-1,face):return True
+                path.pop()
+        return False
+    bound=max(permutation_distance[permutation],twist_distance[twist])
     try:
-        moves = _solve_bidir(engine, state, time_limit)
+        while time.perf_counter()<deadline:
+            cancel()
+            if visit(permutation,twist,bound,-1):
+                return ['URFDLB'[m//3]+('', '2', "'")[m%3] for m in path]
+            bound+=1
     except TimeoutError:
-        elapsed_ms = int((time.perf_counter() - t0) * 1000)
-        return SolveResult(False, [], "求解超时", elapsed_ms, 0, [])
-    elapsed_ms = int((time.perf_counter() - t0) * 1000)
+        pass
+    return None
+
+
+def solve_2x2(cube: Cube2, cancel_event=None, time_limit=5.0,
+              progress_callback=None) -> SolveResult:
+    """Solve entered corners; time_limit budgets short solutions, not success."""
+    from cube.cube3 import Cube3
+    from cube.conversion import cubies_to_facelets
+    from solver.solver3 import _tface,_tcubie,_build_cubestring,solve_3x3
+    started=time.perf_counter()
+    def cancel():
+        if cancel_event is not None and cancel_event.is_set():raise InterruptedError()
+    def result(success,moves,message,description='角块求解'):
+        return SolveResult(success,moves,message,int((time.perf_counter()-started)*1000),
+                           len(moves),[SolveStage('2x2',description,moves)] if success else [])
+    cancel()
+    if set(cube.cubies)!=set(_SLOT_COORDS):
+        return result(False,[],'二阶角块位置不完整')
+    virtual=Cube3.solved()
+    for pos,cubie in cube.cubies.items():virtual.cubies[pos]=cubie.clone()
+    faces=cubies_to_facelets(virtual.cubies,3)
+    try:
+        fc=_tface.FaceCube();code=fc.from_string(_build_cubestring(faces))
+        if code!=_tcubie.CUBE_OK:return result(False,[],str(code))
+        cc=fc.to_cubie_cube()
+        # Synthetic edges carry the corner parity; a real 2x2 has no edge
+        # permutation constraint. Corner identities and twist still verify.
+        if cc.corner_parity():cc.ep[0],cc.ep[1]=cc.ep[1],cc.ep[0]
+        code=cc.verify()
+        if code!=_tcubie.CUBE_OK:return result(False,[],str(code))
+    except (KeyError,ValueError,IndexError):
+        return result(False,[],'二阶角块颜色或方向不合法')
+    if cube.is_solved():return result(True,[],'')
+    moves=_short_corner_solution(cc,cancel,float(time_limit) if time_limit is not None else 5.)
+    description='角块距离引导搜索'
     if moves is None:
-        return SolveResult(False, [], "未找到解", elapsed_ms, 0, [])
-    return SolveResult(
-        success=True,
-        moves=moves,
-        message="2x2 求解成功（{} 步）".format(len(moves)),
-        elapsed_ms=elapsed_ms,
-        move_count=len(moves),
-        stages=[SolveStage("2x2", "双向 BFS 求解器", moves)],
-    )
+        cancel()
+        if progress_callback:
+            try:progress_callback({'label':'solver.continuing','progress':0.})
+            except Exception:pass
+        cancel()
+        from cube.colors import DEFAULT_COLORS
+        string=cc.to_facelet_cube().to_string()
+        faces={f:[[DEFAULT_COLORS[string[k*9+r*3+c]] for c in range(3)]
+                  for r in range(3)] for k,f in enumerate('URFDLB')}
+        continuation=solve_3x3(faces)
+        cancel()
+        if not continuation.success:return result(False,[],continuation.message)
+        moves=list(continuation.moves);description='虚拟三阶角块还原'
+    replay=cube.clone()
+    for move in moves:
+        cancel();replay.apply_move(move)
+    if not replay.is_solved():return result(False,[],'二阶还原回放校验失败')
+    return result(True,moves,'',description)
 
 
 def solve_2x2_facelets(facelets, cancel_event=None, time_limit=5.0) -> SolveResult:

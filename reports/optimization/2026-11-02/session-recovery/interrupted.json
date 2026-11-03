@@ -1,0 +1,19 @@
+{
+  "case": "interrupted",
+  "passed": true,
+  "subsequent_input": true,
+  "layout": {
+    "window": [
+      390,
+      844
+    ],
+    "root": [
+      390,
+      844
+    ],
+    "home": [
+      390,
+      844
+    ]
+  }
+}

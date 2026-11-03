@@ -1,0 +1,212 @@
+[
+  {
+    "kind": "helicopter",
+    "seed": 0,
+    "regular_turns": 20,
+    "extra_word": [
+      [
+        1,
+        0,
+        70.52877936550931
+      ],
+      [
+        6,
+        0,
+        70.52877936550931
+      ],
+      [
+        0,
+        0,
+        180
+      ],
+      [
+        6,
+        0,
+        -70.52877936550931
+      ],
+      [
+        1,
+        0,
+        -70.52877936550931
+      ]
+    ],
+    "result": "ValueError",
+    "error": "A piece has an impossible color combination or position",
+    "seconds": 0.01600000006146729
+  },
+  {
+    "kind": "helicopter",
+    "seed": 1,
+    "regular_turns": 20,
+    "extra_word": [
+      [
+        1,
+        0,
+        70.52877936550931
+      ],
+      [
+        6,
+        0,
+        70.52877936550931
+      ],
+      [
+        0,
+        0,
+        180
+      ],
+      [
+        6,
+        0,
+        -70.52877936550931
+      ],
+      [
+        1,
+        0,
+        -70.52877936550931
+      ]
+    ],
+    "result": "ValueError",
+    "error": "A piece has an impossible color combination or position",
+    "seconds": 0.0
+  },
+  {
+    "kind": "helicopter",
+    "seed": 2,
+    "regular_turns": 20,
+    "extra_word": [
+      [
+        1,
+        0,
+        70.52877936550931
+      ],
+      [
+        6,
+        0,
+        70.52877936550931
+      ],
+      [
+        0,
+        0,
+        180
+      ],
+      [
+        6,
+        0,
+        -70.52877936550931
+      ],
+      [
+        1,
+        0,
+        -70.52877936550931
+      ]
+    ],
+    "result": "ValueError",
+    "error": "A piece has an impossible color combination or position",
+    "seconds": 0.0
+  },
+  {
+    "kind": "clover",
+    "seed": 0,
+    "regular_turns": 20,
+    "extra_word": [
+      [
+        1,
+        0,
+        70.52877936550931
+      ],
+      [
+        6,
+        0,
+        70.52877936550931
+      ],
+      [
+        0,
+        0,
+        180
+      ],
+      [
+        6,
+        0,
+        -70.52877936550931
+      ],
+      [
+        1,
+        0,
+        -70.52877936550931
+      ]
+    ],
+    "result": "ValueError",
+    "error": "A piece has an impossible color combination or position",
+    "seconds": 0.10900000005494803
+  },
+  {
+    "kind": "clover",
+    "seed": 1,
+    "regular_turns": 20,
+    "extra_word": [
+      [
+        1,
+        0,
+        70.52877936550931
+      ],
+      [
+        6,
+        0,
+        70.52877936550931
+      ],
+      [
+        0,
+        0,
+        180
+      ],
+      [
+        6,
+        0,
+        -70.52877936550931
+      ],
+      [
+        1,
+        0,
+        -70.52877936550931
+      ]
+    ],
+    "result": "ValueError",
+    "error": "A piece has an impossible color combination or position",
+    "seconds": 0.030999999959021807
+  },
+  {
+    "kind": "clover",
+    "seed": 2,
+    "regular_turns": 20,
+    "extra_word": [
+      [
+        1,
+        0,
+        70.52877936550931
+      ],
+      [
+        6,
+        0,
+        70.52877936550931
+      ],
+      [
+        0,
+        0,
+        180
+      ],
+      [
+        6,
+        0,
+        -70.52877936550931
+      ],
+      [
+        1,
+        0,
+        -70.52877936550931
+      ]
+    ],
+    "result": "ValueError",
+    "error": "A piece has an impossible color combination or position",
+    "seconds": 0.015999999945051968
+  }
+]

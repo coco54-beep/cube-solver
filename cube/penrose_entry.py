@@ -93,10 +93,80 @@ def options(n, pos, facelets):
                  if all(VISIBLE[color] == actual.get(normal, VISIBLE[color]) for normal, color in choice.stickers))
 
 
+@lru_cache(maxsize=128)
+def edge_choices(n, pos):
+    """One real edge card per visible two-face pattern, hiding solver labels."""
+    unique = {}
+    for choice in catalogue(n).get(pos, ()):
+        if len(choice.stickers) != 2:
+            continue
+        pattern = tuple((normal, VISIBLE[color]) for normal, color in choice.stickers)
+        unique.setdefault(pattern, choice)
+    return tuple(unique[key] for key in sorted(unique))
+
+
+@lru_cache(maxsize=128)
+def piece_choices(n, pos):
+    """Visible whole-piece choices for corners, edges/wings and centres.
+
+    Equivalent hidden solver identities share one physical card. All colours
+    on a piece are assigned together, never as independent face stickers.
+    """
+    unique={}
+    for choice in catalogue(n).get(pos,()):
+        pattern=tuple((normal,VISIBLE[color]) for normal,color in choice.stickers)
+        unique.setdefault(pattern,choice)
+    return tuple(unique[key] for key in sorted(unique))
+
+
+def rotated_choice(n, pos, choice):
+    """Next visible corner orientation or edge flip at this position."""
+    pattern=tuple((normal,VISIBLE[color]) for normal,color in choice.stickers)
+    if len(pattern)<2:return None
+    colours=tuple(c for _,c in pattern)
+    target=tuple((normal,colours[(i+1)%len(colours)]) for i,(normal,_) in enumerate(pattern))
+    return next((c for c in piece_choices(n,pos)
+                 if tuple((normal,VISIBLE[colour]) for normal,colour in c.stickers)==target),None)
+
+
+@lru_cache(maxsize=128)
+def piece_groups(n, pos):
+    """One card per piece, with orientation handled by the rotation button."""
+    remaining=list(piece_choices(n,pos));groups=[]
+    while remaining:
+        choice=remaining[0];group=[choice];following=rotated_choice(n,pos,choice)
+        while following is not None and following not in group:
+            group.append(following);following=rotated_choice(n,pos,following)
+        remaining=[c for c in remaining if c not in group];groups.append(tuple(group))
+    return tuple(groups)
+
+
+def place_piece(facelets, n, pos, choice):
+    """Replace every observed side of exactly one whole physical piece."""
+    if choice not in catalogue(n).get(pos,()):raise ValueError('penrose.pieces')
+    result=visible_facelets(facelets)
+    for normal,color in choice.stickers:
+        face=next(f for f,direction in FACE_NORMALS.items() if direction==normal)
+        row,column=rc_from_pos(n,face,pos);result[face][row][column]=VISIBLE[color]
+    return result
+
+
+def place_edge(facelets, n, pos, choice):
+    """Set both observed sides of one edge without changing other pieces."""
+    if choice not in catalogue(n).get(pos, ()) or len(choice.stickers) != 2:
+        raise ValueError('penrose.pieces')
+    result = visible_facelets(facelets)
+    for normal, color in choice.stickers:
+        face = next(f for f, direction in FACE_NORMALS.items() if direction == normal)
+        row, column = rc_from_pos(n, face, pos)
+        result[face][row][column] = VISIBLE[color]
+    return result
+
+
 @lru_cache(maxsize=2048)
 def shell_signature(n, pos, choice):
     """Coloured physical patches, ignoring the invisible six-colour labels."""
-    from renderer.variant_scene import _FACES, _penrose_point, _bilinear
+    from renderer.variant_scene import _FACES, _penrose_point, _bilinear, penrose_radius
     from cube.coordinates import get_d_maxc
     d, maxc = get_d_maxc(n); half = maxc+d*.5
     home_stickers = solved(n).cubies[choice.home].stickers
@@ -104,7 +174,7 @@ def shell_signature(n, pos, choice):
     for _face, normal, local in _FACES:
         corners = tuple(tuple(choice.home[a]+d*p[a] for a in range(3)) for p in local)
         points = tuple(sorted(tuple(round(v, 7) for v in transform_frame(choice.frame,
-                        _penrose_point(_bilinear(corners, u, v), half, .78*d)))
+                        _penrose_point(_bilinear(corners, u, v), half, penrose_radius(n,half,d))))
                         for u in (0., .5, 1.) for v in (0., .5, 1.)))
         patches.append((VISIBLE.get(home_stickers.get(normal, ''), ''), points))
     return tuple(sorted(patches))

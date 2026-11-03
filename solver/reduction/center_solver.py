@@ -25,7 +25,9 @@ from primitives import ALL_CENTERS, MOVES, SLOT_FACE, SLOT_INDEX
 
 # Phase A 距离表只读且体积大；按文件路径缓存，避免每个 CenterSolver4 实例
 # （每次 solve_centers / solve_centers_variant 都会新建）重复从磁盘读取。
-_JOINT_DIST_CACHE: Dict[str, bytearray] = {}
+_JOINT_DIST_CACHE = {}
+from threading import Lock
+_JOINT_DIST_LOCK=Lock()
 
 
 # ---------- Phase A: colex 组合排名 ----------
@@ -459,7 +461,7 @@ class CenterSolver4:
                 self.joint_dist = loaded
         return self.joint_dist
 
-    def _try_load_joint_dist(self) -> Optional[bytearray]:
+    def _try_load_joint_dist(self):
         """Load a precomputed joint-distance table (1 byte per state).
 
         The table is a raw dump of the Phase-A distance array ordered by
@@ -467,19 +469,20 @@ class CenterSolver4:
         to None (build via BFS) if missing or the wrong size. Results are
         cached per path at module level; the table is read-only.
         """
-        cached = _JOINT_DIST_CACHE.get(self.joint_dist_path)
-        if cached is not None:
-            return cached
-        try:
-            with open(self.joint_dist_path, "rb") as f:
-                data = f.read()
-        except OSError:
-            return None
-        if len(data) != JOINT_STATE_COUNT:
-            return None
-        table = bytearray(data)
-        _JOINT_DIST_CACHE[self.joint_dist_path] = table
-        return table
+        path=os.path.realpath(self.joint_dist_path)
+        with _JOINT_DIST_LOCK:
+            cached=_JOINT_DIST_CACHE.get(path)
+            if cached is not None:return cached
+            try:
+                with open(path,'rb') as source:
+                    if os.fstat(source.fileno()).st_size!=JOINT_STATE_COUNT:return None
+                    table=mmap.mmap(source.fileno(),0,access=mmap.ACCESS_READ)
+            except (OSError,ValueError):return None
+            _JOINT_DIST_CACHE[path]=table
+            # Dropping a cache reference never closes a mapping still owned
+            # by an in-flight solver. Normal object lifetime releases it.
+            while len(_JOINT_DIST_CACHE)>2:_JOINT_DIST_CACHE.pop(next(iter(_JOINT_DIST_CACHE)))
+            return table
 
     def _descend_joint(
         self,

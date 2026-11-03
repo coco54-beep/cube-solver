@@ -4,6 +4,17 @@
 
 [Windows and Android downloads](https://github.com/coco54-beep/cube-solver/releases/latest) · [中文技术说明](README.zh-CN.md) · [日本語](README.ja.md) · [Source code](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.39 update
+
+- Home now has a searchable puzzle catalogue, image cards for every family/order, and settings moved to the top-right.
+- Puzzle names and order labels are consistent in Chinese, English and Japanese; order numbers are always shown first.
+- Removed **Master Clover** and **LanLan Pisces** from the catalogue.
+- Fixed mobile crashes when an input draft from another order is restored, and hardened session restoration against removed screens.
+- Improved higher-order cube turning, Mastermorphix/Mirror centre-plan reuse, Pentahedron/War Drum optimisation budgets, Tangram Extreme verification and Twins playback timing.
+- Full automated test run: **4398 passed, 23 skipped**.
+
+[1.2.39 release notes](docs/release-1.2.39.md)
+
 ## 1.2.34 update
 
 - Manual, history-free solving now covers **Fused, AI, Burr, Bandaged C, Two-Bar and BiCube**, plus **Circle 2 and the Crazy Planet series**, and **Tangram / Tangram Extreme**.

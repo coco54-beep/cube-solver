@@ -1,0 +1,11 @@
+{
+  "output": "reports\\course-audit\\2026-10-25\\professor_pentagonal-section-silent.mp4",
+  "course_moves": 630,
+  "rendered_moves": 64,
+  "start": 0,
+  "end": 64,
+  "final_state_matches_replay": true,
+  "frames": 496,
+  "fps": 12,
+  "input_unchanged": true
+}

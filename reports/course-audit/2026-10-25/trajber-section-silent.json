@@ -1,0 +1,13 @@
+{
+  "output": "reports\\course-audit\\2026-10-25\\trajber-section-silent.mp4",
+  "course_moves": 338,
+  "rendered_moves": 18,
+  "start": 320,
+  "end": 338,
+  "final_state_matches_replay": true,
+  "frames": 408,
+  "fps": 12,
+  "input_unchanged": true,
+  "elapsed": 1.42,
+  "checked_geometry_frames": 12
+}

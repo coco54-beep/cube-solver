@@ -1,0 +1,454 @@
+[
+  {
+    "case": "morphix3",
+    "screen": "MastermorphixScreen",
+    "size": [
+      800,
+      600
+    ],
+    "card_rotate_undo_preserves_input": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 4,
+    "page": "1/1",
+    "screenshot": "morphix3-800x600.png"
+  },
+  {
+    "case": "morphix4",
+    "screen": "MastermorphixScreen",
+    "size": [
+      800,
+      600
+    ],
+    "card_rotate_undo_preserves_input": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "morphix4-800x600.png"
+  },
+  {
+    "case": "mirror3",
+    "screen": "MirrorScreen",
+    "size": [
+      800,
+      600
+    ],
+    "card_rotate_undo_preserves_input": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "mirror3-800x600.png"
+  },
+  {
+    "case": "blanker",
+    "screen": "BlankerScreen",
+    "size": [
+      800,
+      600
+    ],
+    "card_rotate_undo_preserves_input": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "blanker-800x600.png"
+  },
+  {
+    "case": "container",
+    "screen": "ContainerScreen",
+    "size": [
+      800,
+      600
+    ],
+    "card_rotate_undo_preserves_input": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 4,
+    "page": "1/1",
+    "palette_slots": 6,
+    "screenshot": "container-800x600.png"
+  },
+  {
+    "case": "mirror-minx3",
+    "screen": "MirrorMinxScreen",
+    "size": [
+      800,
+      600
+    ],
+    "card_rotate_undo_preserves_input": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/2",
+    "paging_preserves_state": true,
+    "screenshot": "mirror-minx3-800x600.png"
+  },
+  {
+    "case": "tangram",
+    "screen": "ArticulatedEntryScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "screenshot": "tangram-800x600.png"
+  },
+  {
+    "case": "tangram-extreme",
+    "screen": "ArticulatedEntryScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "screenshot": "tangram-extreme-800x600.png"
+  },
+  {
+    "case": "morphix3",
+    "screen": "MastermorphixScreen",
+    "size": [
+      400,
+      850
+    ],
+    "card_rotate_undo_preserves_input": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 4,
+    "page": "1/1",
+    "screenshot": "morphix3-400x850.png"
+  },
+  {
+    "case": "morphix4",
+    "screen": "MastermorphixScreen",
+    "size": [
+      400,
+      850
+    ],
+    "card_rotate_undo_preserves_input": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "morphix4-400x850.png"
+  },
+  {
+    "case": "mirror3",
+    "screen": "MirrorScreen",
+    "size": [
+      400,
+      850
+    ],
+    "card_rotate_undo_preserves_input": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "mirror3-400x850.png"
+  },
+  {
+    "case": "blanker",
+    "screen": "BlankerScreen",
+    "size": [
+      400,
+      850
+    ],
+    "card_rotate_undo_preserves_input": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "blanker-400x850.png"
+  },
+  {
+    "case": "container",
+    "screen": "ContainerScreen",
+    "size": [
+      400,
+      850
+    ],
+    "card_rotate_undo_preserves_input": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 4,
+    "page": "1/1",
+    "palette_slots": 6,
+    "screenshot": "container-400x850.png"
+  },
+  {
+    "case": "mirror-minx3",
+    "screen": "MirrorMinxScreen",
+    "size": [
+      400,
+      850
+    ],
+    "card_rotate_undo_preserves_input": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/2",
+    "paging_preserves_state": true,
+    "screenshot": "mirror-minx3-400x850.png"
+  },
+  {
+    "case": "tangram",
+    "screen": "ArticulatedEntryScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "screenshot": "tangram-400x850.png"
+  },
+  {
+    "case": "tangram-extreme",
+    "screen": "ArticulatedEntryScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "screenshot": "tangram-extreme-400x850.png"
+  }
+]

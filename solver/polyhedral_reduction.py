@@ -697,6 +697,76 @@ def orbit_word(transports,orbit,destination,primitive,prefix=(),alternatives=Tru
     return best
 
 
+def color_orbit_word(cube,transports,orbit,primitive,fallback,prefix=(),budget=.3):
+    """Plan singleton cycles by colour, retaining the proven labelled plan.
+
+    A same-colour spare can absorb a two-piece exchange. Each chosen cycle
+    increases the number of correct colours; full replay also checks every
+    outside sticker before a shorter plan is accepted.
+    """
+    if len(orbit)>96 or any(len(cube.geometry.pieces[p])!=1 for p in orbit):return fallback
+    from cube.polyhedral import solved_colors
+    cancel=transports.cancel;deadline=monotonic()+max(0.,budget)
+    def check():
+        if cancel and cancel():raise InterruptedError()
+        return monotonic()<deadline
+    if not check():return fallback
+    slots=np.asarray([cube.geometry.pieces[p][0] for p in orbit],dtype=np.intp)
+    goal=np.asarray(solved_colors(cube),dtype=np.int16)[slots]
+    state=np.asarray(cube.colors,dtype=np.int16)[slots].copy()
+    # Two orientations per unordered triple, folded under cyclic rotation.
+    triples=np.asarray([(a,b,c) for a in range(len(orbit))
+                        for b in range(a+1,len(orbit))
+                        for c in range(a+1,len(orbit)) if b!=c],dtype=np.intp)
+    if not len(triples):return fallback
+    a,b,c=triples.T;word=[];order=transports.order
+    # Reuse the already expanded setup tree from the fallback, without
+    # allocating another transport search. Estimate actual setup length for
+    # every candidate rather than preferring the first lexicographic triples.
+    codes=a*transports.size2+b*transports.size+c
+    cursor=codes.copy();depth=np.zeros(len(codes),dtype=np.int16)
+    active=transports.parents[cursor]>=0;known=active.copy()
+    while np.any(active):
+        if not check():return fallback
+        ids=np.flatnonzero(active);parent=transports.parents[cursor[ids]]
+        moving=parent!=cursor[ids]
+        cursor[ids[moving]]=parent[moving];depth[ids[moving]]+=1
+        active[ids[~moving]]=False
+    depth[~known]=max(8,int(depth.max())+1)
+    estimate=2*depth+len(primitive)
+    prefix=simplify(prefix,order);fallback=tuple(fallback)
+    while not np.array_equal(state,goal):
+        if not check():return fallback
+        correct=state==goal
+        gain=((state[c]==goal[a]).astype(int)+(state[a]==goal[b])+(state[b]==goal[c])
+              -correct[a].astype(int)-correct[b]-correct[c])
+        valid=np.flatnonzero(gain>0)
+        if not len(valid):return fallback
+        # Compare actual conjugate/join costs only for promising proposals.
+        rank=np.lexsort((-gain[valid],estimate[valid],estimate[valid]/gain[valid]))
+        ranked=valid[rank[:24]]
+        chosen=None;joined=simplify(prefix+tuple(word),order)
+        for i in ranked:
+            if not check():return fallback
+            triple=tuple(int(v) for v in triples[i])
+            try:macro=transports.conjugate(tuple(orbit[v] for v in triple),primitive,deadline)
+            except TimeoutError:return fallback
+            cost=joined_length(joined,macro,order)-len(joined)
+            score=(cost/max(1,int(gain[i])),cost,-int(gain[i]))
+            if chosen is None or score<chosen[0]:chosen=score,triple,macro
+        _,(x,y,z),macro=chosen
+        word.extend(macro);state[x],state[y],state[z]=int(state[z]),int(state[x]),int(state[y])
+    word=simplify(word,order)
+    if joined_length(prefix,word,order)>=joined_length(prefix,fallback,order):return fallback
+    expected=list(cube.colors)
+    for slot,color in zip(slots,goal):expected[int(slot)]=int(color)
+    probe=cube.entered()
+    for i,move in enumerate(word):
+        if i%64==0 and cancel and cancel():raise InterruptedError()
+        probe.apply_move(move)
+    return tuple(word) if probe.colors==expected else fallback
+
+
 def _macro_cost(macros):
     """Total move count of a mapping index -> (word, base)."""
     return sum(len(word) for word,_ in macros.values())

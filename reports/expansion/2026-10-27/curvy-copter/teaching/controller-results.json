@@ -1,0 +1,11 @@
+[
+  {
+    "kind": "lanlan_curvy_copter",
+    "status": "pass",
+    "examples": 4,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  }
+]

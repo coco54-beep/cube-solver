@@ -1,4 +1,5 @@
 """Shape-card input screens for mirror Axis/Windmill/Fisher cubes."""
+from ui.entry_feedback import validation_action
 from cube.mirror_shape import (MirrorAxisCube, MirrorFisherCube,
                                MirrorUnequalWindmillCube, MirrorUnequalFisherCube,
                                MirrorOffsetWindmillCube, MirrorOffsetFisherCube,
@@ -60,6 +61,7 @@ class MirrorShapeScreen(MirrorScreen):
         home, frame = variants[(start + 1) % len(variants)]
         self.choose_piece(home, frame)
 
+    @validation_action
     def check(self):
         if len(self._recorded) != len(self._all_positions()):
             self.hint.text = tr('morphix.error.incomplete', total=len(self._all_positions()))

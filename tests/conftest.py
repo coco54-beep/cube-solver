@@ -1,6 +1,11 @@
 """共享 fixtures 与辅助函数。"""
 
 import random
+import os
+
+# Parallel UI audits already retain their own captured logs. Avoid Kivy's
+# process-unsafe purge of the user's shared log directory during tests.
+os.environ.setdefault('KIVY_NO_FILELOG','1')
 
 import pytest
 

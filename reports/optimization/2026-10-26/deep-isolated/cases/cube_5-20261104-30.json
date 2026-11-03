@@ -1,0 +1,20 @@
+{
+  "kind": "cube_5",
+  "seed": 20261104,
+  "scramble_turns": 30,
+  "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\deep-isolated\\inputs\\cube_5-20261104-30.json",
+  "input_method": "six faces, colours only",
+  "history_empty": true,
+  "visible_entry_matches": true,
+  "input_seconds": 0.0,
+  "success": true,
+  "moves": 18,
+  "failure_category": "",
+  "solve_seconds": 0.204,
+  "message": "已还原，共 18 步（中心 0 + 棱降阶 0 + 朝向 0 + 3x3 18，化简前 18）",
+  "evaluation_budget_hit": false,
+  "replay_solved": true,
+  "replay_seconds": 0.0,
+  "seconds": 0.204,
+  "shortening": []
+}

@@ -1,0 +1,83 @@
+[
+  {
+    "kind": "mixup_plus_344",
+    "seed": 20261104,
+    "scramble_turns": 30,
+    "evaluation_budget_seconds": 60.0,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\mixup-fast-retry\\inputs\\mixup_plus_344-20261104-30.json",
+    "input_method": "blank assembly choices + actual rotation step + panel colours",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 3.203,
+    "success": false,
+    "moves": 0,
+    "failure_category": "cancelled",
+    "solve_seconds": 60.032,
+    "progress_stages": [
+      {
+        "label": "mixup.restoring",
+        "seconds": 0.016
+      }
+    ],
+    "message": "Cancelled",
+    "evaluation_budget_hit": true,
+    "seconds": 63.235,
+    "shortening": [],
+    "colour_stage_plans": [],
+    "process_seconds": 63.531
+  },
+  {
+    "kind": "mixup_plus_344",
+    "seed": 20261102,
+    "scramble_turns": 30,
+    "evaluation_budget_seconds": 60.0,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\mixup-fast-retry\\inputs\\mixup_plus_344-20261102-30.json",
+    "input_method": "blank assembly choices + actual rotation step + panel colours",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 3.266,
+    "success": false,
+    "moves": 0,
+    "failure_category": "cancelled",
+    "solve_seconds": 60.015,
+    "progress_stages": [
+      {
+        "label": "mixup.restoring",
+        "seconds": 0.0
+      }
+    ],
+    "message": "Cancelled",
+    "evaluation_budget_hit": true,
+    "seconds": 63.281,
+    "shortening": [],
+    "colour_stage_plans": [],
+    "process_seconds": 63.578
+  },
+  {
+    "kind": "mixup_plus_344",
+    "seed": 20261104,
+    "scramble_turns": 100,
+    "evaluation_budget_seconds": 60.0,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\mixup-fast-retry\\inputs\\mixup_plus_344-20261104-100.json",
+    "input_method": "blank assembly choices + actual rotation step + panel colours",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 3.125,
+    "success": false,
+    "moves": 0,
+    "failure_category": "cancelled",
+    "solve_seconds": 60.031,
+    "progress_stages": [
+      {
+        "label": "mixup.restoring",
+        "seconds": 0.0
+      }
+    ],
+    "message": "Cancelled",
+    "evaluation_budget_hit": true,
+    "seconds": 63.156,
+    "shortening": [],
+    "colour_stage_plans": [],
+    "process_seconds": 63.39
+  }
+]

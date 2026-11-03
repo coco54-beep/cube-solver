@@ -1,0 +1,20 @@
+[
+  {
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "phase_controls": 4,
+    "history_free_moves": 200
+  },
+  {
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "phase_controls": 4,
+    "history_free_moves": 200
+  }
+]

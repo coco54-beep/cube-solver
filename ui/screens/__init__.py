@@ -5,6 +5,12 @@ from ui.screens.polyhedral_screen import PolyhedralScreen, PolyhedralPlaybackScr
 from ui.screens.articulated_screen import ArticulatedEntryScreen
 from ui.screens.mixup_input_screen import MixupInputScreen
 from ui.screens.pentacle_screen import PentacleScreen
+from ui.screens.copter_screen import CopterInputScreen,CopterTwistScreen
+from ui.screens.comet_screen import LanlanCometInputScreen,LanlanCometTwistScreen
+from ui.screens.twins_screen import TwinsInputScreen,TwinsTwistScreen,SunCubeInputScreen,SunCubeTwistScreen
+from ui.screens.flower_copter_screen import FlowerCopterInputScreen,FlowerCopterTwistScreen
+from ui.screens.butterflower_screen import ButterflowerInputScreen,ButterflowerTwistScreen
+from ui.screens.pisces_screen import HexagramInputScreen,HexagramTwistScreen,CloverPyraminxInputScreen,CloverPyraminxTwistScreen
 from ui.screens.mirror_screen import MirrorScreen
 from ui.screens.square1_screen import Square1Screen
 from ui.screens.shape_cube_screen import ShapeCubeScreen
@@ -22,6 +28,7 @@ from ui.screens.twist_screen import TwistScreen  # noqa: F401
 from ui.screens.settings_screen import SettingsScreen  # noqa: F401
 from ui.screens.piece_palette_screen import PiecePaletteScreen
 from ui.screens.cuboid_six_view_screen import CuboidSixViewScreen
+from ui.screens.bandaged_six_view_screen import BandagedSixViewScreen
 from .mirror_tower_screen import MirrorTowerScreen
 from .mirror_pyraminx_screen import MirrorPyraminxScreen
 from .mirror_skewb_screen import MirrorSkewbScreen
@@ -33,3 +40,9 @@ from .square_family_screen import SquareFamilyScreen
 from .mirror_shape_screen import (MirrorAxisScreen, MirrorFisherScreen,
                                   MirrorWindmillScreen, MirrorUnequalWindmillScreen, MirrorUnequalFisherScreen,
                                   MirrorOffsetWindmillScreen, MirrorOffsetFisherScreen)
+
+from .container_screen import ContainerScreen
+from .mirror_minx_screen import MirrorMinxScreen
+from .blanker_screen import BlankerScreen
+
+from ui.screens.edge_jumbling_screen import EdgeJumblingInputScreen,EdgeJumblingTwistScreen

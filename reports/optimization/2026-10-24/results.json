@@ -1,0 +1,50 @@
+{
+  "version": "1.2.37",
+  "scope": "Existing puzzles only; no new models",
+  "root_cause": "Popup UIButton walked past Popup to Window.parent == Window, blocking on release",
+  "regressions": {
+    "tests": 386,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 4
+  },
+  "manual_android_routes": [
+    "ordinary 3x3",
+    "ordinary 4x4 and painting",
+    "pyraminx 4",
+    "mirror 3",
+    "mixup plus 4x4x4"
+  ],
+  "render_baseline": [
+    {
+      "kind": "mixup_333",
+      "surfaces": 378,
+      "repeated_surface_builds": 100,
+      "seconds": 0.11523949998081662
+    },
+    {
+      "kind": "mixup_plus_444",
+      "surfaces": 960,
+      "repeated_surface_builds": 100,
+      "seconds": 0.3149074999964796
+    }
+  ],
+  "render_optimized": [
+    {
+      "kind": "mixup_333",
+      "surfaces": 378,
+      "redraw_requests": 100,
+      "actual_surface_builds": 1,
+      "seconds": 0.0013453999999910593
+    },
+    {
+      "kind": "mixup_plus_444",
+      "surfaces": 960,
+      "redraw_requests": 100,
+      "actual_surface_builds": 1,
+      "seconds": 0.0045295000018086284
+    }
+  ],
+  "android_test_environment": "x86_64 emulator with matching Python bytecode ABI; delivered target remains arm64-v8a",
+  "physical_phone_tested": false
+}

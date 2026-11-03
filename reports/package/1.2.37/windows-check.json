@@ -1,0 +1,15 @@
+{
+  "version": "1.2.37",
+  "status": "pass",
+  "changed_module_bytecode": {
+    "ui.widgets.buttons": "matches current source",
+    "ui.screens.mixup_input_screen": "matches current source",
+    "renderer.mixup_entry_view": "matches current source",
+    "app.session": "matches current source",
+    "app.ui_self_check": "matches current source"
+  },
+  "archive_crc": "pass",
+  "sha256": "2345c85218f53cf7fb03446d9669242f524246bd0661955c4e3f80b48e14907c",
+  "bytes": 328751632,
+  "self_check": "pass"
+}

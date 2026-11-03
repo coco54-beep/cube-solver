@@ -1,0 +1,100 @@
+[
+  {
+    "kind": "bean_6",
+    "pose": "front",
+    "housing_facets": 3807,
+    "selectable_facets": 2700,
+    "median_draw_seconds": 0.0412
+  },
+  {
+    "kind": "bean_6",
+    "pose": "oblique",
+    "housing_facets": 3807,
+    "selectable_facets": 2430,
+    "median_draw_seconds": 0.0385
+  },
+  {
+    "kind": "bean_6",
+    "pose": "back",
+    "housing_facets": 3807,
+    "selectable_facets": 2700,
+    "median_draw_seconds": 0.0409
+  },
+  {
+    "kind": "bean_6",
+    "pose": "blank",
+    "housing_facets": 3807,
+    "selectable_facets": 2700,
+    "median_draw_seconds": 0.0401
+  },
+  {
+    "kind": "bean_6",
+    "pose": "wing-mid",
+    "housing_facets": 3807,
+    "selectable_facets": 2315,
+    "median_draw_seconds": 0.0366
+  },
+  {
+    "kind": "bean_6",
+    "pose": "rotor-mid",
+    "housing_facets": 3807,
+    "selectable_facets": 2430,
+    "median_draw_seconds": 0.0396
+  },
+  {
+    "kind": "bean_6",
+    "pose": "back-rotor-mid",
+    "housing_facets": 3807,
+    "selectable_facets": 2430,
+    "median_draw_seconds": 0.0397
+  },
+  {
+    "kind": "bean_10",
+    "pose": "front",
+    "housing_facets": 6225,
+    "selectable_facets": 4500,
+    "median_draw_seconds": 0.0675
+  },
+  {
+    "kind": "bean_10",
+    "pose": "oblique",
+    "housing_facets": 6225,
+    "selectable_facets": 4050,
+    "median_draw_seconds": 0.0757
+  },
+  {
+    "kind": "bean_10",
+    "pose": "back",
+    "housing_facets": 6225,
+    "selectable_facets": 4500,
+    "median_draw_seconds": 0.0848
+  },
+  {
+    "kind": "bean_10",
+    "pose": "blank",
+    "housing_facets": 6225,
+    "selectable_facets": 4500,
+    "median_draw_seconds": 0.0718
+  },
+  {
+    "kind": "bean_10",
+    "pose": "wing-mid",
+    "housing_facets": 6225,
+    "selectable_facets": 3935,
+    "median_draw_seconds": 0.0713
+  },
+  {
+    "kind": "bean_10",
+    "pose": "rotor-mid",
+    "housing_facets": 6225,
+    "selectable_facets": 4050,
+    "median_draw_seconds": 0.0739
+  },
+  {
+    "kind": "bean_10",
+    "pose": "back-rotor-mid",
+    "housing_facets": 6225,
+    "selectable_facets": 4050,
+    "median_draw_seconds": 0.0739
+  }
+]

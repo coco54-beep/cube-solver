@@ -1,0 +1,146 @@
+[
+  {
+    "kind": "rhombic_3",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "moves": 46
+  },
+  {
+    "kind": "rhombic_4",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "moves": 362
+  },
+  {
+    "kind": "rhombic_mask_4",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "moves": 360
+  },
+  {
+    "kind": "caneball_4",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "moves": 379
+  },
+  {
+    "kind": "skewb_rhombic",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "moves": 48
+  },
+  {
+    "kind": "jewel_fto",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "moves": 339
+  },
+  {
+    "kind": "rua",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "moves": 326
+  },
+  {
+    "kind": "helicopter_14",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "moves": 100
+  },
+  {
+    "kind": "rhombic_3",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "moves": 46
+  },
+  {
+    "kind": "rhombic_4",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "moves": 360
+  },
+  {
+    "kind": "rhombic_mask_4",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "moves": 362
+  },
+  {
+    "kind": "caneball_4",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "moves": 362
+  },
+  {
+    "kind": "skewb_rhombic",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "moves": 48
+  },
+  {
+    "kind": "jewel_fto",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "moves": 339
+  },
+  {
+    "kind": "rua",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "moves": 326
+  },
+  {
+    "kind": "helicopter_14",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "moves": 100
+  }
+]

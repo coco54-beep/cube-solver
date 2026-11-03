@@ -1,0 +1,258 @@
+[
+  {
+    "kind": "i_cube",
+    "name": "I-Cube",
+    "chapters": 4,
+    "examples": 5,
+    "isolated_cycles": 2,
+    "external_links": false
+  },
+  {
+    "kind": "l_cube",
+    "name": "L-Cube",
+    "chapters": 4,
+    "examples": 5,
+    "isolated_cycles": 2,
+    "external_links": false
+  },
+  {
+    "kind": "t_cube",
+    "name": "T-Cube",
+    "chapters": 4,
+    "examples": 5,
+    "isolated_cycles": 2,
+    "external_links": false
+  },
+  {
+    "kind": "x_cube",
+    "name": "X-Cube",
+    "chapters": 4,
+    "examples": 5,
+    "isolated_cycles": 2,
+    "external_links": false
+  },
+  {
+    "kind": "tri_cube",
+    "name": "Tri-Cube",
+    "chapters": 4,
+    "examples": 5,
+    "isolated_cycles": 2,
+    "external_links": false
+  },
+  {
+    "kind": "temple_cube",
+    "name": "Temple-Cube",
+    "chapters": 4,
+    "examples": 5,
+    "isolated_cycles": 2,
+    "external_links": false
+  },
+  {
+    "kind": "cross_cube",
+    "name": "Cross-Cube",
+    "chapters": 4,
+    "examples": 5,
+    "isolated_cycles": 2,
+    "external_links": false
+  },
+  {
+    "kind": "siamese_a",
+    "name": "Siamese Cube A",
+    "chapters": 4,
+    "examples": 5,
+    "isolated_cycles": 2,
+    "external_links": false
+  },
+  {
+    "kind": "siamese_b",
+    "name": "Siamese Cube B",
+    "chapters": 4,
+    "examples": 5,
+    "isolated_cycles": 2,
+    "external_links": false
+  },
+  {
+    "kind": "trajber",
+    "name": "Trajber’s Octahedron · 4×4",
+    "chapters": 4,
+    "examples": 5,
+    "isolated_cycles": 0,
+    "external_links": false
+  },
+  {
+    "kind": "pyraminx_diamond",
+    "name": "Pyraminx Diamond",
+    "chapters": 4,
+    "examples": 4,
+    "isolated_cycles": 1,
+    "external_links": false
+  },
+  {
+    "kind": "pyraminx_crystal",
+    "name": "Pyraminx Crystal",
+    "chapters": 4,
+    "examples": 5,
+    "isolated_cycles": 2,
+    "external_links": false
+  },
+  {
+    "kind": "starminx_i",
+    "name": "Starminx I",
+    "chapters": 4,
+    "examples": 4,
+    "isolated_cycles": 1,
+    "external_links": false
+  },
+  {
+    "kind": "pentultimate",
+    "name": "Pentultimate",
+    "chapters": 4,
+    "examples": 4,
+    "isolated_cycles": 1,
+    "external_links": false
+  },
+  {
+    "kind": "master_pentultimate",
+    "name": "Master Pentultimate",
+    "chapters": 4,
+    "examples": 6,
+    "isolated_cycles": 3,
+    "external_links": false
+  },
+  {
+    "kind": "dodecahedron_2",
+    "name": "2×2 Dodecahedron",
+    "chapters": 4,
+    "examples": 5,
+    "isolated_cycles": 0,
+    "external_links": false
+  },
+  {
+    "kind": "rediminx",
+    "name": "Rediminx",
+    "chapters": 4,
+    "examples": 4,
+    "isolated_cycles": 1,
+    "external_links": false
+  },
+  {
+    "kind": "dodecahedron_3",
+    "name": "3×3 Dodecahedron",
+    "chapters": 4,
+    "examples": 5,
+    "isolated_cycles": 0,
+    "external_links": false
+  },
+  {
+    "kind": "dogic_i",
+    "name": "Dogic I · 12 colours",
+    "chapters": 4,
+    "examples": 4,
+    "isolated_cycles": 1,
+    "external_links": false
+  },
+  {
+    "kind": "container",
+    "name": "Container",
+    "chapters": 4,
+    "examples": 4,
+    "isolated_cycles": 0,
+    "external_links": false
+  },
+  {
+    "kind": "rubik_cheese",
+    "name": "Rubik Cheese · 2 layers",
+    "chapters": 4,
+    "examples": 4,
+    "isolated_cycles": 1,
+    "external_links": false
+  },
+  {
+    "kind": "cheese_3",
+    "name": "3-Layer Cheese",
+    "chapters": 4,
+    "examples": 5,
+    "isolated_cycles": 2,
+    "external_links": false
+  },
+  {
+    "kind": "masterball",
+    "name": "Masterball",
+    "chapters": 4,
+    "examples": 5,
+    "isolated_cycles": 2,
+    "external_links": false
+  },
+  {
+    "kind": "pentagonal_domino",
+    "name": "Pentagonal Domino",
+    "chapters": 4,
+    "examples": 4,
+    "isolated_cycles": 1,
+    "external_links": false
+  },
+  {
+    "kind": "pentagonal_prism",
+    "name": "Pentagonal Prism",
+    "chapters": 4,
+    "examples": 4,
+    "isolated_cycles": 1,
+    "external_links": false
+  },
+  {
+    "kind": "pentagonal_4",
+    "name": "Pentagonal 4-Layer",
+    "chapters": 4,
+    "examples": 5,
+    "isolated_cycles": 2,
+    "external_links": false
+  },
+  {
+    "kind": "professor_pentagonal",
+    "name": "Professor Pentagonal",
+    "chapters": 4,
+    "examples": 11,
+    "isolated_cycles": 8,
+    "external_links": false
+  },
+  {
+    "kind": "dogic_20",
+    "name": "Dogic · 20 colours",
+    "chapters": 4,
+    "examples": 4,
+    "isolated_cycles": 1,
+    "external_links": false
+  },
+  {
+    "kind": "master_brilic",
+    "name": "Master Brilic",
+    "chapters": 4,
+    "examples": 6,
+    "isolated_cycles": 3,
+    "external_links": false
+  },
+  {
+    "kind": "blanker",
+    "name": "Blanker Cube",
+    "chapters": 4,
+    "examples": 5,
+    "isolated_cycles": 0,
+    "external_links": false
+  },
+  {
+    "kind": "mirror_kilominx",
+    "name": "Mirror Kilominx",
+    "chapters": 4,
+    "examples": 4,
+    "isolated_cycles": 1,
+    "external_links": false
+  },
+  {
+    "kind": "mirror_megaminx",
+    "name": "Mirror Megaminx",
+    "chapters": 4,
+    "examples": 4,
+    "isolated_cycles": 1,
+    "external_links": false
+  }
+]

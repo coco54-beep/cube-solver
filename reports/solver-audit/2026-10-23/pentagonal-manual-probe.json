@@ -1,0 +1,50 @@
+[
+  {
+    "kind": "pentagonal_domino",
+    "n": 2,
+    "pieces": 22,
+    "stickers": 52,
+    "history": null,
+    "seed": 223,
+    "scramble_length": 30,
+    "solution_length": 58,
+    "seconds": 0.015,
+    "replay_solved": true
+  },
+  {
+    "kind": "pentagonal_prism",
+    "n": 3,
+    "pieces": 32,
+    "stickers": 67,
+    "history": null,
+    "seed": 223,
+    "scramble_length": 30,
+    "solution_length": 76,
+    "seconds": 0.0,
+    "replay_solved": true
+  },
+  {
+    "kind": "pentagonal_4",
+    "n": 4,
+    "pieces": 42,
+    "stickers": 82,
+    "history": null,
+    "seed": 223,
+    "scramble_length": 30,
+    "solution_length": 158,
+    "seconds": 0.0,
+    "replay_solved": true
+  },
+  {
+    "kind": "professor_pentagonal",
+    "n": 5,
+    "pieces": 122,
+    "stickers": 187,
+    "history": null,
+    "seed": 223,
+    "scramble_length": 30,
+    "solution_length": 694,
+    "seconds": 0.015,
+    "replay_solved": true
+  }
+]

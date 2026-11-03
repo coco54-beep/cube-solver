@@ -1,0 +1,26 @@
+{
+  "kind": "siamese_a",
+  "seed": 20261104,
+  "scramble_turns": 100,
+  "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\deep-isolated\\inputs\\siamese_a-20261104-100.json",
+  "input_method": "fixed visible model panels, colours only",
+  "history_empty": true,
+  "visible_entry_matches": true,
+  "input_seconds": 0.0,
+  "success": true,
+  "moves": 173,
+  "failure_category": "",
+  "solve_seconds": 0.094,
+  "message": "",
+  "evaluation_budget_hit": false,
+  "replay_solved": true,
+  "replay_seconds": 0.0,
+  "seconds": 0.094,
+  "shortening": [
+    {
+      "before": 175,
+      "after": 173,
+      "seconds": 0.078
+    }
+  ]
+}

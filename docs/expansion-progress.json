@@ -1,0 +1,208 @@
+{
+  "updated": "2026-11-02",
+  "scope": "从魔豆、时间机器开始的29款请求中，保留23款已接入型号；移除4款未接入参考卡片、双棱花和双鱼座。另已移除平面十二轴研究模型及旧名称别名。当前源码状态，不代表已打包或安卓真机验收。",
+  "counts": {
+    "integrated_verified_desktop": 14,
+    "integrated_limited_desktop": 9,
+    "mechanism_pending": 0,
+    "removed_from_catalogue": 7
+  },
+  "models": [
+    {
+      "kind": "bean_6",
+      "name": "六面旋转魔豆（三瓣）",
+      "status": "integrated_verified_desktop"
+    },
+    {
+      "kind": "bean_10",
+      "name": "十面旋转魔豆（五瓣）",
+      "status": "integrated_verified_desktop"
+    },
+    {
+      "kind": "time_machine",
+      "name": "时间机器",
+      "status": "integrated_verified_desktop"
+    },
+    {
+      "kind": "megaminx_ball",
+      "name": "五魔球 D5",
+      "status": "integrated_verified_desktop"
+    },
+    {
+      "kind": "skewb_rhombic",
+      "name": "四轴斜转十二菱面",
+      "status": "integrated_verified_desktop"
+    },
+    {
+      "kind": "rua",
+      "name": "十二轴十二菱面 Rua",
+      "status": "integrated_verified_desktop"
+    },
+    {
+      "kind": "rhombic_3",
+      "name": "菱面三阶",
+      "status": "integrated_verified_desktop"
+    },
+    {
+      "kind": "rhombic_4",
+      "name": "四阶十二菱面",
+      "status": "integrated_verified_desktop"
+    },
+    {
+      "kind": "rhombic_mask_4",
+      "name": "四阶菱边",
+      "status": "integrated_verified_desktop"
+    },
+    {
+      "kind": "caneball_4",
+      "name": "四阶八面魔球",
+      "status": "integrated_verified_desktop"
+    },
+    {
+      "kind": "jewel_fto",
+      "name": "八轴八面绣球",
+      "status": "integrated_verified_desktop"
+    },
+    {
+      "kind": "helicopter_14",
+      "name": "十二轴十四面体",
+      "status": "integrated_verified_desktop",
+      "remaining": "已补十二轴整块混转、形变打乱、先复形后配色求解及32色面/45材料区回放。八个金色截角按同一颜色校验；24例30/100组合动作重录通过，横竖屏按钮检查通过。新建入口采用共享模拟界面；旧固定槽位存档保留。复杂交织复形仍有限时，实物内轨及安卓真机未验收。",
+      "research_report": "reports/optimization/2026-11-02/helicopter-14/README.md"
+    },
+    {
+      "kind": "aj_curvy_dinominx_4",
+      "name": "AJ 四层曲线角转五魔",
+      "status": "integrated_verified_desktop"
+    },
+    {
+      "kind": "yeet_ball",
+      "name": "永骏枫叶球",
+      "status": "integrated_verified_desktop"
+    },
+    {
+      "kind": "mf8_bauhinia_minx",
+      "name": "MF8 紫荆五魔",
+      "status": "integrated_limited_desktop",
+      "remaining": "标准 120 度模式；混转形状未完成"
+    },
+    {
+      "kind": "lanlan_curvy_copter",
+      "name": "魔蝶",
+      "status": "integrated_limited_desktop",
+      "remaining": "球切近似；实物曲面、内轨与困难复形待核对"
+    },
+    {
+      "kind": "lanlan_comet_physical",
+      "name": "蓝蓝 Crazy Comet",
+      "status": "integrated_limited_desktop",
+      "remaining": "已接状态求解；长解及困难复形待完善"
+    },
+    {
+      "kind": "mf8_suncube_2",
+      "name": "MF8 太阳二号",
+      "status": "integrated_limited_desktop",
+      "remaining": "棱转几何模型；曲面、内轨及困难复形待核对"
+    },
+    {
+      "kind": "lanlan_hexagram",
+      "name": "六角星金字塔",
+      "status": "integrated_limited_desktop",
+      "remaining": "圆鼓四面体弦面近似；完整流程已接，实物内轨及困难复形未完备"
+    },
+    {
+      "kind": "mf8_twins",
+      "name": "双子星",
+      "status": "integrated_limited_desktop",
+      "remaining": "双子星保留 pCubes Skewby Twins 的166实体、192色面及独立花瓣交换，绘制已恢复Drawing3曲线外观，40组闭合动作与曲线面片逐一对应。旧CAD存档仍可撤销地切换新机构。仍关闭手工摆块与填色；长解非最短，复杂交织复形有限时，隐藏内轨及安卓真机未验收。曲线恢复尚未重新打包。",
+      "research_report": "reports/optimization/2026-11-02/twins-curved-reference/README.md"
+    },
+    {
+      "kind": "kairis_star_finder",
+      "name": "Kairis 星寻足球（二十轴深切）",
+      "status": "integrated_limited_desktop",
+      "catalogue_visibility": "playable_regular_mode",
+      "remaining": "照片切线推导的二十轴深切模型，252片，标准120°转动、逐面录入、打乱、独立状态求解、回放与原创课程；部分转动、内部轨道及安卓真机未验收。",
+      "report": "reports/expansion/2026-10-29/star-finder/README.md"
+    },
+    {
+      "kind": "lanlan_butterflower",
+      "name": "蝶恋花",
+      "status": "integrated_limited_desktop",
+      "catalogue_visibility": "playable",
+      "remaining": "用户确认120°为目测，按实际切线对齐：已接通J约70.529°及补角109.471°的换瓣、变形打乱、共享姿态录入、不可见材料补全、先复形后配色求解与回放。24组换瓣已逐步通过全部101材料区域的阻挡检查；30/100/300步共24例可见块重新录入均还原。任意复杂变形的复形搜索仍有时间限额；安卓与实物内轨尚未验收。",
+      "report": "reports/expansion/2026-10-29/butterflower/README.md"
+    },
+    {
+      "kind": "lanlan_flower_copter",
+      "name": "花瓣魔方（魔花）/ Flower Copter",
+      "status": "integrated_limited_desktop",
+      "remaining": "保留 Drawing1.dwg 十二段圆弧和每面二十片布局，已补60°角转、约70.529°/109.471°棱准备、全部材料阻挡检查、形变打乱及先复形后配色求解。手工摆块与颜色录入保持关闭；困难复形仍可能超时，实物内轨与安卓真机未验收。",
+      "report": "reports/optimization/2026-11-02/cad-copter-shapes/README.md"
+    }
+  ],
+  "corrected_identifications": [
+    {
+      "previous_kind": "lanlan_4corners_plus",
+      "actual_kind": "mf8_suncube_2",
+      "reason": "原八张图第三张的白色MF8标记2号魔方是太阳二号，被误标为4-Corners Plus/Gemini；移除重复待接入项。这不表示真实Gemini与太阳二号是同款。",
+      "reference": "https://cubein.cn/products/mf8-sun-cube-2-edge-turning-twisty-puzzle"
+    }
+  ],
+  "removed_models": [
+    {
+      "kind": "lanlan_clover_pyraminx",
+      "name": "蓝蓝三叶草金字塔",
+      "status": "mechanism_pending",
+      "remaining": "已有31实体/52色面的研究原型、状态求解及界面测试，但截角外壳与实物照片不符；仅显示待接入参考卡，不开放研究原型作为实物型号。仍需重新核对曲面切割与隐藏材料。",
+      "research_report": "reports/expansion/2026-10-29/clover-pyraminx/README.md",
+      "catalogue_visibility": "removed",
+      "catalogue_note": "按用户要求从 App 目录和搜索中移除未接入卡片，研究记录保留。"
+    },
+    {
+      "kind": "vp_clover_dodecahedron",
+      "name": "VeryPuzzle Clover Dodecahedron",
+      "status": "mechanism_pending",
+      "catalogue_visibility": "removed",
+      "catalogue_note": "按用户要求从 App 目录和搜索中移除未接入卡片，研究记录保留。"
+    },
+    {
+      "kind": "lanlan_sunflower",
+      "name": "向阳花",
+      "status": "mechanism_pending",
+      "catalogue_visibility": "removed",
+      "catalogue_note": "按用户要求从 App 目录和搜索中移除未接入卡片，研究记录保留。"
+    },
+    {
+      "kind": "lanlan_andromeda",
+      "name": "仙女座",
+      "status": "mechanism_pending",
+      "catalogue_visibility": "removed",
+      "catalogue_note": "按用户要求从 App 目录和搜索中移除未接入卡片，研究记录保留。"
+    },
+    {
+      "kind": "lanlan_pisces",
+      "name": "双鱼座",
+      "status": "integrated_limited_desktop",
+      "remaining": "分面外壳近似；完整流程已接，实物内轨及困难复形未完备",
+      "catalogue_visibility": "removed",
+      "catalogue_note": "按用户要求删除 App 型号入口。"
+    },
+    {
+      "kind": "lanlan_master_clover",
+      "name": "十二轴双棱花 / Master Clover",
+      "status": "integrated_limited_desktop",
+      "catalogue_visibility": "removed",
+      "catalogue_note": "按用户要求删除 App 型号入口。",
+      "remaining": "常规双层180°模型、120片逐面录入、8个角部与中心连体块、独立大层小层、状态求解与回放已接通。新增半圆弧为照片重建，内部连续切面尚未测定；变形混转仍未接通，不能把常规回放当作实物混转认证。安卓真机待验。",
+      "report": "reports/expansion/2026-10-29/master-clover/README.md"
+    },
+    {
+      "kind": "planar_rhombic_12",
+      "counted_in_original_thirty": false,
+      "name": "平面十二轴菱面研究模型",
+      "catalogue_visibility": "removed",
+      "catalogue_note": "按用户要求删除 App 入口及旧名称别名。"
+    }
+  ]
+}

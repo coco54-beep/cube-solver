@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="25" time="1.995" timestamp="2026-10-26T07:34:36.045296+08:00" hostname="DESKTOP-5GK8RN1"><testcase classname="tests.test_dial_beans" name="test_real_moves_are_bijective_have_the_right_period_and_match_animation[time_machine-2]" time="0.042" /><testcase classname="tests.test_dial_beans" name="test_real_moves_are_bijective_have_the_right_period_and_match_animation[bean_6-6]" time="0.001"><failure message="AssertionError: assert {(0.18359, 1....7, 0.17), ...} == {(0.183015, 1...2, 0.17), ...}&#10;  &#10;  Extra items in the left set:&#10;  (0.221936, 1.134818, 0.17)&#10;  (0.189989, 1.17879, 0.17)&#10;  (0.372962, 1.278136, 0.17)&#10;  (0.325643, 1.118392, 0.17)&#10;  (0.354093, 1.298019, 0.17)...&#10;  &#10;  ...Full output truncated (45 lines hidden), use '-vv' to show">kind = 'bean_6', n = 6
+
+    @pytest.mark.parametrize('kind,n',KINDS.items())
+    def test_real_moves_are_bijective_have_the_right_period_and_match_animation(kind,n):
+        cube=PolyhedralPuzzle(kind,n);g=cube.geometry;identity=tuple(range(len(cube.colors)))
+        for move in cube.moves():
+            action=g.permutation(move);assert sorted(action)==list(identity)
+            assert g.permutation(Move(move.axis,0,g.spec.turn_order))==identity
+            origin=move_origin(kind,move);angle=math.tau*move.amount/g.spec.turn_order
+            for i,s in enumerate(g.stickers):
+                if s.piece not in g.layers[move.axis][0]:continue
+                expected={key(tuple(v+o for v,o in zip(rotate(tuple(a-b for a,b in zip(p,origin)),g.spec.axes[move.axis],angle),origin))) for p in s.polygon}
+&gt;               assert expected=={key(p) for p in g.stickers[action[i]].polygon}
+E               AssertionError: assert {(0.18359, 1....7, 0.17), ...} == {(0.183015, 1...2, 0.17), ...}
+E                 
+E                 Extra items in the left set:
+E                 (0.221936, 1.134818, 0.17)
+E                 (0.189989, 1.17879, 0.17)
+E                 (0.372962, 1.278136, 0.17)
+E                 (0.325643, 1.118392, 0.17)
+E                 (0.354093, 1.298019, 0.17)...
+E                 
+E                 ...Full output truncated (45 lines hidden), use '-vv' to show
+
+tests\test_dial_beans.py:22: AssertionError</failure></testcase><testcase classname="tests.test_dial_beans" name="test_real_moves_are_bijective_have_the_right_period_and_match_animation[bean_10-10]" time="0.002"><failure message="AssertionError: assert {(0.148323, 1...6, 0.17), ...} == {(0.147748, 1...1, 0.17), ...}&#10;  &#10;  Extra items in the left set:&#10;  (0.186669, 1.386277, 0.17)&#10;  (0.14904, 1.484303, 0.17)&#10;  (0.269173, 1.571585, 0.17)&#10;  (0.295455, 1.5638, 0.17)&#10;  (0.334348, 1.401799, 0.17)...&#10;  &#10;  ...Full output truncated (45 lines hidden), use '-vv' to show">kind = 'bean_10', n = 10
+
+    @pytest.mark.parametrize('kind,n',KINDS.items())
+    def test_real_moves_are_bijective_have_the_right_period_and_match_animation(kind,n):
+        cube=PolyhedralPuzzle(kind,n);g=cube.geometry;identity=tuple(range(len(cube.colors)))
+        for move in cube.moves():
+            action=g.permutation(move);assert sorted(action)==list(identity)
+            assert g.permutation(Move(move.axis,0,g.spec.turn_order))==identity
+            origin=move_origin(kind,move);angle=math.tau*move.amount/g.spec.turn_order
+            for i,s in enumerate(g.stickers):
+                if s.piece not in g.layers[move.axis][0]:continue
+                expected={key(tuple(v+o for v,o in zip(rotate(tuple(a-b for a,b in zip(p,origin)),g.spec.axes[move.axis],angle),origin))) for p in s.polygon}
+&gt;               assert expected=={key(p) for p in g.stickers[action[i]].polygon}
+E               AssertionError: assert {(0.148323, 1...6, 0.17), ...} == {(0.147748, 1...1, 0.17), ...}
+E                 
+E                 Extra items in the left set:
+E                 (0.186669, 1.386277, 0.17)
+E                 (0.14904, 1.484303, 0.17)
+E                 (0.269173, 1.571585, 0.17)
+E                 (0.295455, 1.5638, 0.17)
+E                 (0.334348, 1.401799, 0.17)...
+E                 
+E                 ...Full output truncated (45 lines hidden), use '-vv' to show
+
+tests\test_dial_beans.py:22: AssertionError</failure></testcase><testcase classname="tests.test_dial_beans" name="test_serialized_visible_input_solves_without_any_scramble_history[30-20261110-time_machine-2]" time="0.210" /><testcase classname="tests.test_dial_beans" name="test_serialized_visible_input_solves_without_any_scramble_history[30-20261110-bean_6-6]" time="0.038" /><testcase classname="tests.test_dial_beans" name="test_serialized_visible_input_solves_without_any_scramble_history[30-20261110-bean_10-10]" time="0.228" /><testcase classname="tests.test_dial_beans" name="test_serialized_visible_input_solves_without_any_scramble_history[100-20261110-time_machine-2]" time="0.078" /><testcase classname="tests.test_dial_beans" name="test_serialized_visible_input_solves_without_any_scramble_history[100-20261110-bean_6-6]" time="0.032" /><testcase classname="tests.test_dial_beans" name="test_serialized_visible_input_solves_without_any_scramble_history[100-20261110-bean_10-10]" time="0.258" /><testcase classname="tests.test_dial_beans" name="test_serialized_visible_input_solves_without_any_scramble_history[30-20261111-time_machine-2]" time="0.113" /><testcase classname="tests.test_dial_beans" name="test_serialized_visible_input_solves_without_any_scramble_history[30-20261111-bean_6-6]" time="0.032" /><testcase classname="tests.test_dial_beans" name="test_serialized_visible_input_solves_without_any_scramble_history[30-20261111-bean_10-10]" time="0.246" /><testcase classname="tests.test_dial_beans" name="test_serialized_visible_input_solves_without_any_scramble_history[100-20261111-time_machine-2]" time="0.153" /><testcase classname="tests.test_dial_beans" name="test_serialized_visible_input_solves_without_any_scramble_history[100-20261111-bean_6-6]" time="0.037" /><testcase classname="tests.test_dial_beans" name="test_serialized_visible_input_solves_without_any_scramble_history[100-20261111-bean_10-10]" time="0.229" /><testcase classname="tests.test_dial_beans" name="test_original_cycle_fixes_every_other_slot_and_repeats_in_three[time_machine-2]" time="0.001" /><testcase classname="tests.test_dial_beans" name="test_original_cycle_fixes_every_other_slot_and_repeats_in_three[bean_6-6]" time="0.000" /><testcase classname="tests.test_dial_beans" name="test_original_cycle_fixes_every_other_slot_and_repeats_in_three[bean_10-10]" time="0.001" /><testcase classname="tests.test_dial_beans" name="test_wing_rotor_and_fixed_transition_beads_are_distinct[bean_6]" time="0.000" /><testcase classname="tests.test_dial_beans" name="test_wing_rotor_and_fixed_transition_beads_are_distinct[bean_10]" time="0.000" /><testcase classname="tests.test_dial_beans" name="test_partial_bad_count_cancel_and_json_checkpoint[time_machine-2]" time="0.002" /><testcase classname="tests.test_dial_beans" name="test_partial_bad_count_cancel_and_json_checkpoint[bean_6-6]" time="0.000" /><testcase classname="tests.test_dial_beans" name="test_partial_bad_count_cancel_and_json_checkpoint[bean_10-10]" time="0.000" /><testcase classname="tests.test_dial_beans" name="test_wrong_time_corner_twist_is_rejected_and_duplicate_numbers_are_rejected" time="0.000" /><testcase classname="tests.test_dial_beans" name="test_new_models_use_current_families_without_duplicate_entries" time="0.004" /></testsuite></testsuites>

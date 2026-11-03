@@ -1,0 +1,142 @@
+[
+  {
+    "length": 300,
+    "seed": 20262027,
+    "aligned": true,
+    "moves": 7,
+    "seconds": 4.641
+  },
+  {
+    "length": 300,
+    "seed": 20262028,
+    "aligned": true,
+    "moves": 7,
+    "seconds": 1.11
+  },
+  {
+    "length": 300,
+    "seed": 20262029,
+    "aligned": true,
+    "moves": 9,
+    "seconds": 1.719
+  },
+  {
+    "length": 300,
+    "seed": 20262030,
+    "aligned": true,
+    "moves": 6,
+    "seconds": 0.438
+  },
+  {
+    "length": 300,
+    "seed": 20262031,
+    "aligned": true,
+    "moves": 6,
+    "seconds": 0.265
+  },
+  {
+    "length": 300,
+    "seed": 20262032,
+    "aligned": true,
+    "moves": 9,
+    "seconds": 1.703
+  },
+  {
+    "length": 300,
+    "seed": 20262033,
+    "aligned": true,
+    "moves": 7,
+    "seconds": 0.656
+  },
+  {
+    "length": 300,
+    "seed": 20262034,
+    "aligned": true,
+    "moves": 4,
+    "seconds": 0.016
+  },
+  {
+    "length": 300,
+    "seed": 20262035,
+    "aligned": true,
+    "moves": 7,
+    "seconds": 0.938
+  },
+  {
+    "length": 300,
+    "seed": 20262036,
+    "aligned": true,
+    "moves": 10,
+    "seconds": 3.844
+  },
+  {
+    "length": 1000,
+    "seed": 20262027,
+    "aligned": true,
+    "moves": 5,
+    "seconds": 1.516
+  },
+  {
+    "length": 1000,
+    "seed": 20262028,
+    "aligned": true,
+    "moves": 7,
+    "seconds": 1.719
+  },
+  {
+    "length": 1000,
+    "seed": 20262029,
+    "aligned": true,
+    "moves": 10,
+    "seconds": 2.078
+  },
+  {
+    "length": 1000,
+    "seed": 20262030,
+    "aligned": true,
+    "moves": 10,
+    "seconds": 1.64
+  },
+  {
+    "length": 1000,
+    "seed": 20262031,
+    "aligned": true,
+    "moves": 6,
+    "seconds": 0.828
+  },
+  {
+    "length": 1000,
+    "seed": 20262032,
+    "aligned": true,
+    "moves": 8,
+    "seconds": 2.297
+  },
+  {
+    "length": 1000,
+    "seed": 20262033,
+    "aligned": true,
+    "moves": 7,
+    "seconds": 0.828
+  },
+  {
+    "length": 1000,
+    "seed": 20262034,
+    "aligned": true,
+    "moves": 7,
+    "seconds": 0.734
+  },
+  {
+    "length": 1000,
+    "seed": 20262035,
+    "aligned": true,
+    "moves": 10,
+    "seconds": 1.344
+  },
+  {
+    "length": 1000,
+    "seed": 20262036,
+    "aligned": true,
+    "moves": 8,
+    "seconds": 0.437
+  }
+]

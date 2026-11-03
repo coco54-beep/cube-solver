@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-26",
+  "unique_kinds": 81,
+  "unique_deep_cases": 240,
+  "visible_input_rebuilt": 240,
+  "solved_and_replayed": 237,
+  "unresolved": [
+    {
+      "kind": "mixup_plus_344",
+      "seed": 20261102,
+      "turns": 30,
+      "budget": 60.0,
+      "source": "mixup-shell-retry"
+    },
+    {
+      "kind": "mixup_plus_344",
+      "seed": 20261104,
+      "turns": 30,
+      "budget": 60.0,
+      "source": "mixup-shell-retry"
+    },
+    {
+      "kind": "mixup_plus_344",
+      "seed": 20261104,
+      "turns": 100,
+      "budget": 60.0,
+      "source": "mixup-shell-retry"
+    }
+  ],
+  "other_failures": 0,
+  "automated_tests": {
+    "passed": 273,
+    "failure": 0,
+    "error": 0,
+    "skipped": 0
+  },
+  "physical_android_tested": false,
+  "packaged": false,
+  "automated_sources": [
+    "regression.xml",
+    "mixup-fast.xml",
+    "quality-latest.xml",
+    "final-quality.xml"
+  ],
+  "paired_quality_cases": 6
+}

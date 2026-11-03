@@ -18,13 +18,18 @@ MODELS={
  'cuboid_442': ((4,2,4),4),
  'cuboid_234': ((2,4,3),4),
  'cuboid_133': ((3,1,3),3),
+ 'floppy_133': ((3,1,3),3),
  'cuboid_335': ((3,5,3),5),
  'cuboid_446': ((4,6,4),6),
  'camouflage_3': ((3,3,3),4),
+ 'mirror_camouflage_3': ((3,3,3),4),
 }
+from cube.letter_cube import EXTENSIONS as LETTER_KINDS,register_models
+register_models(MODELS)
+CUBOID_PREFIXES=tuple(MODELS)
 # Standard models with fixed exterior dimensions. Input stays colour-only;
 # this is a model capability, not a check of the current scrambled shape.
-FIXED_SHAPE_KINDS=frozenset(('cuboid_332','cuboid_223','cuboid_334'))
+FIXED_SHAPE_KINDS=frozenset(('cuboid_332','cuboid_223','cuboid_334','floppy_133'))
 PARTITIONS={
  (3,1):(3,), (3,3):(1,1,1),
  (4,2):(2,2), (4,3):(1,2,1), (4,4):(1,1,1,1),
@@ -48,6 +53,12 @@ def turn_frame(axis,amount):
 
 @lru_cache(maxsize=10)
 def layout(kind):
+ if kind=='mirror_camouflage_3':
+  from cube.mirror_camouflage import mirror_layout
+  return mirror_layout()
+ if kind in LETTER_KINDS:
+  from cube.letter_cube import letter_layout
+  return letter_layout(kind)
  if kind in ('cuboid_224','cuboid_335','cuboid_446','cuboid_234'):
   from cube.extended_cuboid import extended_layout
   return extended_layout(kind)
@@ -77,7 +88,7 @@ def layout(kind):
  for axis,normal in enumerate(CUBE):
   a,sign=next((a,v) for a,v in enumerate(normal) if v)
   other=[dims[j] for j in range(3) if j!=a]
-  layers=[];frame=turn_frame(axis,1 if other[0]%2==other[1]%2 else 2)
+  layers=[];frame=turn_frame(axis,2 if kind=='floppy_133' else 1 if other[0]%2==other[1]%2 else 2)
   for width in range(1,n):
    threshold=n-1-2*(width-1)
    layers.append(tuple(lookup[transform(frame,p),transform(frame,norm)]
@@ -90,6 +101,9 @@ def layout(kind):
   steps.append(1 if other[0]%2==other[1]%2 else 2)
  bounds=tuple(dims[next(a for a,v in enumerate(norm) if v)]/2 for norm in CUBE)
  spec=Spec(kind,max(dims),CUBE,CUBE,(),4,axis_steps=tuple(steps),bounds=bounds)
+ if kind=='floppy_133':
+  spec=Spec(kind,3,CUBE,CUBE,(),4,axis_steps=(2,)*6,bounds=bounds)
+  perms=[(row[0],) for row in perms]
  if kind=='cuboid_133':
   # Super Floppy has four fixed-position edges and four corners moving
   # among twelve locations. It is not a bandaged 3x3 mechanism: a corner
@@ -110,7 +124,10 @@ def layout(kind):
 
 class CuboidCube:
  def __new__(cls,kind,*args,**kwargs):
-  if cls is CuboidCube and kind in ('cuboid_224','cuboid_335','cuboid_446','cuboid_234'):
+  if cls is CuboidCube and kind=='mirror_camouflage_3':
+   from cube.mirror_camouflage import MirrorCamouflageCube
+   return object.__new__(MirrorCamouflageCube)
+  if cls is CuboidCube and (kind in ('cuboid_224','cuboid_335','cuboid_446','cuboid_234') or kind in LETTER_KINDS):
    from cube.extended_cuboid import ExtendedCuboid
    return object.__new__(ExtendedCuboid)
   return object.__new__(cls)
@@ -170,12 +187,13 @@ class CuboidCube:
     bands.append(tuple(selected) if not split and len(selected)<len(cells) else ())
    layers.append(tuple(bands))
   centres=tuple(transform(f,tuple((lo+hi)/2 for lo,hi in box)) for f,box in zip(self.frames,boxes))
+  if self.puzzle_kind=='floppy_133':layers=[(bands[0],) for bands in layers]
   self._geometry_cache=Geometry(base.spec,stickers,pieces,centres,base.permutations,tuple(layers))
   return self._geometry_cache
 
  def can_apply(self,move):
   g=self.geometry
-  return (0<=move.axis<6 and 0<=move.layer<self.core_n-1 and
+  return (0<=move.axis<6 and 0<=move.layer<len(g.layers[move.axis]) and
           move.amount%g.spec.step(move.axis)==0 and bool(g.layers[move.axis][move.layer]))
 
  def moves(self):

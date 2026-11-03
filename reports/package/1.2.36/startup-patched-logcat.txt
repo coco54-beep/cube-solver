@@ -1,0 +1,719 @@
+--------- beginning of system
+I/ActivityTaskManager(  511): START u0 {flg=0x10000000 cmp=com.example.cubesolver/org.kivy.android.PythonActivity} from uid 2000
+D/CompatibilityChangeReporter(  511): Compat change id reported: 265464455; UID 10175; state: DISABLED
+D/CompatibilityChangeReporter(  511): Compat change id reported: 265452344; UID 10175; state: DISABLED
+D/CompatibilityChangeReporter(  511): Compat change id reported: 266124927; UID 10175; state: DISABLED
+D/CompatibilityChangeReporter(  511): Compat change id reported: 265451093; UID 10175; state: DISABLED
+D/CompatibilityChangeReporter(  511): Compat change id reported: 265456536; UID 10175; state: DISABLED
+D/CompatibilityChangeReporter(  511): Compat change id reported: 255940284; UID 10175; state: DISABLED
+D/CompatibilityChangeReporter(  511): Compat change id reported: 236283604; UID 10175; state: DISABLED
+D/CompatibilityChangeReporter(  511): Compat change id reported: 263959004; UID 10175; state: DISABLED
+D/CompatibilityChangeReporter(  511): Compat change id reported: 264304459; UID 10175; state: DISABLED
+D/CompatibilityChangeReporter(  511): Compat change id reported: 264301586; UID 10175; state: DISABLED
+D/CompatibilityChangeReporter(  511): Compat change id reported: 254631730; UID 10175; state: DISABLED
+D/CompatibilityChangeReporter(  511): Compat change id reported: 273509367; UID 10175; state: DISABLED
+D/CompatibilityChangeReporter(  511): Compat change id reported: 263259275; UID 10175; state: DISABLED
+D/CompatibilityChangeReporter(  511): Compat change id reported: 194480991; UID 10175; state: ENABLED
+D/CompatibilityChangeReporter(  511): Compat change id reported: 174042980; UID 10175; state: DISABLED
+D/CompatibilityChangeReporter(  511): Compat change id reported: 184838306; UID 10175; state: DISABLED
+D/CompatibilityChangeReporter(  511): Compat change id reported: 185004937; UID 10175; state: DISABLED
+D/CompatibilityChangeReporter(  511): Compat change id reported: 181136395; UID 10175; state: DISABLED
+D/CompatibilityChangeReporter(  511): Compat change id reported: 174042936; UID 10175; state: DISABLED
+D/CompatibilityChangeReporter(  511): Compat change id reported: 197654537; UID 10175; state: ENABLED
+V/SplashScreenExceptionList(  511): SplashScreen checking exception for package com.example.cubesolver (target sdk:33) -> false
+D/CompatibilityChangeReporter(  511): Compat change id reported: 205907456; UID 10175; state: ENABLED
+--------- beginning of main
+W/Parcel  (  706): Expecting binder but got null!
+D/CompatibilityChangeReporter(  511): Compat change id reported: 135634846; UID 10175; state: DISABLED
+D/CompatibilityChangeReporter(  511): Compat change id reported: 168419799; UID 10175; state: DISABLED
+D/CompatibilityChangeReporter(  511): Compat change id reported: 273564678; UID 10175; state: DISABLED
+D/CompatibilityChangeReporter(  511): Compat change id reported: 143937733; UID 10175; state: ENABLED
+D/OomAdjuster(  511): Not killing cached processes
+D/CoreBackPreview(  511): Window{5576f75 u0 Splash Screen com.example.cubesolver}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@fcf2f7b, mPriority=0}
+D/SplashScreenView(  706): Build android.window.SplashScreenView{cb2252f V.E...... ......ID 0,0-0,0}
+D/SplashScreenView(  706): Icon: view: android.widget.ImageView{88573c V.ED..... ......I. 0,0-0,0 #10204dd android:id/splashscreen_icon_view} drawable: com.android.wm.shell.startingsurface.SplashscreenIconDrawableFactory$ImmobileIconDrawable@9099cc5 size: 160
+D/SplashScreenView(  706): Branding: view: android.view.View{c39f61a G.ED..... ......I. 0,0-0,0 #10204dc android:id/splashscreen_branding_view} drawable: null size w: 0 h: 0
+D/Zygote  (  308): Forked child process 4574
+I/ActivityManager(  511): Start proc 4574:com.example.cubesolver/u0a175 for next-top-activity {com.example.cubesolver/org.kivy.android.PythonActivity}
+I/mple.cubesolver( 4574): Late-enabling -Xcheck:jni
+I/BpBinder(  356): onLastStrongRef automatically unlinking death recipients: <uncached descriptor>
+D/EGL_emulation( 1082): app_time_stats: avg=6207.22ms min=14.80ms max=55734.22ms count=9
+I/mple.cubesolver( 4574): Using CollectorTypeCC GC.
+W/mple.cubesolver( 4574): Unexpected CPU variant for x86: x86_64.
+W/mple.cubesolver( 4574): Known variants: atom, sandybridge, silvermont, kabylake, default
+I/adbd    (  398): jdwp connection from 4574
+I/GsaVoiceInteractionSrv( 1614): Handling ACTION_STOP_HOTWORD
+D/CompatibilityChangeReporter( 4574): Compat change id reported: 171979766; UID 10175; state: ENABLED
+W/ziparchive( 4574): Unable to open '/data/app/~~YoiY-Ppcu7VQqyF7fsIbZA==/com.example.cubesolver-m3g0UO_ivxas_mh_lv0Jow==/base.dm': No such file or directory
+W/ziparchive( 4574): Unable to open '/data/app/~~YoiY-Ppcu7VQqyF7fsIbZA==/com.example.cubesolver-m3g0UO_ivxas_mh_lv0Jow==/base.dm': No such file or directory
+D/nativeloader( 4574): Configuring classloader-namespace for other apk /data/app/~~YoiY-Ppcu7VQqyF7fsIbZA==/com.example.cubesolver-m3g0UO_ivxas_mh_lv0Jow==/base.apk. target_sdk_version=33, uses_libraries=, library_path=/data/app/~~YoiY-Ppcu7VQqyF7fsIbZA==/com.example.cubesolver-m3g0UO_ivxas_mh_lv0Jow==/lib/x86_64:/data/app/~~YoiY-Ppcu7VQqyF7fsIbZA==/com.example.cubesolver-m3g0UO_ivxas_mh_lv0Jow==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/com.example.cubesolver
+V/GraphicsEnvironment( 4574): ANGLE Developer option for 'com.example.cubesolver' set to: 'default'
+V/GraphicsEnvironment( 4574): ANGLE GameManagerService for com.example.cubesolver: false
+V/GraphicsEnvironment( 4574): Neither updatable production driver nor prerelease driver is supported.
+D/NetworkSecurityConfig( 4574): No Network Security Config specified, using platform default
+D/NetworkSecurityConfig( 4574): No Network Security Config specified, using platform default
+D/libEGL  ( 4574): loaded /vendor/lib64/egl/libEGL_emulation.so
+V/PythonActivity( 4574): PythonActivity onCreate running
+V/PythonActivity( 4574): About to do super onCreate
+V/SDL     ( 4574): Device: emu64x
+V/SDL     ( 4574): Model: sdk_gphone64_x86_64
+V/SDL     ( 4574): onCreate()
+V/PythonActivity( 4574): Did super onCreate
+V/SDL     ( 4574): getting identifier
+V/SDL     ( 4574): kind is layout and name lottie
+V/SDL     ( 4574): result is 0
+E/mple.cubesolver( 4574): Invalid ID 0x00000000.
+V/SDL     ( 4574): couldn't find lottie layout or animation, trying static splash
+V/SDL     ( 4574): getting identifier
+D/libEGL  ( 4574): loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+V/SDL     ( 4574): kind is drawable and name presplash
+V/SDL     ( 4574): result is 2130771969
+D/libEGL  ( 4574): loaded /vendor/lib64/egl/libGLESv2_emulation.so
+V/SDL     ( 4574): asked to get string presplash_color
+V/SDL     ( 4574): getting identifier
+V/SDL     ( 4574): kind is string and name presplash_color
+V/SDL     ( 4574): result is 2131034113
+V/PythonActivity( 4574): Ready to unpack
+V/SDL     ( 4574): onStart()
+V/pythonutil( 4574): Unpacking private app
+V/pythonutil( 4574): Data version is 6b617144b5e4a264ec3e94fb01d889a774fffe89
+V/pythonutil( 4574): Unpacking /data/app/~~YoiY-Ppcu7VQqyF7fsIbZA==/com.example.cubesolver-m3g0UO_ivxas_mh_lv0Jow==/lib/x86_64/libpybundle app
+V/pythonutil( 4574): Data version is 6b617144b5e4a264ec3e94fb01d889a774fffe89
+V/PythonActivity( 4574): onResume()
+V/SDL     ( 4574): onResume()
+D/CompatibilityChangeReporter( 4574): Compat change id reported: 237531167; UID 10175; state: DISABLED
+W/Parcel  ( 4574): Expecting binder but got null!
+D/CoreBackPreview(  511): Window{a4f547 u0 com.example.cubesolver/org.kivy.android.PythonActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@7ff669d, mPriority=0}
+V/pythonutil( 4574): Checking pattern libsqlite3\.so against libsqlite3.so
+V/pythonutil( 4574): Pattern libsqlite3\.so matched file libsqlite3.so
+V/pythonutil( 4574): Checking pattern libsqlite3\.so against libpython3.14.so
+V/pythonutil( 4574): Checking pattern libsqlite3\.so against libSDL2_image.so
+V/pythonutil( 4574): Checking pattern libsqlite3\.so against libc++_shared.so
+V/pythonutil( 4574): Checking pattern libsqlite3\.so against libssl.so
+V/pythonutil( 4574): Checking pattern libsqlite3\.so against libmain.so
+V/pythonutil( 4574): Checking pattern libsqlite3\.so against libSDL2_ttf.so
+V/pythonutil( 4574): Checking pattern libsqlite3\.so against libSDL2_mixer.so
+V/pythonutil( 4574): Checking pattern libsqlite3\.so against libSDL2.so
+V/pythonutil( 4574): Checking pattern libsqlite3\.so against libcrypto.so
+V/pythonutil( 4574): Checking pattern libsqlite3\.so against libpythonbin.so
+V/pythonutil( 4574): Checking pattern libsqlite3\.so against libffi.so
+V/pythonutil( 4574): Checking pattern libsqlite3\.so against libpybundle.so
+V/pythonutil( 4574): Checking pattern libffi\.so against libsqlite3.so
+V/pythonutil( 4574): Checking pattern libffi\.so against libpython3.14.so
+V/pythonutil( 4574): Checking pattern libffi\.so against libSDL2_image.so
+V/pythonutil( 4574): Checking pattern libffi\.so against libc++_shared.so
+V/pythonutil( 4574): Checking pattern libffi\.so against libssl.so
+V/pythonutil( 4574): Checking pattern libffi\.so against libmain.so
+V/pythonutil( 4574): Checking pattern libffi\.so against libSDL2_ttf.so
+V/pythonutil( 4574): Checking pattern libffi\.so against libSDL2_mixer.so
+V/pythonutil( 4574): Checking pattern libffi\.so against libSDL2.so
+V/pythonutil( 4574): Checking pattern libffi\.so against libcrypto.so
+V/pythonutil( 4574): Checking pattern libffi\.so against libpythonbin.so
+V/pythonutil( 4574): Checking pattern libffi\.so against libffi.so
+V/pythonutil( 4574): Pattern libffi\.so matched file libffi.so
+V/pythonutil( 4574): Checking pattern libffi\.so against libpybundle.so
+V/pythonutil( 4574): Checking pattern libpng16\.so against libsqlite3.so
+V/pythonutil( 4574): Checking pattern libpng16\.so against libpython3.14.so
+V/pythonutil( 4574): Checking pattern libpng16\.so against libSDL2_image.so
+V/pythonutil( 4574): Checking pattern libpng16\.so against libc++_shared.so
+V/pythonutil( 4574): Checking pattern libpng16\.so against libssl.so
+V/pythonutil( 4574): Checking pattern libpng16\.so against libmain.so
+V/pythonutil( 4574): Checking pattern libpng16\.so against libSDL2_ttf.so
+V/pythonutil( 4574): Checking pattern libpng16\.so against libSDL2_mixer.so
+V/pythonutil( 4574): Checking pattern libpng16\.so against libSDL2.so
+V/pythonutil( 4574): Checking pattern libpng16\.so against libcrypto.so
+V/pythonutil( 4574): Checking pattern libpng16\.so against libpythonbin.so
+V/pythonutil( 4574): Checking pattern libpng16\.so against libffi.so
+V/pythonutil( 4574): Checking pattern libpng16\.so against libpybundle.so
+V/pythonutil( 4574): Checking pattern libssl.*\.so against libsqlite3.so
+V/pythonutil( 4574): Checking pattern libssl.*\.so against libpython3.14.so
+V/pythonutil( 4574): Checking pattern libssl.*\.so against libSDL2_image.so
+V/pythonutil( 4574): Checking pattern libssl.*\.so against libc++_shared.so
+V/pythonutil( 4574): Checking pattern libssl.*\.so against libssl.so
+V/pythonutil( 4574): Pattern libssl.*\.so matched file libssl.so
+V/pythonutil( 4574): Checking pattern libssl.*\.so against libmain.so
+V/pythonutil( 4574): Checking pattern libssl.*\.so against libSDL2_ttf.so
+V/pythonutil( 4574): Checking pattern libssl.*\.so against libSDL2_mixer.so
+V/pythonutil( 4574): Checking pattern libssl.*\.so against libSDL2.so
+V/pythonutil( 4574): Checking pattern libssl.*\.so against libcrypto.so
+V/pythonutil( 4574): Checking pattern libssl.*\.so against libpythonbin.so
+V/pythonutil( 4574): Checking pattern libssl.*\.so against libffi.so
+V/pythonutil( 4574): Checking pattern libssl.*\.so against libpybundle.so
+V/pythonutil( 4574): Checking pattern libcrypto.*\.so against libsqlite3.so
+V/pythonutil( 4574): Checking pattern libcrypto.*\.so against libpython3.14.so
+V/pythonutil( 4574): Checking pattern libcrypto.*\.so against libSDL2_image.so
+V/pythonutil( 4574): Checking pattern libcrypto.*\.so against libc++_shared.so
+V/pythonutil( 4574): Checking pattern libcrypto.*\.so against libssl.so
+V/pythonutil( 4574): Checking pattern libcrypto.*\.so against libmain.so
+V/pythonutil( 4574): Checking pattern libcrypto.*\.so against libSDL2_ttf.so
+V/pythonutil( 4574): Checking pattern libcrypto.*\.so against libSDL2_mixer.so
+V/pythonutil( 4574): Checking pattern libcrypto.*\.so against libSDL2.so
+V/pythonutil( 4574): Checking pattern libcrypto.*\.so against libcrypto.so
+V/pythonutil( 4574): Pattern libcrypto.*\.so matched file libcrypto.so
+V/pythonutil( 4574): Checking pattern libcrypto.*\.so against libpythonbin.so
+V/pythonutil( 4574): Checking pattern libcrypto.*\.so against libffi.so
+V/pythonutil( 4574): Checking pattern libcrypto.*\.so against libpybundle.so
+V/pythonutil( 4574): Checking pattern libSDL2\.so against libsqlite3.so
+V/pythonutil( 4574): Checking pattern libSDL2\.so against libpython3.14.so
+V/pythonutil( 4574): Checking pattern libSDL2\.so against libSDL2_image.so
+V/pythonutil( 4574): Checking pattern libSDL2\.so against libc++_shared.so
+V/pythonutil( 4574): Checking pattern libSDL2\.so against libssl.so
+V/pythonutil( 4574): Checking pattern libSDL2\.so against libmain.so
+V/pythonutil( 4574): Checking pattern libSDL2\.so against libSDL2_ttf.so
+V/pythonutil( 4574): Checking pattern libSDL2\.so against libSDL2_mixer.so
+V/pythonutil( 4574): Checking pattern libSDL2\.so against libSDL2.so
+V/pythonutil( 4574): Pattern libSDL2\.so matched file libSDL2.so
+V/pythonutil( 4574): Checking pattern libSDL2\.so against libcrypto.so
+V/pythonutil( 4574): Checking pattern libSDL2\.so against libpythonbin.so
+V/pythonutil( 4574): Checking pattern libSDL2\.so against libffi.so
+V/pythonutil( 4574): Checking pattern libSDL2\.so against libpybundle.so
+V/pythonutil( 4574): Checking pattern libSDL2_image\.so against libsqlite3.so
+V/pythonutil( 4574): Checking pattern libSDL2_image\.so against libpython3.14.so
+V/pythonutil( 4574): Checking pattern libSDL2_image\.so against libSDL2_image.so
+V/pythonutil( 4574): Pattern libSDL2_image\.so matched file libSDL2_image.so
+V/pythonutil( 4574): Checking pattern libSDL2_image\.so against libc++_shared.so
+V/pythonutil( 4574): Checking pattern libSDL2_image\.so against libssl.so
+V/pythonutil( 4574): Checking pattern libSDL2_image\.so against libmain.so
+V/pythonutil( 4574): Checking pattern libSDL2_image\.so against libSDL2_ttf.so
+V/pythonutil( 4574): Checking pattern libSDL2_image\.so against libSDL2_mixer.so
+V/pythonutil( 4574): Checking pattern libSDL2_image\.so against libSDL2.so
+V/pythonutil( 4574): Checking pattern libSDL2_image\.so against libcrypto.so
+V/pythonutil( 4574): Checking pattern libSDL2_image\.so against libpythonbin.so
+V/pythonutil( 4574): Checking pattern libSDL2_image\.so against libffi.so
+V/pythonutil( 4574): Checking pattern libSDL2_image\.so against libpybundle.so
+V/pythonutil( 4574): Checking pattern libSDL2_mixer\.so against libsqlite3.so
+V/pythonutil( 4574): Checking pattern libSDL2_mixer\.so against libpython3.14.so
+V/pythonutil( 4574): Checking pattern libSDL2_mixer\.so against libSDL2_image.so
+V/pythonutil( 4574): Checking pattern libSDL2_mixer\.so against libc++_shared.so
+V/pythonutil( 4574): Checking pattern libSDL2_mixer\.so against libssl.so
+V/pythonutil( 4574): Checking pattern libSDL2_mixer\.so against libmain.so
+V/pythonutil( 4574): Checking pattern libSDL2_mixer\.so against libSDL2_ttf.so
+V/pythonutil( 4574): Checking pattern libSDL2_mixer\.so against libSDL2_mixer.so
+V/pythonutil( 4574): Pattern libSDL2_mixer\.so matched file libSDL2_mixer.so
+V/pythonutil( 4574): Checking pattern libSDL2_mixer\.so against libSDL2.so
+V/pythonutil( 4574): Checking pattern libSDL2_mixer\.so against libcrypto.so
+V/pythonutil( 4574): Checking pattern libSDL2_mixer\.so against libpythonbin.so
+V/pythonutil( 4574): Checking pattern libSDL2_mixer\.so against libffi.so
+V/pythonutil( 4574): Checking pattern libSDL2_mixer\.so against libpybundle.so
+V/pythonutil( 4574): Checking pattern libSDL2_ttf\.so against libsqlite3.so
+V/pythonutil( 4574): Checking pattern libSDL2_ttf\.so against libpython3.14.so
+V/pythonutil( 4574): Checking pattern libSDL2_ttf\.so against libSDL2_image.so
+V/pythonutil( 4574): Checking pattern libSDL2_ttf\.so against libc++_shared.so
+V/pythonutil( 4574): Checking pattern libSDL2_ttf\.so against libssl.so
+V/pythonutil( 4574): Checking pattern libSDL2_ttf\.so against libmain.so
+V/pythonutil( 4574): Checking pattern libSDL2_ttf\.so against libSDL2_ttf.so
+V/pythonutil( 4574): Pattern libSDL2_ttf\.so matched file libSDL2_ttf.so
+V/pythonutil( 4574): Checking pattern libSDL2_ttf\.so against libSDL2_mixer.so
+V/pythonutil( 4574): Checking pattern libSDL2_ttf\.so against libSDL2.so
+V/pythonutil( 4574): Checking pattern libSDL2_ttf\.so against libcrypto.so
+V/pythonutil( 4574): Checking pattern libSDL2_ttf\.so against libpythonbin.so
+V/pythonutil( 4574): Checking pattern libSDL2_ttf\.so against libffi.so
+V/pythonutil( 4574): Checking pattern libSDL2_ttf\.so against libpybundle.so
+V/pythonutil( 4574): Checking pattern libSDL3\.so against libsqlite3.so
+V/pythonutil( 4574): Checking pattern libSDL3\.so against libpython3.14.so
+V/pythonutil( 4574): Checking pattern libSDL3\.so against libSDL2_image.so
+V/pythonutil( 4574): Checking pattern libSDL3\.so against libc++_shared.so
+V/pythonutil( 4574): Checking pattern libSDL3\.so against libssl.so
+V/pythonutil( 4574): Checking pattern libSDL3\.so against libmain.so
+V/pythonutil( 4574): Checking pattern libSDL3\.so against libSDL2_ttf.so
+V/pythonutil( 4574): Checking pattern libSDL3\.so against libSDL2_mixer.so
+V/pythonutil( 4574): Checking pattern libSDL3\.so against libSDL2.so
+V/pythonutil( 4574): Checking pattern libSDL3\.so against libcrypto.so
+V/pythonutil( 4574): Checking pattern libSDL3\.so against libpythonbin.so
+V/pythonutil( 4574): Checking pattern libSDL3\.so against libffi.so
+V/pythonutil( 4574): Checking pattern libSDL3\.so against libpybundle.so
+V/pythonutil( 4574): Checking pattern libSDL3_image\.so against libsqlite3.so
+V/pythonutil( 4574): Checking pattern libSDL3_image\.so against libpython3.14.so
+V/pythonutil( 4574): Checking pattern libSDL3_image\.so against libSDL2_image.so
+V/pythonutil( 4574): Checking pattern libSDL3_image\.so against libc++_shared.so
+V/pythonutil( 4574): Checking pattern libSDL3_image\.so against libssl.so
+V/pythonutil( 4574): Checking pattern libSDL3_image\.so against libmain.so
+V/pythonutil( 4574): Checking pattern libSDL3_image\.so against libSDL2_ttf.so
+V/pythonutil( 4574): Checking pattern libSDL3_image\.so against libSDL2_mixer.so
+V/pythonutil( 4574): Checking pattern libSDL3_image\.so against libSDL2.so
+V/pythonutil( 4574): Checking pattern libSDL3_image\.so against libcrypto.so
+V/pythonutil( 4574): Checking pattern libSDL3_image\.so against libpythonbin.so
+V/pythonutil( 4574): Checking pattern libSDL3_image\.so against libffi.so
+V/pythonutil( 4574): Checking pattern libSDL3_image\.so against libpybundle.so
+V/pythonutil( 4574): Checking pattern libSDL3_mixer\.so against libsqlite3.so
+V/pythonutil( 4574): Checking pattern libSDL3_mixer\.so against libpython3.14.so
+V/pythonutil( 4574): Checking pattern libSDL3_mixer\.so against libSDL2_image.so
+V/pythonutil( 4574): Checking pattern libSDL3_mixer\.so against libc++_shared.so
+V/pythonutil( 4574): Checking pattern libSDL3_mixer\.so against libssl.so
+V/pythonutil( 4574): Checking pattern libSDL3_mixer\.so against libmain.so
+V/pythonutil( 4574): Checking pattern libSDL3_mixer\.so against libSDL2_ttf.so
+V/pythonutil( 4574): Checking pattern libSDL3_mixer\.so against libSDL2_mixer.so
+V/pythonutil( 4574): Checking pattern libSDL3_mixer\.so against libSDL2.so
+V/pythonutil( 4574): Checking pattern libSDL3_mixer\.so against libcrypto.so
+V/pythonutil( 4574): Checking pattern libSDL3_mixer\.so against libpythonbin.so
+V/pythonutil( 4574): Checking pattern libSDL3_mixer\.so against libffi.so
+V/pythonutil( 4574): Checking pattern libSDL3_mixer\.so against libpybundle.so
+V/pythonutil( 4574): Checking pattern libSDL3_ttf\.so against libsqlite3.so
+V/pythonutil( 4574): Checking pattern libSDL3_ttf\.so against libpython3.14.so
+V/pythonutil( 4574): Checking pattern libSDL3_ttf\.so against libSDL2_image.so
+V/pythonutil( 4574): Checking pattern libSDL3_ttf\.so against libc++_shared.so
+V/pythonutil( 4574): Checking pattern libSDL3_ttf\.so against libssl.so
+V/pythonutil( 4574): Checking pattern libSDL3_ttf\.so against libmain.so
+V/pythonutil( 4574): Checking pattern libSDL3_ttf\.so against libSDL2_ttf.so
+V/pythonutil( 4574): Checking pattern libSDL3_ttf\.so against libSDL2_mixer.so
+V/pythonutil( 4574): Checking pattern libSDL3_ttf\.so against libSDL2.so
+V/pythonutil( 4574): Checking pattern libSDL3_ttf\.so against libcrypto.so
+V/pythonutil( 4574): Checking pattern libSDL3_ttf\.so against libpythonbin.so
+V/pythonutil( 4574): Checking pattern libSDL3_ttf\.so against libffi.so
+V/pythonutil( 4574): Checking pattern libSDL3_ttf\.so against libpybundle.so
+V/pythonutil( 4574): Loading library: sqlite3
+V/pythonutil( 4574): Loading library: ffi
+V/pythonutil( 4574): Loading library: ssl
+V/pythonutil( 4574): Loading library: crypto
+V/pythonutil( 4574): Loading library: SDL2
+V/pythonutil( 4574): Loading library: SDL2_image
+V/pythonutil( 4574): Loading library: SDL2_mixer
+V/pythonutil( 4574): Loading library: SDL2_ttf
+V/pythonutil( 4574): Loading library: python3.14
+V/pythonutil( 4574): Loading library: main
+V/pythonutil( 4574): Loaded everything!
+V/SDL     ( 4574): nativeSetupJNI()
+V/SDL     ( 4574): AUDIO nativeSetupJNI()
+V/SDL     ( 4574): CONTROLLER nativeSetupJNI()
+W/SDLActivity( 4574): type=1400 audit(0.0:83): avc: denied { read } for name="overcommit_memory" dev="proc" ino=58224 scontext=u:r:untrusted_app:s0:c175,c256,c512,c768 tcontext=u:object_r:proc_overcommit_memory:s0 tclass=file permissive=0 app=com.example.cubesolver
+V/PythonActivity( 4574): Setting env vars for start.c and Python to use
+V/PythonActivity( 4574): Access to our meta-data...
+I/PythonActivity( 4574): Surface will NOT be transparent
+V/SDL     ( 4574): surfaceCreated()
+V/SDL     ( 4574): surfaceChanged()
+V/SDL     ( 4574): Window size: 480x936
+V/SDL     ( 4574): Device size: 480x960
+V/SDL     ( 4574): Running main function SDL_main from library /data/app/~~YoiY-Ppcu7VQqyF7fsIbZA==/com.example.cubesolver-m3g0UO_ivxas_mh_lv0Jow==/lib/x86_64/libmain.so
+V/PythonActivity( 4574): appConfirmedActive() -> preparing loading screen removal
+V/SDL     ( 4574): nativeRunMain()
+I/python  ( 4574): Initializing Python for Android
+I/python  ( 4574): Setting additional env vars from p4a_env_vars.txt
+I/python  ( 4574): Changing directory to '/data/user/0/com.example.cubesolver/files/app'
+I/python  ( 4574): Preparing to initialize python
+I/python  ( 4574): _python_bundle dir exists
+I/python  ( 4574): set wchar paths...
+E/SurfaceSyncer( 4574): Failed to find sync for id=0
+D/HostConnection( 4574): HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_vulkan_queue_submit_with_commands ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_multi_configs ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+W/OpenGLRenderer( 4574): Failed to initialize 101010-2 format, error = EGL_SUCCESS
+D/EGL_emulation( 4574): eglCreateContext: 0x7a45289ff4d0: maj 3 min 0 rcv 3
+D/EGL_emulation( 4574): eglMakeCurrent: 0x7a45289ff4d0: ver 3 0 (tinfo 0x7a47499b8080) (first time)
+D/TrafficStats( 1927): tagSocket(6) with statsTag=0x8001, statsUid=-1
+D/EGL_emulation(  706): app_time_stats: avg=51126.65ms min=51126.65ms max=51126.65ms count=1
+I/python  ( 4574): Initialized python
+I/python  ( 4574): testing python print redirection
+I/python  ( 4574): Android kivy bootstrap done. __name__ is __main__
+W/SDLThread( 4574): type=1400 audit(0.0:84): avc: granted { execute } for path="/data/data/com.example.cubesolver/files/app/_python_bundle/modules/zlib.cpython-314-x86_64-linux-android.so" dev="dm-34" ino=140527 scontext=u:r:untrusted_app:s0:c175,c256,c512,c768 tcontext=u:object_r:app_data_file:s0:c175,c256,c512,c768 tclass=file app=com.example.cubesolver
+W/TransactionTracing(  356): Could not find layer handle 0x734533675350
+W/TransactionTracing(  356): Could not find layer handle 0x73453367be90
+I/hwservicemanager(  148): getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+I/Gralloc4( 4574): mapper 4.x is not supported
+I/hwservicemanager(  148): getTransport: Cannot find entry android.hardware.graphics.allocator@4.0::IAllocator/default in either framework or device VINTF manifest.
+I/servicemanager(  147): Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest.
+W/Gralloc4( 4574): allocator 4.x is not supported
+D/HostConnection( 4574): HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_vulkan_queue_submit_with_commands ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_multi_configs ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+W/SDLThread( 4574): type=1400 audit(0.0:85): avc: granted { execute } for path="/data/data/com.example.cubesolver/files/app/_python_bundle/modules/math.cpython-314-x86_64-linux-android.so" dev="dm-34" ino=140516 scontext=u:r:untrusted_app:s0:c175,c256,c512,c768 tcontext=u:object_r:app_data_file:s0:c175,c256,c512,c768 tclass=file app=com.example.cubesolver
+W/SDLThread( 4574): type=1400 audit(0.0:86): avc: granted { execute } for path="/data/data/com.example.cubesolver/files/app/_python_bundle/modules/grp.cpython-314-x86_64-linux-android.so" dev="dm-34" ino=140515 scontext=u:r:untrusted_app:s0:c175,c256,c512,c768 tcontext=u:object_r:app_data_file:s0:c175,c256,c512,c768 tclass=file app=com.example.cubesolver
+--------- beginning of kernel
+W/audit   (    0): audit_lost=52 audit_rate_limit=5 audit_backlog_limit=64
+E/audit   (    0): rate limit exceeded
+W/SDLThread( 4574): type=1400 audit(0.0:87): avc: granted { execute } for path="/data/data/com.example.cubesolver/files/app/_python_bundle/modules/fcntl.cpython-314-x86_64-linux-android.so" dev="dm-34" ino=140514 scontext=u:r:untrusted_app:s0:c175,c256,c512,c768 tcontext=u:object_r:app_data_file:s0:c175,c256,c512,c768 tclass=file app=com.example.cubesolver
+I/python  ( 4574): [INFO   ] [Logger      ] Record log in /data/user/0/com.example.cubesolver/files/app/.kivy/logs/kivy_26-10-24_1.txt
+I/python  ( 4574): [INFO   ] [Kivy        ] v2.3.1
+I/python  ( 4574): [INFO   ] [Kivy        ] Installed at "/data/user/0/com.example.cubesolver/files/app/_python_bundle/site-packages/kivy/__init__.pyc"
+I/python  ( 4574): [INFO   ] [Python      ] v3.14.2 (main, Oct  8 2026, 21:28:52) [Clang 19.0.1 (https://android.googlesource.com/toolchain/llvm-project 97a699bf4
+I/python  ( 4574): [INFO   ] [Python      ] Interpreter at "/data/user/0/com.example.cubesolver/files/app/.bin/python"
+I/python  ( 4574): [INFO   ] [Logger      ] Purge log fired. Processing...
+I/python  ( 4574): [INFO   ] [Logger      ] Purge finished!
+W/ziparchive(  511): Unable to open '/data/app/~~YoiY-Ppcu7VQqyF7fsIbZA==/com.example.cubesolver-m3g0UO_ivxas_mh_lv0Jow==/base.dm': No such file or directory
+I/ActivityTaskManager(  511): Displayed com.example.cubesolver/org.kivy.android.PythonActivity: +501ms
+V/SDL     ( 4574): onWindowFocusChanged(): true
+D/CompatibilityChangeReporter(  511): Compat change id reported: 214016041; UID 10175; state: ENABLED
+I/GoogleInputMethodService( 1412): GoogleInputMethodService.onFinishInput():3227 
+I/GoogleInputMethodService( 1412): GoogleInputMethodService.updateDeviceLockedStatus():2087 repeatCheckTimes = 0, unlocked = true
+I/GoogleInputMethodService( 1412): GoogleInputMethodService.onStartInput():1877 onStartInput(EditorInfo{inputType=0x0(NULL) imeOptions=0x0 privateImeOptions=null actionName=UNSPECIFIED actionLabel=null actionId=0 initialSelStart=-1 initialSelEnd=-1 initialCapsMode=0x0 hintText=null label=null packageName=com.example.cubesolver fieldId=-1 fieldName=null extras=null}, false)
+I/GoogleInputMethodService( 1412): GoogleInputMethodService.shouldHideHeaderOnInitialState():4008 ShouldHideHeaderOnInitialState = false
+I/GoogleInputMethodService( 1412): GoogleInputMethodService.updateDeviceLockedStatus():2087 repeatCheckTimes = 2, unlocked = true
+D/OneSearchSuggestProvider( 1082): Shut down the binder channel
+I/s.nexuslauncher( 1082): oneway function results for code 2 on binder at 0x7a44b8a4d880 will be dropped but finished with status UNKNOWN_TRANSACTION
+D/BtGatt.ScanManager(  774): uid 10119 isForeground true scanMode -1
+D/BtGatt.ScanManager(  774): uid 10119 isForeground true scanMode -1
+W/TransactionTracing(  356): Could not find layer handle 0x73453367b290
+W/TransactionTracing(  356): Could not find layer handle 0x734533677ab0
+I/python  ( 4574): [INFO   ] [Factory     ] 195 symbols loaded
+I/python  ( 4574): [INFO   ] [Image       ] Providers: img_tex, img_dds, img_sdl2 (img_pil, img_ffpyplayer ignored)
+I/python  ( 4574): [INFO   ] [Text        ] Provider: sdl2
+I/python  ( 4574): [INFO   ] [cubesolver  ] starting app
+I/python  ( 4574): [INFO   ] [Window      ] Provider: sdl2
+V/hidapi  ( 4574): initialize(true, false)
+D/CompatibilityChangeReporter(  511): Compat change id reported: 161145287; UID 10175; state: DISABLED
+V/SDL     ( 4574): setOrientation() requestedOrientation=13 width=800 height=600 resizable=true hint=Portrait LandscapeLeft LandscapeRight
+D/HostConnection( 4574): HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_vulkan_queue_submit_with_commands ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_multi_configs ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+I/SDL/APP ( 4574): pixel format wanted SDL_PIXELFORMAT_RGBA8888 (1), got SDL_PIXELFORMAT_RGBA8888 (1)
+D/EGL_emulation( 4574): eglCreateContext: 0x7a45289fce90: maj 3 min 0 rcv 3
+D/EGL_emulation( 4574): eglMakeCurrent: 0x7a45289fce90: ver 3 0 (tinfo 0x7a47499b8100) (first time)
+I/python  ( 4574): [INFO   ] [GL          ] Using the "OpenGL ES 2" graphics system
+I/python  ( 4574): [INFO   ] [GL          ] Backend used <sdl2>
+I/python  ( 4574): [INFO   ] [GL          ] OpenGL version <b'OpenGL ES 3.0 (OpenGL ES 3.0 SwiftShader 4.0.0.1)'>
+I/python  ( 4574): [INFO   ] [GL          ] OpenGL vendor <b'Google (Google Inc.)'>
+I/python  ( 4574): [INFO   ] [GL          ] OpenGL renderer <b'Android Emulator OpenGL ES Translator (Google SwiftShader)'>
+I/python  ( 4574): [INFO   ] [GL          ] OpenGL parsed version: 3, 0
+I/python  ( 4574): [INFO   ] [GL          ] Texture max size <8192>
+I/python  ( 4574): [INFO   ] [GL          ] Texture max units <16>
+I/python  ( 4574): [INFO   ] [Window      ] auto add sdl2 input provider
+I/python  ( 4574): [INFO   ] [Window      ] virtual keyboard not allowed, single mode, not docked
+D/CoreBackPreview(  511): Window{5576f75 u0 Splash Screen com.example.cubesolver EXITING}: Setting back callback null
+W/InputManager-JNI(  511): Input channel object '5576f75 Splash Screen com.example.cubesolver (client)' was disposed without first being removed with the input manager!
+I/python  ( 4574): [INFO   ] [GL          ] NPOT texture support is available
+I/python  ( 4574): [WARNING] Deprecated property "<BooleanProperty name=allow_stretch>" of object "<kivy.uix.image.Image object at 0x7a440c97e760>" has been set, it will be removed in a future version
+I/python  ( 4574): [WARNING] Deprecated property "<BooleanProperty name=keep_ratio>" of object "<kivy.uix.image.Image object at 0x7a440c97e760>" was accessed, it will be removed in a future version
+W/FrameTracker(  706): Missed SF frame:PREDICTION_ERROR, 9357, 2939421, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+W/FrameTracker(  706): Missed SF frame:PREDICTION_ERROR, 9385, 2435344, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+W/FrameTracker(  706): Missed SF frame:PREDICTION_ERROR, 9400, 1977097, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+W/FrameTracker(  706): Missing HWUI jank callback for vsyncId: 9415, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+W/FrameTracker(  706): Missed SF frame:PREDICTION_ERROR, 9430, 2044669, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+W/FrameTracker(  706): Missed SF frame:PREDICTION_ERROR, 9445, 8327092, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+W/FrameTracker(  706): Missed SF frame:PREDICTION_ERROR, 9460, 2520965, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+W/FrameTracker(  706): Missed SF frame:PREDICTION_ERROR, 9475, 2933791, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+W/FrameTracker(  706): Missed SF frame:PREDICTION_ERROR, 9490, 2591858, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+W/FrameTracker(  706): Missed SF frame:PREDICTION_ERROR, 9505, 3299420, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+W/FrameTracker(  706): Missed SF frame:PREDICTION_ERROR, 9520, 2939058, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+W/FrameTracker(  706): Missed SF frame:PREDICTION_ERROR, 9528, 2969989, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+W/FrameTracker(  706): Missed SF frame:PREDICTION_ERROR, 9536, 2723487, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+W/FrameTracker(  706): Missed SF frame:PREDICTION_ERROR, 9544, 2910689, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+W/FrameTracker(  706): Missed SF frame:PREDICTION_ERROR, 9552, 3111076, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+W/FrameTracker(  706): Missed SF frame:PREDICTION_ERROR, 9582, 2913369, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+W/FrameTracker(  706): Missed SF frame:PREDICTION_ERROR, 9604, 2454402, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+W/FrameTracker(  706): Missed SF frame:PREDICTION_ERROR, 9627, 0, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+W/FrameTracker(  706): Missing HWUI jank callback for vsyncId: 9627, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+V/PerfettoTrigger(  706): Not triggering com.android.telemetry.interaction-jank-monitor-39 - not enough time since last trigger
+W/TransactionTracing(  356): Could not find layer handle 0x73453367aed0
+W/TransactionTracing(  356): Could not find layer handle 0x7345336750b0
+W/TransactionTracing(  356): Could not find layer handle 0x73453367b6b0
+W/TransactionTracing(  356): Could not find layer handle 0x73453367b6b0
+W/TransactionTracing(  356): Could not find layer handle 0x7345336750b0
+I/GMS_MM_Logger( 1272): Memory Metric Logging not allowed. Stopping.
+D/TrafficStats( 1928): tagSocket(6) with statsTag=0x8001, statsUid=-1
+D/TrafficStats( 1732): tagSocket(6) with statsTag=0x8001, statsUid=-1
+I/python  ( 4574): [WARNING] [Base        ] Unknown <android> provider
+I/python  ( 4574): [INFO   ] [Base        ] Start application main loop
+D/TrafficStats( 3262): tagSocket(6) with statsTag=0x8001, statsUid=-1
+D/EGL_emulation( 4574): app_time_stats: avg=471.95ms min=12.18ms max=1138.47ms count=3
+I/resolv  (  304): GetAddrInfoHandler::run: {101 101 101 983141 10122 0}
+I/resolv  (  304): res_nmkquery: (QUERY, IN, A)
+I/resolv  (  304): res_nmkquery: (QUERY, IN, AAAA)
+I/resolv  (  304): res_nsend: used send_dg 49 terrno: 0
+I/resolv  (  304): res_nsend: used send_dg 61 terrno: 0
+I/resolv  (  304): doQuery: rcode=0, ancount=1, return value=49
+I/resolv  (  304): doQuery: rcode=0, ancount=1, return value=61
+D/SntpClient(  511): request time failed: java.net.SocketTimeoutException: Poll timed out
+D/TrafficStats(  511): tagSocket(413) with statsTag=0xffffff41, statsUid=-1
+D/EGL_emulation(  706): app_time_stats: avg=260.01ms min=11.45ms max=4350.01ms count=18
+I/wpa_supplicant(  700): wlan0: CTRL-EVENT-BEACON-LOSS 
+W/earchbox:search( 1875): Cleared Reference was only reachable from finalizer (only reported once)
+D/OomAdjuster(  511): Not killing cached processes
+E/WakeLock( 1272): GCM_HB_ALARM release without a matched acquire!
+W/WakeLock( 1272): GCM_HB_ALARM counter does not exist
+E/WakeLock( 1272): GCM_HB_ALARM release without a matched acquire!
+W/WakeLock( 1272): GCM_HB_ALARM counter does not exist
+I/AlarmManager( 1272): setExactAndAllowWhileIdle [name: GCM_CONN_ALARM type: 2 triggerAtMillis: 375493]
+I/netd    (  304): setProcSysNet(4, 2, wlan0, retrans_time_ms, 750) <0.08ms>
+I/netd    (  304): setProcSysNet(4, 2, wlan0, ucast_solicit, 10) <0.02ms>
+I/netd    (  304): setProcSysNet(6, 2, wlan0, retrans_time_ms, 750) <0.03ms>
+I/netd    (  304): setProcSysNet(6, 2, wlan0, ucast_solicit, 10) <0.01ms>
+I/AiAiEcho( 1550): Predicting[0]: 
+I/AiAiEcho( 1550): Ranked targets strategy: SORT, count: 0, ranking metadata: 
+I/AiAiEcho( 1550): #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0
+I/AiAiEcho( 1550): #postPredictionTargets: Sending updates to UISurface home with targets# 0
+I/AiAiEcho( 1550): #postPredictionTargets: Sending updates to UISurface media_data_manager with targets# 0
+D/SsMediaDataProvider(  706): Forwarding Smartspace updates []
+D/EGL_emulation(  706): app_time_stats: avg=4182.61ms min=4182.61ms max=4182.61ms count=1
+D/SntpClient(  511): request time failed: java.net.SocketTimeoutException: Poll timed out
+D/SntpClient(  511): request time failed
+W/ChimeraConfigurator( 1515): Error syncing flags: zgv: SYNC_TIMEOUT, java.util.concurrent.TimeoutException: Timed out waiting for Task
+I/GmsDebugLogger( 1515): [79] SYNC_TIMEOUT, java.util.concurrent.TimeoutException: Timed out waiting for Task
+I/GmsDebugLogger( 1515): [52] 
+W/ChimeraConfigService( 1515): Retry attempt was throttled. [CONTEXT service_id=264 ]
+I/GmsDebugLogger( 1515): [83] 1 [mlkit.barcode.ui]
+I/ChimeraConfigurator( 1515): Starting update, reason: 4 urgentFeatures: tflite_dynamite:-1
+I/HeterodyneSyncer( 1272): Removed 0 invalid users [CONTEXT service_id=51 ]
+W/HeterodyneSyncer( 1272): Sync failed [CONTEXT service_id=51 ]
+W/HeterodyneSyncer( 1272): bwdx: 29504: Network error
+W/HeterodyneSyncer( 1272): 	at bwhy.D(:com.google.android.gms@231818047@23.18.18 (190800-535401451):210)
+W/HeterodyneSyncer( 1272): 	at bwhy.p(:com.google.android.gms@231818047@23.18.18 (190800-535401451):61)
+W/HeterodyneSyncer( 1272): 	at bwhy.w(:com.google.android.gms@231818047@23.18.18 (190800-535401451):0)
+W/HeterodyneSyncer( 1272): 	at bwhy.o(:com.google.android.gms@231818047@23.18.18 (190800-535401451):0)
+W/HeterodyneSyncer( 1272): 	at com.google.android.gms.phenotype.sync.HeterodyneSyncTaskChimeraService.d(:com.google.android.gms@231818047@23.18.18 (190800-535401451):29)
+W/HeterodyneSyncer( 1272): 	at com.google.android.gms.phenotype.sync.HeterodyneSyncTaskChimeraService.a(:com.google.android.gms@231818047@23.18.18 (190800-535401451):10)
+W/HeterodyneSyncer( 1272): 	at avzs.call(:com.google.android.gms@231818047@23.18.18 (190800-535401451):4)
+W/HeterodyneSyncer( 1272): 	at java.util.concurrent.FutureTask.run(FutureTask.java:264)
+W/HeterodyneSyncer( 1272): 	at aced.c(:com.google.android.gms@231818047@23.18.18 (190800-535401451):6)
+W/HeterodyneSyncer( 1272): 	at aced.run(:com.google.android.gms@231818047@23.18.18 (190800-535401451):7)
+W/HeterodyneSyncer( 1272): 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1137)
+W/HeterodyneSyncer( 1272): 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:637)
+W/HeterodyneSyncer( 1272): 	at acjn.run(:com.google.android.gms@231818047@23.18.18 (190800-535401451):0)
+W/HeterodyneSyncer( 1272): 	at java.lang.Thread.run(Thread.java:1012)
+W/HeterodyneSyncer( 1272): Caused by: java.io.IOException: request timeout
+W/HeterodyneSyncer( 1272): 	at bwia.a(:com.google.android.gms@231818047@23.18.18 (190800-535401451):41)
+W/HeterodyneSyncer( 1272): 	at bwhy.D(:com.google.android.gms@231818047@23.18.18 (190800-535401451):166)
+W/HeterodyneSyncer( 1272): 	... 13 more
+W/HeterodyneSyncer( 1272): Caused by: java.util.concurrent.TimeoutException: Waited 60000 milliseconds (plus 160178 nanoseconds delay) for blo@e869154[status=PENDING, info=[tag=[avwn@a8ba8fd]]]
+W/HeterodyneSyncer( 1272): 	at blk.get(:com.google.android.gms@231818047@23.18.18 (190800-535401451):30)
+W/HeterodyneSyncer( 1272): 	at blp.get(:com.google.android.gms@231818047@23.18.18 (190800-535401451):2)
+W/HeterodyneSyncer( 1272): 	at bwia.a(:com.google.android.gms@231818047@23.18.18 (190800-535401451):31)
+W/HeterodyneSyncer( 1272): 	... 14 more
+E/HeterodyneSyncTaskChime( 1272): Sync task failure [CONTEXT service_id=51 ]
+E/HeterodyneSyncTaskChime( 1272): bwdx: 29504: Network error
+E/HeterodyneSyncTaskChime( 1272): 	at bwhy.D(:com.google.android.gms@231818047@23.18.18 (190800-535401451):210)
+E/HeterodyneSyncTaskChime( 1272): 	at bwhy.p(:com.google.android.gms@231818047@23.18.18 (190800-535401451):61)
+E/HeterodyneSyncTaskChime( 1272): 	at bwhy.w(:com.google.android.gms@231818047@23.18.18 (190800-535401451):0)
+E/HeterodyneSyncTaskChime( 1272): 	at bwhy.o(:com.google.android.gms@231818047@23.18.18 (190800-535401451):0)
+E/HeterodyneSyncTaskChime( 1272): 	at com.google.android.gms.phenotype.sync.HeterodyneSyncTaskChimeraService.d(:com.google.android.gms@231818047@23.18.18 (190800-535401451):29)
+E/HeterodyneSyncTaskChime( 1272): 	at com.google.android.gms.phenotype.sync.HeterodyneSyncTaskChimeraService.a(:com.google.android.gms@231818047@23.18.18 (190800-535401451):10)
+E/HeterodyneSyncTaskChime( 1272): 	at avzs.call(:com.google.android.gms@231818047@23.18.18 (190800-535401451):4)
+E/HeterodyneSyncTaskChime( 1272): 	at java.util.concurrent.FutureTask.run(FutureTask.java:264)
+E/HeterodyneSyncTaskChime( 1272): 	at aced.c(:com.google.android.gms@231818047@23.18.18 (190800-535401451):6)
+E/HeterodyneSyncTaskChime( 1272): 	at aced.run(:com.google.android.gms@231818047@23.18.18 (190800-535401451):7)
+E/HeterodyneSyncTaskChime( 1272): 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1137)
+E/HeterodyneSyncTaskChime( 1272): 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:637)
+E/HeterodyneSyncTaskChime( 1272): 	at acjn.run(:com.google.android.gms@231818047@23.18.18 (190800-535401451):0)
+E/HeterodyneSyncTaskChime( 1272): 	at java.lang.Thread.run(Thread.java:1012)
+E/HeterodyneSyncTaskChime( 1272): Caused by: java.io.IOException: request timeout
+E/HeterodyneSyncTaskChime( 1272): 	at bwia.a(:com.google.android.gms@231818047@23.18.18 (190800-535401451):41)
+E/HeterodyneSyncTaskChime( 1272): 	at bwhy.D(:com.google.android.gms@231818047@23.18.18 (190800-535401451):166)
+E/HeterodyneSyncTaskChime( 1272): 	... 13 more
+E/HeterodyneSyncTaskChime( 1272): Caused by: java.util.concurrent.TimeoutException: Waited 60000 milliseconds (plus 160178 nanoseconds delay) for blo@e869154[status=PENDING, info=[tag=[avwn@a8ba8fd]]]
+E/HeterodyneSyncTaskChime( 1272): 	at blk.get(:com.google.android.gms@231818047@23.18.18 (190800-535401451):30)
+E/HeterodyneSyncTaskChime( 1272): 	at blp.get(:com.google.android.gms@231818047@23.18.18 (190800-535401451):2)
+E/HeterodyneSyncTaskChime( 1272): 	at bwia.a(:com.google.android.gms@231818047@23.18.18 (190800-535401451):31)
+E/HeterodyneSyncTaskChime( 1272): 	... 14 more
+I/resolv  (  304): GetAddrInfoHandler::run: {101 786533 101 983141 10119 0}
+I/resolv  (  304): res_nmkquery: (QUERY, IN, A)
+I/resolv  (  304): res_nmkquery: (QUERY, IN, AAAA)
+I/resolv  (  304): resolv_cache_lookup: FOUND IN CACHE entry=0x7891fcc49010
+I/resolv  (  304): doQuery: rcode=0, ancount=8, return value=260
+D/TrafficStats( 1927): tagSocket(6) with statsTag=0x8001, statsUid=-1
+I/resolv  (  304): res_nsend: used send_dg 164 terrno: 0
+I/resolv  (  304): doQuery: rcode=0, ancount=8, return value=164
+D/TrafficStats( 1272): tagSocket(173) with statsTag=0x1203, statsUid=10119
+D/TrafficStats( 1272): tagSocket(173) with statsTag=0x1203, statsUid=10119
+D/TrafficStats( 1272): tagSocket(173) with statsTag=0x1203, statsUid=10119
+D/TrafficStats( 1272): tagSocket(173) with statsTag=0x1203, statsUid=10119
+D/TrafficStats( 1272): tagSocket(173) with statsTag=0x1203, statsUid=10119
+D/TrafficStats( 1272): tagSocket(173) with statsTag=0x1203, statsUid=10119
+D/TrafficStats( 1272): tagSocket(173) with statsTag=0x1203, statsUid=10119
+D/TrafficStats( 1272): tagSocket(173) with statsTag=0x1203, statsUid=10119
+D/TrafficStats( 1272): tagSocket(173) with statsTag=0x1203, statsUid=10119
+W/ProtoStoreBasedCache( 1272): cache is empty [CONTEXT service_id=257 ]
+D/TrafficStats( 1515): tagSocket(6) with statsTag=0x30003000, statsUid=-1
+W/FirebaseInstanceId( 1732): Token retrieval failed: SERVICE_NOT_AVAILABLE. Will retry token retrieval
+D/TrafficStats( 2217): tagSocket(6) with statsTag=0x1803, statsUid=10119
+D/TrafficStats( 1928): tagSocket(6) with statsTag=0x8001, statsUid=-1
+D/TrafficStats( 1732): tagSocket(6) with statsTag=0x8001, statsUid=-1
+D/TrafficStats( 3262): tagSocket(6) with statsTag=0x8001, statsUid=-1
+E/PhenotypeFlagCommitter( 1272): Retrieving snapshot for com.google.android.gms.phenotype failed
+E/PhenotypeFlagCommitter( 1272): java.util.concurrent.TimeoutException: Timed out waiting for Task
+E/PhenotypeFlagCommitter( 1272): 	at cfsz.o(:com.google.android.gms@231818047@23.18.18 (190800-535401451):6)
+E/PhenotypeFlagCommitter( 1272): 	at bwch.e(:com.google.android.gms@231818047@23.18.18 (190800-535401451):2)
+E/PhenotypeFlagCommitter( 1272): 	at bwch.j(:com.google.android.gms@231818047@23.18.18 (190800-535401451):2)
+E/PhenotypeFlagCommitter( 1272): 	at bwch.h(:com.google.android.gms@231818047@23.18.18 (190800-535401451):0)
+E/PhenotypeFlagCommitter( 1272): 	at bwel.c(:com.google.android.gms@231818047@23.18.18 (190800-535401451):4)
+E/PhenotypeFlagCommitter( 1272): 	at com.google.android.gms.phenotype.sync.HeterodyneSyncTaskChimeraService.d(:com.google.android.gms@231818047@23.18.18 (190800-535401451):77)
+E/PhenotypeFlagCommitter( 1272): 	at com.google.android.gms.phenotype.sync.HeterodyneSyncTaskChimeraService.a(:com.google.android.gms@231818047@23.18.18 (190800-535401451):10)
+E/PhenotypeFlagCommitter( 1272): 	at avzs.call(:com.google.android.gms@231818047@23.18.18 (190800-535401451):4)
+E/PhenotypeFlagCommitter( 1272): 	at java.util.concurrent.FutureTask.run(FutureTask.java:264)
+E/PhenotypeFlagCommitter( 1272): 	at aced.c(:com.google.android.gms@231818047@23.18.18 (190800-535401451):6)
+E/PhenotypeFlagCommitter( 1272): 	at aced.run(:com.google.android.gms@231818047@23.18.18 (190800-535401451):7)
+E/PhenotypeFlagCommitter( 1272): 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1137)
+E/PhenotypeFlagCommitter( 1272): 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:637)
+E/PhenotypeFlagCommitter( 1272): 	at acjn.run(:com.google.android.gms@231818047@23.18.18 (190800-535401451):0)
+E/PhenotypeFlagCommitter( 1272): 	at java.lang.Thread.run(Thread.java:1012)
+D/OomAdjuster(  511): Not killing cached processes
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.phenotype.service.sync.PhenotypeConfigurator finished executing. cause:5 result: 2 elapsed_millis: 122784 uptime_millis: 122784 exec_start_elapsed_seconds: 80 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.gcm.HeartbeatAlarm$ConnectionInfoPersistService started execution. cause:5 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.gcm.HeartbeatAlarm$ConnectionInfoPersistService finished executing. cause:5 result: 1 elapsed_millis: 4 uptime_millis: 4 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.pay.gcmtask.PayGcmTaskService started execution. cause:5 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.pay.gcmtask.PayGcmTaskService finished executing. cause:5 result: 1 elapsed_millis: 145 uptime_millis: 145 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.icing.mdh.service.MobileDataHubGcmTaskService started execution. cause:5 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.icing.mdh.service.MobileDataHubGcmTaskService finished executing. cause:5 result: 1 elapsed_millis: 7 uptime_millis: 7 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+D/BoundBrokerSvc( 1515): onBind: Intent { act=com.google.android.gms.smartdevice.logging.CleanBufferedLogsService.ACTION_TASK_READY dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsInternalBoundBrokerService }
+D/BoundBrokerSvc( 1515): Loading bound service for intent: Intent { act=com.google.android.gms.smartdevice.logging.CleanBufferedLogsService.ACTION_TASK_READY dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsInternalBoundBrokerService }
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.smartdevice.logging.CleanBufferedLogsService started execution. cause:5 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/SmartDevice( 1515): [CleanBufferedLogsService] Running task upload_buffered_logs_periodic
+I/ConsentLogging( 1515): [LoggingStore] No events available for subdirectory
+W/SmartDevice( 1515): [SmartDeviceBufferedLogs] No buffered logs for source SMART_SETUP after SUW is complete
+I/ConsentLogging( 1515): [LoggingStore] No events available for subdirectory
+W/SmartDevice( 1515): [SmartDeviceBufferedLogs] No buffered logs for source ANDROID_AUTH after SUW is complete
+D/BoundBrokerSvc( 1515): onUnbind: Intent { act=com.google.android.gms.smartdevice.logging.CleanBufferedLogsService.ACTION_TASK_READY dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsInternalBoundBrokerService }
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.smartdevice.logging.CleanBufferedLogsService finished executing. cause:5 result: 1 elapsed_millis: 13 uptime_millis: 13 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+D/BoundBrokerSvc( 1515): onBind: Intent { act=com.google.android.gms.inappreach.service.rps.FetchAccountMessagesTaskBoundService.ACTION_TASK_READY dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsInternalBoundBrokerService }
+D/BoundBrokerSvc( 1515): Loading bound service for intent: Intent { act=com.google.android.gms.inappreach.service.rps.FetchAccountMessagesTaskBoundService.ACTION_TASK_READY dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsInternalBoundBrokerService }
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.inappreach.service.rps.FetchAccountMessagesTaskBoundService started execution. cause:5 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+D/BoundBrokerSvc( 1515): onUnbind: Intent { act=com.google.android.gms.inappreach.service.rps.FetchAccountMessagesTaskBoundService.ACTION_TASK_READY dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsInternalBoundBrokerService }
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.inappreach.service.rps.FetchAccountMessagesTaskBoundService finished executing. cause:5 result: 1 elapsed_millis: 9 uptime_millis: 9 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+D/BoundBrokerSvc( 1515): onBind: Intent { act=com.google.android.gms.fonts.service.SystemFontsUpdateSchedulerChimeraService.ACTION_TASK_READY dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsInternalBoundBrokerService }
+D/BoundBrokerSvc( 1515): Loading bound service for intent: Intent { act=com.google.android.gms.fonts.service.SystemFontsUpdateSchedulerChimeraService.ACTION_TASK_READY dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsInternalBoundBrokerService }
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.fonts.service.SystemFontsUpdateSchedulerChimeraService started execution. cause:5 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/FontLog ( 1515): Updating from directory version 0 to 25 from disk [CONTEXT service_id=132 ]
+I/FontLog ( 1515): Using directory in FlatBuffer format [CONTEXT service_id=132 ]
+D/BoundBrokerSvc( 1515): onUnbind: Intent { act=com.google.android.gms.fonts.service.SystemFontsUpdateSchedulerChimeraService.ACTION_TASK_READY dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsInternalBoundBrokerService }
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.fonts.service.SystemFontsUpdateSchedulerChimeraService finished executing. cause:5 result: 1 elapsed_millis: 28 uptime_millis: 28 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.fonts.update.UpdateSchedulerService started execution. cause:5 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+W/FontLog ( 1272): New version from GServices 25 is less than or equal to current version 25 [CONTEXT service_id=132 ]
+I/FontLog ( 1272): Did not start update [CONTEXT service_id=132 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.fonts.update.UpdateSchedulerService finished executing. cause:5 result: 1 elapsed_millis: 4 uptime_millis: 4 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.checkin.CheckinService started execution. cause:5 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/WakefulBroadcastRcvr( 1515): Processing wakeful broadcast: com.google.android.gms.checkin.CHECKIN_START_ACTION
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.checkin.CheckinService finished executing. cause:5 result: 1 elapsed_millis: 6 uptime_millis: 6 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService started execution. cause:5 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/PlatformStatsUtil( 1272): canLog says can't log [CONTEXT service_id=254 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService finished executing. cause:5 result: 1 elapsed_millis: 9 uptime_millis: 9 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService started execution. cause:5 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService finished executing. cause:5 result: 1 elapsed_millis: 19 uptime_millis: 19 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService started execution. cause:5 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/PlatformStatsUtil( 1272): canLog says can't log [CONTEXT service_id=254 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService finished executing. cause:5 result: 1 elapsed_millis: 6 uptime_millis: 6 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService started execution. cause:5 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/PlatformStatsUtil( 1272): canLog says can't log [CONTEXT service_id=254 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService finished executing. cause:5 result: 1 elapsed_millis: 5 uptime_millis: 5 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService started execution. cause:5 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/PlatformStatsUtil( 1272): canLog says can't log [CONTEXT service_id=254 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService finished executing. cause:5 result: 1 elapsed_millis: 6 uptime_millis: 6 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService started execution. cause:5 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService finished executing. cause:5 result: 1 elapsed_millis: 8 uptime_millis: 8 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService started execution. cause:5 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService finished executing. cause:5 result: 1 elapsed_millis: 5 uptime_millis: 5 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService started execution. cause:5 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/PlatformStatsUtil( 1272): canLog says can't log [CONTEXT service_id=254 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService finished executing. cause:5 result: 1 elapsed_millis: 7 uptime_millis: 7 exec_start_elapsed_seconds: 203 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService started execution. cause:5 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/PlatformStatsUtil( 1272): canLog says can't log [CONTEXT service_id=254 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService finished executing. cause:5 result: 1 elapsed_millis: 4 uptime_millis: 4 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService started execution. cause:5 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/PlatformStatsUtil( 1272): canLog says can't log [CONTEXT service_id=254 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService finished executing. cause:5 result: 1 elapsed_millis: 9 uptime_millis: 9 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService started execution. cause:5 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService finished executing. cause:5 result: 1 elapsed_millis: 6 uptime_millis: 6 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService started execution. cause:5 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService finished executing. cause:5 result: 1 elapsed_millis: 5 uptime_millis: 5 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService started execution. cause:5 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService finished executing. cause:5 result: 1 elapsed_millis: 5 uptime_millis: 5 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService started execution. cause:5 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/PlatformStatsUtil( 1272): canLog says can't log [CONTEXT service_id=254 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService finished executing. cause:5 result: 1 elapsed_millis: 6 uptime_millis: 6 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService started execution. cause:5 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/PlatformStatsUtil( 1272): canLog says can't log [CONTEXT service_id=254 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService finished executing. cause:5 result: 1 elapsed_millis: 5 uptime_millis: 5 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService started execution. cause:5 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/PlatformStatsUtil( 1272): canLog says can't log [CONTEXT service_id=254 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService finished executing. cause:5 result: 1 elapsed_millis: 6 uptime_millis: 6 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.instantapps.routing.DomainFilterUpdateService started execution. cause:5 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.instantapps.routing.DomainFilterUpdateService finished executing. cause:5 result: 1 elapsed_millis: 4 uptime_millis: 4 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.gcm.HeartbeatAlarm$ConnectionInfoPersistService started execution. cause:5 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.gcm.HeartbeatAlarm$ConnectionInfoPersistService finished executing. cause:5 result: 1 elapsed_millis: 3 uptime_millis: 3 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.matchstick.task.ScheduledTaskService started execution. cause:5 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/MS_ScheduledTaskService( 1515): Triggering checkRegistrationWithLighter: true
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.matchstick.task.ScheduledTaskService finished executing. cause:5 result: 1 elapsed_millis: 6 uptime_millis: 6 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/MS_RegisterService( 1515): Tachyon host: www.google.com, Tachyon port: 443
+I/MS_RegUtils( 1515): checking registration with Lighter
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService started execution. cause:5 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/PlatformStatsUtil( 1272): canLog says can't log [CONTEXT service_id=254 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.stats.PlatformStatsCollectorService finished executing. cause:5 result: 1 elapsed_millis: 6 uptime_millis: 6 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.auth.account.be.legacy.AuthCronService started execution. cause:5 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/ConsentLogging( 1272): [LogsUploader] User did not optin for usage reporting.
+I/ConsentLogging( 1272): [LogsUploader] User did not optin for usage reporting.
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.auth.account.be.legacy.AuthCronService finished executing. cause:5 result: 1 elapsed_millis: 20 uptime_millis: 20 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.languageprofile.GcmTaskService started execution. cause:5 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.languageprofile.GcmTaskService finished executing. cause:5 result: 1 elapsed_millis: 20 uptime_millis: 20 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.gcm.gmsproc.GcmInGmsTaskService started execution. cause:5 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/GCM-GMS ( 1515): Registering GMS for direct boot.
+W/GCM-GMS ( 1515): Failed to get direct boot token: java.io.IOException: AUTHENTICATION_FAILED
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.gcm.gmsproc.GcmInGmsTaskService finished executing. cause:5 result: 3 elapsed_millis: 10 uptime_millis: 10 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.ads.social.GcmSchedulerWakeupService started execution. cause:5 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+D/BoundBrokerSvc( 1272): onBind: Intent { act=com.google.android.gms.presencemanager.service.START dat=chimera-action:/... cmp=com.google.android.gms/.chimera.PersistentApiService }
+D/BoundBrokerSvc( 1272): Loading bound service for intent: Intent { act=com.google.android.gms.presencemanager.service.START dat=chimera-action:/... cmp=com.google.android.gms/.chimera.PersistentApiService }
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.ads.social.GcmSchedulerWakeupService finished executing. cause:5 result: 1 elapsed_millis: 6 uptime_millis: 6 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+D/BoundBrokerSvc( 1272): onBind: Intent { act=com.google.android.gms.presencemanager.service.INTERNAL_IDENTITY dat=chimera-action:/... cmp=com.google.android.gms/.chimera.PersistentApiService }
+D/BoundBrokerSvc( 1272): Loading bound service for intent: Intent { act=com.google.android.gms.presencemanager.service.INTERNAL_IDENTITY dat=chimera-action:/... cmp=com.google.android.gms/.chimera.PersistentApiService }
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.gass.chimera.SchedulePeriodicTasksService started execution. cause:5 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.gass.chimera.SchedulePeriodicTasksService finished executing. cause:5 result: 1 elapsed_millis: 4 uptime_millis: 4 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/NetworkScheduler.Stats( 1272): Task com.google.android.gms/com.google.android.gms.gass.chimera.SchedulePeriodicTasksService started execution. cause:5 exec_start_elapsed_seconds: 204 [CONTEXT service_id=218 ]
+I/wpa_supplicant(  700): wlan0: CTRL-EVENT-BEACON-LOSS 
+I/NearbyDiscovery( 1272): FastPairHandler: unregistering intent receivers [CONTEXT service_id=265 ]
+I/NearbyDiscovery( 1272): DiscoveryService destroyed [CONTEXT service_id=265 ]
+D/BluetoothAdapter( 1272): unregisterBluetoothConnectionCallback()
+I/NearbyDiscovery( 1272): Show notifications: 0 total, no changes since last shown, no-op. [CONTEXT service_id=265 ]
+I/NearbyDiscovery( 1272): DiscoveryModule: EventLoop destroyed [CONTEXT service_id=265 ]
+I/FastPair( 1515): ServiceBindHelper: auto unpin triggered, uri = content://com.google.android.gms.nearby.fastpair/method_bind_service_for_discovery_item?is_bind=false
+I/FastPair( 1515): ServiceBindHelper.onSliceUnpinned, unpin slice, uri = content://com.google.android.gms.nearby.fastpair/method_bind_service_for_discovery_item?is_bind=false
+D/TrafficStats( 1515): tagSocket(83) with statsTag=0x30000408, statsUid=-1
+D/OomAdjuster(  511): Not killing cached processes
+I/GMS_MM_Logger( 2217): Memory Metric Logging not allowed. Stopping.
+I/DialerOmtpVvmCarrierConfigHelper( 1256): com.android.voicemail.impl.OmtpVvmCarrierConfigHelper.handleEvent:527 OmtpEvent:CONFIG_STATUS_SMS_TIME_OUT PhoneAccountHandle: [ComponentName: com.android.phone/com.android.services.telephony.TelephonyConnectionService subId: 1] [CONTEXT enable_persistent_logger=true ]
+I/DialerRetryPolicy( 1256): com.android.voicemail.impl.scheduling.RetryPolicy.onCompleted:118 discarding deferred status [CONTEXT enable_persistent_logger=true ]
+I/DialerTaskExecutor( 1256): com.android.voicemail.impl.scheduling.TaskExecutor.prepareStop:371 no more tasks, stopping service if no task are added in 5000 millis [CONTEXT enable_persistent_logger=true ]
+I/DialerLogcatLoggingBindings( 1256): com.android.dialer.logging.logcat.LogcatLoggingBindings.logImpression:41 Impression: VVM_AUTO_RETRY_ACTIVATION
+I/DialerTaskReceiver( 1256): com.android.voicemail.impl.scheduling.TaskReceiver.onReceive:68 task received [CONTEXT enable_persistent_logger=true ]
+I/DialerTaskReceiver( 1256): com.android.voicemail.impl.scheduling.TaskReceiver.onReceive:73 TaskExecutor already running [CONTEXT enable_persistent_logger=true ]
+I/DialerTasks( 1256): com.android.voicemail.impl.scheduling.Tasks.createTask:59 Task.createTask create task:com.android.voicemail.impl.ActivationTask [CONTEXT enable_persistent_logger=true ]
+I/DialerRetryPolicy( 1256): com.android.voicemail.impl.scheduling.RetryPolicy.onCreate:81 retry #3 for com.android.voicemail.impl.ActivationTask@313bbc4 queued, executing in 5000 [CONTEXT enable_persistent_logger=true ]
+I/DialerTaskExecutor( 1256): com.android.voicemail.impl.scheduling.TaskExecutor.addTask:299 com.android.voicemail.impl.ActivationTask@313bbc4 added [CONTEXT enable_persistent_logger=true ]
+I/DialerTaskExecutor( 1256): com.android.voicemail.impl.scheduling.TaskExecutor.runNextTask:345 minimal wait time:4999 [CONTEXT enable_persistent_logger=true ]
+I/DialerTaskExecutor( 1256): com.android.voicemail.impl.scheduling.TaskExecutor.sleep:355 sleep for 4999 millis [CONTEXT enable_persistent_logger=true ]
+D/TrafficStats( 1927): tagSocket(6) with statsTag=0x8001, statsUid=-1
+D/TrafficStats( 1928): tagSocket(6) with statsTag=0x8001, statsUid=-1
+I/wpa_supplicant(  700): wlan0: CTRL-EVENT-BEACON-LOSS 
+D/TrafficStats( 1732): tagSocket(6) with statsTag=0x8001, statsUid=-1
+D/TrafficStats( 3262): tagSocket(6) with statsTag=0x8001, statsUid=-1
+D/TrafficStats( 2217): tagSocket(81) with statsTag=0x1803, statsUid=10112
+I/DialerTaskExecutor( 1256): com.android.voicemail.impl.scheduling.TaskExecutor$WorkerThreadHandler.handleMessage:221 executing task com.android.voicemail.impl.ActivationTask@313bbc4 [CONTEXT enable_persistent_logger=true ]
+I/DialerLogcatLoggingBindings( 1256): com.android.dialer.logging.logcat.LogcatLoggingBindings.logImpression:41 Impression: VVM_ACTIVATION_STARTED
+I/DialerPreOMigrationHandler( 1256): com.android.voicemail.impl.PreOMigrationHandler.migrate:76 ComponentInfo{com.android.phone/com.android.services.telephony.TelephonyConnectionService}, 1, UserHandle{0} already migrated [CONTEXT enable_persistent_logger=true ]
+I/DialerOmtpVvmCarrierConfigHelper( 1256): com.android.voicemail.impl.OmtpVvmCarrierConfigHelper.isCarrierAppInstalled:637 carrier app not installed in this device [CONTEXT ratelimit_period="1 MINUTES [skipped: 4]" ]
+I/DialerVoicemailStatus( 1256): com.android.voicemail.impl.VoicemailStatus$Editor.apply:112 enter
+I/DialerVoicemailStatusDataServiceImpl( 1256): com.android.dialer.voicemailstatus.dataservice.impl.VoicemailStatusDataServiceImpl.insertOrUpdateVoicemailStatus:196 enter
+I/DialerRestVoicemailEnabledFn( 1256): com.android.dialer.voicemail.service.impl.vvmclients.rest.RestVoicemailEnabledFn.isEnabled:51 disabled by flag [CONTEXT ratelimit_period="1 MINUTES [skipped: 23]" ]
+I/DialerCvvmEnabledFn( 1256): com.android.dialer.voicemail.service.impl.vvmclients.omtp.protocol.cvvm.CvvmEnabledFn.isEnabled:37 disabled by flag [CONTEXT ratelimit_period="1 MINUTES [skipped: 11]" ]
+W/Settings( 1256): Setting airplane_mode_on has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+I/DialerVoicemailStatusDataServiceImpl( 1256): com.android.dialer.voicemailstatus.dataservice.impl.VoicemailStatusDataServiceImpl.lambda$insertOrUpdateVoicemailStatus$5:213 merged status: # kee@6600c263
+I/DialerActivationTask( 1256): com.android.voicemail.impl.ActivationTask.onExecuteInBackgroundThread:292 VVM content provider configured - vvm_type_cvvm PhoneAccountHandle: [ComponentName: com.android.phone/com.android.services.telephony.TelephonyConnectionService subId: 1] [CONTEXT enable_persistent_logger=true ]
+I/DialerActivationTask( 1256): com.android.voicemail.impl.ActivationTask.updateVoicemailsWithIccId:477 conversion disabled [CONTEXT enable_persistent_logger=true ]
+I/DialerOmtpVvmCarrierConfigHelper( 1256): com.android.voicemail.impl.OmtpVvmCarrierConfigHelper.handleEvent:527 OmtpEvent:CONFIG_ACTIVATING PhoneAccountHandle: [ComponentName: com.android.phone/com.android.services.telephony.TelephonyConnectionService subId: 1] [CONTEXT enable_persistent_logger=true ]
+I/DialerVoicemailStatus( 1256): com.android.voicemail.impl.VoicemailStatus$Editor.apply:112 enter
+I/DialerVoicemailStatusDataServiceImpl( 1256): com.android.dialer.voicemailstatus.dataservice.impl.VoicemailStatusDataServiceImpl.insertOrUpdateVoicemailStatus:196 enter
+W/Settings( 1256): Setting airplane_mode_on has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+I/DialerVoicemailStatusDataServiceImpl( 1256): com.android.dialer.voicemailstatus.dataservice.impl.VoicemailStatusDataServiceImpl.lambda$insertOrUpdateVoicemailStatus$5:213 merged status: # kee@6600c263
+I/DialerActivationTask( 1256): com.android.voicemail.impl.ActivationTask.onExecuteInBackgroundThread:339 sending an activation request [CONTEXT enable_persistent_logger=true ]
+D/SmsNumberUtils(  859): enter filterDestAddr. destAddr="[BajqU4K5_YhSYbs-7QUn0dOwcmI]"
+D/SmsNumberUtils(  859): destAddr is not formatted.
+D/SmsNumberUtils(  859): leave filterDestAddr, new destAddr="[BajqU4K5_YhSYbs-7QUn0dOwcmI]"
+D/OomAdjuster(  511): Not killing cached processes
+I/DialerLogcatLoggingBindings( 1256): com.android.dialer.logging.logcat.LogcatLoggingBindings.logImpression:46 Impression: CVVM_SEND_VVM_SMS
+I/DialerStatusSmsFetcher( 1256): com.android.voicemail.impl.sms.StatusSmsFetcher.onReceive:106 Request SMS successfully sent [CONTEXT enable_persistent_logger=true ]
+D/TrafficStats( 2217): tagSocket(107) with statsTag=0x1803, statsUid=10119
+D/TrafficStats( 1272): tagSocket(138) with statsTag=0x1203, statsUid=10119
+D/BoundBrokerSvc( 1272): onUnbind: Intent { act=com.google.android.gms.presencemanager.service.START dat=chimera-action:/... cmp=com.google.android.gms/.chimera.PersistentApiService }
+D/BoundBrokerSvc( 1272): onUnbind: Intent { act=com.google.android.gms.presencemanager.service.INTERNAL_IDENTITY dat=chimera-action:/... cmp=com.google.android.gms/.chimera.PersistentApiService }
+D/TrafficStats( 1515): tagSocket(80) with statsTag=0x30004901, statsUid=10119
+I/wpa_supplicant(  700): wlan0: CTRL-EVENT-BEACON-LOSS 
+D/TrafficStats( 1927): tagSocket(6) with statsTag=0x8001, statsUid=-1
+D/TrafficStats( 1928): tagSocket(6) with statsTag=0x8001, statsUid=-1
+D/TrafficStats( 1732): tagSocket(6) with statsTag=0x8001, statsUid=-1
+D/TrafficStats( 3262): tagSocket(6) with statsTag=0x8001, statsUid=-1
+E/YouTubeMusic( 1927): Given up trying to get FCM Registration Id: 
+E/YouTubeMusic( 1927): java.io.IOException: SERVICE_NOT_AVAILABLE
+E/YouTubeMusic( 1927): 	at com.google.firebase.iid.FirebaseInstanceId.n(PG:2)
+E/YouTubeMusic( 1927): 	at com.google.firebase.iid.FirebaseInstanceId.l(PG:4)
+E/YouTubeMusic( 1927): 	at acvm.g(PG:17)
+E/YouTubeMusic( 1927): 	at acvk.c(PG:5)
+E/YouTubeMusic( 1927): 	at acvk.j(PG:38)
+E/YouTubeMusic( 1927): 	at acvk.d(PG:3)
+E/YouTubeMusic( 1927): 	at acvi.run(Unknown Source:2)
+E/YouTubeMusic( 1927): 	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:463)
+E/YouTubeMusic( 1927): 	at java.util.concurrent.FutureTask.run(FutureTask.java:264)
+E/YouTubeMusic( 1927): 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1137)
+E/YouTubeMusic( 1927): 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:637)
+E/YouTubeMusic( 1927): 	at qhq.run(PG:2)
+E/YouTubeMusic( 1927): 	at qic.run(PG:4)
+E/YouTubeMusic( 1927): 	at java.lang.Thread.run(Thread.java:1012)
+D/OomAdjuster(  511): Not killing cached processes
+I/logd    (    0): logdr: UID=2000 GID=2000 PID=4655 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns

@@ -45,6 +45,28 @@ class UIButton(Button):
     def refresh_theme(self):
         self._rebuild()
 
+    def on_touch_up(self,touch):
+        # A pressed button can retain its grab while a screen transition starts.
+        # Releasing it must not execute an action on the page already left.
+        from kivy.uix.screenmanager import Screen
+        owner=self.parent
+        while owner is not None and not isinstance(owner,Screen):
+            parent=getattr(owner,'parent',None)
+            # Popup buttons reach Window, whose parent is Window itself.
+            # There is no owning Screen beyond that root. Continuing the walk
+            # here blocks the UI thread on every popup button release.
+            if parent is owner:
+                owner=None
+                break
+            owner=parent
+        if owner is not None and owner.manager is not None and owner.manager.current!=owner.name:
+            if touch.grab_current is self:
+                touch.ungrab(self)
+                self.state='normal'
+                return True
+            return False
+        return super().on_touch_up(touch)
+
     def _button_color(self):
         theme = self._theme()
         if theme is None:

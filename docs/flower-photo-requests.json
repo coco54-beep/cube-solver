@@ -1,0 +1,137 @@
+{
+  "batch": "2026-10-26-flower-10",
+  "scope": "Original ten photographs plus the MF8 BauhiniaMinx follow-up. Mechanism-pending models now have reference-only cards in their existing app families; they are not playable profiles.",
+  "reference_directory": "artifacts/expansion-references/flower-batch",
+  "models": [
+    {
+      "photo": 1,
+      "kind": "aj_curvy_dinominx_4",
+      "name": "AJ Curvy Dinominx 4×4",
+      "reference_image": "01-aj-curvy-dinominx.png",
+      "source": "https://www.ziicube.com/AJ-Curvy-Dino-Megamin",
+      "status": "integrated_verified_desktop",
+      "remaining": "Two-depth 120-degree vertex turns, 26 panels per face, colour entry and independent state solver verified. Android device performance and physical unit comparison remain untested. Earlier unverified partial-turn jumbling requirement corrected after checking the supplier's bare-body, sticker-sheet and turned-state photographs.",
+      "source_attachment": "codex-clipboard-3b32662a-463b-4900-a6f8-66394b1e6a12.png",
+      "sha256": "e8dd348313842397ee97a6ac6c8bc39a11d409aa2466520743084ff373f1ede9"
+    },
+    {
+      "photo": 2,
+      "kind": "vp_clover_dodecahedron",
+      "name": "VeryPuzzle Clover Dodecahedron",
+      "reference_image": "02-vp-clover-dodecahedron.png",
+      "source": "https://www.ziicube.com/VP-Clover-Dodecahedron",
+      "status": "mechanism_pending",
+      "remaining": "Offset axes, curved intersecting caps, partial turns and state-dependent gates, entry and solver. Not the previously requested spherical puzzle.",
+      "source_attachment": "codex-clipboard-85fbd47d-00cf-4f78-99aa-15eed42fd261.png",
+      "sha256": "21ab99c679a9a1d8d88029979b8c0fd1a094b2e8fa4cf5cf5df91bb3e1b49beb",
+      "catalogue_visibility": "visible_reference_only"
+    },
+    {
+      "photo": 3,
+      "kind": "lanlan_sunflower",
+      "name": "向阳花 / LanLan Sunflower Cube",
+      "reference_image": "03-sunflower.jpg",
+      "source": "https://www.ziicube.com/LL-Sunflower-Cube",
+      "status": "mechanism_pending",
+      "remaining": "Edge-turning curved cuts, jumbling, bandaging gates, shape entry and solver.",
+      "source_attachment": "codex-clipboard-6c612edf-2ea3-4e08-a750-dff44419a2d1.jpg",
+      "sha256": "60427995bfba3f0293e172b2b1527e1ff67a3ab53f0ccb1e18a0c3c4e5c4afdc",
+      "catalogue_visibility": "visible_reference_only"
+    },
+    {
+      "photo": 4,
+      "kind": "lanlan_andromeda",
+      "name": "仙女座 / LanLan Andromeda",
+      "reference_image": "04-andromeda.jpg",
+      "source": "https://www.ziicube.com/LL-Andromeda",
+      "status": "mechanism_pending",
+      "remaining": "Interlocking curved cuts, physical axes and partial-turn gates, shape entry and solver.",
+      "source_attachment": "codex-clipboard-9bd82760-68cc-468e-9cb1-cce6d84dfc9b.jpg",
+      "sha256": "54e72adf27cc8742804dff1b99785c850805648958bde2213d429ab245531f22",
+      "catalogue_visibility": "visible_reference_only"
+    },
+    {
+      "photo": 5,
+      "kind": "lanlan_butterflower",
+      "name": "蝶恋花 / LanLan Butterflower",
+      "reference_image": "05-butterflower.jpg",
+      "source": "https://www.ziicube.com/LL-Butterflower",
+      "status": "integrated_limited_desktop",
+      "remaining": "用户确认120°为目测，按实际切线对齐：已接通J约70.529°及补角109.471°的换瓣、变形打乱、共享姿态录入、不可见材料补全、先复形后配色求解与回放。24组换瓣已逐步通过全部101材料区域的阻挡检查；30/100/300步共24例可见块重新录入均还原。任意复杂变形的复形搜索仍有时间限额；安卓与实物内轨尚未验收。",
+      "source_attachment": "codex-clipboard-77b6135c-d8b7-4d4e-988d-85cc804b9fe0.jpg",
+      "sha256": "e1c63f1316ab0fe0e572724dd3306da10be1f9d97bd0cbfb8a417526acd2d88d",
+      "catalogue_visibility": "playable"
+    },
+    {
+      "photo": 6,
+      "kind": "lanlan_master_clover",
+      "name": "十二轴双棱花 / LanLan Master Clover Cube",
+      "reference_image": "06-master-clover.jpg",
+      "source": "https://www.ziicube.com/LL-Master-Clover-Cube",
+      "status": "integrated_limited_desktop",
+      "remaining": "常规双层180°模型、120片逐面录入、8个角部与中心连体块、独立大层小层、状态求解与回放已接通。新增半圆弧为照片重建，内部连续切面尚未测定；变形混转仍未接通，不能把常规回放当作实物混转认证。安卓真机待验。",
+      "source_attachment": "codex-clipboard-eec74853-c576-44a2-80ab-10fb46c9dfd0.jpg",
+      "sha256": "a0b92e0a4893966bfb495cf699f4e2dd8c940dcd5475c4b747d23837d4f1f43d",
+      "catalogue_visibility": "playable"
+    },
+    {
+      "photo": 7,
+      "kind": "lanlan_pisces",
+      "name": "双鱼座 / LanLan Pisces (Pitcher 4-Corner)",
+      "reference_image": "07-pisces.jpg",
+      "source": "https://www.ziicube.com/LL-Pitcher-4-Corner",
+      "status": "integrated_limited_desktop",
+      "remaining": "Independent faceted 12-axis material, colour/pose entry, guarded turns, state solver, original lessons and two native viewport sizes verified. Physical curved shell/track comparison, human visual-entry usability and arbitrary hard-shape completeness remain unverified.",
+      "source_attachment": "codex-clipboard-c0c5d43f-70f3-47cd-b4a7-fa5a8719905d.jpg",
+      "sha256": "1b248bd83227ef0641cee9d6074933247d96525e175702480ccfc272fa99dae7"
+    },
+    {
+      "photo": 8,
+      "kind": "lanlan_flower_copter",
+      "name": "花瓣魔方（魔花） / LanLan Flower Copter",
+      "reference_image": "08-flower-copter.jpg",
+      "source": "https://www.ziicube.com/LL-Flower-Copter",
+      "status": "integrated_regular_turns_only",
+      "remaining": "User-supplied Drawing1.dwg determines all twelve face arcs and twenty panels per face. Regular edge180/corner120 turns, colour/pose input, independent state solving, playback, original lessons, save/restore and two native desktop viewport sizes are verified. Partial turns/jumbling, manufacturer internal tracks and Android device performance remain unverified.",
+      "source_attachment": "codex-clipboard-c457ac5a-e9e8-4fb3-ad7d-96d1f64fe3ba.jpg",
+      "sha256": "01396b104f027809d6c82338d5f3cdb535beb6b0c631a0dbc2bb8e6f851cd83b",
+      "cad_source_sha256": "a8052e183f08e2677a9adb89f135712aa70d4be255018c89623dc4940a9434d4",
+      "report": "reports/expansion/2026-10-29/flower-copter/README.md"
+    },
+    {
+      "photo": 9,
+      "kind": "lanlan_curvy_copter",
+      "name": "魔蝶 / LanLan Curvy Copter",
+      "reference_image": "09-curvy-copter.jpg",
+      "source": "https://www.ziicube.com/LL-Curvy-Copter",
+      "status": "integrated_spherical_profile_desktop",
+      "remaining": "Explicit spherical-profile model now has production colour/pose input, guarded turns, state solving, full playback, original lessons and session restoration. Native X/Y/Z pose controls were tested using measured synthetic observations, not human observation or physical hardware. Physical cut/track comparison, simpler visual shape matching and hard-shape completeness remain unverified; do not count as the full physical model being finished.",
+      "source_attachment": "codex-clipboard-bba6db79-2eaf-45cf-8f95-0c55d9d10954.jpg",
+      "sha256": "3f1fc70fc879b00b18041fb0bed6dee6046e62e4e61bedfa1626b19879594ff1"
+    },
+    {
+      "photo": 10,
+      "kind": "yeet_ball",
+      "name": "永骏枫叶球 / YJ Yeet Ball",
+      "reference_image": "10-yeet-ball.jpg",
+      "source": "https://www.ziicube.com/YJ-Ivy-Ball",
+      "status": "integrated_verified_desktop",
+      "remaining": "Android device performance and physical unit comparison have not been tested.",
+      "source_attachment": "codex-clipboard-72f19b93-1c89-40bf-809b-fcacb27f8ffd.jpg",
+      "sha256": "d680853fd45f4c6ec86ba0289eb8c7fd759965bd52e2001a70c0cc2711a16226"
+    },
+    {
+      "photo": 11,
+      "added": "2026-10-27",
+      "kind": "mf8_bauhinia_minx",
+      "name": "MF8 BauhiniaMinx / 紫荆五魔方（Rex Dodecahedron）",
+      "reference_image": "11-mf8-bauhinia-minx.png",
+      "source": "https://www.ziicube.com/mf8-BauhiniaMinx",
+      "manufacturer_item": "mf81206",
+      "status": "integrated_regular_turns_only",
+      "remaining": "Standard aligned 120-degree geometry, colour entry and independent state solving are connected. Arbitrary jumbled-shape entry and hidden filler-piece blocking are still pending; this is not full physical-mechanism completion.",
+      "source_attachment": "codex-clipboard-7fe7c857-5b13-4f1c-bc93-f8cd895f31de.png",
+      "sha256": "599aec5ed9755b344aebfdfa1be28cf3b891a7dc2b23821f4844fa28f7d29f9f"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "kind": "megaminx_ball",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "moves": 651
+  },
+  {
+    "kind": "megaminx_ball",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "moves": 651
+  }
+]

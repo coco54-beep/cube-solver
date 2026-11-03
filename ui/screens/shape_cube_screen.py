@@ -1,4 +1,5 @@
 """Piece and orientation input for Axis and other three-layer shape mods."""
+from ui.entry_feedback import validation_action
 from app.i18n import tr
 from cube.mastermorphix import position_kind
 from cube.shape_cube import AxisCube
@@ -10,17 +11,22 @@ from app.constants import COLOR_INFO
 
 class ShapeCubeScreen(MirrorScreen):
     supports_palette_settings=True
+    reference_height_px=0
     cube_class=AxisCube
     view_class=AxisView
+
+    def build_ui(self):
+        super().build_ui()
+        # Keep the reference text for help/tutorials without a permanent row.
+        self.reference_label.opacity=0
 
     def _blank(self,palette):
         super()._blank(palette)
         if self._cube.puzzle_kind!='football':
             from app.prefs import get
-            from cube.shape_cube import PALETTE
             saved=get('shape_palette_'+self._cube.puzzle_kind,None)
-            colors=[COLOR_INFO[c][1] for c in PALETTE]
-            if isinstance(saved,list) and len(saved)==6 and all(isinstance(c,list) and len(c)==4 and
+            colors=self.default_palette_colors()
+            if isinstance(saved,list) and len(saved)==len(colors) and all(isinstance(c,list) and len(c)==4 and
                     all(isinstance(v,(int,float)) and 0<=v<=1 for v in c) for c in saved):
                 colors=saved
         self._apply_shape_colors(colors,persist=False,refresh=False)
@@ -33,7 +39,7 @@ class ShapeCubeScreen(MirrorScreen):
 
     def _apply_shape_colors(self,colors,persist=True,refresh=True):
         from app.prefs import set
-        keys=tuple(f'S_{self._cube.puzzle_kind}_{i}' for i in range(6))
+        keys=tuple(f'S_{self._cube.puzzle_kind}_{i}' for i in range(len(colors)))
         for i,key in enumerate(keys):
             COLOR_INFO[key]=(str(i+1),tuple(colors[i][:3])+(1,))
         self._cube.palette=keys
@@ -48,6 +54,8 @@ class ShapeCubeScreen(MirrorScreen):
         self.open_palette_settings(index)
 
     def default_palette_colors(self):
+        from cube.solid_shape_mods import KINDS,default_colors
+        if self._cube.puzzle_kind in KINDS:return list(default_colors(self._cube.puzzle_kind))
         from cube.shape_cube import PALETTE
         return [COLOR_INFO[c][1] for c in PALETTE]
 
@@ -56,8 +64,7 @@ class ShapeCubeScreen(MirrorScreen):
         _app().solve_result=None
 
     def restore_preset(self):
-        from cube.shape_cube import PALETTE
-        self._apply_shape_colors([COLOR_INFO[c][1] for c in PALETTE])
+        self._apply_shape_colors(self.default_palette_colors())
 
     def on_pre_enter(self,*args):
         from cube.shape_cube import FootballCube,PandoraCube,WindmillCube,FisherCube
@@ -65,6 +72,9 @@ class ShapeCubeScreen(MirrorScreen):
         kind=_app().puzzle_kind
         cube_class,view_class={'football':(FootballCube,FootballView),'pandora':(PandoraCube,PandoraView),
                               'windmill':(WindmillCube,WindmillView),'fisher':(FisherCube,FisherView)}.get(kind,(AxisCube,AxisView))
+        from cube.solid_shape_mods import FACTORIES
+        from renderer.shape_cube_view import SOLID_VIEWS
+        if kind in FACTORIES:cube_class,view_class=FACTORIES[kind],SOLID_VIEWS[kind]
         if self.cube_class is not cube_class:
             self.reset_interaction()
             self.clear_widgets()
@@ -96,9 +106,12 @@ class ShapeCubeScreen(MirrorScreen):
     def _refresh(self):
         super()._refresh()
         if self._cube is not None:
+            if self._cube.puzzle_kind in ('rhombic_3','rhombic_4','rhombic_mask_4','caneball_4'):
+                self.title.text=tr('directory.'+self._cube.puzzle_kind)
             self._refresh_palette_button()
-            self.demo_button.disabled=self._cube.n>3
-            self.demo_button.opacity=0 if self._cube.n>3 else 1
+            from cube.solid_shape_mods import KINDS
+            self.demo_button.disabled=False
+            self.demo_button.opacity=0 if self.demo_button.disabled else 1
             self.reference_label.text=tr('football.pattern_hint' if self._cube.puzzle_kind=='football' else 'shape.reference')
             self.hint.text=tr('shape.hint')
             if self._cube.puzzle_kind=='pandora' and position_kind(self._pos)=='center':
@@ -145,6 +158,7 @@ class ShapeCubeScreen(MirrorScreen):
             home,frame=next(((h,f) for h,f in options if h not in used),(home,frame))
         return super().choose_piece(home,frame)
 
+    @validation_action
     def check(self):
         if self._cube.n == 4:
             if self._recorded != set(self._cube.positions):

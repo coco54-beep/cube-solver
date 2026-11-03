@@ -1,0 +1,74 @@
+[
+  {
+    "kind": "ai_cube",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "actual_controls": true,
+    "history_empty": true,
+    "success": false,
+    "replay_solved": false,
+    "moves": 0,
+    "seconds": 0.125,
+    "message": "Illegal bandage turn: R"
+  },
+  {
+    "kind": "bandaged_c",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "actual_controls": true,
+    "history_empty": true,
+    "success": true,
+    "replay_solved": true,
+    "moves": 10,
+    "seconds": 0.313,
+    "message": ""
+  },
+  {
+    "kind": "bicube",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "actual_controls": true,
+    "history_empty": true,
+    "success": true,
+    "replay_solved": true,
+    "moves": 1,
+    "seconds": 0.016,
+    "message": ""
+  },
+  {
+    "kind": "burr_cube",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "actual_controls": true,
+    "history_empty": true,
+    "success": false,
+    "replay_solved": false,
+    "moves": 0,
+    "seconds": 0.187,
+    "message": "Illegal bandage turn: R2"
+  },
+  {
+    "kind": "fused_cube",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "actual_controls": true,
+    "history_empty": true,
+    "success": false,
+    "replay_solved": false,
+    "moves": 0,
+    "seconds": 3.563,
+    "message": "Illegal bandage turn: R2"
+  },
+  {
+    "kind": "two_bar_cube",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "actual_controls": true,
+    "history_empty": true,
+    "success": true,
+    "replay_solved": true,
+    "moves": 12,
+    "seconds": 0.5,
+    "message": ""
+  }
+]

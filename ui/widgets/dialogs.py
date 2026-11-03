@@ -33,4 +33,15 @@ def theme_popup(popup, theme):
 
     theme.bind(on_palette=_on_palette)
     popup.bind(on_dismiss=lambda *_a: theme.unbind(on_palette=_on_palette))
+    # A confirmation belongs to the page that opened it. A completed worker
+    # or navigation event must not leave old destructive actions over a new page.
+    from kivy.app import App
+    app=App.get_running_app()
+    manager=getattr(app,'root',None)
+    if manager is not None and hasattr(manager,'current'):
+        source=manager.current
+        def _page_changed(_manager,current):
+            if current!=source:popup.dismiss()
+        manager.bind(current=_page_changed)
+        popup.bind(on_dismiss=lambda *_:manager.unbind(current=_page_changed))
     return popup

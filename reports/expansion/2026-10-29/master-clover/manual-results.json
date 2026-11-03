@@ -1,0 +1,194 @@
+[
+  {
+    "seed": 0,
+    "length": 30,
+    "passed": true,
+    "moves": 428,
+    "seconds": 1.0788,
+    "input_unchanged": true
+  },
+  {
+    "seed": 1,
+    "length": 30,
+    "passed": true,
+    "moves": 172,
+    "seconds": 0.3486,
+    "input_unchanged": true
+  },
+  {
+    "seed": 2,
+    "length": 30,
+    "passed": true,
+    "moves": 330,
+    "seconds": 0.6527,
+    "input_unchanged": true
+  },
+  {
+    "seed": 3,
+    "length": 30,
+    "passed": true,
+    "moves": 144,
+    "seconds": 0.2623,
+    "input_unchanged": true
+  },
+  {
+    "seed": 4,
+    "length": 30,
+    "passed": true,
+    "moves": 508,
+    "seconds": 0.9746,
+    "input_unchanged": true
+  },
+  {
+    "seed": 5,
+    "length": 30,
+    "passed": true,
+    "moves": 214,
+    "seconds": 0.4282,
+    "input_unchanged": true
+  },
+  {
+    "seed": 6,
+    "length": 30,
+    "passed": true,
+    "moves": 450,
+    "seconds": 0.8716,
+    "input_unchanged": true
+  },
+  {
+    "seed": 7,
+    "length": 30,
+    "passed": true,
+    "moves": 214,
+    "seconds": 0.3821,
+    "input_unchanged": true
+  },
+  {
+    "seed": 0,
+    "length": 100,
+    "passed": true,
+    "moves": 528,
+    "seconds": 1.0335,
+    "input_unchanged": true
+  },
+  {
+    "seed": 1,
+    "length": 100,
+    "passed": true,
+    "moves": 382,
+    "seconds": 0.8104,
+    "input_unchanged": true
+  },
+  {
+    "seed": 2,
+    "length": 100,
+    "passed": true,
+    "moves": 492,
+    "seconds": 0.9655,
+    "input_unchanged": true
+  },
+  {
+    "seed": 3,
+    "length": 100,
+    "passed": true,
+    "moves": 342,
+    "seconds": 0.7183,
+    "input_unchanged": true
+  },
+  {
+    "seed": 4,
+    "length": 100,
+    "passed": true,
+    "moves": 360,
+    "seconds": 0.7013,
+    "input_unchanged": true
+  },
+  {
+    "seed": 5,
+    "length": 100,
+    "passed": true,
+    "moves": 488,
+    "seconds": 1.0692,
+    "input_unchanged": true
+  },
+  {
+    "seed": 6,
+    "length": 100,
+    "passed": true,
+    "moves": 484,
+    "seconds": 0.9422,
+    "input_unchanged": true
+  },
+  {
+    "seed": 7,
+    "length": 100,
+    "passed": true,
+    "moves": 492,
+    "seconds": 0.9506,
+    "input_unchanged": true
+  },
+  {
+    "seed": 0,
+    "length": 300,
+    "passed": true,
+    "moves": 314,
+    "seconds": 0.5956,
+    "input_unchanged": true
+  },
+  {
+    "seed": 1,
+    "length": 300,
+    "passed": true,
+    "moves": 490,
+    "seconds": 0.9952,
+    "input_unchanged": true
+  },
+  {
+    "seed": 2,
+    "length": 300,
+    "passed": true,
+    "moves": 666,
+    "seconds": 1.2833,
+    "input_unchanged": true
+  },
+  {
+    "seed": 3,
+    "length": 300,
+    "passed": true,
+    "moves": 610,
+    "seconds": 1.1884,
+    "input_unchanged": true
+  },
+  {
+    "seed": 4,
+    "length": 300,
+    "passed": true,
+    "moves": 374,
+    "seconds": 0.7344,
+    "input_unchanged": true
+  },
+  {
+    "seed": 5,
+    "length": 300,
+    "passed": true,
+    "moves": 304,
+    "seconds": 0.5841,
+    "input_unchanged": true
+  },
+  {
+    "seed": 6,
+    "length": 300,
+    "passed": true,
+    "moves": 288,
+    "seconds": 0.5679,
+    "input_unchanged": true
+  },
+  {
+    "seed": 7,
+    "length": 300,
+    "passed": true,
+    "moves": 478,
+    "seconds": 0.944,
+    "input_unchanged": true
+  }
+]

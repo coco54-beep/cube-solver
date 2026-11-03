@@ -1,0 +1,83 @@
+[
+  {
+    "case": "morphix3",
+    "screen": "MastermorphixScreen",
+    "size": [
+      800,
+      600
+    ],
+    "screenshot": "morphix3-800x600.png"
+  },
+  {
+    "case": "mirror3",
+    "screen": "MirrorScreen",
+    "size": [
+      800,
+      600
+    ],
+    "screenshot": "mirror3-800x600.png"
+  },
+  {
+    "case": "mirror-tower",
+    "screen": "MirrorTowerScreen",
+    "size": [
+      800,
+      600
+    ],
+    "screenshot": "mirror-tower-800x600.png"
+  },
+  {
+    "case": "fixed-cuboid",
+    "screen": "PolyhedralScreen",
+    "size": [
+      800,
+      600
+    ],
+    "screenshot": "fixed-cuboid-800x600.png"
+  },
+  {
+    "case": "mixup-plus",
+    "screen": "MixupInputScreen",
+    "size": [
+      800,
+      600
+    ],
+    "screenshot": "mixup-plus-800x600.png"
+  },
+  {
+    "case": "tangram-extreme",
+    "screen": "ArticulatedEntryScreen",
+    "size": [
+      800,
+      600
+    ],
+    "screenshot": "tangram-extreme-800x600.png"
+  },
+  {
+    "case": "square1",
+    "screen": "Square1Screen",
+    "size": [
+      800,
+      600
+    ],
+    "screenshot": "square1-800x600.png"
+  },
+  {
+    "case": "square2",
+    "screen": "SquareFamilyScreen",
+    "size": [
+      800,
+      600
+    ],
+    "screenshot": "square2-800x600.png"
+  },
+  {
+    "case": "super-square1",
+    "screen": "SquareFamilyScreen",
+    "size": [
+      800,
+      600
+    ],
+    "screenshot": "super-square1-800x600.png"
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "kind": "helicopter",
+    "saved_model_type": "cube.polyhedral:PolyhedralPuzzle",
+    "old_has_material_frames": false,
+    "new_model_type": "cube.edge_jumbling:HelicopterCube",
+    "old_scramble_path": "PolyhedralScreen.randomize clones the restored fixed-slot model",
+    "new_scramble_path": "EdgeJumblingInputScreen; entered through the directory"
+  },
+  {
+    "kind": "rua",
+    "saved_model_type": "cube.polyhedral:PolyhedralPuzzle",
+    "old_has_material_frames": false,
+    "new_model_type": "cube.edge_jumbling:RuaCube",
+    "old_scramble_path": "PolyhedralScreen.randomize clones the restored fixed-slot model",
+    "new_scramble_path": "EdgeJumblingInputScreen; entered through the directory"
+  },
+  {
+    "kind": "clover",
+    "saved_model_type": "cube.polyhedral:PolyhedralPuzzle",
+    "old_has_material_frames": false,
+    "new_model_type": "cube.spherical_jumbling:CloverCube",
+    "old_scramble_path": "PolyhedralScreen.randomize clones the restored fixed-slot model",
+    "new_scramble_path": "EdgeJumblingInputScreen; entered through the directory"
+  },
+  {
+    "kind": "mf8_bauhinia_minx",
+    "saved_model_type": "cube.polyhedral:PolyhedralPuzzle",
+    "old_has_material_frames": false,
+    "new_model_type": "cube.spherical_jumbling:BauhiniaCube",
+    "old_scramble_path": "PolyhedralScreen.randomize clones the restored fixed-slot model",
+    "new_scramble_path": "EdgeJumblingInputScreen; entered through the directory"
+  },
+  {
+    "kind": "helicopter_14",
+    "saved_model_type": "cube.polyhedral:PolyhedralPuzzle",
+    "old_has_material_frames": false,
+    "new_model_type": "cube.edge_jumbling:Helicopter14Cube",
+    "old_scramble_path": "PolyhedralScreen.randomize clones the restored fixed-slot model",
+    "new_scramble_path": "EdgeJumblingInputScreen; entered through the directory"
+  }
+]

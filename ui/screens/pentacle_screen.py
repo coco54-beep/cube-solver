@@ -1,4 +1,5 @@
 """Paint entry with an unrestricted circular-disc angle preview."""
+from ui.entry_feedback import validation_action
 import random
 import threading
 from time import monotonic
@@ -37,9 +38,9 @@ class PentacleScreen(PolyhedralScreen):
     def _refresh(self):
         if self._cube is None:return
         self._angle_trigger.cancel();self._angle_updating=True;self.disc_angle.value=0;self._angle_updating=False
-        self.angle_label.text='0°';self.demo_button.disabled=True;self.demo_button.opacity=0
+        self.angle_label.text='0°';self.demo_button.disabled=False;self.demo_button.opacity=1
         self.view.cube=self._cube;self.view.refresh()
-        self.status.text=tr('poly.progress',done=sum(c>=0 for c in self._cube._paints),total=len(self._cube.panels))
+        self.status.text=tr('poly.progress',done=sum(self._cube._paints[i]>=0 for i in self._cube.paint_slots),total=len(self._cube.paint_slots))
     def retranslate(self):
         super().retranslate()
         if self._cube:
@@ -47,7 +48,13 @@ class PentacleScreen(PolyhedralScreen):
         self.apply_disc.text=tr('pentacle.apply_disc');self.align_layer.text=tr('pentacle.align_layer')
     def paint(self,index):
         if not self.entry_can_edit() or abs(self.disc_angle.value)>1e-6:return
+        if index in self._cube.hidden_panels or self._cube._paints[index]==self._color:return
         self._remember();self._cube.paint(index,self._color);self.view.selected=index;self._refresh()
+    def _remember(self):
+        # Retain the verified move path as well as colours and geometry. Undo
+        # after an edit must not turn a generated scramble into a fresh search.
+        self._history.append(self._cube.clone());self._history=self._history[-40:]
+        _app().polyhedral_solution=None
     def preview_disc(self,*_):
         if self._cube is None or not self.entry_can_edit():return
         value=self.disc_angle.value;self.angle_label.text=f'{value:+g}°'
@@ -66,8 +73,10 @@ class PentacleScreen(PolyhedralScreen):
         self._remember();self._cube.apply_moves(moves);self._refresh()
     def change_view(self,direction):
         self.commit_disc();super().change_view(direction)
+    @validation_action
     def validate(self):
-        self.status.text=tr('pentacle.entry_hint')
+        self.status.text=''
+        return True
     def entry_reset_solved(self):
         self._remember();self._cube.colors=PentacleCube().colors
     def clear(self):
@@ -78,10 +87,13 @@ class PentacleScreen(PolyhedralScreen):
         state=self._history.pop()
         if isinstance(state,tuple) and len(state)==2 and isinstance(state[0],PentacleCube):state=state[0]
         self._cube.colors=state.colors if isinstance(state,PentacleCube) else state
+        if isinstance(state,PentacleCube):
+            self._cube.history=list(state.clone().history);self._cube._history_snapshot=self._cube.frames
         self._refresh()
     def randomize(self):
         if not self.entry_can_edit():return
-        self._remember();self._job=object();self._cancel.clear();self.status.text=tr('rigid.shuffling')
+        self._remember();job=self.entry_state.begin('scrambling');target=self._cube
+        cancel=self._cancel=threading.Event();self.status.text=tr('rigid.shuffling')
         def run():
             work=PentacleCube();error=None;deadline=monotonic()+5
             try:
@@ -89,20 +101,24 @@ class PentacleScreen(PolyhedralScreen):
                 # both cut directions; more turns mainly make the inverse longer.
                 # non-trivial disc offsets to mix both housing and discs.
                 for _ in range(12):
-                    if self._cancel.is_set() or monotonic()>deadline:break
+                    if cancel.is_set():return
+                    if monotonic()>deadline:break
                     axis=random.randrange(6)
                     try:work.apply_moves(work.alignment_moves(axis))
                     except ValueError:continue
                     work.apply_move(Move(axis,1,random.choice((90,180,270))))
                 for axis in range(6):
-                    if self._cancel.is_set() or monotonic()>deadline:break
+                    if cancel.is_set():return
+                    if monotonic()>deadline:break
                     work.apply_move(Move(axis,0,random.randrange(1,20)*18))
                 if work.is_solved():
+                    work.apply_moves(work.alignment_moves(0))
                     work.apply_move(Move(0,1,90))
             except Exception as exc:error=str(exc) if isinstance(exc,ValueError) else 'rigid.invalid'
             def done(_):
+                if self._job is not job:return
                 self._job=None
-                if self._cancel.is_set():return
+                if cancel.is_set() or self._cube is not target:return
                 if error:self.status.text=tr(error);return
                 self._cube.frames=work.frames;self._cube._paints=list(work._paints)
                 self._cube.history=list(work.history);self._cube._history_snapshot=work.frames;self._cube._geometry_cache=None
@@ -111,7 +127,7 @@ class PentacleScreen(PolyhedralScreen):
         threading.Thread(target=run,daemon=True).start()
     def solve(self):
         self.commit_disc()
-        if any(c<0 for c in self._cube._paints):self.status.text=tr('poly.error.incomplete');return
+        if any(self._cube._paints[i]<0 for i in self._cube.paint_slots):self.entry_show_error('poly.error.incomplete');return
         super().solve()
     def entry_prepare_twist(self):self.commit_disc()
     def on_leave(self,*_):

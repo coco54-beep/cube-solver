@@ -1,0 +1,16 @@
+[
+  {
+    "kind": "mixup_333",
+    "surfaces": 378,
+    "redraw_requests": 100,
+    "actual_surface_builds": 1,
+    "seconds": 0.0013453999999910593
+  },
+  {
+    "kind": "mixup_plus_444",
+    "surfaces": 960,
+    "redraw_requests": 100,
+    "actual_surface_builds": 1,
+    "seconds": 0.0045295000018086284
+  }
+]

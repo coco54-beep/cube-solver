@@ -1,0 +1,23 @@
+[
+  {
+    "kind": "cuboid_442",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "entry_matches": true,
+    "history_empty": true,
+    "success": false,
+    "seconds": 30.015,
+    "message": "InterruptedError"
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "entry_matches": true,
+    "history_empty": true,
+    "success": true,
+    "moves": 19,
+    "seconds": 0.391,
+    "replay_solved": true
+  }
+]

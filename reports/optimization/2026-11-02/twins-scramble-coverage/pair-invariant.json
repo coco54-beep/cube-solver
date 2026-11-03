@@ -1,0 +1,28 @@
+{
+  "regular_generators": 20,
+  "colour_equivalent_pairs": 48,
+  "retained_solver_fields": 144,
+  "proof": "Every regular generator maps the pair relation to itself, and the solved colours agree on every pair. Thus arbitrary regular scramble length cannot break these pairs.",
+  "regular_pair_relation_preserved": true,
+  "shape_samples": [
+    {
+      "seed": 0,
+      "length": 30,
+      "jumble": true,
+      "pair_pose_divergences": 0
+    },
+    {
+      "seed": 1,
+      "length": 30,
+      "jumble": true,
+      "pair_pose_divergences": 0
+    },
+    {
+      "seed": 5,
+      "length": 30,
+      "jumble": true,
+      "pair_pose_divergences": 0
+    }
+  ],
+  "physical_scope": "This establishes a restriction in the implemented scramble subgroup, not whether the manufactured puzzle permits separating these pairs."
+}

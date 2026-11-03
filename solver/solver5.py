@@ -11,6 +11,8 @@
 6. 回放 —— 3x3 的 URFDLB 外层动作（与 5x5 同名外层等效）直接施加到 5x5。
 
 棱降阶阶段使用已验证的 reference 宏级规划器（见 `solver/reduction/ref5/`）。
+公开接口在快速配棱预算耗尽后，接独立轨道交换子算法；物理中层奇偶差在
+真实模型上修复，最终对原始输入回放。旧阶梯重试仅保留给私有参考接口。
 """
 
 from typing import Dict, List
@@ -150,7 +152,7 @@ def _with_prefix(prefix: str, result: SolveResult) -> SolveResult:
     )
 
 
-# 末段兜底阶梯：只有当上面整条回退链全部失败时才触发（很罕见），逐级加大
+# 私有参考路线的末段阶梯（公开接口改用轨道算法）：整条回退链全部失败时逐级加大
 # 配棱变体数 + 末段 A* 预算，并带硬超时（ensure 不挂死）。正常状态走第一档
 # 即完成，其余档位仅在疑难状态兜底，且超时后立即放弃（仍失败则如实上报）。
 _REDUCE_ESCALATION: List[dict] = [
@@ -183,27 +185,42 @@ def _reduce_edges_escalate(work, cancel_event, progress_callback, deadline: floa
 
 def solve_5x5(cube: Cube5, cancel_event=None, progress_callback=None) -> SolveResult:
     started=time.perf_counter()
-    baseline=_solve_5x5(cube,cancel_event,progress_callback)
-    if cube is None or not baseline.success or not baseline.moves:return baseline
-    if cancel_event is not None and cancel_event.is_set():return baseline
+    def cancelled():
+        return cancel_event is not None and cancel_event.is_set()
+    def finish(result):
+        result.elapsed_ms=int((time.perf_counter()-started)*1000)
+        return result
+    if cancelled():return finish(SolveResult(False,[],'nxn.cancelled',0,0,[]))
+    if cube is None:return _solve_5x5(cube,cancel_event,progress_callback)
+    if cube.is_solved():return finish(SolveResult(True,[],'',0,0,[]))
+    try:
+        baseline=_solve_5x5(cube,cancel_event,progress_callback,fast_only=True)
+    except Exception as exc:
+        baseline=SolveResult(False,[],str(exc),0,0,[])
+    if cancelled():return finish(SolveResult(False,[],'nxn.cancelled',0,0,[]))
+    if not baseline.success:
+        _emit(progress_callback,label='solver.continuing',progress=0.)
     from solver.solver_n import solve_nxn
     try:
-        candidate=solve_nxn(cube,cancel_event,None)
-    except Exception:
-        if cancel_event is not None and cancel_event.is_set():
-            return SolveResult(False,[],'nxn.cancelled',0,0,[])
-        baseline.elapsed_ms=int((time.perf_counter()-started)*1000)
-        return baseline
-    if cancel_event is not None and cancel_event.is_set():return candidate
-    result=baseline
-    if candidate.success and len(candidate.moves)<len(baseline.moves):
-        replay=cube.clone();replay.apply_moves(candidate.moves)
-        if replay.is_solved():result=candidate
-    result.elapsed_ms=int((time.perf_counter()-started)*1000)
-    return result
+        # Orbit commutators are a state solver, including for facelet input.
+        # They are the fallback on failure as well as a shorter-word option.
+        candidate=solve_nxn(cube,cancel_event,progress_callback if not baseline.success else None)
+    except Exception as exc:
+        candidate=SolveResult(False,[],str(exc),0,0,[])
+    if cancelled():return finish(SolveResult(False,[],'nxn.cancelled',0,0,[]))
+    for result in sorted((r for r in (baseline,candidate) if r.success),key=lambda r:len(r.moves)):
+        replay=cube.clone()
+        for move in result.moves:
+            if cancelled():return finish(SolveResult(False,[],'nxn.cancelled',0,0,[]))
+            replay.apply_move(move)
+        if replay.is_solved():return finish(result)
+    if candidate.success or baseline.success:
+        return finish(SolveResult(False,[],'nxn.error.replay',0,0,[]))
+    return finish(candidate)
 
 
-def _solve_5x5(cube: Cube5, cancel_event=None, progress_callback=None) -> SolveResult:
+def _solve_5x5(cube: Cube5, cancel_event=None, progress_callback=None,
+               fast_only=False) -> SolveResult:
     """求解 5x5。返回 SolveResult（moves 为全部阶段动作的拼接）。
 
     若中心 home 不可信（如由 facelets 重建、home==pos），先按颜色/轨道重建；
@@ -222,8 +239,13 @@ def _solve_5x5(cube: Cube5, cancel_event=None, progress_callback=None) -> SolveR
     if not _center_homes_consistent(work):
         _rebuild_center_homes(work)
 
-    result = _solve_once(work, cancel_event, progress_callback)
+    result = _solve_once(work, cancel_event, progress_callback,
+                         reduce_deadline=time.monotonic()+5. if fast_only else None)
     if result.success:
+        return result
+    if fast_only:
+        # The public solver continues with independent orbit algorithms.
+        # Repeating the same limited pairing search cannot prove no solution.
         return result
 
     # 同色等价中心求解会改变棱状态，棱降阶 oracle 对部分状态不完整；

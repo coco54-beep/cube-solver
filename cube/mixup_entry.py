@@ -486,9 +486,11 @@ class MixupEntryDraft:
         from cube.mixup import skins_cross
         peers=set(self.linked_positions(index));old={};changed={};outside={}
         for bi,block in enumerate(self.blocks):
-            for cell in block['cells']:
+            for ci,cell in enumerate(block['cells']):
                 if cell['world'] is None:continue
-                (old if bi in peers else outside)[polygon_key(cell['world'])]=cell['world']
+                key=polygon_key(cell['world'])
+                if bi in peers:old[key]=cell['world']
+                else:outside[key]=(cell['world'],dict(block=bi,cell=ci))
         for bi in peers:
             for cell in candidate.blocks[bi]['cells']:
                 if cell['world'] is not None:changed[polygon_key(cell['world'])]=cell['world']
@@ -497,9 +499,10 @@ class MixupEntryDraft:
         # recorded neighbours. Piece inventory/reachability is checked later.
         for key,world in changed.items():
             if key in old:continue
-            for other_key,other in outside.items():
+            for other_key,(other,location) in outside.items():
                 if key==other_key or skins_cross(((world,0),),((other,0),)):
-                    raise ValueError('mixup.entry_neighbour_conflict')
+                    from cube.entry_checks import EntryIssue
+                    raise EntryIssue('mixup.entry_neighbour_conflict',[dict(block=index,cell=0),location])
         for bi in peers:self.blocks[bi]=candidate.blocks[bi]
 
     def restore_region(self,index,blocks):
@@ -635,19 +638,22 @@ class MixupEntryDraft:
         self.blocks[index]['cells'][child].update(world=tuple(world),color=color,source_slot=None)
 
     def observations(self):
-        if any(not b['configured'] or any(c['color']<0 or c['world'] is None for c in b['cells']) for b in self.blocks):
-            raise ValueError('mixup.entry_incomplete')
+        from cube.entry_checks import EntryIssue
+        missing=[dict(block=bi,cell=ci) for bi,b in enumerate(self.blocks) for ci,c in enumerate(b['cells'])
+                 if not b['configured'] or c['color']<0 or c['world'] is None]
+        if missing:raise EntryIssue('mixup.entry_incomplete',missing)
         for index,block in enumerate(self.blocks):
             if block['composition'] is None:continue
             for peer in self.linked_positions(index):
                 other=self.blocks[peer]
                 if peer<=index or other['composition'] is None:continue
                 if block['composition'].startswith('assembly_') or other['composition'].startswith('assembly_'):
-                    if block['composition']!=other['composition']:raise ValueError('mixup.entry_link_conflict')
+                    if block['composition']!=other['composition']:
+                        raise EntryIssue('mixup.entry_link_conflict',[dict(block=i,cell=0) for i in (index,peer)])
                     continue
                 expected=sorted(polygon_key(edge_other_side(c['guide'],block['face'],other['face'])) for c in block['cells'])
                 if expected!=sorted(polygon_key(c['guide']) for c in other['cells']):
-                    raise ValueError('mixup.entry_link_conflict')
+                    raise EntryIssue('mixup.entry_link_conflict',[dict(block=i,cell=0) for i in (index,peer)])
         draft=ObservationDraft(self.kind);seen=set();views=[[] for _ in range(6)];roles={};bodies={}
         for block in self.blocks:
             for cell in block['cells']:

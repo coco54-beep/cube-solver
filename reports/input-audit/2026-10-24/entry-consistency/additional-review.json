@@ -1,0 +1,440 @@
+[
+  {
+    "case": "ghost3",
+    "screen": "GhostScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "ghost3-800x600.png"
+  },
+  {
+    "case": "ghost4",
+    "screen": "GhostScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "ghost4-800x600.png"
+  },
+  {
+    "case": "ghost-pyramid",
+    "screen": "GhostPyramidScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 4,
+    "page": "1/1",
+    "screenshot": "ghost-pyramid-800x600.png"
+  },
+  {
+    "case": "mirror-axis",
+    "screen": "MirrorAxisScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 2,
+    "page": "1/1",
+    "screenshot": "mirror-axis-800x600.png"
+  },
+  {
+    "case": "mirror-fisher",
+    "screen": "MirrorFisherScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 1,
+    "page": "1/1",
+    "screenshot": "mirror-fisher-800x600.png"
+  },
+  {
+    "case": "mirror-pyraminx4",
+    "screen": "MirrorPyraminxScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 4,
+    "page": "1/1",
+    "screenshot": "mirror-pyraminx4-800x600.png"
+  },
+  {
+    "case": "football",
+    "screen": "PolyhedralScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "screenshot": "football-800x600.png"
+  },
+  {
+    "case": "square0",
+    "screen": "SquareFamilyScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      78.1,
+      78.1,
+      78.1,
+      78.1,
+      78.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "square0-800x600.png"
+  },
+  {
+    "case": "ghost3",
+    "screen": "GhostScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "ghost3-400x850.png"
+  },
+  {
+    "case": "ghost4",
+    "screen": "GhostScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "ghost4-400x850.png"
+  },
+  {
+    "case": "ghost-pyramid",
+    "screen": "GhostPyramidScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 4,
+    "page": "1/1",
+    "screenshot": "ghost-pyramid-400x850.png"
+  },
+  {
+    "case": "mirror-axis",
+    "screen": "MirrorAxisScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 2,
+    "page": "1/1",
+    "screenshot": "mirror-axis-400x850.png"
+  },
+  {
+    "case": "mirror-fisher",
+    "screen": "MirrorFisherScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 1,
+    "page": "1/1",
+    "screenshot": "mirror-fisher-400x850.png"
+  },
+  {
+    "case": "mirror-pyraminx4",
+    "screen": "MirrorPyraminxScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 4,
+    "page": "1/1",
+    "screenshot": "mirror-pyraminx4-400x850.png"
+  },
+  {
+    "case": "football",
+    "screen": "PolyhedralScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "screenshot": "football-400x850.png"
+  },
+  {
+    "case": "square0",
+    "screen": "SquareFamilyScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      72.0,
+      72.0,
+      72.0,
+      72.0,
+      72.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "square0-400x850.png"
+  }
+]

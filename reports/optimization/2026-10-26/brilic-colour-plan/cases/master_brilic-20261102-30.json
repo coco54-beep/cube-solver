@@ -1,0 +1,26 @@
+{
+  "kind": "master_brilic",
+  "seed": 20261102,
+  "scramble_turns": 30,
+  "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\brilic-colour-plan\\inputs\\master_brilic-20261102-30.json",
+  "input_method": "fixed visible model panels, colours only",
+  "history_empty": true,
+  "visible_entry_matches": true,
+  "input_seconds": 0.094,
+  "success": true,
+  "moves": 2565,
+  "failure_category": "",
+  "solve_seconds": 0.969,
+  "message": "",
+  "evaluation_budget_hit": false,
+  "replay_solved": true,
+  "replay_seconds": 0.0,
+  "seconds": 1.063,
+  "shortening": [
+    {
+      "before": 2567,
+      "after": 2565,
+      "seconds": 0.125
+    }
+  ]
+}

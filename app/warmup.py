@@ -1,20 +1,7 @@
-"""应用启动后台预热：预加载求解器惰性资源，消除「第一遍解特别慢」。
+"""Solver tables are loaded on demand, never during ordinary app startup.
 
-首解慢是因为首次调用才 import / 反序列化 / 构建预计算资源。桌面端实测：
-
-- ``import solver3``（kociemba 两阶段表，~63MB）≈ 0.06s；
-- ref5 宏库构建（``macro_lib``，约 10 万次 compute_effect）≈ 6.8s——**仅首次**，
-  之后走 ``~/.cubesolver_cache/ref5`` 磁盘缓存（<0.1s）；
-- 中心 setup 表（每个 BFS 约 12144 状态）≈ 1.75s × 常用 4 个 ≈ 7s；
-- ref5 宏缓存 / 朝向掩码库 / 全空间 Dijkstra 均可忽略（< 0.05s）。
-
-策略（启动开销按需分摊）：
-- 通用资源（kociemba 两阶段表 + 2/3/4 阶求解器导入）在启动后台线程预热；
-- 仅 5 阶用到的重资源（ref5 宏库 / 宏表 / 朝向掩码 / 中心 setup 表）改为**懒加载**：
-  用户进入 5 阶录入页时才在后台线程构建，既能在他填色时完成，又不让只玩
-  2/3/4 阶的用户白白承担冷启动开销与内存峰值。
-
-任何异常都吞掉，绝不影响应用。
+An explicit desktop 5x5 entry may prewarm its own resources. Android keeps
+that work deferred until solving. Startup does not load two-phase/4x4 tables.
 """
 
 import os
@@ -27,17 +14,8 @@ _lock = threading.Lock()
 
 
 def warmup_solvers():
-    """启动通用求解资源后台预热（幂等）。返回线程对象，便于测试等待。"""
-    if os.environ.get("ANDROID_PRIVATE"):
-        return None  # Mobile: load solver tables only when Solve is requested.
-    global _common_started
-    with _lock:
-        if _common_started:
-            return None
-        _common_started = True
-    thread = threading.Thread(target=_run_common, name="solver-warmup", daemon=True)
-    thread.start()
-    return thread
+    """Startup is table-free on every platform; actual solve imports on demand."""
+    return None
 
 
 def warmup_5x5():

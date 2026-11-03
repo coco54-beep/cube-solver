@@ -1,0 +1,27 @@
+{
+  "kind": "void_minx",
+  "seed": 20261105,
+  "scramble_turns": 100,
+  "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\additional-inputs\\inputs\\void_minx-20261105-100.json",
+  "input_method": "fixed visible model panels, colours only",
+  "history_empty": true,
+  "visible_entry_matches": true,
+  "input_seconds": 0.031,
+  "success": true,
+  "moves": 159,
+  "failure_category": "",
+  "solve_seconds": 0.906,
+  "message": "",
+  "evaluation_budget_hit": false,
+  "replay_solved": true,
+  "replay_seconds": 0.0,
+  "seconds": 0.937,
+  "shortening": [
+    {
+      "before": 161,
+      "after": 159,
+      "seconds": 0.0
+    }
+  ],
+  "colour_stage_plans": []
+}

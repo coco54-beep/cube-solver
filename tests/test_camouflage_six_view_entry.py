@@ -28,7 +28,7 @@ def enter_visible_panels(source):
     into the draft. Paint generates fresh IDs. No source poses, scramble path,
     or numeric heights are supplied to the matching algorithm.
     """
-    draft = SixViewDraft('camouflage_3')
+    draft = SixViewDraft(source.puzzle_kind)
     reference = project(source, draft.model)
     for face, view in enumerate(reference):
         width, _ = draft.model['shapes'][face]

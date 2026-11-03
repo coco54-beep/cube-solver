@@ -1,0 +1,27 @@
+{
+  "kind": "blossom",
+  "seed": 20261105,
+  "scramble_turns": 30,
+  "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\additional-inputs\\inputs\\blossom-20261105-30.json",
+  "input_method": "fixed visible model panels, colours only",
+  "history_empty": true,
+  "visible_entry_matches": true,
+  "input_seconds": 0.797,
+  "success": true,
+  "moves": 166,
+  "failure_category": "",
+  "solve_seconds": 0.562,
+  "message": "",
+  "evaluation_budget_hit": false,
+  "replay_solved": true,
+  "replay_seconds": 0.0,
+  "seconds": 1.359,
+  "shortening": [
+    {
+      "before": 198,
+      "after": 166,
+      "seconds": 0.062
+    }
+  ],
+  "colour_stage_plans": []
+}

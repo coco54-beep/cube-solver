@@ -1,0 +1,20 @@
+[
+  {
+    "kind": "2x2",
+    "service_dispatch": true,
+    "success": true,
+    "moves": 3
+  },
+  {
+    "kind": "5x5",
+    "service_dispatch": true,
+    "success": true,
+    "moves": 128
+  },
+  {
+    "kind": "bicube",
+    "service_dispatch": true,
+    "success": true,
+    "moves": 106
+  }
+]

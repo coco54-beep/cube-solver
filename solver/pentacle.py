@@ -1,8 +1,4 @@
-"""Pentacle: exact history inverse plus a macro-layer beam search."""
-import math
-from collections import deque
-from time import monotonic
-
+"""Pentacle: verified history inverse or disc normalization and a state solver."""
 from cube.polyhedral import CUBE, Move
 from cube.appearance import transform_frame
 from solver.articulated import _simplify_rigid
@@ -11,7 +7,8 @@ from solver.articulated import _simplify_rigid
 def _score(cube):
     """Lower is better: non-uniform faces plus cut-alignment misses."""
     sets={i:set() for i in range(6)}
-    for panel,color in zip(cube.panels,cube._paints):
+    for index,(panel,color) in enumerate(zip(cube.panels,cube._paints)):
+        if index in cube.hidden_panels:continue
         if color<0:
             return 1000
         normal=transform_frame(cube.frames[panel.home],CUBE[panel.face])
@@ -55,6 +52,7 @@ def _macros(cube,cancel,cache):
 
 
 def solve_pentacle(cube,cancel=None,progress=None):
+    if cancel and cancel():raise InterruptedError()
     if cube.is_solved():return ()
     period=cube.geometry.spec.turn_order
     if cube.history and cube.frames==cube._history_snapshot:
@@ -64,32 +62,5 @@ def solve_pentacle(cube,cancel=None,progress=None):
             if len(short)<len(word) and _verify(cube,short,cancel):
                 return short
             return word
-    # Manual states: search macro turns (alignment discs + a core quarter
-    # turn).  The disc angles are continuous, so this is the finite branching
-    # layer that matters for a human-like solve.
-    deadline=monotonic()+10.0
-    cache={}
-    start=cube.clone()
-    beam=[( _score(start),start,())]
-    seen={start.frames}
-    width=18
-    for depth in range(1,13):
-        if cancel and cancel():raise InterruptedError()
-        if progress:progress(depth,12)
-        following=[]
-        for _score_value,state,path in beam:
-            if monotonic()>deadline:break
-            try:macros=_macros(state,cancel,cache)
-            except ValueError:continue
-            for extra,child in macros:
-                if child.frames in seen:continue
-                seen.add(child.frames)
-                word=path+extra
-                if child.is_solved():
-                    if _verify(cube,word,cancel):return word
-                following.append((_score(child),child,word))
-        if not following:break
-        following.sort(key=lambda item:item[0])
-        beam=following[:width]
-        if monotonic()>deadline:break
-    raise ValueError('rigid.search_limit')
+    from solver.pentacle_state import solve_pentacle_state
+    return solve_pentacle_state(cube,cancel,progress)

@@ -1,0 +1,82 @@
+{
+  "status": "pass",
+  "checked": 15,
+  "errors": 0,
+  "results": [
+    {
+      "screen": "HomeScreen",
+      "status": "ok",
+      "shot": "shot-failed: OSError: [Errno 18] Cross-device link: '/data/data/com.example.cubesolver/files/app/0001.HomeScreen' -> '/storage/emulated/0/Android/data/com.example.cubesolver/files/selfcheck/HomeScreen.png'"
+    },
+    {
+      "screen": "InputScreen",
+      "status": "ok",
+      "shot": "shot-failed: OSError: [Errno 18] Cross-device link: '/data/data/com.example.cubesolver/files/app/0001.InputScreen' -> '/storage/emulated/0/Android/data/com.example.cubesolver/files/selfcheck/InputScreen.png'"
+    },
+    {
+      "screen": "CameraScreen",
+      "status": "ok",
+      "shot": "shot-failed: OSError: [Errno 18] Cross-device link: '/data/data/com.example.cubesolver/files/app/0001.CameraScreen' -> '/storage/emulated/0/Android/data/com.example.cubesolver/files/selfcheck/CameraScreen.png'"
+    },
+    {
+      "screen": "MastermorphixScreen",
+      "status": "ok",
+      "shot": "shot-failed: OSError: [Errno 18] Cross-device link: '/data/data/com.example.cubesolver/files/app/0001.MastermorphixScreen' -> '/storage/emulated/0/Android/data/com.example.cubesolver/files/selfcheck/MastermorphixScreen.png'"
+    },
+    {
+      "screen": "MirrorScreen",
+      "status": "ok",
+      "shot": "shot-failed: OSError: [Errno 18] Cross-device link: '/data/data/com.example.cubesolver/files/app/0001.MirrorScreen' -> '/storage/emulated/0/Android/data/com.example.cubesolver/files/selfcheck/MirrorScreen.png'"
+    },
+    {
+      "screen": "MorphixTwistScreen",
+      "status": "ok",
+      "shot": "shot-failed: OSError: [Errno 18] Cross-device link: '/data/data/com.example.cubesolver/files/app/0001.MorphixTwistScreen' -> '/storage/emulated/0/Android/data/com.example.cubesolver/files/selfcheck/MorphixTwistScreen.png'"
+    },
+    {
+      "screen": "PolyhedralScreen",
+      "status": "ok",
+      "shot": "shot-failed: OSError: [Errno 18] Cross-device link: '/data/data/com.example.cubesolver/files/app/0001.PolyhedralScreen' -> '/storage/emulated/0/Android/data/com.example.cubesolver/files/selfcheck/PolyhedralScreen.png'"
+    },
+    {
+      "screen": "PolyhedralTwistScreen",
+      "status": "ok",
+      "shot": "shot-failed: OSError: [Errno 18] Cross-device link: '/data/data/com.example.cubesolver/files/app/0001.PolyhedralTwistScreen' -> '/storage/emulated/0/Android/data/com.example.cubesolver/files/selfcheck/PolyhedralTwistScreen.png'"
+    },
+    {
+      "screen": "FormulaLibraryScreen",
+      "status": "ok",
+      "shot": "shot-failed: OSError: [Errno 18] Cross-device link: '/data/data/com.example.cubesolver/files/app/0001.FormulaLibraryScreen' -> '/storage/emulated/0/Android/data/com.example.cubesolver/files/selfcheck/FormulaLibraryScreen.png'"
+    },
+    {
+      "screen": "PracticeScreen",
+      "status": "ok",
+      "shot": "shot-failed: OSError: [Errno 18] Cross-device link: '/data/data/com.example.cubesolver/files/app/0001.PracticeScreen' -> '/storage/emulated/0/Android/data/com.example.cubesolver/files/selfcheck/PracticeScreen.png'"
+    },
+    {
+      "screen": "TwistScreen",
+      "status": "ok",
+      "shot": "shot-failed: OSError: [Errno 18] Cross-device link: '/data/data/com.example.cubesolver/files/app/0001.TwistScreen' -> '/storage/emulated/0/Android/data/com.example.cubesolver/files/selfcheck/TwistScreen.png'"
+    },
+    {
+      "screen": "SettingsScreen",
+      "status": "ok",
+      "shot": "shot-failed: OSError: [Errno 18] Cross-device link: '/data/data/com.example.cubesolver/files/app/0001.SettingsScreen' -> '/storage/emulated/0/Android/data/com.example.cubesolver/files/selfcheck/SettingsScreen.png'"
+    },
+    {
+      "screen": "Square1Screen",
+      "status": "ok",
+      "shot": "shot-failed: OSError: [Errno 18] Cross-device link: '/data/data/com.example.cubesolver/files/app/0001.Square1Screen' -> '/storage/emulated/0/Android/data/com.example.cubesolver/files/selfcheck/Square1Screen.png'"
+    },
+    {
+      "screen": "ShapeCubeScreen",
+      "status": "ok",
+      "shot": "shot-failed: OSError: [Errno 18] Cross-device link: '/data/data/com.example.cubesolver/files/app/0001.ShapeCubeScreen' -> '/storage/emulated/0/Android/data/com.example.cubesolver/files/selfcheck/ShapeCubeScreen.png'"
+    },
+    {
+      "screen": "MirrorTowerScreen",
+      "status": "ok",
+      "shot": "shot-failed: OSError: [Errno 18] Cross-device link: '/data/data/com.example.cubesolver/files/app/0001.MirrorTowerScreen' -> '/storage/emulated/0/Android/data/com.example.cubesolver/files/selfcheck/MirrorTowerScreen.png'"
+    }
+  ]
+}

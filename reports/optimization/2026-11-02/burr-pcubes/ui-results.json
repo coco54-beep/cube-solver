@@ -1,0 +1,22 @@
+[
+  {
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "real_controls": true,
+    "faces": 6,
+    "source_turns": 24
+  },
+  {
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "real_controls": true,
+    "faces": 6,
+    "source_turns": 24
+  }
+]

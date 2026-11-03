@@ -1,0 +1,9 @@
+{
+  "kind": "container",
+  "seed": 223,
+  "scramble_length": 30,
+  "solution_length": 35,
+  "seconds": 0.078,
+  "replay_solved": true,
+  "source": "rigid pieces reconstructed without history"
+}

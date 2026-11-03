@@ -10,7 +10,7 @@ class TangramEntryView(Square1View):
     """Edit real Extreme solids, or ordinary Tangram's colour sample cells.
 
     Face navigation rotates only the display. Extreme reuses playback's
-    closed housings and inset skins, and picks using physical screen rays.
+    closed housings and full skins, and picks using physical screen rays.
     """
     GUIDE_OFFSET = 512
 
@@ -74,9 +74,7 @@ class TangramEntryView(Square1View):
         return self._entry_surfaces
 
     def _inset(self, points):
-        if self._shape_mode:return points
-        centre = tuple(sum(p[a] for p in points) / len(points) for a in range(3))
-        return tuple(tuple(c + (v - c) * .992 for v, c in zip(p, centre)) for p in points)
+        return points
 
     def _is_recorded(self, slot):
         return True

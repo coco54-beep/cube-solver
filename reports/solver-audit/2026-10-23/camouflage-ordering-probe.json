@@ -1,0 +1,218 @@
+[
+  {
+    "seed": 2,
+    "weights": [
+      0.1,
+      1,
+      0,
+      0
+    ],
+    "success": false,
+    "message": "cuboid.search_budget",
+    "seconds": 5.125
+  },
+  {
+    "seed": 2,
+    "weights": [
+      3,
+      1,
+      0,
+      0
+    ],
+    "success": false,
+    "message": "cuboid.search_budget",
+    "seconds": 5.0
+  },
+  {
+    "seed": 2,
+    "weights": [
+      0,
+      1,
+      0,
+      0
+    ],
+    "success": false,
+    "message": "cuboid.search_budget",
+    "seconds": 5.0
+  },
+  {
+    "seed": 2,
+    "weights": [
+      1,
+      0,
+      1,
+      2
+    ],
+    "success": true,
+    "moves": 19,
+    "seconds": 2.297
+  },
+  {
+    "seed": 2,
+    "weights": [
+      1,
+      1,
+      0,
+      1
+    ],
+    "success": false,
+    "message": "cuboid.search_budget",
+    "seconds": 5.0
+  },
+  {
+    "seed": 2,
+    "weights": [
+      1,
+      0,
+      5,
+      1
+    ],
+    "success": true,
+    "moves": 21,
+    "seconds": 1.5
+  },
+  {
+    "seed": 3,
+    "weights": [
+      0.1,
+      1,
+      0,
+      0
+    ],
+    "success": false,
+    "message": "cuboid.search_budget",
+    "seconds": 5.0
+  },
+  {
+    "seed": 3,
+    "weights": [
+      3,
+      1,
+      0,
+      0
+    ],
+    "success": false,
+    "message": "cuboid.search_budget",
+    "seconds": 5.0
+  },
+  {
+    "seed": 3,
+    "weights": [
+      0,
+      1,
+      0,
+      0
+    ],
+    "success": false,
+    "message": "cuboid.search_budget",
+    "seconds": 5.0
+  },
+  {
+    "seed": 3,
+    "weights": [
+      1,
+      0,
+      1,
+      2
+    ],
+    "success": false,
+    "message": "cuboid.search_budget",
+    "seconds": 5.0
+  },
+  {
+    "seed": 3,
+    "weights": [
+      1,
+      1,
+      0,
+      1
+    ],
+    "success": true,
+    "moves": 33,
+    "seconds": 2.953
+  },
+  {
+    "seed": 3,
+    "weights": [
+      1,
+      0,
+      5,
+      1
+    ],
+    "success": false,
+    "message": "cuboid.search_budget",
+    "seconds": 5.0
+  },
+  {
+    "seed": 8,
+    "weights": [
+      0.1,
+      1,
+      0,
+      0
+    ],
+    "success": true,
+    "moves": 97,
+    "seconds": 4.391
+  },
+  {
+    "seed": 8,
+    "weights": [
+      3,
+      1,
+      0,
+      0
+    ],
+    "success": false,
+    "message": "cuboid.search_budget",
+    "seconds": 5.0
+  },
+  {
+    "seed": 8,
+    "weights": [
+      0,
+      1,
+      0,
+      0
+    ],
+    "success": true,
+    "moves": 298,
+    "seconds": 4.625
+  },
+  {
+    "seed": 8,
+    "weights": [
+      1,
+      0,
+      1,
+      2
+    ],
+    "success": false,
+    "message": "cuboid.search_budget",
+    "seconds": 5.0
+  },
+  {
+    "seed": 8,
+    "weights": [
+      1,
+      1,
+      0,
+      1
+    ],
+    "success": false,
+    "message": "cuboid.search_budget",
+    "seconds": 5.0
+  },
+  {
+    "seed": 8,
+    "weights": [
+      1,
+      0,
+      5,
+      1
+    ],
+    "success": false,
+    "message": "cuboid.search_budget",
+    "seconds": 5.0
+  }
+]

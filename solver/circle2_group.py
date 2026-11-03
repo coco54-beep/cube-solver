@@ -55,7 +55,7 @@ def normalize(cube,cancel=None):
     raise ValueError('circle.count_error')
 
 
-def solve_circle_group(cube,cancel=None,progress=None):
+def solve_circle_group(cube,cancel=None,progress=None,*,seconds=None):
     if cancel and cancel():raise InterruptedError()
     if cube.is_solved():return ()
     work,prefix=normalize(cube,cancel) if cube.puzzle_kind=='circle_2' else (cube.entered(),())
@@ -69,7 +69,7 @@ def solve_circle_group(cube,cancel=None,progress=None):
         nonlocal nodes
         if cancel and cancel():raise InterruptedError()
         nodes+=1
-        if monotonic()-begun>20 or nodes>20000:raise ValueError('circle.search_limit')
+        if seconds is not None and monotonic()-begun>seconds:raise ValueError('circle.search_limit')
         if state==wanted:return ()
         if level==len(data['base']) or (level,state) in seen:return None
         if len(seen)<12000:seen.add((level,state))

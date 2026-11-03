@@ -1,0 +1,531 @@
+[
+  {
+    "case": "cube2",
+    "screen": "InputScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "cube3",
+    "screen": "InputScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "cube4",
+    "screen": "InputScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "penrose3",
+    "screen": "InputScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "penrose4",
+    "screen": "InputScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "bicube",
+    "screen": "InputScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "morphix3",
+    "screen": "MastermorphixScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "morphix4",
+    "screen": "MastermorphixScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "mirror3",
+    "screen": "MirrorScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "blanker",
+    "screen": "BlankerScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "axis",
+    "screen": "ShapeCubeScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "trajber4",
+    "screen": "ShapeCubeScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "ghost",
+    "screen": "GhostScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "mirror-tower",
+    "screen": "MirrorTowerScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "mirror-pyraminx",
+    "screen": "MirrorPyraminxScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "mirror-skewb",
+    "screen": "MirrorSkewbScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "fisher-skewb",
+    "screen": "FisherSkewbScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "container",
+    "screen": "ContainerScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "mirror-minx2",
+    "screen": "MirrorMinxScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "mirror-minx3",
+    "screen": "MirrorMinxScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "megaminx",
+    "screen": "PolyhedralScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "fto",
+    "screen": "PolyhedralScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "dogic20",
+    "screen": "PolyhedralScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "fixed-cuboid",
+    "screen": "PolyhedralScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "camouflage",
+    "screen": "CuboidSixViewScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "undo"
+    ],
+    "clear_confirmation": false,
+    "ok": true
+  },
+  {
+    "case": "changing-cuboid",
+    "screen": "CuboidSixViewScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "undo"
+    ],
+    "clear_confirmation": false,
+    "ok": true
+  },
+  {
+    "case": "mixup",
+    "screen": "MixupInputScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "undo"
+    ],
+    "clear_confirmation": false,
+    "ok": true
+  },
+  {
+    "case": "mixup-plus",
+    "screen": "MixupInputScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "undo"
+    ],
+    "clear_confirmation": false,
+    "ok": true
+  },
+  {
+    "case": "tangram",
+    "screen": "ArticulatedEntryScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "tangram-extreme",
+    "screen": "ArticulatedEntryScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "pentacle",
+    "screen": "PentacleScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "undo"
+    ],
+    "clear_confirmation": false,
+    "ok": true
+  },
+  {
+    "case": "square1",
+    "screen": "Square1Screen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "square2",
+    "screen": "SquareFamilyScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  },
+  {
+    "case": "super-square1",
+    "screen": "SquareFamilyScreen",
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "cancel-clear",
+      "clear",
+      "confirm-clear",
+      "undo"
+    ],
+    "clear_confirmation": true,
+    "ok": true
+  }
+]

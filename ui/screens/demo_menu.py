@@ -28,13 +28,20 @@ from ui.widgets.dialogs import theme_popup
 from demo.solutions import make_scrambled_demo, verified_solution_lessons, state_signature
 from services.solve_service import SolveService
 
-DEMO_REVISION='accuracy-2026-10-12-v2'
+DEMO_REVISION='catalogue-teaching-2026-10-24-v2'
 
 
 def source_screen(mode):
     if mode == 'cfop':
         return 'HomeScreen'
     kind=mode[0] if isinstance(mode,tuple) else mode
+    from demo.coverage import entry_screen as coverage_entry
+    if isinstance(mode,tuple):
+        covered=coverage_entry(*mode)
+        if covered:return covered
+    from demo.expanded_support import entry_screen
+    expanded=entry_screen(kind)
+    if expanded:return expanded
     return {'fisher_skewb':'FisherSkewbScreen','mastermorphix':'MastermorphixScreen','mirror':'MirrorScreen',
             'axis':'ShapeCubeScreen','pandora':'InputScreen',
             'windmill':'ShapeCubeScreen','fisher':'ShapeCubeScreen',
@@ -43,7 +50,7 @@ def source_screen(mode):
 
 
 def _num(n):
-    return ["一", "二", "三", "四", "五", "六", "七", "八", "九"][n]
+    return ["一", "二", "三", "四", "五", "六", "七", "八", "九"][n] if n<9 else str(n+1)
 
 
 def _mode_menu_title(n):
@@ -51,7 +58,7 @@ def _mode_menu_title(n):
         return tr('formula.title')
     if isinstance(n, tuple):
         return _mode_title(n)
-    return tr(f"demo.mode.menu.{n}")
+    return _mode_title(n) if isinstance(n,int) and n>=6 else tr(f"demo.mode.menu.{n}")
 
 
 _MODE_TITLE = {2: "demo.mode.menu.2", 3: "demo.mode.menu.3",
@@ -159,11 +166,23 @@ class DemoMenuScreen(Screen):
         self._rebuild()
 
     def _rebuild(self):
+        self._menu_generation=object()
         self.list.clear_widgets()
+        from candidate_puzzles import BY_KIND
+        if isinstance(self.mode,tuple) and self.mode[0] in BY_KIND:
+            route=PrimaryButton(text=tr('demo.route'),size_hint_y=None,height=m.h(50))
+            route.bind(on_release=lambda *_:self.open_learning_route())
+            self.list.add_widget(route)
         if self.mode != 'cfop':
             actions=ResponsiveBoxLayout(height_px=52,gap_px=8)
             for key,callback in (('demo.complete',self.start_complete_demo),('demo.my_input',self.solve_current_input)):
-                button=PrimaryButton(text=tr(key))
+                from demo.coverage import supports_mode
+                fixed=supports_mode(self.mode) or (isinstance(self.mode,tuple) and self.mode[0] in BY_KIND)
+                label=(tr('media.fixed_course') if key=='demo.complete' and fixed else tr(key))
+                button=PrimaryButton(text=label)
+                button.font_size='14sp'
+                button.halign='center';button.valign='middle'
+                button.bind(width=lambda w,value:setattr(w,'text_size',(max(0,value-m.h(8)),None)))
                 button.bind(on_release=lambda *_,fn=callback:fn())
                 actions.add_widget(button)
             self.list.add_widget(actions)
@@ -171,6 +190,54 @@ class DemoMenuScreen(Screen):
             self._add_steps(self._solution_steps)
         steps = _steps_for(self.mode)
         self._add_steps(steps)
+
+    def open_learning_route(self):
+        from demo.expanded_curriculum import chapters
+        if not isinstance(self.mode,tuple):return
+        kind=self.mode[0];mode=self.mode;units=chapters(kind)
+        self._route_token=token=object();self._route_chapter=0
+        content=ResponsiveBoxLayout(orientation='vertical',gap_px=8)
+        navigation=ResponsiveBoxLayout(height_px=44,gap_px=6)
+        previous=UIButton(icon_name='prev');following=UIButton(icon_name='next')
+        counter=Label(halign='center');navigation.add_widget(previous);navigation.add_widget(counter);navigation.add_widget(following)
+        content.add_widget(navigation)
+        scroll=ScrollView(do_scroll_x=False)
+        body=BoxLayout(orientation='vertical',size_hint_y=None,spacing=m.h(10),padding=m.h(10))
+        body.bind(minimum_height=body.setter('height'));scroll.add_widget(body);content.add_widget(scroll)
+        footer=ResponsiveBoxLayout(height_px=44,gap_px=6);content.add_widget(footer)
+        close=UIButton(text=tr('demo.close'),size_hint_y=None,height=m.h(44));content.add_widget(close)
+        popup=Popup(title=tr('demo.route'),content=content,size_hint=(.94,.9))
+        def current():
+            return self._route_token is token and self.mode==mode and (self.manager is None or self.manager.current==self.name)
+        def paragraph(value):
+            label=Label(text=value,halign='left',valign='middle',font_size='15sp')
+            _autofit(label,pad=m.h(8));body.add_widget(label)
+            return label
+        def launch(chapter,page_token):
+            if not current() or self._route_page_token is not page_token:return
+            popup.dismiss()
+            if chapter==3:self.start_complete_demo();return
+            steps=_steps_for(mode)
+            si=(next((i for i,s in enumerate(steps) if any(c.get('original') for c in s['cases'])),len(steps)-1)
+                if chapter==2 else 0)
+            self.open_case(si,min(chapter,len(steps[si]['cases'])-1) if chapter<2 else 0)
+        def show(index):
+            if not current():return
+            self._route_chapter=index;self._route_page_token=page_token=object()
+            chapter=units[index];body.clear_widgets();footer.clear_widgets();scroll.scroll_y=1
+            counter.text=f'{index+1} / {len(units)}';previous.disabled=index==0;following.disabled=index==len(units)-1
+            paragraph(tr('demo.original_credit'));paragraph(chapter.title).bold=True
+            paragraph('识别：'+chapter.recognize)
+            for j,action in enumerate(chapter.actions,1):paragraph(f'{j}. {action}')
+            paragraph('完成条件：'+chapter.done);paragraph('容易出错：'+chapter.pitfall)
+            self.chapter_play_button=PrimaryButton(text=tr('demo.chapter_play'))
+            self.chapter_play_button.bind(on_release=lambda *_:launch(index,page_token));footer.add_widget(self.chapter_play_button)
+        previous.bind(on_release=lambda *_:show(self._route_chapter-1) if self._route_chapter>0 else None)
+        following.bind(on_release=lambda *_:show(self._route_chapter+1) if self._route_chapter<len(units)-1 else None)
+        self.chapter_previous=previous;self.chapter_next=following
+        popup.bind(on_dismiss=lambda *_:setattr(self,'_route_token',None) if self._route_token is token else None)
+        show(0);theme_popup(popup,_app().theme);close.bind(on_release=lambda *_:popup.dismiss())
+        popup.open();return popup
 
     def _add_steps(self,steps):
         for si, step in enumerate(steps):
@@ -186,6 +253,7 @@ class DemoMenuScreen(Screen):
 
     def _row(self, si, ci, case,steps=None):
         row = BoxLayout(size_hint_y=None, height=m.h(120), spacing=8, padding=[0, 4, 0, 4])
+        row._demo_generation=self._menu_generation
         # 缩略图
         thumb_png = render_thumb(case, self.mode)
         if thumb_png:
@@ -226,6 +294,8 @@ class DemoMenuScreen(Screen):
         return False
 
     def _row_touch(self, row, touch, si, ci,steps=None):
+        if getattr(row,'_demo_generation',None) is not getattr(self,'_menu_generation',None):return False
+        if self.manager is not None and self.manager.current!=self.name:return False
         pressed = touch.ud.get(('demo-row', id(self)))
         if (pressed and pressed[0] is row and row.collide_point(*touch.pos)
                 and sum((a-b)**2 for a,b in zip(pressed[1],touch.pos)) <= m.h(12)**2):
@@ -248,9 +318,17 @@ class DemoMenuScreen(Screen):
     def start_complete_demo(self):
         if self._job is not None:
             return
+        from candidate_puzzles import BY_KIND
+        expanded=isinstance(self.mode,tuple) and self.mode[0] in BY_KIND
+        from demo.coverage import supports_mode,complete_lessons
+        if supports_mode(self.mode):
+            kind,n=('cube',self.mode) if isinstance(self.mode,int) else self.mode
+            self._solution_steps=complete_lessons(kind,n)
+            self._rebuild();self.open_case(0,0,self._solution_steps)
+            return
         job=object()
         self._job=job
-        message=Label(text=tr('demo.preparing_complete'),halign='center',valign='middle')
+        message=Label(text=tr('media.loading_course' if expanded else 'demo.preparing_complete'),halign='center',valign='middle')
         message.bind(size=lambda w,*_:setattr(w,'text_size',w.size))
         content=ResponsiveBoxLayout(orientation='vertical',gap_px=8)
         content.add_widget(message)
@@ -261,6 +339,17 @@ class DemoMenuScreen(Screen):
         self._solve_popup=popup
         cancel.bind(on_release=lambda *_:self._cancel_complete())
         popup.open()
+        if expanded:
+            import threading
+            mode=self.mode
+            def load_course():
+                try:
+                    from demo.course import load
+                    steps=load(*mode);error=None
+                except Exception as exc:steps=None;error=str(exc)
+                Clock.schedule_once(lambda _dt:self._finish_complete(job,steps,error),0)
+            threading.Thread(target=load_course,daemon=True).start()
+            return
         try:
             initial=make_scrambled_demo(self.mode)
         except Exception as exc:
@@ -316,7 +405,7 @@ class DemoMenuScreen(Screen):
         callback=getattr(source,'start_solve',None) or source.solve
         Clock.schedule_once(lambda _dt:callback(),0)
 
-    def on_leave(self,*args):
+    def on_pre_leave(self,*args):
         if self._job is not None:
             self._cancel_complete()
 

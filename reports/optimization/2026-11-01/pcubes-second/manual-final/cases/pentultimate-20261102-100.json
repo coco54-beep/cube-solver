@@ -1,0 +1,34 @@
+{
+  "kind": "pentultimate",
+  "seed": 20261102,
+  "scramble_turns": 100,
+  "evaluation_budget_seconds": 30.0,
+  "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-11-01\\pcubes-second\\manual-final\\inputs\\pentultimate-20261102-100.json",
+  "input_method": "fixed visible model panels, colours only",
+  "history_empty": true,
+  "visible_entry_matches": true,
+  "input_seconds": 0.031,
+  "success": true,
+  "moves": 297,
+  "failure_category": "",
+  "solve_seconds": 0.032,
+  "progress_stages": [
+    {
+      "label": "solver.continuing",
+      "seconds": 0.0
+    }
+  ],
+  "message": "",
+  "evaluation_budget_hit": false,
+  "replay_solved": true,
+  "replay_seconds": 0.0,
+  "seconds": 0.063,
+  "shortening": [
+    {
+      "before": 297,
+      "after": 297,
+      "seconds": 0.016
+    }
+  ],
+  "colour_stage_plans": []
+}

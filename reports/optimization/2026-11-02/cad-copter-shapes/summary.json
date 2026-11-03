@@ -1,0 +1,78 @@
+{
+  "focused": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "174",
+    "time": "102.169",
+    "timestamp": "2026-11-02T13:39:22.864575+08:00",
+    "hostname": "DESKTOP-5GK8RN1"
+  },
+  "shapes": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "39",
+    "time": "80.376",
+    "timestamp": "2026-11-02T13:43:28.081980+08:00",
+    "hostname": "DESKTOP-5GK8RN1"
+  },
+  "native": [
+    {
+      "kind": "lanlan_flower_copter",
+      "size": [
+        800,
+        600
+      ],
+      "passed": true,
+      "shape_animation": true,
+      "second_cut_animation": true,
+      "manual_colour": false,
+      "manual_pose": false,
+      "reset_and_undo": true
+    },
+    {
+      "kind": "mf8_twins",
+      "size": [
+        800,
+        600
+      ],
+      "passed": true,
+      "shape_animation": true,
+      "second_cut_animation": true,
+      "manual_colour": false,
+      "manual_pose": false,
+      "reset_and_undo": true
+    },
+    {
+      "kind": "lanlan_flower_copter",
+      "size": [
+        390,
+        844
+      ],
+      "passed": true,
+      "shape_animation": true,
+      "second_cut_animation": true,
+      "manual_colour": false,
+      "manual_pose": false,
+      "reset_and_undo": true
+    },
+    {
+      "kind": "mf8_twins",
+      "size": [
+        390,
+        844
+      ],
+      "passed": true,
+      "shape_animation": true,
+      "second_cut_animation": true,
+      "manual_colour": false,
+      "manual_pose": false,
+      "reset_and_undo": true
+    }
+  ],
+  "syntax_files": 26,
+  "first_regression_passed": 200
+}

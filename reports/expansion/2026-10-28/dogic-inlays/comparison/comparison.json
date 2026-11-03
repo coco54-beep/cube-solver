@@ -1,0 +1,8 @@
+{
+  "grey_rgb_identical": true,
+  "rendered_inlays_each": 120,
+  "physical_pieces_each": 80,
+  "central_inlays_each": 3,
+  "central_inlays_independently_turnable": false,
+  "solver_geometry_unchanged": true
+}

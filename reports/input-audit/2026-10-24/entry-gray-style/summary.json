@@ -1,0 +1,43 @@
+{
+  "page_instances": 56,
+  "representative_configurations": 28,
+  "partial_entry_instances": 18,
+  "errors": [],
+  "render_preserves_state": true,
+  "undo_restores_state": true,
+  "style": {
+    "unentered": [
+      0.43,
+      0.48,
+      0.53,
+      1.0
+    ],
+    "plastic": [
+      0.12,
+      0.15,
+      0.18,
+      1.0
+    ],
+    "seam": [
+      0.12,
+      0.16,
+      0.2,
+      1.0
+    ],
+    "grid": [
+      0.27,
+      0.32,
+      0.37,
+      0.48
+    ],
+    "selection": [
+      0.05,
+      0.84,
+      1.0,
+      1.0
+    ]
+  },
+  "platform": "Windows desktop / Kivy ANGLE",
+  "android_verified": false,
+  "packaged": false
+}

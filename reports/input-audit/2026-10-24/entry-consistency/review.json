@@ -1,0 +1,1438 @@
+[
+  {
+    "case": "cube3",
+    "screen": "InputScreen",
+    "size": [
+      800,
+      600
+    ],
+    "screenshot": "cube3-800x600.png"
+  },
+  {
+    "case": "penrose3",
+    "screen": "InputScreen",
+    "size": [
+      800,
+      600
+    ],
+    "screenshot": "penrose3-800x600.png"
+  },
+  {
+    "case": "morphix3",
+    "screen": "MastermorphixScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 4,
+    "page": "1/1",
+    "screenshot": "morphix3-800x600.png"
+  },
+  {
+    "case": "morphix4",
+    "screen": "MastermorphixScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "morphix4-800x600.png"
+  },
+  {
+    "case": "mirror3",
+    "screen": "MirrorScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "mirror3-800x600.png"
+  },
+  {
+    "case": "blanker",
+    "screen": "BlankerScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "blanker-800x600.png"
+  },
+  {
+    "case": "axis",
+    "screen": "ShapeCubeScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "axis-800x600.png"
+  },
+  {
+    "case": "trajber4",
+    "screen": "ShapeCubeScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "trajber4-800x600.png"
+  },
+  {
+    "case": "mirror-tower",
+    "screen": "MirrorTowerScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 4,
+    "page": "1/1",
+    "screenshot": "mirror-tower-800x600.png"
+  },
+  {
+    "case": "mirror-pyraminx",
+    "screen": "MirrorPyraminxScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 4,
+    "page": "1/1",
+    "screenshot": "mirror-pyraminx-800x600.png"
+  },
+  {
+    "case": "mirror-skewb",
+    "screen": "MirrorSkewbScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 4,
+    "page": "1/1",
+    "screenshot": "mirror-skewb-800x600.png"
+  },
+  {
+    "case": "fisher-skewb",
+    "screen": "FisherSkewbScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 4,
+    "page": "1/1",
+    "palette_slots": 6,
+    "screenshot": "fisher-skewb-800x600.png"
+  },
+  {
+    "case": "container",
+    "screen": "ContainerScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 4,
+    "page": "1/1",
+    "palette_slots": 6,
+    "screenshot": "container-800x600.png"
+  },
+  {
+    "case": "mirror-minx2",
+    "screen": "MirrorMinxScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/3",
+    "paging_preserves_state": true,
+    "screenshot": "mirror-minx2-800x600.png"
+  },
+  {
+    "case": "mirror-minx3",
+    "screen": "MirrorMinxScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/2",
+    "paging_preserves_state": true,
+    "screenshot": "mirror-minx3-800x600.png"
+  },
+  {
+    "case": "megaminx",
+    "screen": "PolyhedralScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "screenshot": "megaminx-800x600.png"
+  },
+  {
+    "case": "fto",
+    "screen": "PolyhedralScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "palette_slots": 8,
+    "screenshot": "fto-800x600.png"
+  },
+  {
+    "case": "fixed-cuboid",
+    "screen": "PolyhedralScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "screenshot": "fixed-cuboid-800x600.png"
+  },
+  {
+    "case": "camouflage",
+    "screen": "CuboidSixViewScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "screenshot": "camouflage-800x600.png"
+  },
+  {
+    "case": "changing-cuboid",
+    "screen": "CuboidSixViewScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "screenshot": "changing-cuboid-800x600.png"
+  },
+  {
+    "case": "mixup",
+    "screen": "MixupInputScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 3,
+    "visible_cards": 0,
+    "screenshot": "mixup-800x600.png"
+  },
+  {
+    "case": "mixup-plus",
+    "screen": "MixupInputScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 3,
+    "visible_cards": 0,
+    "screenshot": "mixup-plus-800x600.png"
+  },
+  {
+    "case": "tangram",
+    "screen": "ArticulatedEntryScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "screenshot": "tangram-800x600.png"
+  },
+  {
+    "case": "tangram-extreme",
+    "screen": "ArticulatedEntryScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "screenshot": "tangram-extreme-800x600.png"
+  },
+  {
+    "case": "pentacle",
+    "screen": "PentacleScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "screenshot": "pentacle-800x600.png"
+  },
+  {
+    "case": "square1",
+    "screen": "Square1Screen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      78.1,
+      78.1,
+      78.1,
+      78.1,
+      78.1
+    ],
+    "screenshot": "square1-800x600.png"
+  },
+  {
+    "case": "square2",
+    "screen": "SquareFamilyScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      78.1,
+      78.1,
+      78.1,
+      78.1,
+      78.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/3",
+    "paging_preserves_state": true,
+    "screenshot": "square2-800x600.png"
+  },
+  {
+    "case": "super-square1",
+    "screen": "SquareFamilyScreen",
+    "size": [
+      800,
+      600
+    ],
+    "actions": [
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      78.1,
+      78.1,
+      78.1,
+      78.1,
+      78.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/2",
+    "paging_preserves_state": true,
+    "screenshot": "super-square1-800x600.png"
+  },
+  {
+    "case": "cube3",
+    "screen": "InputScreen",
+    "size": [
+      400,
+      850
+    ],
+    "screenshot": "cube3-400x850.png"
+  },
+  {
+    "case": "penrose3",
+    "screen": "InputScreen",
+    "size": [
+      400,
+      850
+    ],
+    "screenshot": "penrose3-400x850.png"
+  },
+  {
+    "case": "morphix3",
+    "screen": "MastermorphixScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 4,
+    "page": "1/1",
+    "screenshot": "morphix3-400x850.png"
+  },
+  {
+    "case": "morphix4",
+    "screen": "MastermorphixScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "morphix4-400x850.png"
+  },
+  {
+    "case": "mirror3",
+    "screen": "MirrorScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "mirror3-400x850.png"
+  },
+  {
+    "case": "blanker",
+    "screen": "BlankerScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "blanker-400x850.png"
+  },
+  {
+    "case": "axis",
+    "screen": "ShapeCubeScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "axis-400x850.png"
+  },
+  {
+    "case": "trajber4",
+    "screen": "ShapeCubeScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "trajber4-400x850.png"
+  },
+  {
+    "case": "mirror-tower",
+    "screen": "MirrorTowerScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 4,
+    "page": "1/1",
+    "screenshot": "mirror-tower-400x850.png"
+  },
+  {
+    "case": "mirror-pyraminx",
+    "screen": "MirrorPyraminxScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 4,
+    "page": "1/1",
+    "screenshot": "mirror-pyraminx-400x850.png"
+  },
+  {
+    "case": "mirror-skewb",
+    "screen": "MirrorSkewbScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 4,
+    "page": "1/1",
+    "screenshot": "mirror-skewb-400x850.png"
+  },
+  {
+    "case": "fisher-skewb",
+    "screen": "FisherSkewbScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 4,
+    "page": "1/1",
+    "palette_slots": 6,
+    "screenshot": "fisher-skewb-400x850.png"
+  },
+  {
+    "case": "container",
+    "screen": "ContainerScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 4,
+    "page": "1/1",
+    "palette_slots": 6,
+    "screenshot": "container-400x850.png"
+  },
+  {
+    "case": "mirror-minx2",
+    "screen": "MirrorMinxScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/3",
+    "paging_preserves_state": true,
+    "screenshot": "mirror-minx2-400x850.png"
+  },
+  {
+    "case": "mirror-minx3",
+    "screen": "MirrorMinxScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/2",
+    "paging_preserves_state": true,
+    "screenshot": "mirror-minx3-400x850.png"
+  },
+  {
+    "case": "megaminx",
+    "screen": "PolyhedralScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "screenshot": "megaminx-400x850.png"
+  },
+  {
+    "case": "fto",
+    "screen": "PolyhedralScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "palette_slots": 8,
+    "screenshot": "fto-400x850.png"
+  },
+  {
+    "case": "fixed-cuboid",
+    "screen": "PolyhedralScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "screenshot": "fixed-cuboid-400x850.png"
+  },
+  {
+    "case": "camouflage",
+    "screen": "CuboidSixViewScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "screenshot": "camouflage-400x850.png"
+  },
+  {
+    "case": "changing-cuboid",
+    "screen": "CuboidSixViewScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "screenshot": "changing-cuboid-400x850.png"
+  },
+  {
+    "case": "mixup",
+    "screen": "MixupInputScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 3,
+    "visible_cards": 0,
+    "screenshot": "mixup-400x850.png"
+  },
+  {
+    "case": "mixup-plus",
+    "screen": "MixupInputScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 3,
+    "visible_cards": 0,
+    "screenshot": "mixup-plus-400x850.png"
+  },
+  {
+    "case": "tangram",
+    "screen": "ArticulatedEntryScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "screenshot": "tangram-400x850.png"
+  },
+  {
+    "case": "tangram-extreme",
+    "screen": "ArticulatedEntryScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "screenshot": "tangram-extreme-400x850.png"
+  },
+  {
+    "case": "pentacle",
+    "screen": "PentacleScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "screenshot": "pentacle-400x850.png"
+  },
+  {
+    "case": "square1",
+    "screen": "Square1Screen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      72.0,
+      72.0,
+      72.0,
+      72.0,
+      72.0
+    ],
+    "screenshot": "square1-400x850.png"
+  },
+  {
+    "case": "square2",
+    "screen": "SquareFamilyScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      72.0,
+      72.0,
+      72.0,
+      72.0,
+      72.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/3",
+    "paging_preserves_state": true,
+    "screenshot": "square2-400x850.png"
+  },
+  {
+    "case": "super-square1",
+    "screen": "SquareFamilyScreen",
+    "size": [
+      400,
+      850
+    ],
+    "actions": [
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      72.0,
+      72.0,
+      72.0,
+      72.0,
+      72.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/2",
+    "paging_preserves_state": true,
+    "screenshot": "super-square1-400x850.png"
+  }
+]

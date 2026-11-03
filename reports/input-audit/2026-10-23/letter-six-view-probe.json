@@ -1,0 +1,34 @@
+[
+  {
+    "kind": "i_cube",
+    "status": "ok",
+    "nodes": 69,
+    "seconds": 0.047,
+    "moves": 24,
+    "solved": true
+  },
+  {
+    "kind": "l_cube",
+    "status": "ok",
+    "nodes": 82,
+    "seconds": 0.063,
+    "moves": 113,
+    "solved": true
+  },
+  {
+    "kind": "tri_cube",
+    "status": "ok",
+    "nodes": 101,
+    "seconds": 0.078,
+    "moves": 196,
+    "solved": true
+  },
+  {
+    "kind": "cross_cube",
+    "status": "ok",
+    "nodes": 4479,
+    "seconds": 1.938,
+    "moves": 886,
+    "solved": true
+  }
+]

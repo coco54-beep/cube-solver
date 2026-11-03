@@ -4,6 +4,17 @@
 
 [下载 Windows / Android 版](https://github.com/coco54-beep/cube-solver/releases/latest) · [English technical overview](README.md) · [日本語](README.ja.md) · [源代码](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.39 更新
+
+- 首页新增可搜索的魔方目录，所有系列和阶数使用图片卡片，设置移到右上角。
+- 中文、英文、日文名称和阶数标签统一，阶数统一显示在名称前面。
+- 从目录中移除 **双棱花** 和 **双鱼座**。
+- 修复切换阶数/恢复旧录入状态时的输入页闪退，并加固已删除页面的会话恢复。
+- 优化高阶普通魔方转动、Mastermorphix/Mirror 中心方案复用、Pentahedron/War Drum 优化预算、Tangram Extreme 验证和双子星回放时长。
+- 全量自动化测试：**4398 passed, 23 skipped**。
+
+[1.2.39 更新说明](docs/release-1.2.39.md)
+
 ## 1.2.34 更新
 
 - 无历史手动求解现覆盖 **Fused、AI、Burr、Bandaged C、Two-Bar、BiCube**，以及 **Circle 2／疯狂星球** 和 **Tangram／Tangram Extreme**。
@@ -275,6 +286,8 @@ flowchart LR
 ## 5. 应用与复现
 
 应用提供颜色或块形录入、随机打乱、公式粘贴、校验、撤销/重做、取消与进度提示；异形魔方另有独立拧动界面和保持原模型的分阶段 3D 演示。
+
+扩展目录的 32 个型号已提供完整固定实例课程，长解保留全部动作，支持分段跳转、系统旁白和 MP4 视频导出。操作及平台条件见[课程与视频导出说明](docs/demo-courses.md)。
 
 ```bash
 git clone https://github.com/coco54-beep/cube-solver.git

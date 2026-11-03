@@ -197,6 +197,7 @@ class CameraScreen(Screen):
         self._parked_face = None
         self._parked_digest = None
         self._photo_dirty = False
+        self._input_baseline = None
         self._session = None
         self._camera_widget = None
         self._preview_image = None
@@ -345,6 +346,10 @@ class CameraScreen(Screen):
         self.msg.text = ""
         n = self._n()
         cube = getattr(_app(), "cube", None)
+        if (getattr(cube,'puzzle_kind',None)=='tangram' and getattr(_app(),'input_from_camera',False)
+                and self.manager is not None):
+            entry=self.manager.get_screen('ArticulatedEntryScreen')
+            if getattr(entry,'_ao_state',None) is not None:_app().camera_observations=deepcopy(entry._ao_state)
         if not self._initialized or self._n_for_screen != n or self._cube_for_screen is not cube:
             self._reset_for_n(n)
             self._n_for_screen = n
@@ -352,7 +357,9 @@ class CameraScreen(Screen):
             self._initialized = True
         elif self._profile and getattr(_app(), 'input_from_camera', False):
             # Keep corrections made on the full-size input model when returning.
-            if self._profile.kind=='pandora' and getattr(_app(),'facelets_input',None) is not None:
+            if self._profile.kind=='tangram' and getattr(_app(),'camera_observations',None) is not None:
+                updated=self._profile.from_observations(_app().camera_observations)
+            elif self._profile.kind=='pandora' and getattr(_app(),'facelets_input',None) is not None:
                 from vision.scan_profiles import CUBE_CODES
                 entered=_app().facelets_input
                 updated=self._profile.blank()
@@ -362,10 +369,14 @@ class CameraScreen(Screen):
                     updated[face][surface.index]=CUBE_CODES.index(code) if code in CUBE_CODES else -1
             else:
                 updated = self._profile.from_cube(cube)
-            for face, values in updated.items():
-                self._manual_cells.update((face, i) for i, color in values.items()
-                                          if color != self._data[face].get(i, -1))
-            self._data = updated
+            if self._input_baseline is not None and updated!=self._input_baseline:
+                for face, values in updated.items():
+                    self._manual_cells.update((face, i) for i, color in values.items()
+                                              if color != self._data[face].get(i, -1))
+                self._data = updated
+            # An unchanged input model must not replace newer, unapplied scans
+            # when on_enter is delivered again after restoring a session.
+            self._input_baseline=deepcopy(updated)
         self.retranslate()
         self._apply_heights()
         self._restore_parked_photo()
@@ -404,6 +415,7 @@ class CameraScreen(Screen):
         Clock.schedule_once(restore, .2)
 
     def _cancel_turn(self):
+        self._turn_token = None
         if self._turning:
             if self._profile:
                 self.grid.cancel_turn()
@@ -492,6 +504,8 @@ class CameraScreen(Screen):
             self.grid = ScanSurfaceView(size_hint=(None, None), size=(m.h(108), m.h(108)))
             self._ori = self._profile.new_orientation()
             self._data = self._profile.from_cube(_app().cube, getattr(_app(), 'camera_recorded', None))
+            if kind=='tangram' and getattr(_app(),'camera_observations',None) is not None:
+                self._data=self._profile.from_observations(_app().camera_observations)
         else:
             self.grid = ScanCubeView(size_hint=(None, None), size=(m.h(108), m.h(108)))
             self._ori = CubeOrientation(n)
@@ -728,9 +742,11 @@ class CameraScreen(Screen):
                          else tr("camera.rot_hint", dir=tr("camera.dir."+d), face=tr("face."+target)))
         self.msg.color = _app().theme.accent
         self._set_turning(True)
+        self._turn_token = token = object()
         def finished():
-            if not self._turning:
+            if not self._turning or self._turn_token is not token:
                 return
+            self._turn_token = None
             if previous:
                 self._ori.turn_prev()
             else:
@@ -1261,6 +1277,17 @@ class CameraScreen(Screen):
             return
         if self._profile:
             app = _app()
+            if self._profile.kind=='tangram':
+                try:draft=self._profile.observations(self._data)
+                except ValueError as exc:
+                    self.msg.text=tr(str(exc));self.msg.color=app.theme.danger;return
+                entry=self.manager.get_screen(self._profile.entry_screen)
+                entry.import_camera_observations(app.cube,draft)
+                self._input_baseline=deepcopy(self._data)
+                app.camera_observations=draft.state();app.input_from_camera=True
+                app.polyhedral_solution=None;app.solve_result=None
+                self.manager.current=self._profile.entry_screen
+                return
             try:
                 cube = self._profile.apply(self._data, app.cube)
             except ValueError as exc:
@@ -1268,6 +1295,7 @@ class CameraScreen(Screen):
                 self.msg.color = app.theme.danger
                 return
             app.cube = cube
+            self._input_baseline=deepcopy(self._data)
             self._cube_for_screen = cube
             app.input_from_camera = True
             app.polyhedral_solution = None
@@ -1275,10 +1303,11 @@ class CameraScreen(Screen):
             if self._profile.kind == 'pandora':
                 from cube.pandora_entry import to_facelets
                 app.camera_shape_result = None
-                app.facelets_input=to_facelets(cube)
+                from app.facelet_cache import remember_recent
+                remember_recent(app,to_facelets(cube))
                 target = 'InputScreen'
             else:
-                target = 'PolyhedralScreen'
+                target = self._profile.entry_screen
             self.msg.text = tr('camera.applied')
             self.manager.current = target
             return
@@ -1286,7 +1315,8 @@ class CameraScreen(Screen):
         facelets = assemble_facelets(
             {f: g for f, g in self._data.items() if g}, n)
         app = _app()
-        app.facelets_input = facelets
+        from app.facelet_cache import remember_recent
+        remember_recent(app,facelets)
         app.input_from_camera = True
         self.msg.text = tr("camera.applied")
         self.manager.current = "InputScreen"

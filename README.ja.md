@@ -4,6 +4,17 @@
 
 [Windows / Android 版](https://github.com/coco54-beep/cube-solver/releases/latest) · [English](README.md) · [中文技术说明](README.zh-CN.md) · [ソースコード](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.39 の更新
+
+- ホームに検索可能なパズル一覧を追加し、全シリーズ・段数を画像カードで表示。設定は右上へ移動しました。
+- 中国語・英語・日本語の名称と段数表記を統一し、段数を名前の前に表示します。
+- カタログから **Master Clover** と **LanLan Pisces** を削除しました。
+- 別の段数の入力下書きを復元した際の入力画面クラッシュと、削除済み画面を含むセッション復元を修正しました。
+- 高次キューブの回転、Mastermorphix/Mirror のセンター計画再利用、Pentahedron/War Drum の最適化予算、Tangram Extreme の検証、Twins の再生時間を改善しました。
+- 自動テスト全実行: **4398 passed, 23 skipped**。
+
+[1.2.39 リリースノート](docs/release-1.2.39.md)
+
 ## 1.2.34 の更新
 
 - 履歴なしの手動求解が **Fused、AI、Burr、Bandaged C、Two-Bar、BiCube**、**Circle 2／Crazy Planet**、**Tangram／Tangram Extreme** に対応しました。

@@ -12,33 +12,30 @@ def solve_bandaged_cube(cube, cancelled=None):
     if not moves and not cube.is_solved() and cube.puzzle_kind=='fused_cube':
         from solver.bandaged_state import solve_fused
         moves=solve_fused(cube,cancelled)
-    elif not moves and not cube.is_solved() and cube.puzzle_kind in ('ai_cube','burr_cube'):
-        from solver.bandaged_state import solve_bandaged_state
-        moves=solve_bandaged_state(cube,cancelled)
-    if not moves and not cube.is_solved() and cube.n == 3:
-        from solver.bandaged_search import solve_bandaged_search
-        try:
-            moves = solve_bandaged_search(cube, cancelled)
-        except ValueError:
-            moves = []
-    if not moves and not cube.is_solved():
-        # For a manually entered state, try the corresponding ordinary cube
-        # solver and accept its result only when every move is legal for this
-        # bandage layout and the full state replays to solved.
-        from cube.conversion import cubies_to_facelets
+    elif not moves and not cube.is_solved() and cube.puzzle_kind in (
+            'burr_cube','ai_cube','two_bar_cube','bandaged_c','bicube'):
+        from solver.bandaged_reduction import solve_bandage_reduction
+        # A 3x3's fixed centre colours determine its global holding. The
+        # layout graph is expressed in that canonical frame; undoing the
+        # holding uses legal whole-cube turns, never an unconstrained face.
         if cube.n == 3:
-            from solver.solver3 import solve_3x3
-            result = solve_3x3(cubies_to_facelets(cube.cubies, 3))
+            from solver.bandaged_state import canonical_three
+            work,prefix=canonical_three(cube,cancelled)
+            moves=list(prefix)+solve_bandage_reduction(work,cancelled)
         else:
-            from solver.solver4 import solve_4x4
-            class _CancelEvent:
-                def is_set(self):
-                    return bool(cancelled and cancelled())
-
-            result = solve_4x4(cube, cancel_event=_CancelEvent())
-        if not result.success:
-            raise ValueError(result.message or 'The bandaged position is not solved')
-        moves = list(result.moves)
+            moves=solve_bandage_reduction(cube,cancelled)
+    if not moves and not cube.is_solved():
+        raise ValueError('bandage.state_unreachable')
+    # Merge adjacent turns of the same face before the final verification.
+    try:
+        combined=_combine_bandaged(moves)
+        trial=cube.clone();trial.history=[]
+        trial.apply_moves(combined)
+        if trial.is_solved():moves=combined
+    except (ValueError,KeyError):
+        pass
+    from solver.rigid_word import shorten_rigid_word
+    moves=shorten_rigid_word(cube,moves,cancelled)
     replay = cube.clone()
     replay.history = []
     # Rewind to the canonical solved state, verifying every step obeys the
@@ -49,5 +46,25 @@ def solve_bandaged_cube(cube, cancelled=None):
             raise InterruptedError()
         replay.apply_move(move)
     if not replay.is_solved():
-        raise ValueError('The current position has no retained legal scramble path')
+        raise ValueError('bandage.search_replay')
     return moves
+
+def _combine_bandaged(moves):
+    from cube.notation import parse_move_full, suffix_for_count
+    result = []
+    for token in moves:
+        try: label, layers, count = parse_move_full(token)
+        except (ValueError, KeyError):
+            result.append(token); continue
+        if result:
+            try: prev_label, prev_layers, prev_count = parse_move_full(result[-1])
+            except (ValueError, KeyError): prev_label = None
+            if prev_label is not None and (label, layers) == (prev_label, prev_layers):
+                total = (prev_count + count) % 4
+                result.pop()
+                if total:
+                    prefix = str(layers) if layers > 1 else ''
+                    result.append(prefix + label + suffix_for_count(total))
+                continue
+        result.append(token)
+    return result

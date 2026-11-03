@@ -1,0 +1,22 @@
+[
+  {
+    "case": "camouflage_3-None",
+    "family": "camouflage_3",
+    "order": null,
+    "actions": [
+      "target",
+      "undo",
+      "target",
+      "clear",
+      "undo",
+      "random",
+      "undo"
+    ],
+    "screen": "CuboidSixViewScreen",
+    "kind": "camouflage_3",
+    "n": 3,
+    "clear_confirmation": false,
+    "scramble_seconds": 0.093,
+    "ok": true
+  }
+]

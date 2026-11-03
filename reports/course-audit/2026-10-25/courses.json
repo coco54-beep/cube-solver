@@ -1,0 +1,332 @@
+[
+  {
+    "kind": "lanlan_butterflower",
+    "moves": 345,
+    "sections": 6,
+    "status": "pass"
+  },
+  {
+    "kind": "kairis_star_finder",
+    "moves": 1353,
+    "sections": 22,
+    "status": "pass"
+  },
+  {
+    "kind": "lanlan_flower_copter",
+    "moves": 469,
+    "sections": 8,
+    "status": "pass"
+  },
+  {
+    "kind": "lanlan_hexagram",
+    "moves": 123,
+    "sections": 2,
+    "status": "pass"
+  },
+  {
+    "kind": "mf8_suncube_2",
+    "moves": 1652,
+    "sections": 26,
+    "status": "pass"
+  },
+  {
+    "kind": "mf8_twins",
+    "moves": 1095,
+    "sections": 18,
+    "status": "pass"
+  },
+  {
+    "kind": "lanlan_comet_physical",
+    "moves": 4157,
+    "sections": 65,
+    "status": "pass"
+  },
+  {
+    "kind": "lanlan_curvy_copter",
+    "moves": 175,
+    "sections": 3,
+    "status": "pass"
+  },
+  {
+    "kind": "megaminx_ball",
+    "moves": 656,
+    "sections": 11,
+    "status": "pass"
+  },
+  {
+    "kind": "aj_curvy_dinominx_4",
+    "moves": 273,
+    "sections": 5,
+    "status": "pass"
+  },
+  {
+    "kind": "mf8_bauhinia_minx",
+    "moves": 1282,
+    "sections": 21,
+    "status": "pass"
+  },
+  {
+    "kind": "yeet_ball",
+    "moves": 7,
+    "sections": 1,
+    "status": "pass"
+  },
+  {
+    "kind": "skewb_rhombic",
+    "moves": 38,
+    "sections": 1,
+    "status": "pass"
+  },
+  {
+    "kind": "rhombic_3",
+    "moves": 32,
+    "sections": 1,
+    "status": "pass"
+  },
+  {
+    "kind": "rhombic_4",
+    "moves": 334,
+    "sections": 6,
+    "status": "pass"
+  },
+  {
+    "kind": "rhombic_mask_4",
+    "moves": 334,
+    "sections": 6,
+    "status": "pass"
+  },
+  {
+    "kind": "caneball_4",
+    "moves": 334,
+    "sections": 6,
+    "status": "pass"
+  },
+  {
+    "kind": "jewel_fto",
+    "moves": 354,
+    "sections": 6,
+    "status": "pass"
+  },
+  {
+    "kind": "rua",
+    "moves": 308,
+    "sections": 5,
+    "status": "pass"
+  },
+  {
+    "kind": "helicopter_14",
+    "moves": 161,
+    "sections": 3,
+    "status": "pass"
+  },
+  {
+    "kind": "time_machine",
+    "moves": 795,
+    "sections": 13,
+    "status": "pass"
+  },
+  {
+    "kind": "bean_6",
+    "moves": 138,
+    "sections": 3,
+    "status": "pass"
+  },
+  {
+    "kind": "bean_10",
+    "moves": 184,
+    "sections": 3,
+    "status": "pass"
+  },
+  {
+    "kind": "i_cube",
+    "moves": 24,
+    "sections": 1,
+    "status": "pass"
+  },
+  {
+    "kind": "l_cube",
+    "moves": 26,
+    "sections": 1,
+    "status": "pass"
+  },
+  {
+    "kind": "t_cube",
+    "moves": 296,
+    "sections": 5,
+    "status": "pass"
+  },
+  {
+    "kind": "x_cube",
+    "moves": 603,
+    "sections": 10,
+    "status": "pass"
+  },
+  {
+    "kind": "tri_cube",
+    "moves": 422,
+    "sections": 7,
+    "status": "pass"
+  },
+  {
+    "kind": "temple_cube",
+    "moves": 799,
+    "sections": 13,
+    "status": "pass"
+  },
+  {
+    "kind": "cross_cube",
+    "moves": 878,
+    "sections": 14,
+    "status": "pass"
+  },
+  {
+    "kind": "siamese_a",
+    "moves": 112,
+    "sections": 2,
+    "status": "pass"
+  },
+  {
+    "kind": "siamese_b",
+    "moves": 72,
+    "sections": 2,
+    "status": "pass"
+  },
+  {
+    "kind": "trajber",
+    "moves": 334,
+    "sections": 6,
+    "status": "pass"
+  },
+  {
+    "kind": "pyraminx_diamond",
+    "moves": 31,
+    "sections": 1,
+    "status": "pass"
+  },
+  {
+    "kind": "pyraminx_crystal",
+    "moves": 483,
+    "sections": 8,
+    "status": "pass"
+  },
+  {
+    "kind": "starminx_i",
+    "moves": 1148,
+    "sections": 18,
+    "status": "pass"
+  },
+  {
+    "kind": "pentultimate",
+    "moves": 326,
+    "sections": 6,
+    "status": "pass"
+  },
+  {
+    "kind": "master_pentultimate",
+    "moves": 1689,
+    "sections": 27,
+    "status": "pass"
+  },
+  {
+    "kind": "dodecahedron_2",
+    "moves": 18,
+    "sections": 1,
+    "status": "pass"
+  },
+  {
+    "kind": "rediminx",
+    "moves": 145,
+    "sections": 3,
+    "status": "pass"
+  },
+  {
+    "kind": "dodecahedron_3",
+    "moves": 32,
+    "sections": 1,
+    "status": "pass"
+  },
+  {
+    "kind": "dogic_i",
+    "moves": 288,
+    "sections": 5,
+    "status": "pass"
+  },
+  {
+    "kind": "container",
+    "moves": 51,
+    "sections": 1,
+    "status": "pass"
+  },
+  {
+    "kind": "rubik_cheese",
+    "moves": 39,
+    "sections": 1,
+    "status": "pass"
+  },
+  {
+    "kind": "cheese_3",
+    "moves": 35,
+    "sections": 1,
+    "status": "pass"
+  },
+  {
+    "kind": "masterball",
+    "moves": 152,
+    "sections": 3,
+    "status": "pass"
+  },
+  {
+    "kind": "pentagonal_domino",
+    "moves": 48,
+    "sections": 1,
+    "status": "pass"
+  },
+  {
+    "kind": "pentagonal_prism",
+    "moves": 101,
+    "sections": 2,
+    "status": "pass"
+  },
+  {
+    "kind": "pentagonal_4",
+    "moves": 134,
+    "sections": 3,
+    "status": "pass"
+  },
+  {
+    "kind": "professor_pentagonal",
+    "moves": 630,
+    "sections": 10,
+    "status": "pass"
+  },
+  {
+    "kind": "dogic_20",
+    "moves": 223,
+    "sections": 4,
+    "status": "pass"
+  },
+  {
+    "kind": "master_brilic",
+    "moves": 2245,
+    "sections": 36,
+    "status": "pass"
+  },
+  {
+    "kind": "blanker",
+    "moves": 17,
+    "sections": 1,
+    "status": "pass"
+  },
+  {
+    "kind": "mirror_kilominx",
+    "moves": 144,
+    "sections": 3,
+    "status": "pass"
+  },
+  {
+    "kind": "mirror_megaminx",
+    "moves": 148,
+    "sections": 3,
+    "status": "pass"
+  }
+]

@@ -30,6 +30,8 @@ their already known physical layout.
 - Solved and legally scrambled states of all six current bandaged presets
   partition every face into plates without missing or duplicated cells.
 - BiCube and Bandaged Cube C match the stored reference partitions on all six faces.
+- Burr uses the 28 dominoes in pCubes `Bandaged-4/Burr.xml` as of 2026-11-02;
+  its entry, native turn restrictions and complete solver share this layout.
 - Colour equality never determines which cells are bonded.
 - Previewing does not modify colours or mechanical groups.
 - Rotation uses the clicked cell centre for bars and squares.
@@ -44,3 +46,7 @@ Rigid matching and ordinary cube validation do not prove reachability under
 bandage restrictions. The current solver still has limited support for manual
 bandaged states; an ordinary cube solution is accepted only after legal replay.
 No APK was built for this change.
+# BiCube 按 pCubes 替换（2026-11-02）
+
+`bicube` 使用本地 Bicube.xml 的九个双格连块和一块2×2×2连块（7个可见格），替换之前的面片布局。录入仍使用相同的选块、方向、颜色及确认控件。布局图121节点、504条转移与配色群重新构建；旧布局存档版本被隔离。
+

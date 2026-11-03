@@ -1,0 +1,98 @@
+[
+  {
+    "kind": "mixup_333",
+    "legality_states": 2,
+    "legal_checks": 132,
+    "blocked_checks": 120,
+    "success": true
+  },
+  {
+    "kind": "mixup_334",
+    "legality_states": 2,
+    "legal_checks": 114,
+    "blocked_checks": 194,
+    "success": true
+  },
+  {
+    "kind": "mixup_344",
+    "legality_states": 2,
+    "legal_checks": 134,
+    "blocked_checks": 230,
+    "success": true
+  },
+  {
+    "kind": "mixup_444",
+    "legality_states": 2,
+    "legal_checks": 174,
+    "blocked_checks": 246,
+    "success": true
+  },
+  {
+    "kind": "mixup_plus_333",
+    "legality_states": 2,
+    "legal_checks": 132,
+    "blocked_checks": 120,
+    "success": true
+  },
+  {
+    "kind": "mixup_plus_334",
+    "legality_states": 2,
+    "legal_checks": 152,
+    "blocked_checks": 156,
+    "success": true
+  },
+  {
+    "kind": "mixup_plus_344",
+    "legality_states": 2,
+    "legal_checks": 172,
+    "blocked_checks": 192,
+    "success": true
+  },
+  {
+    "kind": "mixup_plus_444",
+    "legality_states": 2,
+    "legal_checks": 212,
+    "blocked_checks": 208,
+    "success": true
+  },
+  {
+    "kind": "mixup_333",
+    "case": "complete-recovery-core-handoff",
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 18,
+    "seconds": 0.27
+  },
+  {
+    "kind": "mixup_444",
+    "case": "complete-recovery-core-handoff",
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 18,
+    "seconds": 0.19
+  },
+  {
+    "kind": "mixup_plus_333",
+    "case": "complete-recovery-core-handoff",
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 18,
+    "seconds": 0.155
+  },
+  {
+    "kind": "mixup_plus_444",
+    "case": "complete-recovery-core-handoff",
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 18,
+    "seconds": 0.248
+  },
+  {
+    "case": "cancel-retains-input",
+    "success": true
+  }
+]

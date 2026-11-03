@@ -1,0 +1,61 @@
+{
+  "shape_model": "019b74639aa32b93b2d3279d2617b35fdc1f682780fc8992ea9ca8eb0d1f4181",
+  "distances": [
+    {
+      "pair": [
+        0,
+        2
+      ],
+      "states": 6830208,
+      "diameter": 16,
+      "verified_directed_edges": 122943744
+    },
+    {
+      "pair": [
+        0,
+        4
+      ],
+      "states": 6830208,
+      "diameter": 14,
+      "verified_directed_edges": 122943744
+    },
+    {
+      "pair": [
+        2,
+        4
+      ],
+      "states": 6830208,
+      "diameter": 15,
+      "verified_directed_edges": 122943744
+    }
+  ],
+  "relations": [
+    {
+      "pair": [
+        0,
+        1
+      ],
+      "states": 7392,
+      "verified_directed_edges": 133056
+    },
+    {
+      "pair": [
+        2,
+        3
+      ],
+      "states": 7392,
+      "verified_directed_edges": 133056
+    },
+    {
+      "pair": [
+        4,
+        5
+      ],
+      "states": 7392,
+      "verified_directed_edges": 133056
+    }
+  ],
+  "asset": "solver\\data\\tangram_extreme_shape_patterns.bin",
+  "bytes": 5944669,
+  "sha256": "0883ff023f05445bf54acd1feb3ecfcd807e995ef68003198affaf0a767723b8"
+}

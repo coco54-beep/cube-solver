@@ -24,8 +24,8 @@ from cube.polyhedral import Move
 from ui.screens.mixup_input_screen import MixupInputScreen
 
 
-def wait_until(predicate):
-    deadline=monotonic()+4
+def wait_until(predicate,seconds=4):
+    deadline=monotonic()+seconds
     while not predicate() and monotonic()<deadline:
         Clock.tick();sleep(.005)
     assert predicate()
@@ -67,6 +67,22 @@ def test_edit_rotation_and_undo_preserve_other_positions(editor,kind):
     assert screen._mx_state==original
     assert screen._applied()
     assert screen._get_draft().state()==original
+
+
+def test_choosing_brush_keeps_cards_and_model_unchanged(editor,monkeypatch):
+    screen=editor('mixup_plus_444');draft=screen._get_draft()
+    index=next(i for i,b in enumerate(draft.blocks) if b['role']=='centre' and b['cells'])
+    screen.pick(index*1024);wait_until(lambda:screen._assembly_job is None)
+    cards=tuple(screen.gallery.children);state=deepcopy(screen._mx_state);redraws=[]
+    monkeypatch.setattr(screen.view,'refresh',lambda:redraws.append(True))
+    screen.select_color(2)
+    assert screen._paint_enabled and screen._swatches[2].active
+    assert tuple(screen.gallery.children)==cards and screen._mx_state==state and not redraws
+    screen.select_color(2)
+    assert screen._paint_enabled
+    screen.mode_button.dispatch('on_release')
+    assert not screen._paint_enabled
+    assert tuple(screen.gallery.children)==cards and not redraws
 
 
 @pytest.mark.parametrize('kind',MIXUP_MODELS)
@@ -299,9 +315,9 @@ def test_changing_brush_does_not_repaint_previous_panel(editor):
     assert screen._get_draft().blocks[2]['cells'][0]['color']==4
 
 
-def test_active_colour_toggles_to_selection_without_recolouring(editor):
+def test_explicit_selection_mode_does_not_recolour(editor):
     screen=editor('mixup_333');screen.select_color(2);screen.pick(0)
-    screen.select_color(2)
+    screen.mode_button.dispatch('on_release')
     before=deepcopy(screen._mx_state);count=len(screen._mx_undo)
     screen.pick(2*1024)
     assert screen._mx_state==before

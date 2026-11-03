@@ -1,0 +1,43 @@
+{
+  "kind": "master_brilic",
+  "seed": 20261104,
+  "scramble_turns": 100,
+  "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\brilic-ranked\\inputs\\master_brilic-20261104-100.json",
+  "input_method": "fixed visible model panels, colours only",
+  "history_empty": true,
+  "visible_entry_matches": true,
+  "input_seconds": 0.093,
+  "success": true,
+  "moves": 2839,
+  "failure_category": "",
+  "solve_seconds": 0.907,
+  "message": "",
+  "evaluation_budget_hit": false,
+  "replay_solved": true,
+  "replay_seconds": 0.0,
+  "seconds": 1.0,
+  "shortening": [
+    {
+      "before": 2842,
+      "after": 2839,
+      "seconds": 0.141
+    }
+  ],
+  "colour_stage_plans": [
+    {
+      "pieces": 60,
+      "before": 1168,
+      "after": 940
+    },
+    {
+      "pieces": 60,
+      "before": 1395,
+      "after": 1395
+    },
+    {
+      "pieces": 60,
+      "before": 366,
+      "after": 292
+    }
+  ]
+}

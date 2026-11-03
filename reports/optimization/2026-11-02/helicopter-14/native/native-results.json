@@ -1,0 +1,32 @@
+[
+  {
+    "kind": "helicopter_14",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "shape_animation": true,
+    "overlapping_cut": true,
+    "scramble_button": true,
+    "gold_validation": true,
+    "reset_and_undo": true,
+    "manual_colour": false,
+    "manual_pose": false
+  },
+  {
+    "kind": "helicopter_14",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "shape_animation": true,
+    "overlapping_cut": true,
+    "scramble_button": true,
+    "gold_validation": true,
+    "reset_and_undo": true,
+    "manual_colour": false,
+    "manual_pose": false
+  }
+]

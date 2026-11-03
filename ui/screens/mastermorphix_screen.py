@@ -1,10 +1,12 @@
 """Piece input for a scrambled Mastermorphix, including shape/orientation."""
+from ui.entry_feedback import validation_action
 
 import math
 from kivy.uix.screenmanager import Screen
 from ui.screens.entry_mixin import EntryActionsMixin
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
+from ui.widgets.entry_guidance import EntryGuidance
 from kivy.uix.popup import Popup
 from kivy.uix.scrollview import ScrollView
 
@@ -18,10 +20,12 @@ from cube.coordinates import FACE_NORMALS
 from renderer.mastermorphix_view import MastermorphixView
 from renderer.cube_orientation import CubeOrientation
 from ui.widgets.buttons import UIButton, PrimaryButton, DangerButton
-from ui.widgets.layouts import ResponsiveBoxLayout
+from ui.widgets.layouts import ResponsiveBoxLayout,AdaptiveSceneLayout
 from ui.widgets import metrics as m
 from ui.widgets.dialogs import theme_popup
 from ui.widgets.camera_follow import CameraFollowControl
+from ui.widgets.entry_controls import (entry_header, entry_actions, EntryGalleryPager,
+                                      GALLERY_COLUMNS, GALLERY_PAGE_SIZE)
 
 
 def _app():
@@ -56,6 +60,7 @@ def _thumbnail_camera_for(view, pos):
 
 class MastermorphixScreen(EntryActionsMixin, Screen):
     supports_palette_settings=True
+    reference_height_px=24
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._cube = None
@@ -71,25 +76,16 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
         self.build_ui()
 
     def build_ui(self):
-        root = ResponsiveBoxLayout(orientation="vertical", gap_px=6,
-                                   padding_px=[28, 6, 28, 8])
-        top = ResponsiveBoxLayout(height_px=44, gap_px=8)
-        back = UIButton(icon_name="back", size_hint_x=.16)
-        back.bind(on_release=lambda *_: self.go_back())
+        root = AdaptiveSceneLayout()
+        self._root_layout = root
         self.title = Label(text=tr("morphix.title"), font_size="20sp", bold=True)
-        demo_button = UIButton(icon_name="demo", size_hint_x=.16)
-        demo_button.bind(on_release=lambda *_: self.open_demo())
-        self.demo_button = demo_button
+        top, self.btn_back, self.demo_button = entry_header(self.title, self.go_back, self.open_demo)
         self.palette_button=UIButton(icon_name='gear')
         self.palette_button.bind(on_release=lambda *_:self.open_palette_settings())
-        for widget in (back, self.title):
-            top.add_widget(widget)
-        top.add_widget(demo_button)
         root.add_widget(top)
         # Kept for subclass compatibility; palette editing lives on its own page.
         self.palette_row = ResponsiveBoxLayout(height_px=0, gap_px=8)
-        self.reference_label = Label(size_hint_y=None, height=m.h(24), font_size="12sp", halign="center")
-        root.add_widget(self.reference_label)
+        self.reference_label = Label(size_hint_y=None, height=m.h(self.reference_height_px), font_size="12sp", halign="center")
         self.view = MastermorphixView()
         # CubeOrientation aligns each observation axis with +Z. Use the same
         # straight-on camera as advanced input, rather than CubeView's tilt.
@@ -98,30 +94,20 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
         self.view.lock_rotation = True
         self.view.show_axes = True
         self.view.on_pick_piece = self.select_position
-        self.main = ResponsiveBoxLayout(orientation="vertical", gap_px=8)
-        self.main.add_widget(self.view)
-        root.add_widget(self.main)
         controls = ResponsiveBoxLayout(orientation="vertical", gap_px=6, size_hint_y=None)
         controls.bind(minimum_height=controls.setter("height"))
         self._controls = controls
-        self._controls_scroll = ScrollView(do_scroll_x=False, bar_width=m.h(3))
-        self._controls_scroll.add_widget(controls)
-        self.main.add_widget(self._controls_scroll)
+        controls.add_widget(self.reference_label)
         self.slot = Label(size_hint_y=None, height=m.h(28), font_size="14sp")
         controls.add_widget(self.slot)
-        self.gallery = GridLayout(cols=4, size_hint_y=None, height=m.h(66), spacing=m.h(6))
+        self.gallery = GridLayout(cols=GALLERY_COLUMNS, size_hint_y=None, height=m.h(66), spacing=m.h(6))
         controls.add_widget(self.gallery)
-        self.gallery_pages = ResponsiveBoxLayout(height_px=30, gap_px=6)
-        self.gallery_page_label = Label(font_size="12sp")
-        self.gallery_page_prev = UIButton(icon_name="prev")
-        self.gallery_page_next = UIButton(icon_name="next")
-        self.gallery_page_prev.bind(on_release=lambda *_: self._change_gallery_page(-1))
-        self.gallery_page_next.bind(on_release=lambda *_: self._change_gallery_page(1))
-        self.gallery_pages.add_widget(self.gallery_page_prev)
-        self.gallery_pages.add_widget(self.gallery_page_label)
-        self.gallery_pages.add_widget(self.gallery_page_next)
+        self.gallery_pages = EntryGalleryPager(self._change_gallery_page)
+        self.gallery_page_label = self.gallery_pages.label
+        self.gallery_page_prev = self.gallery_pages.previous
+        self.gallery_page_next = self.gallery_pages.next
         controls.add_widget(self.gallery_pages)
-        navigation = ResponsiveBoxLayout(height_px=46, gap_px=8)
+        navigation = ResponsiveBoxLayout(height_px=44, gap_px=6)
         self.navigation = navigation
         self.btn_prev = UIButton(icon_name="prev")
         self.btn_prev.bind(on_release=lambda *_: self.turn_view(-1))
@@ -134,26 +120,22 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
                 continue
             navigation.add_widget(button)
         controls.add_widget(navigation)
-        self.hint = Label(text=tr("morphix.hint"), size_hint_y=None, height=m.h(44),
+        self.hint = EntryGuidance(text=tr("morphix.hint"), size_hint_y=None, height=m.h(44),
                           font_size="12sp", halign="center", valign="middle")
         self.hint.bind(size=lambda label, *_: setattr(label, "text_size", label.size))
         controls.add_widget(self.hint)
-        actions = ResponsiveBoxLayout(height_px=48, gap_px=8)
-        for icon, cls, callback in (("twist", UIButton, self.open_twist),
-                                    ("random", UIButton, self.random_load),
-                                    ("clear", DangerButton, self.confirm_clear),
-                                    ("undo", UIButton, self.undo),
-                                    ("target", UIButton, self.assign_initial),
-                                    ("solve", PrimaryButton, self.start_solve)):
-            button = cls(icon_name=icon)
-            button.bind(on_release=lambda _, cb=callback: cb())
-            actions.add_widget(button)
+        actions, self.entry_action_buttons = entry_actions(twist=self.open_twist,
+            randomize=self.random_load, clear=self.confirm_clear, undo=self.undo,
+            assign=self.assign_initial, solve=self.start_solve)
         controls.add_widget(actions)
         self.progress = Label(size_hint_y=None, height=m.h(24), font_size="13sp")
         controls.add_widget(self.progress)
         self.follow_control=CameraFollowControl()
         self.follow_control.bind_view(self.view)
         controls.add_widget(self.follow_control)
+        root.set_content(self.view,controls)
+        self.main=root.body
+        self._controls_scroll=root.panel_viewport
         self.add_widget(root)
         self.bind(size=lambda *_: self._resize())
         controls.bind(minimum_height=lambda *_: self._resize())
@@ -162,14 +144,9 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
         rows = max(1, (len(self.gallery.children) + self.gallery.cols - 1) // self.gallery.cols)
         self.gallery.height = rows*m.h(66) + (rows-1)*m.h(6)
         self.gallery.spacing = m.h(6)
-        self.slot.height, self.hint.height, self.progress.height = m.h(28), m.h(44), m.h(24)
-        self.reference_label.height = m.h(24)
-        wide = self.width > self.height * 1.15
-        self.main.orientation = "horizontal" if wide else "vertical"
-        self.view.size_hint = (.48, 1) if wide else (1, 1)
-        self._controls_scroll.size_hint = (.52, 1) if wide else (1, None)
-        if not wide:
-            self._controls_scroll.height = min(self._controls.minimum_height, self.height*.56)
+        self.slot.height, self.progress.height = m.h(28), m.h(24)
+        self.reference_label.height = m.h(self.reference_height_px)
+        self._root_layout._layout_trigger()
 
     def on_pre_enter(self, *args):
         palette = _app().mastermorphix_palette
@@ -218,16 +195,18 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
         return sorted((p for p in self._all_positions() if position_kind(p) == self._group), key=position_name)
 
     def select_position(self, pos):
-        if self._busy_turn:
+        if not self.entry_can_edit():
             return
         # Picking the model chooses its input category without a separate tab.
+        if pos != self._pos:
+            self._gallery_page = 0
         self._pos, self._group = pos, position_kind(pos)
         self._preview = None
         self._refresh()
 
     def turn_view(self, direction):
         """Use the same animated observation sequence as ordinary advanced input."""
-        if self._busy_turn:
+        if not self.entry_can_edit():
             return
         self.view.cancel_touch()
         self._busy_turn = True
@@ -265,8 +244,8 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
         self._cancel_view_turn()
         self._resize()
         self.title.text = f"{tr('directory.order', order=self._cube.n)} · {tr('morphix.title')}"
-        self.demo_button.opacity = 1 if self._cube.n <= 5 else 0
-        self.demo_button.disabled = self._cube.n > 5
+        self.demo_button.opacity = 1
+        self.demo_button.disabled = False
         def pair(pos):
             return "/".join(str(self._cube.palette.index(c)+1) for c in piece_colors(pos, self._cube.palette, self._cube.n))
         if self._cube.n == 2:
@@ -297,6 +276,7 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
         self.hint.text = tr(f"morphix.{hint}")
 
     def _build_gallery(self):
+        token=self.entry_gallery_generation()
         self.gallery.clear_widgets()
         if self._group == "center" and self._cube.n == 3:
             homes = [self._pos]
@@ -318,20 +298,12 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
                          for color in self._cube.palette]
         choices = ([(home, frame) for home in homes for frame in placements(home, self._pos)]
                    if self._group == "center" and self._cube.n == 3 else [(home, None) for home in homes])
-        page_size = 8 if self._cube.n > 3 else len(choices)
+        page_size = GALLERY_PAGE_SIZE
         page_count = max(1, (len(choices) + page_size - 1) // page_size)
         self._gallery_page = max(0, min(self._gallery_page, page_count - 1))
-        if self._cube.n > 3:
-            start = self._gallery_page * page_size
-            visible_choices = choices[start:start + page_size]
-        else:
-            visible_choices = choices
-        self.gallery_pages.opacity = 1 if self._cube.n > 3 and page_count > 1 else 0
-        self.gallery_pages.disabled = self.gallery_pages.opacity == 0
-        self.gallery_pages.height = m.h(30) if self.gallery_pages.opacity else 0
-        self.gallery_page_label.text = f"{self._gallery_page + 1} / {page_count}"
-        self.gallery_page_prev.disabled = self._gallery_page == 0
-        self.gallery_page_next.disabled = self._gallery_page >= page_count - 1
+        start = self._gallery_page * page_size
+        visible_choices = choices[start:start + page_size]
+        self.gallery_pages.set_page(self._gallery_page, page_count)
         for home, chosen_frame in visible_choices:
             frame = placements(home, self._pos)[0]
             current = self._cube.cubies[self._pos]
@@ -354,12 +326,14 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
             button.add_widget(preview)
             button.bind(pos=lambda b, *_: setattr(b.children[0], "pos", (b.x+b.width*.05, b.y+b.height*.05)),
                         size=lambda b, *_: setattr(b.children[0], "size", (b.width*.9, b.height*.9)))
-            button.bind(on_release=lambda _, h=home, f=frame: self.choose_piece(h, f))
+            button.bind(on_release=lambda _, h=home, f=frame, t=token:
+                        self.entry_gallery_action(t,self.choose_piece,h,f))
             self.gallery.add_widget(button)
         rows = max(1, (len(self.gallery.children) + self.gallery.cols - 1) // self.gallery.cols)
         self.gallery.height = rows*m.h(66) + (rows-1)*m.h(6)
 
     def _change_gallery_page(self, delta):
+        if not self.entry_can_edit():return
         self._gallery_page += delta
         self._refresh()
 
@@ -369,6 +343,7 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
         _app().solve_result = None
 
     def choose_piece(self, home, frame=None):
+        if not self.entry_can_edit():return
         self._remember()
         frame = frame or placements(home, self._pos)[0]
         self._cube.cubies[self._pos] = make_piece(home, self._pos, frame, self._cube.n)
@@ -376,7 +351,7 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
         self._refresh()
 
     def rotate_piece(self):
-        if self.rotate.disabled:
+        if not self.entry_can_edit() or self.rotate.disabled:
             return
         self._remember()
         piece = self._cube.cubies[self._pos]
@@ -423,6 +398,13 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
         self._refresh()
 
     def open_demo(self):
+        from demo.coverage import supports,open_tutorial
+        if self._cube is not None and supports(self._cube.puzzle_kind,self._cube.n):
+            return open_tutorial(self)
+        from candidate_puzzles import BY_KIND
+        if self._cube is not None and self._cube.puzzle_kind in BY_KIND:
+            from demo.expanded_support import open_tutorial
+            return open_tutorial(self)
         if self._busy_turn or self._cube is None or self._cube.n > 5:
             return
         self.manager.get_screen("DemoMenuScreen").set_mode((self._cube.puzzle_kind, self._cube.n))
@@ -461,7 +443,7 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
 
     def random_load(self):
         """Fill a complete, legal scramble using the advanced-input generator."""
-        if self._busy_turn or self._cube is None:
+        if not self.entry_can_edit() or self._cube is None:
             return
         from cube.scramble import random_scramble
         moves = random_scramble(self._cube.n, puzzle_kind="mastermorphix")
@@ -519,6 +501,7 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
             app.cube.palette = palette
         self._refresh()
 
+    @validation_action
     def check(self):
         if len(self._recorded) != len(self._all_positions()):
             self.hint.text = tr("morphix.error.incomplete", total=len(self._all_positions()))
@@ -572,7 +555,7 @@ class MastermorphixScreen(EntryActionsMixin, Screen):
         app.n = cube.n
         app.puzzle_kind = "mastermorphix"
         app.solve_result = None
-        self.manager.get_screen('SolvingScreen').configure(_app().cube,self.name)
+        if self.manager.get_screen('SolvingScreen').configure(_app().cube,self.name) is False:return
         self.manager.current = "SolvingScreen"
 
     def retranslate(self):

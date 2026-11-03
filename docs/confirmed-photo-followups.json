@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-27",
+  "scope": "Two previously unidentified requests and one duplicate confirmation; not five additional puzzles.",
+  "models": [
+    {
+      "kind": "kairis_star_finder",
+      "name": "Kairis 星寻足球魔方（二十轴深切）",
+      "source_attachment": "codex-clipboard-c7fee17e-47b5-436d-90b8-072714726315.jpg",
+      "reference_image": "artifacts/expansion-references/confirmed-2026-10-27/kairis-turned.jpg",
+      "sha256": "25bcb9e5cb575753a5b229132dfa5d09599e9dcc2fea600a7043557ae8cfc1dd",
+      "status": "integrated_limited_desktop",
+      "existing_request": "original-eight-photo-1",
+      "scope": "Photo-derived 252-field, twenty-axis regular 120-degree mode; partial turns and physical internal track clearance unverified."
+    },
+    {
+      "kind": "kairis_star_finder",
+      "name": "Kairis 星寻足球魔方（二十轴深切）",
+      "source_attachment": "codex-clipboard-28dfd63c-1377-489d-bc6e-7d2af8ab8f16.jpg",
+      "reference_image": "artifacts/expansion-references/confirmed-2026-10-27/kairis-solved.jpg",
+      "sha256": "09f840cb9737beac24823fc91ba0dcf2f6946718ef0a6368bdef125f9f9aac1b",
+      "status": "integrated_limited_desktop",
+      "existing_request": "original-eight-photo-1",
+      "scope": "Photo-derived 252-field, twenty-axis regular 120-degree mode; partial turns and physical internal track clearance unverified."
+    },
+    {
+      "kind": "megaminx_ball",
+      "name": "VeryPuzzle #59 Megaminx Ball D5",
+      "source_attachment": "codex-clipboard-c4cda294-18f3-40eb-b404-504d7113efcf.jpg",
+      "reference_image": "artifacts/expansion-references/confirmed-2026-10-27/megaminx-ball-turn-rule.jpg",
+      "sha256": "726d268a0bff10c724278604d03aae8cfcae6549d9da66110350bab3bff57979",
+      "status": "integrated_verified_desktop",
+      "existing_request": "original-eight-photo-2"
+    },
+    {
+      "kind": "megaminx_ball",
+      "name": "VeryPuzzle #59 Megaminx Ball D5",
+      "source_attachment": "codex-clipboard-70c88d93-59e3-49e6-bfbd-cbff3247a208.jpg",
+      "reference_image": "artifacts/expansion-references/confirmed-2026-10-27/megaminx-ball-v1.jpg",
+      "sha256": "d33151409ede1e185c94fcaf119aba9d4152806271d41cbde97d6ec13d045e93",
+      "status": "integrated_verified_desktop",
+      "existing_request": "original-eight-photo-2"
+    },
+    {
+      "kind": "lanlan_master_clover",
+      "name": "十二轴双棱花 / Master Clover",
+      "source_attachment": "codex-clipboard-dd096ad4-f19d-42a0-aaa0-034665752aa0.jpg",
+      "reference_image": "artifacts/expansion-references/confirmed-2026-10-27/master-clover-confirmation.jpg",
+      "sha256": "a0b92e0a4893966bfb495cf699f4e2dd8c940dcd5475c4b747d23837d4f1f43d",
+      "status": "integrated_limited_desktop",
+      "existing_request": "original-flower-photo-6",
+      "catalogue_visibility": "playable",
+      "remaining": "常规双层180°模型、120片逐面录入、8个角部与中心连体块、独立大层小层、状态求解与回放已接通。新增半圆弧为照片重建，内部连续切面尚未测定；变形混转仍未接通，不能把常规回放当作实物混转认证。安卓真机待验。"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "kind": "mixup_333",
+  "seed": 20261023,
+  "scramble_turns": 49,
+  "observation_match": "matched",
+  "success": true,
+  "moves": 313,
+  "replay_solved": true,
+  "history_empty": true,
+  "solve_seconds": 1.047,
+  "total_seconds": 1.5
+}

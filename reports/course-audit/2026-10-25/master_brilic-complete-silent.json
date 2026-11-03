@@ -1,0 +1,11 @@
+{
+  "output": "reports\\course-audit\\2026-10-25\\master_brilic-complete-silent.mp4",
+  "course_moves": 2456,
+  "rendered_moves": 2456,
+  "start": 0,
+  "end": 2456,
+  "final_state_matches_replay": true,
+  "frames": 27231,
+  "fps": 12,
+  "input_unchanged": true
+}

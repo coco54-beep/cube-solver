@@ -1,0 +1,126 @@
+{
+  "method": "visible-observations -> empty-history match -> solve -> independent physical replay",
+  "cases": [
+    {
+      "kind": "tangram",
+      "seed": 37,
+      "scramble_turns": 60,
+      "visible_observations": 42,
+      "manual_history_empty": true,
+      "geometry_matches": true,
+      "solution_turns": 39,
+      "physical_replay_solved": true,
+      "match_seconds": 0.063,
+      "solve_with_verification_seconds": 0.609,
+      "independent_replay_seconds": 0.547
+    },
+    {
+      "kind": "tangram",
+      "seed": 91,
+      "scramble_turns": 60,
+      "visible_observations": 42,
+      "manual_history_empty": true,
+      "geometry_matches": true,
+      "solution_turns": 61,
+      "physical_replay_solved": true,
+      "match_seconds": 0.046,
+      "solve_with_verification_seconds": 0.875,
+      "independent_replay_seconds": 0.891
+    },
+    {
+      "kind": "tangram",
+      "seed": 20261023,
+      "scramble_turns": 60,
+      "visible_observations": 42,
+      "manual_history_empty": true,
+      "geometry_matches": true,
+      "solution_turns": 47,
+      "physical_replay_solved": true,
+      "match_seconds": 0.031,
+      "solve_with_verification_seconds": 0.703,
+      "independent_replay_seconds": 0.688
+    },
+    {
+      "kind": "tangram_extreme",
+      "seed": 37,
+      "scramble_turns": 40,
+      "visible_observations": 108,
+      "manual_history_empty": true,
+      "geometry_matches": true,
+      "solution_turns": 325,
+      "physical_replay_solved": true,
+      "match_seconds": 0.125,
+      "solve_with_verification_seconds": 12.218,
+      "independent_replay_seconds": 12.11
+    },
+    {
+      "kind": "tangram_extreme",
+      "seed": 91,
+      "scramble_turns": 40,
+      "visible_observations": 88,
+      "manual_history_empty": true,
+      "geometry_matches": true,
+      "solution_turns": 541,
+      "physical_replay_solved": true,
+      "match_seconds": 0.125,
+      "solve_with_verification_seconds": 20.422,
+      "independent_replay_seconds": 20.281
+    },
+    {
+      "kind": "tangram_extreme",
+      "seed": 20261023,
+      "scramble_turns": 40,
+      "visible_observations": 111,
+      "manual_history_empty": true,
+      "geometry_matches": true,
+      "solution_turns": 282,
+      "physical_replay_solved": true,
+      "match_seconds": 0.125,
+      "solve_with_verification_seconds": 10.438,
+      "independent_replay_seconds": 10.406
+    },
+    {
+      "kind": "tangram_extreme",
+      "seed": 0,
+      "scramble_turns": 100,
+      "visible_observations": 119,
+      "manual_history_empty": true,
+      "geometry_matches": true,
+      "solution_turns": 507,
+      "physical_replay_solved": true,
+      "match_seconds": 0.14,
+      "solve_with_verification_seconds": 20.782,
+      "independent_replay_seconds": 18.812
+    },
+    {
+      "kind": "tangram_extreme",
+      "seed": 2,
+      "scramble_turns": 100,
+      "visible_observations": 109,
+      "manual_history_empty": true,
+      "geometry_matches": true,
+      "solution_turns": 351,
+      "physical_replay_solved": true,
+      "match_seconds": 0.125,
+      "solve_with_verification_seconds": 13.594,
+      "independent_replay_seconds": 14.375
+    }
+  ],
+  "assets": {
+    "tangram": {
+      "bytes": 1947,
+      "sha256": "81637afee38fcd568acce4189c4b16ba77eba1e3ef321746774b4b124513efd4"
+    },
+    "tangram_extreme": {
+      "bytes": 4846,
+      "sha256": "51851eedecf711654ff4327366181a3837c8402bec6f1e9b1570424ea982ccb9"
+    }
+  },
+  "checks": {
+    "main_passed": 55,
+    "main_seconds": 216.711,
+    "guards_passed": 7,
+    "guards_seconds": 5.024,
+    "distinct_passed": 57
+  }
+}

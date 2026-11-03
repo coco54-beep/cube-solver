@@ -21,5 +21,5 @@ class MirrorSkewbScreen(MirrorTowerScreen):
 
     def _refresh(self):
         super()._refresh()
-        self.demo_button.disabled = True
-        self.demo_button.opacity = 0
+        self.demo_button.disabled = False
+        self.demo_button.opacity = 1

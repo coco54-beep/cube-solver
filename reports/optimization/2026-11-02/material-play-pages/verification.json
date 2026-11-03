@@ -1,0 +1,15 @@
+{
+  "tests": "61 passed in 44.09s",
+  "native_pages": 14,
+  "models": [
+    "lanlan_butterflower",
+    "lanlan_comet_physical",
+    "lanlan_curvy_copter",
+    "lanlan_flower_copter",
+    "lanlan_hexagram",
+    "mf8_suncube_2",
+    "mf8_twins"
+  ],
+  "package_built": false,
+  "android_device_tested": false
+}

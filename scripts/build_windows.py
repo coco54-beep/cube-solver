@@ -12,6 +12,7 @@ import zipfile
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from app.constants import APP_VERSION
+from scripts.bundle_assets import windows_assets, audit, RETIRED_TABLES
 
 def digest(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 def main():
@@ -19,17 +20,15 @@ def main():
     assert sys.platform=='win32' and struct.calcsize('P')==8,'Build using 64-bit Windows Python'
     assert (ROOT/'p4_table.bin').stat().st_size>100000000,'Materialise the LFS solver table first'
     output=ROOT/'bin'/f'windows-{APP_VERSION}'
+    asset_audit=audit(ROOT)
     if not args.skip_build:
         subprocess.run([sys.executable,'-m','PyInstaller','--noconfirm',
                         '--distpath',str(output),'--workpath',str(ROOT/'build'/f'windows-{APP_VERSION}'),
                         str(ROOT/'packaging/windows.spec')],cwd=ROOT,check=True)
     bundle=output/'CubeSolver';internal=bundle/'_internal'
-    assets=[]
-    for folder in ('assets','solver','ui','docs','twophase','demo'):
-        for source in (ROOT/folder).rglob('*'):
-            if source.is_file() and '__pycache__' not in source.parts and source.suffix not in ('.py','.pyc','.log'):
-                assets.append(source)
-    assets.extend(ROOT/name for name in ('p4_table.bin','joint_dist.bin','README.md','README.zh-CN.md','README.ja.md','LICENSE'))
+    assets=list(windows_assets(ROOT))
+    for name in RETIRED_TABLES:
+        assert not (internal/name).exists(),f'Retired table in bundle; rebuild: {name}'
     for source in assets:
         target=internal/source.relative_to(ROOT)
         assert target.is_file() and digest(source)==digest(target),source.relative_to(ROOT)
@@ -50,7 +49,7 @@ def main():
             if file.is_file():stream.write(file,file.relative_to(output))
     manifest={'version':APP_VERSION,'platform':'windows-x64','archive':archive.name,
               'bytes':archive.stat().st_size,'sha256':digest(archive),
-              'verified_assets':len(assets),'self_check':check}
+              'verified_assets':len(assets),'asset_audit':asset_audit,'self_check':check}
     (ROOT/'bin'/f'CubeSolver-{APP_VERSION}-windows-x64.json').write_text(json.dumps(manifest,indent=2),encoding='utf-8')
     (ROOT/'bin'/f'CubeSolver-{APP_VERSION}-windows-x64.sha256').write_text(
         f"{manifest['sha256']}  {archive.name}\n",encoding='utf-8')

@@ -1,0 +1,14 @@
+[
+  {
+    "case": "legacy",
+    "passed": true
+  },
+  {
+    "case": "partial",
+    "passed": true
+  },
+  {
+    "case": "twist",
+    "passed": true
+  }
+]

@@ -32,6 +32,10 @@ def axis_faces(home,n=3):
 
 
 def faces_for(kind,home,n=3):
+    if kind in ('trajber','trajber_4','dodecahedron_2','dodecahedron_3',
+                'rhombic_3','rhombic_4','rhombic_mask_4','caneball_4'):
+        from cube.solid_shape_mods import faces_for as solid_faces
+        return solid_faces(kind,home,n)
     if kind in ('windmill_unequal', 'fisher_unequal', 'windmill_offset', 'fisher_offset'):
         return unequal_height_faces(kind, home, n)
     if kind=='axis':

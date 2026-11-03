@@ -12,6 +12,7 @@ from kivy.graphics import Mesh
 
 from cube.coordinates import FACE_NORMALS, get_d_maxc
 from renderer.mat4 import Mat4
+from renderer.entry_style import PLASTIC,shade_unentered
 
 # 立方体半边长（1 单位网格）
 # HALF = 0.5 时相邻 cubie 面正好贴合，无间隙。
@@ -49,7 +50,7 @@ _RGB = {
 }
 
 # 未上色（内部面）的深色
-_DARK = (0.08, 0.08, 0.08, 1.0)
+_DARK = PLASTIC
 
 # 教学演示中非聚焦块的灰色（已改为淡化，保留可读色相）
 _GRAY = (0.42, 0.42, 0.44, 1.0)
@@ -131,7 +132,7 @@ def build_scene(cube, moving_positions=None, rotation=None, highlight=None):
                 # 内部面：仅当朝向内部空间时跳过；外表面总会命中
                 continue
             # 颜色：先取真实贴纸色，再按是否聚焦做全彩/淡化。
-            color = _DARK
+            color = shade_unentered(normal)
             if cub is not None:
                 col = cub.stickers.get(tuple(normal))
                 if col is not None:

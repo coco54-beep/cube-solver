@@ -8,19 +8,41 @@ import tempfile
 import threading
 from pathlib import Path
 
+from app.session_recovery import RestoreProtection
+
 _LOG = logging.getLogger(__name__)
+
+
+def _removed_checkpoint(record):
+    """Check the saved active model before loading its retired assets."""
+    from candidate_puzzles import REMOVED_KINDS
+    def field(value, name):
+        if not isinstance(value, dict) or value.get('@') != 'dict':return None
+        return next((row[1] for row in value.get('v', ())
+                     if isinstance(row, list) and len(row) == 2 and row[0] == name), None)
+    app = field(record, 'app')
+    cube = field(app, 'cube')
+    return (field(app, 'puzzle_kind') in REMOVED_KINDS | {'lanlan_crazy_comet'} or
+            (isinstance(cube, dict) and cube.get('@') in
+             ('cube.pisces:PiscesCube', 'cube.master_clover:MasterCloverCube', 'cube.crazy_comet:CometCube')) or
+            field(record, 'page') in ('PiscesInputScreen', 'PiscesTwistScreen',
+                                     'MasterCloverInputScreen', 'MasterCloverTwistScreen',
+                                     'CometInputScreen', 'CometTwistScreen'))
+
 _CUBES = {
+    'cube.edge_jumbling:Helicopter14Cube',
+    'cube.twins_pcubes:TwinsPCubesState',
     'cube.pentacle:PentacleCube',
     'cube.articulated:ArticulatedCube',
     'cube.mixup:MixupCube',
     'cube.cube2:Cube2', 'cube.cube3:Cube3', 'cube.cube4:Cube4', 'cube.cube5:Cube5',
-    'cube.cube_n:CubeN', 'cube.mastermorphix:MastermorphixCube', 'cube.mirror:MirrorCube',
+    'cube.cube_n:CubeN', 'cube.mastermorphix:MastermorphixCube', 'cube.mirror:MirrorCube', 'cube.blanker:BlankerCube',
     'cube.shape_cube:AxisCube', 'cube.shape_cube:PandoraCube', 'cube.shape_cube:WindmillCube',
     'cube.shape_cube:FisherCube', 'cube.shape_cube:FootballCube',
-    'cube.polyhedral:PolyhedralPuzzle', 'cube.mirror_tower:MirrorTowerCube', 'cube.square1:Square1Cube',
+    'cube.polyhedral:PolyhedralPuzzle', 'cube.spherical_jumbling:CloverCube', 'cube.spherical_jumbling:BauhiniaCube', 'cube.edge_jumbling:HelicopterCube', 'cube.edge_jumbling:RuaCube', 'cube.copter_input:CopterCube', 'cube.crazy_comet:CometCube', 'cube.lanlan_comet:LanlanCometCube', 'cube.twins_state:TwinsState', 'cube.suncube:SunCube', 'cube.pisces:PiscesCube', 'cube.hexagram:HexagramCube', 'cube.flower_copter:FlowerCopterCube', 'cube.butterflower:ButterflowerCube', 'cube.master_clover:MasterCloverCube', 'cube.clover_pyraminx:CloverPyraminxCube', 'cube.mirror_tower:MirrorTowerCube', 'cube.square1:Square1Cube',
     'cube.mirror_pyraminx:MirrorPyraminxCube',
     'cube.mirror_skewb:MirrorSkewbCube',
-    'cube.fisher_skewb:FisherSkewbCube',
+    'cube.fisher_skewb:FisherSkewbCube', 'cube.container:ContainerCube', 'cube.mirror_minx:MirrorMinxCube',
     'cube.bandaged_cube:BandagedCube',
     'cube.cuboid:CuboidCube',
     'cube.circle_cube:Circle2Cube',
@@ -40,6 +62,9 @@ _RECORDS = {
     'cube.square_family:SquareFamilyMove', 'cube.square_family_entry:SquareFamilyBlock',
     'solver.result:SolveResult', 'solver.result:SolveStage',
 }
+_CUBES.update('cube.solid_shape_mods:'+name for name in
+              ('TrajberCube','MasterTrajberCube','Dodecahedron2Cube','Dodecahedron3Cube',
+               'Rhombic3Cube','Rhombic4Cube','RhombicMask4Cube','Caneball4Cube'))
 _PLAIN = {
     'cube.square1_entry:Square1Entry': ('slots', 'middle', 'blocks'),
     'cube.square_family_entry:SquareFamilyEntry': ('puzzle_kind', 'slots', 'middle', 'blocks'),
@@ -57,7 +82,7 @@ def encode(value):
     if isinstance(value, (tuple, set)):
         return {'@': 'set' if isinstance(value, set) else 'tuple', 'v': [encode(v) for v in value]}
     name = type(value).__module__+':'+type(value).__name__
-    if name == 'cube.extended_cuboid:ExtendedCuboid':
+    if name in ('cube.extended_cuboid:ExtendedCuboid', 'cube.mirror_camouflage:MirrorCamouflageCube'):
         name = 'cube.cuboid:CuboidCube'
     if name == 'renderer.mat4:Mat4': return {'@': name, 'v': list(value.m)}
     if name == 'numpy:ndarray': return {'@': 'array', 'v': value.tolist()}
@@ -68,6 +93,11 @@ def encode(value):
             fields=('puzzle_kind','frames','history')
         if name == 'cube.mixup:MixupCube':
             fields=('puzzle_kind','frames','history')
+        if name in ('cube.spherical_jumbling:CloverCube', 'cube.spherical_jumbling:BauhiniaCube', 'cube.edge_jumbling:HelicopterCube', 'cube.edge_jumbling:RuaCube', 'cube.copter_input:CopterCube','cube.crazy_comet:CometCube', 'cube.lanlan_comet:LanlanCometCube', 'cube.twins_state:TwinsState', 'cube.suncube:SunCube', 'cube.pisces:PiscesCube', 'cube.hexagram:HexagramCube', 'cube.flower_copter:FlowerCopterCube', 'cube.butterflower:ButterflowerCube', 'cube.master_clover:MasterCloverCube', 'cube.clover_pyraminx:CloverPyraminxCube'):
+            fields=('frames','paints')
+        if name in ('cube.twins_state:TwinsState','cube.twins_pcubes:TwinsPCubesState'):
+            fields=('frames','paints','geometry_fingerprint')
+        if name=='cube.edge_jumbling:Helicopter14Cube':fields=('frames','paints')
         if name == 'cube.pentacle:PentacleCube':
             fields=('frames','_paints','history')
         if name == 'cube.polyhedral:PolyhedralPuzzle' and value.puzzle_kind.startswith(('crazy_','circle_2')):
@@ -85,7 +115,7 @@ def encode(value):
         if name == 'cube.square_family:SquareFamilyCube':
             fields = ('n', 'puzzle_kind', 'slots', 'middle')
         if name in ('cube.mirror_tower:MirrorTowerCube', 'cube.mirror_pyraminx:MirrorPyraminxCube',
-                    'cube.mirror_skewb:MirrorSkewbCube', 'cube.fisher_skewb:FisherSkewbCube'):
+                    'cube.mirror_skewb:MirrorSkewbCube', 'cube.fisher_skewb:FisherSkewbCube', 'cube.container:ContainerCube', 'cube.mirror_minx:MirrorMinxCube'):
             # Partial shape input may repeat provisional identities. Save the
             # actual pieces, without asking for a valid labelled permutation.
             fields = ('n', 'puzzle_kind', 'pieces')
@@ -96,14 +126,18 @@ def encode(value):
     else:
         raise ValueError('Unsupported checkpoint type: '+name)
     data = {key: encode(getattr(value, key)) for key in fields if hasattr(value, key)}
+    if name == 'cube.articulated:ArticulatedCube' and value.puzzle_kind in ('tangram','tangram_extreme'):
+        data['layout_version'] = 2
     if name == 'cube.mixup:MixupCube':
         data['layout_version']=2
     if name == 'cube.polyhedral:PolyhedralPuzzle' and value.puzzle_kind == 'super_ivy':
         # The old 21-piece layout also had 54 stickers, with different meanings.
         # Sticker count alone cannot safely restore its input or playback.
         data['layout_version'] = 2
-    if name == 'cube.bandaged_cube:BandagedCube' and value.puzzle_kind in ('bicube', 'bandaged_c'):
+    if name == 'cube.polyhedral:PolyhedralPuzzle' and value.puzzle_kind == 'starminx_i':
         data['layout_version'] = 2
+    if name == 'cube.bandaged_cube:BandagedCube' and value.puzzle_kind in ('bicube', 'bandaged_c', 'burr_cube'):
+        data['layout_version'] = 3 if value.puzzle_kind=='bicube' else 2
     if name == 'cube.cuboid:CuboidCube' and getattr(value, 'panel_anchored', False):
         data['layout_version'] = 2
     return {'@': name, 'v': data}
@@ -128,9 +162,21 @@ def decode(value):
     cls = getattr(importlib.import_module(module), symbol)
     data = {k: decode(v) for k, v in data.items()}
     if name in _CUBES:
+        if name=='cube.edge_jumbling:Helicopter14Cube':return cls(data['frames'],data['paints'])
+        if name=='cube.twins_pcubes:TwinsPCubesState':
+            from cube.twins_pcubes import fingerprint
+            if data.get('geometry_fingerprint')!=fingerprint():raise ValueError('twins.legacy_entry')
+            return cls(data['frames'],data['paints'])
+        if name=='cube.twins_state:TwinsState':
+            from cube.twins_cad_material import fingerprint
+            if data.get('geometry_fingerprint')!=fingerprint():raise ValueError('twins.legacy_entry')
+        if name in ('cube.spherical_jumbling:CloverCube', 'cube.spherical_jumbling:BauhiniaCube', 'cube.edge_jumbling:HelicopterCube', 'cube.edge_jumbling:RuaCube', 'cube.copter_input:CopterCube','cube.crazy_comet:CometCube', 'cube.lanlan_comet:LanlanCometCube', 'cube.twins_state:TwinsState', 'cube.suncube:SunCube', 'cube.pisces:PiscesCube', 'cube.hexagram:HexagramCube', 'cube.flower_copter:FlowerCopterCube', 'cube.butterflower:ButterflowerCube', 'cube.master_clover:MasterCloverCube', 'cube.clover_pyraminx:CloverPyraminxCube'):
+            return cls(data['frames'],data['paints'])
         if name == 'cube.pentacle:PentacleCube':
             return cls(data['frames'],data['_paints'],data.get('history',()))
         if name == 'cube.articulated:ArticulatedCube':
+            if data['puzzle_kind'] in ('tangram','tangram_extreme') and data.get('layout_version')!=2:
+                raise ValueError('rigid.invalid')
             return cls(data['puzzle_kind'],data['frames'],data.get('history',()))
         if name == 'cube.mixup:MixupCube':
             ids=data.get('piece_ids')
@@ -160,6 +206,8 @@ def decode(value):
                     cube.history=list(history)
             return cube
         if name == 'cube.polyhedral:PolyhedralPuzzle':
+            if data['puzzle_kind']=='starminx_i' and data.get('layout_version')!=2:
+                raise ValueError('Starminx I checkpoint uses the obsolete corner-turning layout')
             if data['puzzle_kind'] == 'super_ivy' and data.get('layout_version') != 2:
                 raise ValueError('Super Ivy checkpoint uses the obsolete layout')
             cube=cls(data['puzzle_kind'], data['n'], data['colors'])
@@ -175,12 +223,14 @@ def decode(value):
         if name == 'cube.mirror_pyraminx:MirrorPyraminxCube': return cls(data['pieces'], n=data['n'])
         if name == 'cube.mirror_skewb:MirrorSkewbCube': return cls(data['pieces'], n=data['n'])
         if name == 'cube.ghost_pyramid:GhostPyramidCube': return cls(data['pieces'],n=data['n'],phase=data['phase'])
-        if name == 'cube.fisher_skewb:FisherSkewbCube': return cls(data['pieces'], n=data['n'])
+        if name in ('cube.fisher_skewb:FisherSkewbCube','cube.container:ContainerCube', 'cube.mirror_minx:MirrorMinxCube'): return cls(data['pieces'], n=data['n'])
         if name == 'cube.bandaged_cube:BandagedCube':
             if data['puzzle_kind'] == 'camouflage_3':
                 raise ValueError('Camouflage checkpoint uses the obsolete 3x3 mechanism')
-            if data['puzzle_kind'] in ('bicube', 'bandaged_c') and data.get('layout_version') != 2:
-                raise ValueError('Bandaged checkpoint uses the obsolete bond layout')
+            if data['puzzle_kind'] in ('bicube', 'bandaged_c', 'burr_cube'):
+                expected=3 if data['puzzle_kind']=='bicube' else 2
+                if data.get('layout_version')!=expected:
+                    raise ValueError('Bandaged checkpoint uses the obsolete bond layout')
             return cls(data['cubies'], data['puzzle_kind'], data.get('history', ()))
         if name == 'cube.ghost:GhostCube': return cls(data['cubies'], n=data['n'], phases=data['phases'])
         if name == 'cube.square1:Square1Cube': return cls(data['slots'], data['middle'])
@@ -200,11 +250,12 @@ def decode(value):
     return obj
 
 
-APP_FIELDS = ('n', 'puzzle_kind', 'cube', 'mastermorphix_palette', 'facelets_input', 'facelets_cache',
-              'bandage_entry_cache',
-              'solve_result', 'polyhedral_solution', 'input_from_camera', 'camera_return_screen', 'camera_recorded',
+APP_FIELDS = ('n', 'puzzle_kind', 'cube', 'mastermorphix_palette', 'facelets_input', 'facelets_input_key', 'facelets_cache',
+              'bandage_entry_cache', 'bandage_six_cache',
+              'solve_result', 'polyhedral_solution', 'input_from_camera', 'camera_return_screen', 'camera_recorded', 'camera_observations',
               'morphix_twist_source')
 ENTRY_FIELDS = ('_cube', '_data', '_entry', '_recorded', '_position', '_rigid_pose', '_pos', '_group', '_face', '_color',
+                '_dial_number',
                 '_bandage_step', '_bandage_kind',
                 '_bandage_mode', '_bandage_connections',
                 '_bandage_rotation',
@@ -212,12 +263,32 @@ ENTRY_FIELDS = ('_cube', '_data', '_entry', '_recorded', '_position', '_rigid_po
                 '_six_state', '_six_face', '_six_undo', '_six_applied', '_six_cube_key',
                 '_ao_state', '_ao_face', '_ao_undo', '_ao_applied', '_ao_cube_key', '_ao_dirty', '_ao_region',
                 '_mx_state', '_mx_selected', '_mx_applied', '_mx_cube_key', '_mx_undo')
-PLAY_FIELDS = ('_initial', '_moves', '_work', '_cube', '_index', '_idx', '_playback', '_source', '_recorded', '_face', '_axis', '_layer')
-ENTRY_NAMES = ('InputScreen', 'MastermorphixScreen', 'MirrorScreen', 'PolyhedralScreen', 'ArticulatedEntryScreen', 'MixupInputScreen', 'PentacleScreen', 'CuboidSixViewScreen', 'MirrorTowerScreen',
+PLAY_FIELDS = ('_initial', '_moves', '_work', '_cube', '_index', '_idx', '_playback', '_source', '_recorded', '_face', '_axis', '_layer', '_material_entry_snapshot')
+ENTRY_NAMES = ('InputScreen', 'MastermorphixScreen', 'MirrorScreen', 'PolyhedralScreen', 'CopterInputScreen', 'CometInputScreen', 'LanlanCometInputScreen', 'TwinsInputScreen', 'SunCubeInputScreen', 'PiscesInputScreen', 'HexagramInputScreen', 'FlowerCopterInputScreen', 'ButterflowerInputScreen', 'MasterCloverInputScreen', 'CloverPyraminxInputScreen', 'ArticulatedEntryScreen', 'MixupInputScreen', 'PentacleScreen', 'CuboidSixViewScreen', 'BandagedSixViewScreen', 'MirrorTowerScreen',
                'ShapeCubeScreen', 'Square1Screen', 'SquareFamilyScreen', 'MirrorPyraminxScreen',
                'MirrorAxisScreen', 'MirrorFisherScreen', 'MirrorWindmillScreen',
                'MirrorOffsetWindmillScreen', 'MirrorOffsetFisherScreen',
-               'MirrorUnequalWindmillScreen', 'MirrorUnequalFisherScreen', 'MirrorSkewbScreen', 'FisherSkewbScreen', 'GhostPyramidScreen', 'GhostScreen')
+               'MirrorUnequalWindmillScreen', 'MirrorUnequalFisherScreen', 'MirrorSkewbScreen', 'FisherSkewbScreen', 'ContainerScreen', 'MirrorMinxScreen', 'BlankerScreen', 'GhostPyramidScreen', 'GhostScreen')
+
+
+def migrate_bean_rotors(state):
+    """Keep visible input, replacing obsolete shared-rotor/fixed-goal replays."""
+    fields=state.get('app',{})
+    if (state.get('bean_rotors_version',1)>=2 and state.get('bean_color_goal_version',1)>=2 or
+            fields.get('puzzle_kind') not in ('bean_6','bean_10')):
+        return state
+    screens=dict(state.get('screens',{}));page=state.get('page')
+    active=screens.get(page,{})
+    cube=active.get('_work') if page=='PolyhedralPlaybackScreen' else active.get('_cube')
+    cube=cube if cube is not None else fields.get('cube')
+    if cube is None:return state
+    fields=dict(fields,cube=cube,polyhedral_solution=None,solve_result=None)
+    entry=dict(screens.get('PolyhedralScreen',{}),_cube=cube)
+    entry.pop('_axis',None)
+    screens.pop('PolyhedralPlaybackScreen',None);screens.pop('PolyhedralTwistScreen',None)
+    screens['PolyhedralScreen']=entry
+    return dict(state,app=fields,screens=screens,page='PolyhedralScreen',replay_to=None,
+                bean_rotors_version=2,bean_color_goal_version=2)
 
 
 class SessionStore:
@@ -228,6 +299,124 @@ class SessionStore:
         self.last = None
         self.written = None
         self.restoring = False
+        self.recovery = RestoreProtection(self.path)
+        self.recovery_reason = None
+        self._restore_failed_once = False
+        self._restore_events = []
+        self._restore_snapshot = None
+
+    def close(self):
+        """Release callbacks without declaring an interrupted restore healthy."""
+        for event in self._restore_events:
+            if event is not None and hasattr(event, 'cancel'): event.cancel()
+        self._restore_events.clear()
+        self.recovery.unguard()
+
+    def _snapshot_restore(self, names):
+        """Keep pre-startup objects, including view identity, for rollback."""
+        from copy import deepcopy
+        from app.constants import COLOR_INFO
+        missing = object()
+        memo = {id(self.app.cube): self.app.cube}
+        def snapshot(obj, keys):
+            values = {}
+            for key in keys:
+                value = getattr(obj, key, missing)
+                # Screen callbacks can mutate containers while changing pages.
+                if isinstance(value, (dict, list, set)):
+                    value = deepcopy(value, memo)
+                values[key] = value
+            return obj, values
+        fields = ENTRY_FIELDS + PLAY_FIELDS + (
+            '_n_for_screen', '_cube_for_screen', '_initialized', '_profile',
+            '_manual_cells', '_color_samples', '_parked_quad', '_parked_face',
+            '_parked_digest', '_input_baseline')
+        objects = [snapshot(self.app, APP_FIELDS)]
+        views = []
+        sm = self.app.root
+        for name in names:
+            if not sm.has_screen(name): continue
+            screen = sm.get_screen(name)
+            objects.append(snapshot(screen, fields))
+            view = getattr(screen, 'view', None)
+            if view is not None:
+                views.append((screen, view, getattr(view, 'cube', missing)))
+        self._restore_snapshot = missing, objects, views, dict(COLOR_INFO)
+
+    def _restore_succeeded(self):
+        # on_enter, animations and first drawing are deferred by Kivy. Keep the
+        # marker and autosave lock through those first frames, not just decode.
+        from kivy.clock import Clock
+        def stable(_dt):
+            if self._restore_failed_once: return
+            self.recovery.clear_marker()
+            self.recovery.unguard()
+            self._restore_snapshot = None
+            self._restore_events.clear()
+            self.restoring = False
+        self._restore_events.append(Clock.schedule_once(stable, 2))
+
+    def _restore_failed(self, error, *, deferred=False):
+        if self._restore_failed_once: return
+        self._restore_failed_once = True
+        self.recovery_reason = f'{type(error).__name__}: {error}'
+        _LOG.error('Checkpoint restoration failed: %s', self.recovery_reason,
+                   exc_info=(type(error), error, error.__traceback__))
+        for event in self._restore_events:
+            if event is not None and hasattr(event, 'cancel'): event.cancel()
+        self._restore_events.clear()
+        self.recovery.quarantine()
+        if deferred:
+            from kivy.clock import Clock
+            Clock.schedule_once(lambda _dt: self._recover_home(), -1)
+        else:
+            self._recover_home()
+
+    def _recover_home(self):
+        """Discard the half-applied state, then expose a usable home screen."""
+        try:
+            snapshot = self._restore_snapshot
+            if snapshot is not None:
+                missing, objects, views, colors = snapshot
+                for screen, view, cube in views:
+                    for target, methods in (
+                            (screen, ('reset_interaction',)),
+                            (view, ('cancel_touch', 'cancel_animation',
+                                    '_cancel_animation', '_cancel_whole_anim'))):
+                        for method in methods:
+                            callback = getattr(target, method, None)
+                            if callable(callback):
+                                try: callback()
+                                except Exception: _LOG.exception('Restore cleanup failed: %s', method)
+                    # Prevent an already scheduled draw from using the failed
+                    # model. The next normal page entry will set_cube afresh.
+                    if cube is not missing: view.cube = cube
+                def rollback():
+                    for obj, fields in objects:
+                        for key, value in fields.items():
+                            if value is missing:
+                                if hasattr(obj, key): delattr(obj, key)
+                            else: setattr(obj, key, value)
+                    from app.constants import COLOR_INFO
+                    COLOR_INFO.clear(); COLOR_INFO.update(colors)
+                rollback()
+            sm = self.app.root
+            transition = getattr(sm, 'transition', None)
+            if getattr(transition, 'is_active', False): transition.stop()
+            if sm.has_screen('HomeScreen'): sm.current = 'HomeScreen'
+            # on_pre_leave may write the failed screen's draft to shared fields.
+            if snapshot is not None: rollback()
+        except Exception:
+            _LOG.exception('Could not finish checkpoint recovery')
+        finally:
+            self._restore_snapshot = None
+            self.recovery.unguard()
+            self.restoring = False
+            self.last = self.written = None
+        callback = getattr(self.app, 'notify_session_recovery', None)
+        if callable(callback):
+            try: callback(self.recovery.backup)
+            except Exception: _LOG.exception('Could not show checkpoint recovery notice')
 
     def capture(self):
         app, sm = self.app, self.app.root
@@ -240,6 +429,8 @@ class SessionStore:
         fields = {key: getattr(app, key) for key in APP_FIELDS if hasattr(app, key)}
         screens = {}
         for name in ENTRY_NAMES:
+            if not sm.has_screen(name):
+                continue
             screen = sm.get_screen(name)
             cube = getattr(screen, '_cube', None)
             if name != 'InputScreen' and (cube is None or getattr(cube, 'puzzle_kind', 'cube') != app.puzzle_kind):
@@ -251,11 +442,16 @@ class SessionStore:
         page = sm.current
         if page == 'SolvingScreen': page = getattr(active, '_source', 'InputScreen')
         if page == 'PiecePaletteScreen': page = getattr(active, '_source', None) or 'HomeScreen'
-        if sm.current == 'InputScreen': fields['facelets_input'] = active.collect_facelets()
+        if sm.current == 'InputScreen':
+            from app.facelet_cache import cache_key
+            fields['facelets_input'] = active.collect_facelets()
+            fields['facelets_input_key'] = getattr(active,'_draft_cache_key',cache_key(app.puzzle_kind,app.n))
         if sm.current == 'TwistScreen' and active._work is not None:
             from cube.conversion import cubies_to_facelets
             fields['facelets_input'] = cubies_to_facelets(active._work.cubies, app.n)
-        if sm.current in ('PlaybackScreen', 'PolyhedralPlaybackScreen', 'Square1Screen', 'SquareFamilyScreen', 'MorphixTwistScreen', 'GhostTwistScreen', 'PolyhedralTwistScreen', 'TwistScreen'):
+            from app.facelet_cache import cache_key
+            fields['facelets_input_key'] = cache_key(app.puzzle_kind,app.n)
+        if sm.current in ('PlaybackScreen', 'PolyhedralPlaybackScreen', 'Square1Screen', 'SquareFamilyScreen', 'MorphixTwistScreen', 'GhostTwistScreen', 'PolyhedralTwistScreen', 'CopterTwistScreen', 'CometTwistScreen', 'LanlanCometTwistScreen', 'TwinsTwistScreen', 'SunCubeTwistScreen', 'PiscesTwistScreen', 'HexagramTwistScreen', 'FlowerCopterTwistScreen', 'ButterflowerTwistScreen', 'MasterCloverTwistScreen', 'CloverPyraminxTwistScreen', 'TwistScreen'):
             screens[sm.current] = dict(screens.get(sm.current, {}), **{k: getattr(active, k) for k in PLAY_FIELDS if hasattr(active, k)})
         if moving and sm.current == 'PlaybackScreen':
             replay_to = max(-1, active._idx-1)
@@ -268,14 +464,16 @@ class SessionStore:
         if sm.current == 'CameraScreen':
             active._park_photo()
             screens[sm.current] = {'_data': active._data, '_ori': active._ori, '_manual_cells': active._manual_cells,
+                                   '_input_baseline':getattr(active,'_input_baseline',None),
                                    '_color_samples': getattr(active, '_color_samples', {}),
                                    '_parked_quad': active._parked_quad, '_parked_face': active._parked_face, '_parked_digest': active._parked_digest}
         from app.constants import COLOR_INFO
-        return encode({'version': 1, 'app': fields, 'screens': screens, 'page': page, 'replay_to': replay_to,
+        return encode({'version': 1, 'bean_rotors_version':2, 'bean_color_goal_version':2,
+                       'app': fields, 'screens': screens, 'page': page, 'replay_to': replay_to,
                        'color_info': {key: COLOR_INFO[key] for key in getattr(app.cube, 'palette', ()) if key in COLOR_INFO}})
 
     def save(self, synchronous=False):
-        if self.restoring or self.app.root is None: return
+        if self.restoring or self.recovery.block_save or self.app.root is None: return
         try:
             state = self.capture()
             if state is None: return
@@ -308,20 +506,82 @@ class SessionStore:
 
     def restore(self):
         if not self.path.is_file(): return
+        self.restoring = True
+        self._restore_failed_once = False
         try:
-            if self.path.stat().st_size > 16*1024*1024: raise ValueError('Checkpoint too large')
-            state = decode(json.loads(self.path.read_text(encoding='utf-8')))
-            if state['version'] != 1: return
+            record = json.loads(self.recovery.begin().decode('utf-8'))
+            if _removed_checkpoint(record): raise ValueError('Checkpoint model was removed')
+            state = decode(record)
+            if state['version'] != 1: raise ValueError('Unsupported checkpoint version')
+            state=migrate_bean_rotors(state)
             app, sm = self.app, self.app.root
             page = state['page']
+            if not isinstance(page,str):raise ValueError('Bad checkpoint page')
             if not sm.has_screen(page): page = 'HomeScreen'
-            self.restoring = True
+            saved = state['screens']
+            # Validate the whole set before changing the live puzzle. An old
+            # or damaged checkpoint must not leave the app half restored.
+            if not isinstance(state['app'],dict) or not isinstance(saved,dict):
+                raise ValueError('Bad checkpoint state')
+            if any(not isinstance(name,str) or not isinstance(fields,dict)
+                   for name,fields in saved.items()):
+                raise ValueError('Bad checkpoint screen fields')
+            if not isinstance(state.get('color_info',{}),dict):
+                raise ValueError('Bad checkpoint colour settings')
+            def is_cube(value):
+                return callable(getattr(value,'clone',None)) and type(getattr(value,'n',None)) is int
+            candidate=state['app'].get('cube',app.cube)
+            order=state['app'].get('n',getattr(candidate,'n',getattr(app,'n',3)))
+            if not is_cube(candidate) or type(order) is not int or order<1 or order!=candidate.n:
+                raise ValueError('Bad checkpoint puzzle or order')
+            if any(fields.get('_cube') is not None and not is_cube(fields['_cube'])
+                   for name,fields in saved.items() if sm.has_screen(name)):
+                raise ValueError('Bad checkpoint screen puzzle')
+            # Removed/renamed entry screens must not make the whole app
+            # unstartable. Keep the rest of the checkpoint and fall back to
+            # Home if its page no longer exists.
+            saved = {name: fields for name, fields in saved.items() if sm.has_screen(name)}
+            from app.facelet_cache import fits
+            input_fields=saved.get('InputScreen',{})
+            if '_data' in input_fields and not fits(input_fields['_data'],state['app'].get('n',getattr(app,'n',3)),partial=True):
+                # Do not re-inject a wrong-sized screen draft after on_enter has
+                # already selected a valid per-model cache or initialized a blank.
+                saved=dict(saved);saved['InputScreen']={}
+            from cube.bandaged_cube import BandagedCube
+            if isinstance(candidate,BandagedCube) and page=='TwistScreen' and sm.has_screen('BandagedSixViewScreen'):
+                from cube.bandaged_observation import BandagedSixViewDraft,state_key
+                work=saved.get('TwistScreen',{}).get('_work')
+                if isinstance(work,BandagedCube) and work.puzzle_kind==candidate.puzzle_kind:
+                    candidate=work;state['app']['cube']=work
+                    draft=BandagedSixViewDraft.from_cube(work)
+                    saved=dict(saved)
+                    saved['BandagedSixViewScreen']=dict(_cube=work,_six_state=draft.state(),_six_face=2,
+                        _six_undo=[],_six_applied=draft.state(),_six_cube_key=state_key(work))
+            if isinstance(candidate,BandagedCube) and page=='InputScreen' and sm.has_screen('BandagedSixViewScreen'):
+                from cube.bandaged_observation import BandagedSixViewDraft
+                legacy=saved.get('InputScreen',{})
+                draft=BandagedSixViewDraft.from_facelets(candidate.puzzle_kind,
+                    legacy.get('_data',state['app'].get('facelets_input') or {}),
+                    legacy.get('_bandage_connections',()))
+                page='BandagedSixViewScreen'
+                saved=dict(saved)
+                saved[page]=dict(_cube=candidate,_six_state=draft.state(),_six_face=2,
+                                 _six_undo=[],_six_applied=None,_six_cube_key=None)
+            # A playback/twist lifecycle may also replace its entry model even
+            # when that entry was absent from the old checkpoint.
+            source = saved.get(page, {}).get('_source', page)
+            if page in ('PolyhedralTwistScreen','CopterTwistScreen', 'CometTwistScreen', 'LanlanCometTwistScreen', 'TwinsTwistScreen', 'SunCubeTwistScreen', 'PiscesTwistScreen', 'HexagramTwistScreen', 'FlowerCopterTwistScreen', 'ButterflowerTwistScreen', 'MasterCloverTwistScreen', 'CloverPyraminxTwistScreen'):
+                from ui.screens.polyhedral_screen import _entry_for
+                source = _entry_for(candidate)
+            restore_names = set(saved) | {page, 'MixupInputScreen'}
+            if isinstance(source, str): restore_names.add(source)
+            self._snapshot_restore(restore_names)
+            self.recovery.guard(self)
+            if 'facelets_input_key' not in state['app']:app.facelets_input_key=None
             for key, value in state['app'].items():
                 if key in APP_FIELDS: setattr(app, key, value)
             from app.constants import COLOR_INFO
             COLOR_INFO.update(state.get('color_info', {}))
-            saved = state['screens']
-            if any(not sm.has_screen(name) for name in saved): raise ValueError('Unknown saved screen')
             if (getattr(app.cube,'puzzle_kind','').startswith('mixup_') and
                     (page=='ArticulatedEntryScreen' or (page=='PolyhedralTwistScreen' and 'MixupInputScreen' not in saved))):
                 legacy=saved.get('ArticulatedEntryScreen',{})
@@ -337,10 +597,7 @@ class SessionStore:
                 for key, value in fields.items():
                     if key in ENTRY_FIELDS+PLAY_FIELDS: setattr(screen, key, value)
             # Entry screens use object identity to decide whether to create a blank puzzle.
-            source = saved.get(page, {}).get('_source', page)
-            if page == 'PolyhedralTwistScreen':
-                from ui.screens.polyhedral_screen import _entry_for
-                source = _entry_for(app.cube)
+            if page == 'MixupInputScreen': source = page
             if source in ENTRY_NAMES and saved.get(source,{}).get('_cube') is not None:
                 app.cube = saved[source]['_cube']
             if page == 'CameraScreen':
@@ -352,16 +609,23 @@ class SessionStore:
                 camera._n_for_screen = app.n
                 camera._cube_for_screen = app.cube
                 camera._initialized = True
-            sm.current = page
+            if sm.current==page and page=='InputScreen' and hasattr(sm.get_screen(page),'dispatch'):
+                # A live restore onto the same page does not trigger manager
+                # lifecycle events, although the model/order may have changed.
+                sm.get_screen(page).dispatch('on_pre_enter')
+                sm.get_screen(page).dispatch('on_enter')
+            else:sm.current = page
             from kivy.clock import Clock
             def finish(_dt):
+                if self._restore_failed_once: return
                 if sm.current != page:
-                    self.restoring = False
+                    self._restore_succeeded()
                     return
                 try:
                     screen = sm.get_screen(page)
-                    allowed = ENTRY_FIELDS+PLAY_FIELDS+('_manual_cells','_color_samples','_parked_quad','_parked_face','_parked_digest')
+                    allowed = ENTRY_FIELDS+PLAY_FIELDS+('_manual_cells','_color_samples','_parked_quad','_parked_face','_parked_digest','_input_baseline')
                     for key, value in saved.get(page, {}).items():
+                        if page=='InputScreen' and key=='_data' and hasattr(screen,'set_facelets'):continue
                         if key in allowed: setattr(screen, key, value)
                     replay_to = state.get('replay_to')
                     if replay_to is not None:
@@ -377,11 +641,18 @@ class SessionStore:
                     elif page == 'PolyhedralPlaybackScreen':
                         screen._playing = False
                         screen.view.set_cube(screen._work)
-                        screen._checkpoints = {screen._index: tuple(screen._work.colors)}
+                        from cube.checkpoints import capture
+                        screen._checkpoints = {screen._index:capture(screen._work)}
                         screen._refresh()
                     elif page in ('Square1Screen','SquareFamilyScreen'): screen._build(); screen._refresh()
-                    elif page == 'InputScreen': screen._refresh_view(); screen._update_progress()
-                    elif page == 'PolyhedralTwistScreen':
+                    elif page == 'InputScreen':
+                        data=saved.get(page,{}).get('_data')
+                        if data is not None and hasattr(screen,'set_facelets'):screen.set_facelets(data)
+                        else:screen._refresh_view()
+                        screen._update_progress()
+                    elif page in ('CuboidSixViewScreen','BandagedSixViewScreen'):
+                        screen.on_pre_enter()
+                    elif page in ('PolyhedralTwistScreen','CopterTwistScreen', 'CometTwistScreen', 'LanlanCometTwistScreen', 'TwinsTwistScreen', 'SunCubeTwistScreen', 'PiscesTwistScreen', 'HexagramTwistScreen', 'FlowerCopterTwistScreen', 'ButterflowerTwistScreen', 'MasterCloverTwistScreen', 'CloverPyraminxTwistScreen'):
                         entry = sm.get_screen(source)
                         entry._cube = app.cube = screen._cube
                         screen.view.set_cube(screen._cube)
@@ -391,12 +662,10 @@ class SessionStore:
                         screen.view.set_cube(screen._work)
                         if page in ('MorphixTwistScreen','GhostTwistScreen'): screen.view.recorded = screen._recorded
                     elif hasattr(screen, '_refresh'): screen._refresh()
-                except Exception:
-                    _LOG.exception('Could not restore screen')
-                    sm.current = 'HomeScreen'
-                finally:
-                    self.restoring = False
-            Clock.schedule_once(finish, sm.transition.duration+.05)
-        except Exception:
-            self.restoring = False
-            _LOG.exception('Could not restore session')
+                except Exception as error:
+                    self._restore_failed(error)
+                else:
+                    self._restore_succeeded()
+            self._restore_events.append(Clock.schedule_once(finish, sm.transition.duration+.05))
+        except Exception as error:
+            self._restore_failed(error)

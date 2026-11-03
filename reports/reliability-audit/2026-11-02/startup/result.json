@@ -1,0 +1,12 @@
+{
+  "normal_startup": true,
+  "startup_seconds": 1.5,
+  "pause_accepted": true,
+  "resume_preserved_page": true,
+  "frames": 32,
+  "maximum_observed_frame_gap": 0.328,
+  "window_size": [
+    800,
+    600
+  ]
+}

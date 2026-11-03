@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-24",
+  "method": "tools/build_bandaged_reduction.py: exhaustive layouts, all-edge Schreier membership, and exact engine replay of every exported word",
+  "families": [
+    {
+      "kind": "two_bar_cube",
+      "geometry": "840b8564a632d36f9c6ef562a48d78f5f8bdf9ee65b97eb59466893b13b9ff70",
+      "layouts": 4,
+      "verified_directed_edges": 36,
+      "root_group_order": "416179814400",
+      "exported_words": 146,
+      "assets": [
+        {
+          "path": "solver/data/two_bar_shapes.bin",
+          "bytes": 203,
+          "sha256": "b4d0ecb9daf39661598188c2c5d62111d47dc9da6d24a3559ad808da1871ef23"
+        },
+        {
+          "path": "solver/data/two_bar_group.bin",
+          "bytes": 2708,
+          "sha256": "3f2f45b1a5b07dacd3fa5c59074d0529b4fbe2672c2f9724bc821fc2b395004d"
+        }
+      ]
+    },
+    {
+      "kind": "bandaged_c",
+      "geometry": "f6270d3030947a52cae38b092b2e7694461c4b42c223a563329a4ca721f19cb0",
+      "layouts": 25,
+      "verified_directed_edges": 135,
+      "root_group_order": "111974400",
+      "exported_words": 125,
+      "assets": [
+        {
+          "path": "solver/data/bandaged_c_shapes.bin",
+          "bytes": 353,
+          "sha256": "9234627289689a435a2336de05bc9e52e7a9c49b2052e04816c561d7c8f4a29d"
+        },
+        {
+          "path": "solver/data/bandaged_c_group.bin",
+          "bytes": 2380,
+          "sha256": "bc70b33c065bfe0c7236d40fff451d002b87fe761fee3672843723f6b5113c65"
+        }
+      ]
+    },
+    {
+      "kind": "bicube",
+      "geometry": "d13fa5863932310ff99d59ac9725d58c8713a039d1f7636e4fc0f26f8ddf8dea",
+      "layouts": 440,
+      "verified_directed_edges": 1896,
+      "root_group_order": "2520",
+      "exported_words": 74,
+      "assets": [
+        {
+          "path": "solver/data/bicube_shapes.bin",
+          "bytes": 2601,
+          "sha256": "87c0f7b777e6d89ad6bf327b18cd846cdc72eb89ebe0bf66567d62ce6fa91c00"
+        },
+        {
+          "path": "solver/data/bicube_group.bin",
+          "bytes": 1257,
+          "sha256": "e94678057fa3bf746cd15ebbc43f12b791556f13855aba918bc9fdb73cc42c5e"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Completeness describes the current model and preset bandages.",
+    "No physical puzzle or phone acceptance was performed."
+  ]
+}

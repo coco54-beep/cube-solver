@@ -1,0 +1,496 @@
+[
+  {
+    "case": "cube3",
+    "screen": "InputScreen",
+    "size": [
+      800,
+      600
+    ],
+    "partial_entry": true,
+    "screenshot": "cube3-800x600.png",
+    "render_preserves_state": true,
+    "undo_restores_state": true
+  },
+  {
+    "case": "mirror3",
+    "screen": "MirrorScreen",
+    "size": [
+      800,
+      600
+    ],
+    "partial_entry": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "mirror3-800x600.png",
+    "render_preserves_state": true,
+    "undo_restores_state": true
+  },
+  {
+    "case": "axis",
+    "screen": "ShapeCubeScreen",
+    "size": [
+      800,
+      600
+    ],
+    "partial_entry": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "axis-800x600.png",
+    "render_preserves_state": true,
+    "undo_restores_state": true
+  },
+  {
+    "case": "fto",
+    "screen": "PolyhedralScreen",
+    "size": [
+      800,
+      600
+    ],
+    "partial_entry": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "palette_slots": 8,
+    "screenshot": "fto-800x600.png",
+    "render_preserves_state": true,
+    "undo_restores_state": true
+  },
+  {
+    "case": "camouflage",
+    "screen": "CuboidSixViewScreen",
+    "size": [
+      800,
+      600
+    ],
+    "partial_entry": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "screenshot": "camouflage-800x600.png",
+    "render_preserves_state": true,
+    "undo_restores_state": true
+  },
+  {
+    "case": "mixup",
+    "screen": "MixupInputScreen",
+    "size": [
+      800,
+      600
+    ],
+    "partial_entry": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 3,
+    "visible_cards": 0,
+    "screenshot": "mixup-800x600.png",
+    "render_preserves_state": true,
+    "undo_restores_state": true
+  },
+  {
+    "case": "mixup-plus",
+    "screen": "MixupInputScreen",
+    "size": [
+      800,
+      600
+    ],
+    "partial_entry": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "gallery_columns": 3,
+    "visible_cards": 0,
+    "screenshot": "mixup-plus-800x600.png",
+    "render_preserves_state": true,
+    "undo_restores_state": true
+  },
+  {
+    "case": "tangram",
+    "screen": "ArticulatedEntryScreen",
+    "size": [
+      800,
+      600
+    ],
+    "partial_entry": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "screenshot": "tangram-800x600.png",
+    "render_preserves_state": true,
+    "undo_restores_state": true
+  },
+  {
+    "case": "tangram-extreme",
+    "screen": "ArticulatedEntryScreen",
+    "size": [
+      800,
+      600
+    ],
+    "partial_entry": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1,
+      64.1
+    ],
+    "screenshot": "tangram-extreme-800x600.png",
+    "render_preserves_state": true,
+    "undo_restores_state": true
+  },
+  {
+    "case": "cube3",
+    "screen": "InputScreen",
+    "size": [
+      400,
+      850
+    ],
+    "partial_entry": true,
+    "screenshot": "cube3-400x850.png",
+    "render_preserves_state": true,
+    "undo_restores_state": true
+  },
+  {
+    "case": "mirror3",
+    "screen": "MirrorScreen",
+    "size": [
+      400,
+      850
+    ],
+    "partial_entry": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "mirror3-400x850.png",
+    "render_preserves_state": true,
+    "undo_restores_state": true
+  },
+  {
+    "case": "axis",
+    "screen": "ShapeCubeScreen",
+    "size": [
+      400,
+      850
+    ],
+    "partial_entry": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 4,
+    "visible_cards": 8,
+    "page": "1/1",
+    "screenshot": "axis-400x850.png",
+    "render_preserves_state": true,
+    "undo_restores_state": true
+  },
+  {
+    "case": "fto",
+    "screen": "PolyhedralScreen",
+    "size": [
+      400,
+      850
+    ],
+    "partial_entry": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "palette_slots": 8,
+    "screenshot": "fto-400x850.png",
+    "render_preserves_state": true,
+    "undo_restores_state": true
+  },
+  {
+    "case": "camouflage",
+    "screen": "CuboidSixViewScreen",
+    "size": [
+      400,
+      850
+    ],
+    "partial_entry": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "screenshot": "camouflage-400x850.png",
+    "render_preserves_state": true,
+    "undo_restores_state": true
+  },
+  {
+    "case": "mixup",
+    "screen": "MixupInputScreen",
+    "size": [
+      400,
+      850
+    ],
+    "partial_entry": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 3,
+    "visible_cards": 0,
+    "screenshot": "mixup-400x850.png",
+    "render_preserves_state": true,
+    "undo_restores_state": true
+  },
+  {
+    "case": "mixup-plus",
+    "screen": "MixupInputScreen",
+    "size": [
+      400,
+      850
+    ],
+    "partial_entry": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "gallery_columns": 3,
+    "visible_cards": 0,
+    "screenshot": "mixup-plus-400x850.png",
+    "render_preserves_state": true,
+    "undo_restores_state": true
+  },
+  {
+    "case": "tangram",
+    "screen": "ArticulatedEntryScreen",
+    "size": [
+      400,
+      850
+    ],
+    "partial_entry": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "screenshot": "tangram-400x850.png",
+    "render_preserves_state": true,
+    "undo_restores_state": true
+  },
+  {
+    "case": "tangram-extreme",
+    "screen": "ArticulatedEntryScreen",
+    "size": [
+      400,
+      850
+    ],
+    "partial_entry": true,
+    "actions": [
+      "twist",
+      "random",
+      "clear",
+      "undo",
+      "target",
+      "solve"
+    ],
+    "button_widths": [
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0,
+      59.0
+    ],
+    "screenshot": "tangram-extreme-400x850.png",
+    "render_preserves_state": true,
+    "undo_restores_state": true
+  }
+]

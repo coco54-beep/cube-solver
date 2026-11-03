@@ -1,0 +1,21 @@
+{
+  "kind": "tangram_extreme",
+  "seed": 20261102,
+  "scramble_turns": 30,
+  "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\deep-retry-60\\inputs\\tangram_extreme-20261102-30.json",
+  "input_method": "visible panels / fixed bandage layout",
+  "history_empty": true,
+  "visible_entry_matches": true,
+  "input_seconds": 1.313,
+  "success": true,
+  "moves": 431,
+  "failure_category": "",
+  "solve_seconds": 48.953,
+  "message": "",
+  "evaluation_budget_hit": false,
+  "replay_solved": true,
+  "replay_seconds": 23.203,
+  "seconds": 73.469,
+  "shortening": [],
+  "colour_stage_plans": []
+}

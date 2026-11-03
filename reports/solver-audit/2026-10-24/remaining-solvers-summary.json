@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-24",
+  "passed_checks": 32,
+  "model_checks": 29,
+  "service_dispatch_checks": 3,
+  "solve_replays": 29,
+  "new_bandage_asset_bytes": 9502,
+  "additional_retired_asset_bytes": 43619201,
+  "total_retired_asset_bytes": 110822026,
+  "source_sha256": {
+    "solver/solver2.py": "74f059b2be6af4098878cbd5d8fb17c9ed346845a71187b6a51d1515af1bf2eb",
+    "solver/solver5.py": "f32cee384e7c60511530436871b03f9a389592b8230015a8f1362951405ccd2f",
+    "solver/solver_n.py": "c0dd251fd1b78aa7f4f81624203bbaf88f844899da174685fcc3b2e058fd2def",
+    "solver/bandaged_cube.py": "37d5c1e959780835b123fdbb2cce34de64220917db6f5a7630b1775f5037c2eb",
+    "solver/bandaged_state.py": "88f35db10cd4944b5ae3378ec9620257f3cc271782273c4e75cb0d82681f61ce",
+    "solver/bandaged_reduction.py": "84d9e8d533cec3065c581e8e1884616a801fc406aa1818e4373f52f65e4f3d38",
+    "services/solve_service.py": "d22d35ee2af7af204026687c7f969234ced09f44eab90c8511f9b8b5931af3dd",
+    "scripts/bundle_assets.py": "add6e41341f13e7c3db0fb65f67c8a6aba1ef851fb2897f13c927fe8a97b9b16",
+    "buildozer.spec": "c54e9689a0f78d5b7a5265288a7fde016340a0832b448985a52c6d122a0cacba"
+  },
+  "limitations": [
+    "Model re-entry was automated from visible face colours and plate seams; no new actual entry-control acceptance.",
+    "No release build or phone benchmark was performed.",
+    "Mixup/Camouflage deep fallback search can still be very slow.",
+    "No claim of globally shortest solutions."
+  ]
+}

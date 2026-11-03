@@ -6,6 +6,7 @@
 
 from kivy.app import App
 from kivy.uix.label import Label
+from ui.widgets.entry_guidance import EntryGuidance
 from kivy.uix.screenmanager import Screen
 from kivy.uix.spinner import Spinner
 
@@ -163,7 +164,7 @@ class MorphixTwistScreen(Screen):
         for widget in (self.face, ccw, cw):
             row.add_widget(widget)
         panel.add_widget(row)
-        self.hint = Label(text=tr('twist.hint_lock_on'), size_hint_y=None, height=m.h(54),
+        self.hint = EntryGuidance(text=tr('twist.hint_lock_on'), size_hint_y=None, height=m.h(54),
                           font_size='13sp', halign='center', valign='middle')
         self.hint.bind(size=lambda w, *_: setattr(w, 'text_size', w.size))
         panel.add_widget(self.hint)

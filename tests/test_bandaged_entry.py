@@ -49,7 +49,7 @@ def test_step_paint_fills_one_plate_and_rejects_wrong_shape(monkeypatch):
     cube=BandagedCube.solved('fused_cube')
     data={f:[['']*3 for _ in range(3)] for f in FACE_NORMALS}
     captured=[]
-    fake=SimpleNamespace(_data=data,_n=lambda:3,view=SimpleNamespace(cube=cube),
+    fake=SimpleNamespace(entry_can_edit=lambda:True,_data=data,_n=lambda:3,view=SimpleNamespace(cube=cube),
         _bandage_step='2×2',msg=SimpleNamespace(text=''),_error_cells=set(),_valid=None,
         _commit_action=lambda a:captured.append(a),_refresh_view=lambda:None,
         _update_progress=lambda:None,_update_bandage_step=lambda **kw:None)
@@ -82,7 +82,7 @@ def test_fill_button_only_paints_current_size():
     import ui.screens.input_screen as entry
     cube=BandagedCube.solved('fused_cube')
     data={f:[['']*3 for _ in range(3)] for f in FACE_NORMALS};actions=[]
-    fake=SimpleNamespace(_busy_turn=False,_ori=SimpleNamespace(current_face=lambda:'F'),
+    fake=SimpleNamespace(entry_can_edit=lambda:True,_busy_turn=False,_ori=SimpleNamespace(current_face=lambda:'F'),
         picker=SimpleNamespace(current_color='G'),_n=lambda:3,_data=data,
         view=SimpleNamespace(cube=cube),_bandage_step='1×1',_error_cells=set(),
         _commit_action=lambda a:actions.append(a),_refresh_view=lambda:None,

@@ -1,0 +1,68 @@
+[
+  {
+    "kind": "camouflage_3",
+    "seed": 0,
+    "scramble_turns": 40,
+    "entry_matches": true,
+    "history_empty": true,
+    "success": true,
+    "moves": 16,
+    "seconds": 0.579,
+    "replay_solved": true
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 1,
+    "scramble_turns": 40,
+    "entry_matches": true,
+    "history_empty": true,
+    "success": true,
+    "moves": 26,
+    "seconds": 1.219,
+    "replay_solved": true
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 2,
+    "scramble_turns": 40,
+    "entry_matches": true,
+    "history_empty": true,
+    "success": true,
+    "moves": 25,
+    "seconds": 0.844,
+    "replay_solved": true
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 3,
+    "scramble_turns": 40,
+    "entry_matches": true,
+    "history_empty": true,
+    "success": true,
+    "moves": 21,
+    "seconds": 0.469,
+    "replay_solved": true
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 4,
+    "scramble_turns": 40,
+    "entry_matches": true,
+    "history_empty": true,
+    "success": true,
+    "moves": 26,
+    "seconds": 0.265,
+    "replay_solved": true
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 5,
+    "scramble_turns": 40,
+    "entry_matches": true,
+    "history_empty": true,
+    "success": true,
+    "moves": 21,
+    "seconds": 0.047,
+    "replay_solved": true
+  }
+]

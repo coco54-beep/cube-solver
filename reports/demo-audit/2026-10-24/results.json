@@ -1,0 +1,19 @@
+{
+  "models": 32,
+  "chapters": 128,
+  "examples": 156,
+  "isolated_cycles": 51,
+  "complete_solutions_passed": 32,
+  "ui_models_passed": 32,
+  "full_solution_sections": 102,
+  "tests": {
+    "total": 393,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "additional_formula_data_bytes": 12129,
+  "external_tutorial_links": false,
+  "repackaged": false,
+  "android_device_tested": false
+}

@@ -1,0 +1,266 @@
+[
+  {
+    "kind": "two_bar_cube",
+    "seed": 0,
+    "scramble_length": 100,
+    "manual_reconstruction": true,
+    "history": false,
+    "success": true,
+    "moves": 96,
+    "seconds": 0.065
+  },
+  {
+    "kind": "two_bar_cube",
+    "seed": 7,
+    "scramble_length": 100,
+    "manual_reconstruction": true,
+    "history": false,
+    "success": true,
+    "moves": 126,
+    "seconds": 0.025
+  },
+  {
+    "kind": "two_bar_cube",
+    "seed": 223,
+    "scramble_length": 100,
+    "manual_reconstruction": true,
+    "history": false,
+    "success": true,
+    "moves": 95,
+    "seconds": 0.021
+  },
+  {
+    "kind": "bandaged_c",
+    "seed": 0,
+    "scramble_length": 100,
+    "manual_reconstruction": true,
+    "history": false,
+    "success": true,
+    "moves": 189,
+    "seconds": 0.062
+  },
+  {
+    "kind": "bandaged_c",
+    "seed": 7,
+    "scramble_length": 100,
+    "manual_reconstruction": true,
+    "history": false,
+    "success": true,
+    "moves": 149,
+    "seconds": 0.03
+  },
+  {
+    "kind": "bandaged_c",
+    "seed": 223,
+    "scramble_length": 100,
+    "manual_reconstruction": true,
+    "history": false,
+    "success": true,
+    "moves": 167,
+    "seconds": 0.035
+  },
+  {
+    "kind": "bicube",
+    "seed": 0,
+    "scramble_length": 100,
+    "manual_reconstruction": true,
+    "history": false,
+    "success": true,
+    "moves": 73,
+    "seconds": 0.042
+  },
+  {
+    "kind": "bicube",
+    "seed": 7,
+    "scramble_length": 100,
+    "manual_reconstruction": true,
+    "history": false,
+    "success": true,
+    "moves": 117,
+    "seconds": 0.029
+  },
+  {
+    "kind": "bicube",
+    "seed": 223,
+    "scramble_length": 100,
+    "manual_reconstruction": true,
+    "history": false,
+    "success": true,
+    "moves": 94,
+    "seconds": 0.018
+  },
+  {
+    "kind": "2x2",
+    "seed": 0,
+    "fast_seconds": 0.0,
+    "manual_reconstruction": true,
+    "success": true,
+    "moves": 19,
+    "seconds": 0.126,
+    "message": ""
+  },
+  {
+    "kind": "2x2",
+    "seed": 0,
+    "fast_seconds": 0.2,
+    "manual_reconstruction": true,
+    "success": true,
+    "moves": 19,
+    "seconds": 0.241,
+    "message": ""
+  },
+  {
+    "kind": "2x2",
+    "seed": 7,
+    "fast_seconds": 0.0,
+    "manual_reconstruction": true,
+    "success": true,
+    "moves": 19,
+    "seconds": 0.02,
+    "message": ""
+  },
+  {
+    "kind": "2x2",
+    "seed": 7,
+    "fast_seconds": 0.2,
+    "manual_reconstruction": true,
+    "success": true,
+    "moves": 19,
+    "seconds": 0.23,
+    "message": ""
+  },
+  {
+    "kind": "2x2",
+    "seed": 223,
+    "fast_seconds": 0.0,
+    "manual_reconstruction": true,
+    "success": true,
+    "moves": 20,
+    "seconds": 0.021,
+    "message": ""
+  },
+  {
+    "kind": "2x2",
+    "seed": 223,
+    "fast_seconds": 0.2,
+    "manual_reconstruction": true,
+    "success": true,
+    "moves": 8,
+    "seconds": 0.054,
+    "message": ""
+  },
+  {
+    "kind": "5x5",
+    "scramble": "M",
+    "manual_reconstruction": true,
+    "success": true,
+    "moves": 128,
+    "seconds": 5.512,
+    "message": ""
+  },
+  {
+    "kind": "5x5",
+    "scramble": "M 3R U 2F",
+    "manual_reconstruction": true,
+    "success": true,
+    "moves": 311,
+    "seconds": 5.56,
+    "message": ""
+  },
+  {
+    "kind": "5x5",
+    "scramble": "3R U 3F' M E 3U' 3L 3D 3B' S",
+    "manual_reconstruction": true,
+    "success": true,
+    "moves": 403,
+    "seconds": 5.161,
+    "message": ""
+  },
+  {
+    "kind": "2x2",
+    "short_case": 0,
+    "success": true,
+    "moves": 5,
+    "seconds": 0.077
+  },
+  {
+    "kind": "2x2",
+    "short_case": 1,
+    "success": true,
+    "moves": 5,
+    "seconds": 0.001
+  },
+  {
+    "kind": "2x2",
+    "short_case": 2,
+    "success": true,
+    "moves": 6,
+    "seconds": 0.001
+  },
+  {
+    "kind": "2x2",
+    "short_case": 3,
+    "success": true,
+    "moves": 7,
+    "seconds": 0.003
+  },
+  {
+    "kind": "2x2",
+    "short_case": 4,
+    "success": true,
+    "moves": 5,
+    "seconds": 0.001
+  },
+  {
+    "kind": "2x2",
+    "short_case": 5,
+    "success": true,
+    "moves": 5,
+    "seconds": 0.001
+  },
+  {
+    "kind": "5x5",
+    "seed": 0,
+    "forced_fast_failure": true,
+    "manual_reconstruction": true,
+    "success": true,
+    "moves": 401,
+    "seconds": 1.216,
+    "stages": [
+      "nxn_core",
+      "nxn_wings",
+      "nxn_centers",
+      "nxn_centers"
+    ]
+  },
+  {
+    "kind": "5x5",
+    "seed": 5,
+    "forced_fast_failure": true,
+    "manual_reconstruction": true,
+    "success": true,
+    "moves": 398,
+    "seconds": 0.648,
+    "stages": [
+      "nxn_core",
+      "nxn_wings",
+      "nxn_centers",
+      "nxn_centers"
+    ]
+  },
+  {
+    "kind": "2x2",
+    "case": "cancel-before-solving",
+    "success": true
+  },
+  {
+    "kind": "5x5",
+    "case": "cancel-before-solving",
+    "success": true
+  },
+  {
+    "kind": "2x2",
+    "case": "invalid-colour-count",
+    "success": true
+  }
+]

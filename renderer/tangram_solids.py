@@ -9,6 +9,7 @@ from cube.articulated import ArticulatedCube, overlap
 from cube.articulated_observation import panels_for_outline, polygon_key
 from cube.polyhedral import CUBE, dot
 from renderer.articulated_view import ArticulatedView
+from renderer.entry_style import surface_panel
 
 
 @lru_cache(maxsize=12)
@@ -45,7 +46,7 @@ class TangramSolidPreview:
         for face, items in enumerate(state['views']):
             for index, item in enumerate(items):
                 world_key = polygon_key(item['preview'])
-                self.recorded.setdefault(world_key, []).append((face, index, item['color']))
+                self.recorded.setdefault(world_key, []).append((face, index, item['color'], item.get('body_key')))
                 if matched:continue
                 candidates = panels_for_outline(self.kind, face, polygon_key(item['outline']))
                 panel = next((p for p in candidates if p.color == item['color']
@@ -69,17 +70,21 @@ class TangramSolidPreview:
     def surfaces(self, active_face, guide_offset):
         surfaces = []
         for ordinal, identity in enumerate(self.bodies):
-            _, _, body_surfaces, skins = _body(self.kind, *identity)
+            faces, body_key, body_surfaces, skins = _body(self.kind, *identity)
+            full_panels = {polygon_key(points): points for points, color in faces if color >= 0}
             for points, normal, color, original_slot, layer, home, width in body_surfaces:
                 face = active_face if dot(normal, CUBE[active_face]) > 1e-7 else max(range(6), key=lambda f: dot(normal, CUBE[f]))
                 slot = face * 1024 + guide_offset + ordinal
                 if color < 0:
-                    current = next((p for p in self.recorded.get(polygon_key(points), ()) if p[0] == face), None)
+                    current = next((p for p in self.recorded.get(polygon_key(points), ())
+                                    if p[0] == face and (not p[3] or p[3] == body_key)), None)
                     if current is not None:slot = face * 1024 + current[1]
                 if color >= 0:
-                    entries = self.recorded.get(skins[original_slot], ())
+                    entries = tuple(p for p in self.recorded.get(skins[original_slot], ())
+                                    if not p[3] or p[3] == body_key)
                     current = next((p for p in entries if p[0] == face), None)
                     color = (current or entries[0])[2] if entries else -2
                     if current is not None:slot = face * 1024 + current[1]
+                    points = surface_panel(full_panels[skins[original_slot]], normal)
                 surfaces.append((points, normal, color, slot, layer, home, width))
         return tuple(surfaces)

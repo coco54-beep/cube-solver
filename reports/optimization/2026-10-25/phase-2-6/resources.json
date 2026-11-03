@@ -1,0 +1,14 @@
+{
+  "startup_solver_modules_before": [],
+  "startup_solver_modules_after": [],
+  "joint_table_bytes": 51482970,
+  "table_storage": "mmap",
+  "python_heap_current_bytes": 2992,
+  "python_heap_peak_bytes": 12289,
+  "samples": [
+    0,
+    8,
+    2
+  ],
+  "read_only": true
+}

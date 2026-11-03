@@ -55,3 +55,39 @@ class FisherView(MastermorphixView):
     @staticmethod
     def _piece_geometry(home,frame,subdivisions,n):
         return _geometry('fisher',home,frame,n)
+
+
+class TrajberView(MastermorphixView):
+    @staticmethod
+    def _piece_geometry(home,frame,subdivisions,n):return _geometry('trajber',home,frame,n)
+
+MasterTrajberView=TrajberView
+
+class Dodecahedron2View(MastermorphixView):
+    @staticmethod
+    def _piece_geometry(home,frame,subdivisions,n):return _geometry('dodecahedron_2',home,frame,n)
+
+class Dodecahedron3View(MastermorphixView):
+    @staticmethod
+    def _piece_geometry(home,frame,subdivisions,n):return _geometry('dodecahedron_3',home,frame,n)
+
+class Rhombic3View(MastermorphixView):
+    @staticmethod
+    def _piece_geometry(home,frame,subdivisions,n):return _geometry('rhombic_3',home,frame,n)
+
+class Rhombic4View(MastermorphixView):
+    @staticmethod
+    def _piece_geometry(home,frame,subdivisions,n):return _geometry('rhombic_4',home,frame,n)
+
+class RhombicMask4View(MastermorphixView):
+    @staticmethod
+    def _piece_geometry(home,frame,subdivisions,n):return _geometry('rhombic_mask_4',home,frame,n)
+
+class Caneball4View(MastermorphixView):
+    @staticmethod
+    def _piece_geometry(home,frame,subdivisions,n):return _geometry('caneball_4',home,frame,n)
+
+SOLID_VIEWS={'trajber':TrajberView,'trajber_4':MasterTrajberView,
+             'dodecahedron_2':Dodecahedron2View,'dodecahedron_3':Dodecahedron3View,
+             'rhombic_3':Rhombic3View,'rhombic_4':Rhombic4View,'rhombic_mask_4':RhombicMask4View,
+             'caneball_4':Caneball4View}

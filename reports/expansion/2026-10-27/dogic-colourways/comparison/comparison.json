@@ -1,0 +1,10 @@
+{
+  "grey_rgb_identical": true,
+  "different_pixel_bounds": null,
+  "physical_pieces_each": 80,
+  "turn_axes_each": 12,
+  "layers_per_axis": 2,
+  "turn_degrees": 72,
+  "dogic_12_paint_regions": 120,
+  "dogic_20_paint_regions": 80
+}

@@ -1,0 +1,11 @@
+[
+  {
+    "kind": "pentacle",
+    "n": 3,
+    "status": "pass",
+    "cases": 4,
+    "next_prev_stop": true,
+    "book": true,
+    "input_preserved": true
+  }
+]

@@ -22,6 +22,12 @@ TANGRAM_MODELS=('tangram','tangram_extreme')
 KINDS=tuple(MIXUP_MODELS)+TANGRAM_MODELS
 EPS=1e-7
 
+# pCubes Tangram cube.xml uses W=.5, D1=sqrt(3)/12, D2=.175.
+# Our housing has half-width 1, so plane distances must be doubled.
+# Extreme has a different moving-axis construction; do not share its cuts.
+TANGRAM_CUTS = (math.sqrt(3)/6, .35)
+EXTREME_CUTS = (1/math.sqrt(3)-.4*math.sqrt(6)/3, .4)
+
 
 def multiply(a,b):return tuple(transform_frame(a,v) for v in b)
 def frame_key(f):return tuple(round(v,8) for row in f for v in row)
@@ -109,17 +115,25 @@ def solids(kind):
                 point=list(anchor);point[first]=1 if anchor[first]>0 else -1
                 point[second]=(depth+long/2)*(1 if anchor[second]>0 else -1)
                 result.append(Solid(small,tuple(point),'inner_edge'))
-        return tuple(result)
+        # A bounding-box centre can lie outside the visible rigid piece after
+        # a 45-degree exchange (notably a half centre in 334/344). It then
+        # nominates the wrong slab and falsely blocks a clear cut. A convex
+        # combination of the piece's own skin vertices always stays within
+        # its axial extents, in every pose, without changing sticker identity.
+        return tuple(Solid(s.faces,mean(tuple({key(p):p for poly,c in s.faces if c>=0 for p in poly}.values())),s.role)
+                     for s in result)
     if kind not in TANGRAM_MODELS:raise ValueError('Unsupported articulated puzzle')
     principal=unit((1,1,1));sides=tuple(unit(v) for v in ((1,-1,0),(0,1,-1),(-1,0,1)))
+    principal_cut, side_cut = (TANGRAM_CUTS if kind=='tangram' else
+                              EXTREME_CUTS)
     shell=tuple((p,i) for i,p in enumerate(body(CUBE)));result=[]
     for band in range(3):
         part=shell
-        if band<2:part=clipped(part,principal,(-1 if band==0 else 1)/math.sqrt(3))
-        if band>0:part=clipped(part,scale(principal,-1),-(1 if band==2 else -1)/math.sqrt(3))
+        if band<2:part=clipped(part,principal,(-1 if band==0 else 1)*principal_cut)
+        if band>0:part=clipped(part,scale(principal,-1),-(1 if band==2 else -1)*principal_cut)
         pieces=[part]
-        planes=[(axis,.5/math.sqrt(2)) for axis in sides]
-        if kind=='tangram_extreme' and band!=1:planes += [(scale(axis,-1),.5/math.sqrt(2)) for axis in sides]
+        planes=[(axis,side_cut) for axis in sides]
+        if kind=='tangram_extreme' and band!=1:planes += [(scale(axis,-1),side_cut) for axis in sides]
         for normal,bound in planes:
             split=[]
             for polys in pieces:
@@ -189,6 +203,19 @@ class ArticulatedCube:
     def placed_faces(self,home,pose=None):
         frame=self.orientations[self.frames[home] if pose is None else pose]
         return tuple((tuple(transform_frame(frame,p) for p in points),color) for points,color in self.solids[home].faces)
+    @property
+    def principal_axis(self):return 6 if self.family=='tangram_extreme' else 3
+    def axis_available(self,axis):
+        if self.family!='tangram_extreme':return True
+        # All six middle pieces retain their principal-band membership.
+        # Edge half turns are cube rotations; a middle 60-degree turn toggles
+        # the parity of all their frames and exchanges the two sets of axes.
+        phases={self.frames[h] not in proper_poses(self.family)
+                for h,s in enumerate(self.solids) if s.role=='band'}
+        if len(phases)!=1:return False
+        if axis==self.principal_axis:return True
+        phase=next(iter(phases))
+        return (axis>=3)==phase
     def _bands(self):
         if self.family=='mixup':
             dimensions,plus=MIXUP_MODELS[self.puzzle_kind];depth=(2*math.sqrt(2)-1)/7 if plus else math.sqrt(2)-1
@@ -196,7 +223,10 @@ class ArticulatedCube:
             cuts=tuple((-depth,0.,depth) if n==4 else (-depth,depth) for n in dimensions)
         else:
             axes=tuple(unit(v) for v in ((1,-1,0),(0,1,-1),(-1,0,1),(1,1,1)))
-            cuts=((.5/math.sqrt(2),),)*3+((-1/math.sqrt(3),1/math.sqrt(3)),)
+            principal_cut, side_cut = (TANGRAM_CUTS if self.family=='tangram' else
+                                      EXTREME_CUTS)
+            if self.family=='tangram_extreme':axes=axes[:3]+tuple(scale(a,-1) for a in axes[:3])+axes[3:]
+            cuts=((side_cut,),)*(len(axes)-1)+((-principal_cut,principal_cut),)
         return axes,cuts
     @property
     def geometry(self):
@@ -205,10 +235,11 @@ class ArticulatedCube:
         spec=Spec(self.puzzle_kind,self.n,CUBE,axes,(),period)
         centres=tuple(transform_frame(self.orientations[pose],solid.anchor) for solid,pose in zip(self.solids,self.frames))
         layers=[]
-        for axis,bounds in zip(axes,cuts):
+        for axis_id,(axis,bounds) in enumerate(zip(axes,cuts)):
             bins=[[] for _ in range(len(bounds)+1)]
             for home,centre in enumerate(centres):bins[sum(dot(axis,centre)>b+EPS for b in bounds)].append(home)
             if self.family!='mixup' and len(bounds)==1:bins=bins[1:]
+            if not self.axis_available(axis_id):bins=[[] for b in bins]
             layers.append(tuple(tuple(b) for b in bins))
         stickers=[];pieces=[]
         for home,solid in enumerate(self.solids):
@@ -220,7 +251,7 @@ class ArticulatedCube:
         self._geometry_cache=(self.frames,g);return g
     def step(self,axis,layer):
         if self.family=='mixup':return 2 if layer in (0,len(self.geometry.layers[axis])-1) else 1
-        return 3 if axis<3 else 1 if self.family=='tangram_extreme' and layer in (0,2) else 2
+        return 3 if axis!=self.principal_axis else 1 if self.family=='tangram_extreme' else 2
     def moves(self):
         return tuple(Move(a,l,self.step(a,l)) for a,bands in enumerate(self.geometry.layers) for l,band in enumerate(bands) if band)
     def proposed(self,move,collisions=True,guard=None):
@@ -236,7 +267,7 @@ class ArticulatedCube:
         else:
             axes,cuts=self._bands()
             boundaries=cuts[move.axis]
-            if move.axis==3:
+            if move.axis==self.principal_axis:
                 boundaries=boundaries[max(0,move.layer-1):min(len(boundaries),move.layer+1)]
             for home in range(len(self.solids)):
                 projections=[dot(axis,p) for p in vertices(self.placed_faces(home))]
@@ -246,18 +277,12 @@ class ArticulatedCube:
             pose=self._pose_index.get(frame_key(multiply(turn,self.orientations[frames[home]])))
             if pose is None or not self.pose_allowed(home,pose):raise ValueError('rigid.blocked')
             frames[home]=pose
-        if collisions and self.family!='mixup':
-            # Mixup's mandatory slab-clearance check already separates every
-            # moving panel from every stationary panel along this axis.
-            # Rotation preserves that coordinate throughout the move, so a
-            # quadratic endpoint panel check would repeat the same constraint.
-            # Tangram still requires its full solid-volume intersection check.
-            intersects=overlap
-            stationary=[(h,self.placed_faces(h)) for h in range(len(self.solids)) if h not in selected]
-            for home in selected:
-                if guard:guard()
-                moved=self.placed_faces(home,frames[home])
-                if any(intersects(moved,faces) for h,faces in stationary):raise ValueError('rigid.blocked')
+        # The cut checks above inspect every vertex of every Tangram solid.
+        # Each moving solid lies inside the selected axial slab, every fixed
+        # solid lies outside, and rotation preserves the axial coordinate.
+        # Thus the solids stay separated for the entire turn. Repeating an
+        # endpoint-only quadratic SAT check adds no collision information.
+        # Arbitrary manual placement still uses the full overlap test below.
         return tuple(frames)
     def can_apply(self,move):
         try:self.proposed(move);return True

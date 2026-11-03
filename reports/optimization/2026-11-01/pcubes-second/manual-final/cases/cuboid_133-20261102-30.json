@@ -1,0 +1,23 @@
+{
+  "kind": "cuboid_133",
+  "seed": 20261102,
+  "scramble_turns": 30,
+  "evaluation_budget_seconds": 30.0,
+  "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-11-01\\pcubes-second\\manual-final\\inputs\\cuboid_133-20261102-30.json",
+  "input_method": "visible panels / fixed bandage layout",
+  "history_empty": true,
+  "visible_entry_matches": true,
+  "input_seconds": 0.015,
+  "success": true,
+  "moves": 9,
+  "failure_category": "",
+  "solve_seconds": 0.094,
+  "progress_stages": [],
+  "message": "",
+  "evaluation_budget_hit": false,
+  "replay_solved": true,
+  "replay_seconds": 0.0,
+  "seconds": 0.109,
+  "shortening": [],
+  "colour_stage_plans": []
+}

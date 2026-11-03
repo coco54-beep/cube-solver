@@ -1,0 +1,19 @@
+{
+  "kind": "mixup_plus_344",
+  "seed": 20261104,
+  "scramble_turns": 100,
+  "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\deep-retry-60\\inputs\\mixup_plus_344-20261104-100.json",
+  "input_method": "blank assembly choices + actual rotation step + panel colours",
+  "history_empty": true,
+  "visible_entry_matches": true,
+  "input_seconds": 3.313,
+  "success": false,
+  "moves": 0,
+  "failure_category": "cancelled",
+  "solve_seconds": 60.015,
+  "message": "Cancelled",
+  "evaluation_budget_hit": true,
+  "seconds": 63.328,
+  "shortening": [],
+  "colour_stage_plans": []
+}

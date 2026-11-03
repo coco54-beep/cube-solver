@@ -75,20 +75,25 @@ def build(kind):
         print('shape graph',len(states),'closed algorithms',len(loops),flush=True)
     pairs = sorted(loops.items(), key=lambda p: (len(p[0].support()), len(p[1])))
     selected = []
-    for p, word in pairs:
+    # Discovery order starts with real primitive turns. Prefer this short
+    # physical basis to a support-sorted basis with long derived generators.
+    for p, word in loops.items():
         if not selected or not group.contains(p):
             selected.append(p)
             group = PermutationGroup(selected)
             group.schreier_sims()
     # Keep the independent basis and small useful cycles. All other loops
     # were used to establish membership before being dropped from the asset.
-    pairs = [(p,w) for p,w in pairs if p in selected or len(p.support()) <= 6]
+    # A redundant generator can be a one-turn shortcut for a later orbit.
+    # Dropping the upper cap's primitive 120-degree turn forced thousands
+    # of steps to synthesize it from the lower cap and edge generators.
+    pairs = [(p,w) for p,w in pairs if p in selected or len(p.support()) <= 6 or len(w)==1]
     group._schreier_sims(base=list(range(len(slots))))
     print(kind, 'atoms', len(slots), 'loops', len(pairs), 'independent', len(selected), 'order', group.order(), flush=True)
     generators = [p for p, _ in pairs]
     words = [word for _, word in pairs]
-    # Verify all exported primitive algorithms on the collision-checking model.
-    for p, word in pairs:
+    # Verify every short loop exported to the offline path optimizer too.
+    for p, word in loops.items():
         trial = cube.clone()
         trial.apply_moves(word)
         if permutation(trial.frames) != p:raise RuntimeError('Algorithm replay differs')
@@ -100,6 +105,7 @@ def build(kind):
                     product=[] if p in originals else [reference(q) for q in group._strong_gens_slp[p]]) for p in strong]
     from solver.tangram_table import geometry_fingerprint
     data = dict(version=1, kind=kind, geometry=geometry_fingerprint(kind), degree=len(slots), base=group.base,
+                short_loops=[dict(permutation=p.array_form,word=[[m.axis,m.layer,m.amount] for m in word]) for p,word in loops.items()],
                 moves=[[[m.axis,m.layer,m.amount] for m in w] for w in words], strong=records,
                 transversals=[{str(beta):dict(permutation=p.array_form, product=group._transversal_slp[i][beta])
                                for beta,p in orbit.items()} for i,orbit in enumerate(group.basic_transversals)])
@@ -119,6 +125,8 @@ def finish(kind):
         source=optimize(kind,source)
         source=augment(kind,source)
         source=optimize(kind,source)
+        from tools.expand_tangram_cycles import expand as expand_cycles
+        source=expand_cycles(kind,source)
     path=shorten(kind,source)
     table=TangramTable(kind,path)
     model=table.model

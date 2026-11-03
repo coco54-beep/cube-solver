@@ -5,6 +5,7 @@ Matching uses the existing model's rigid pieces, visibility and cut boundaries;
 it never recovers a state from a remembered scramble.
 """
 from dataclasses import dataclass
+from collections import defaultdict
 from functools import lru_cache
 from itertools import product
 from time import monotonic
@@ -104,7 +105,8 @@ def observation_model(kind):
             original = tuple(sum(normal[a]*frame[j][a] for a in range(3)) for j in range(3))
             home_face = CUBE.index(original)
             ha, hs = next((a, v) for a, v in enumerate(original) if v)
-            color = home_face if (piece, home_face) in home_panels else PLASTIC
+            color = ((cube.observation_color(piece, home_face) if getattr(cube, 'material_only', False) else home_face)
+                     if (piece, home_face) in home_panels else PLASTIC)
             views.append((mask, depth, color)); levels[face].add(depth)
         signature = (core, body, tuple(views))
         if signature in seen[piece]:
@@ -131,7 +133,9 @@ def project(cube, model=None):
         for face, (mask, depth, color) in enumerate(placement.views):
             if color >= 0:
                 if getattr(cube, 'panel_anchored', False):
-                    color = cube.colors[lookup[piece, color]]
+                    normal = CUBE[face]
+                    original = tuple(sum(normal[a]*frame[j][a] for a in range(3)) for j in range(3))
+                    color = cube.colors[lookup[piece, CUBE.index(original)]]
                     for index in bits(mask):
                         if output[face][index][2] is None or depth > output[face][index][2]:
                             output[face][index] = (color, piece+1, depth)
@@ -202,6 +206,8 @@ class SixViewDraft:
 
     def match(self, seconds=6., cancel=None, node_limit=80000):
         """Bounded constraint matching. Ambiguity and exhaustion are distinct."""
+        if cancel is not None and cancel.is_set():
+            return MatchResult('cancelled')
         missing = self.missing()
         if missing:
             return MatchResult('incomplete', face=missing[0], cell=missing[1])
@@ -210,6 +216,10 @@ class SixViewDraft:
         known_depths = [[(i, c, d) for i, (c, _, d) in enumerate(view) if d is not None] for view in self.views]
         options = []
         for placements in self.model['placements']:
+            if cancel is not None and cancel.is_set():
+                return MatchResult('cancelled')
+            if monotonic() >= deadline:
+                return MatchResult('budget')
             viable = []
             for p in placements:
                 if any(mask & empty[f] for f, (mask, _, _) in enumerate(p.views)):
@@ -226,15 +236,26 @@ class SixViewDraft:
             signature = frozenset((p.core, p.body, p.views) for p in placements)
             group = equivalence.setdefault(signature, [])
             group.append(piece); group_of.append(group)
+        # Index once by observed face/colour. Previously every painted region
+        # scanned every orientation of every physical piece again.
+        by_face_color = defaultdict(list)
+        for placements in options:
+            for p in placements:
+                for face, (_, _, color) in enumerate(p.views):
+                    if color >= 0:by_face_color[face,color].append(p)
         patches = []
         for face, view in enumerate(self.views):
+            if cancel is not None and cancel.is_set():
+                return MatchResult('cancelled')
+            if monotonic() >= deadline:
+                return MatchResult('budget')
             groups = {}
             for i, (color, group, depth) in enumerate(view):
                 if color >= 0:
                     groups.setdefault((color, group), []).append(i)
             for (color, group), indices in groups.items():
                 mask = sum(1 << i for i in indices)
-                choices = [p for opts in options for p in opts if p.views[face][2] == color and p.views[face][0] & mask == mask
+                choices = [p for p in by_face_color[face,color] if p.views[face][0] & mask == mask
                            and all(view[i][2] is None or view[i][2] == p.views[face][1] for i in indices)]
                 if not choices:
                     return MatchResult('conflict', face=face, cell=indices[0])
@@ -355,7 +376,7 @@ class SixViewDraft:
 def _cube_from_frames(kind, frames):
     cells, boxes, entries, lookup, base = layout(kind)
     if getattr(CuboidCube.solved(kind), 'panel_anchored', False):
-        result = CuboidCube(kind, [s.face for s in base.stickers], frames)
+        result = CuboidCube(kind, CuboidCube.solved(kind).colors, frames)
         result.geometry
         return result
     n = CuboidCube.solved(kind).core_n

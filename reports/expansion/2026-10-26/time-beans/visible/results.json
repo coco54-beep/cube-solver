@@ -1,0 +1,56 @@
+[
+  {
+    "kind": "time_machine",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "moves": 871
+  },
+  {
+    "kind": "bean_6",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "moves": 180
+  },
+  {
+    "kind": "bean_10",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "moves": 289
+  },
+  {
+    "kind": "time_machine",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "moves": 871
+  },
+  {
+    "kind": "bean_6",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "moves": 180
+  },
+  {
+    "kind": "bean_10",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "moves": 289
+  }
+]

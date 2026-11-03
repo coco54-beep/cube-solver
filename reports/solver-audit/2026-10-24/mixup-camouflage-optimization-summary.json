@@ -1,0 +1,280 @@
+{
+  "date": "2026-10-24",
+  "visible_only_reconstructed_inputs": 20,
+  "mixup_cases": [
+    {
+      "kind": "mixup_333",
+      "manual_observations": true,
+      "history_empty": true,
+      "input_unchanged": true,
+      "success": true,
+      "moves": 313,
+      "seconds": 1.284
+    },
+    {
+      "kind": "mixup_334",
+      "manual_observations": true,
+      "history_empty": true,
+      "input_unchanged": true,
+      "success": true,
+      "moves": 627,
+      "seconds": 2.102
+    },
+    {
+      "kind": "mixup_344",
+      "manual_observations": true,
+      "history_empty": true,
+      "input_unchanged": true,
+      "success": true,
+      "moves": 577,
+      "seconds": 2.448
+    },
+    {
+      "kind": "mixup_444",
+      "manual_observations": true,
+      "history_empty": true,
+      "input_unchanged": true,
+      "success": true,
+      "moves": 162,
+      "seconds": 2.404
+    },
+    {
+      "kind": "mixup_plus_333",
+      "manual_observations": true,
+      "history_empty": true,
+      "input_unchanged": true,
+      "success": true,
+      "moves": 367,
+      "seconds": 3.107
+    },
+    {
+      "kind": "mixup_plus_334",
+      "manual_observations": true,
+      "history_empty": true,
+      "input_unchanged": true,
+      "success": true,
+      "moves": 797,
+      "seconds": 5.622
+    },
+    {
+      "kind": "mixup_plus_344",
+      "manual_observations": true,
+      "history_empty": true,
+      "input_unchanged": true,
+      "success": true,
+      "moves": 932,
+      "seconds": 12.634
+    },
+    {
+      "kind": "mixup_plus_444",
+      "manual_observations": true,
+      "history_empty": true,
+      "input_unchanged": true,
+      "success": true,
+      "moves": 956,
+      "seconds": 14.369
+    }
+  ],
+  "camouflage_cases": [
+    {
+      "kind": "camouflage_3",
+      "seed": 0,
+      "length": 100,
+      "manual_observations": true,
+      "history_empty": true,
+      "input_unchanged": true,
+      "success": true,
+      "moves": 34,
+      "seconds": 1.506
+    },
+    {
+      "kind": "camouflage_3",
+      "seed": 1,
+      "length": 100,
+      "manual_observations": true,
+      "history_empty": true,
+      "input_unchanged": true,
+      "success": true,
+      "moves": 80,
+      "seconds": 5.744
+    },
+    {
+      "kind": "camouflage_3",
+      "seed": 2,
+      "length": 100,
+      "manual_observations": true,
+      "history_empty": true,
+      "input_unchanged": true,
+      "success": true,
+      "moves": 42,
+      "seconds": 11.097
+    },
+    {
+      "kind": "camouflage_3",
+      "seed": 3,
+      "length": 100,
+      "manual_observations": true,
+      "history_empty": true,
+      "input_unchanged": true,
+      "success": true,
+      "moves": 37,
+      "seconds": 1.526
+    },
+    {
+      "kind": "camouflage_3",
+      "seed": 4,
+      "length": 100,
+      "manual_observations": true,
+      "history_empty": true,
+      "input_unchanged": true,
+      "success": true,
+      "moves": 22,
+      "seconds": 0.061
+    },
+    {
+      "kind": "camouflage_3",
+      "seed": 5,
+      "length": 100,
+      "manual_observations": true,
+      "history_empty": true,
+      "input_unchanged": true,
+      "success": true,
+      "moves": 13,
+      "seconds": 0.106
+    },
+    {
+      "kind": "camouflage_3",
+      "seed": 6,
+      "length": 100,
+      "manual_observations": true,
+      "history_empty": true,
+      "input_unchanged": true,
+      "success": true,
+      "moves": 26,
+      "seconds": 0.374
+    },
+    {
+      "kind": "camouflage_3",
+      "seed": 7,
+      "length": 100,
+      "manual_observations": true,
+      "history_empty": true,
+      "input_unchanged": true,
+      "success": true,
+      "moves": 17,
+      "seconds": 0.071
+    },
+    {
+      "kind": "camouflage_3",
+      "seed": 8,
+      "length": 100,
+      "manual_observations": true,
+      "history_empty": true,
+      "input_unchanged": true,
+      "success": true,
+      "moves": 42,
+      "seconds": 2.797
+    },
+    {
+      "kind": "camouflage_3",
+      "seed": 9,
+      "length": 100,
+      "manual_observations": true,
+      "history_empty": true,
+      "input_unchanged": true,
+      "success": true,
+      "moves": 29,
+      "seconds": 0.044
+    },
+    {
+      "kind": "camouflage_3",
+      "seed": 10,
+      "length": 100,
+      "manual_observations": true,
+      "history_empty": true,
+      "input_unchanged": true,
+      "success": true,
+      "moves": 37,
+      "seconds": 2.721
+    },
+    {
+      "kind": "camouflage_3",
+      "seed": 11,
+      "length": 100,
+      "manual_observations": true,
+      "history_empty": true,
+      "input_unchanged": true,
+      "success": true,
+      "moves": 37,
+      "seconds": 1.898
+    }
+  ],
+  "camouflage_median_seconds": 1.516,
+  "camouflage_max_seconds": 11.097,
+  "related_regression_passed": 33,
+  "physical_move_candidates_checked": 2688,
+  "core_handoff_checks": 4,
+  "anchor_proof": {
+    "whole_rotation_piece_checks": 11664,
+    "complement_piece_checks": 31104,
+    "global_holdings": 24,
+    "max_alignment_turns": 4,
+    "all_passed": true
+  },
+  "partial_progress": {
+    "verified_partial_progress_retained": true,
+    "mismatched_partial_pose_rejected": true,
+    "source_unchanged": true,
+    "moves": 3
+  },
+  "profile_comparisons": {
+    "mixup": {
+      "before": {
+        "kind": "mixup_plus_344",
+        "success": true,
+        "moves": 932,
+        "seconds": 47.09382569999434
+      },
+      "after": {
+        "kind": "mixup_plus_344",
+        "success": true,
+        "moves": 932,
+        "seconds": 25.29,
+        "instrumented": true
+      }
+    },
+    "camouflage": {
+      "before": {
+        "kind": "camouflage_3",
+        "seed": 2,
+        "length": 100,
+        "success": true,
+        "moves": 21,
+        "seconds": 34.45524260000093
+      },
+      "after": {
+        "kind": "camouflage_3",
+        "success": true,
+        "moves": 19,
+        "seconds": 17.1,
+        "instrumented": true
+      }
+    }
+  },
+  "profile_notes": [
+    "All profile comparisons include cProfile overhead, not phone timings.",
+    "The camouflage after-profile is the cache/byte-transform intermediate stage, before the anchor quotient and final ordering.",
+    "The final camouflage data are the twelve uninstrumented anchor cases above."
+  ],
+  "source_sha256": {
+    "solver/mixup.py": "edb7ca64ca55ebc0fdf0d778f671554a5429cb3f73e84cc59756f3122c2aa6ff",
+    "solver/mixup_reduction.py": "5eb4da059d095d8a8c303854e15d00bb36057e00d54933037110bd544fbc1be0",
+    "solver/mixup_complete.py": "78d2181e88dadc618248f2782449b3615a61a3b3db9c5ae7df72ca774c48270e",
+    "solver/cuboid_search.py": "8a6ad11a1db04b63ad1bfb39eb6e1a13228f2b81ec99aa73e9790e1a34d22274"
+  },
+  "limitations": [
+    "No guarantee of a short runtime for arbitrary deep manual states.",
+    "No uniform random-state sampling, phone benchmark or release build.",
+    "No new large offline assets; bounded runtime caches trade a small amount of RAM for repeated calculations."
+  ]
+}

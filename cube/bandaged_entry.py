@@ -69,7 +69,7 @@ def entered_plates(connections):
                  for face,cells in sorted(connections))
 
 
-def reconstruct(kind,data,connections,seconds=2.):
+def reconstruct(kind,data,connections,seconds=2.,cancel=None):
     """Recover rigid preset groups at their *entered*, rather than home, slots.
 
     Colours identify visible stickers; the user's seams distinguish bonded
@@ -81,6 +81,11 @@ def reconstruct(kind,data,connections,seconds=2.):
     from cube.bandaged_cube import BandagedCube
     from cube.appearance import ROTATIONS,transform_frame
     from cube.cubie_model import Cubie
+    deadline=monotonic()+seconds
+    def guard():
+        if cancel is not None and cancel.is_set():raise InterruptedError('bandage.entry_cancelled')
+        if monotonic()>=deadline:raise ValueError('bandage.entry_budget')
+    guard()
     base=BandagedCube.solved(kind);n=base.n
     chosen=entered_plates(connections)
     cells=[(p.face,r,c) for p in chosen for r,c in p.cells]
@@ -96,8 +101,10 @@ def reconstruct(kind,data,connections,seconds=2.):
     groups.extend(frozenset((h,)) for h in base.cubies if h not in bonded)
     candidates=[]
     for group in groups:
+        guard()
         options=[];seen=set()
         for frame in ROTATIONS:
+            guard()
             pieces={};surfaces={};valid=True
             for home in group:
                 pos=transform_frame(frame,home)
@@ -117,9 +124,8 @@ def reconstruct(kind,data,connections,seconds=2.):
             seen.add(signature);options.append(pieces)
         if not options:raise ValueError('bandage.entry_layout')
         candidates.append(options)
-    deadline=monotonic()+seconds
     def match(remaining,work):
-        if monotonic()>deadline:raise ValueError('bandage.entry_budget')
+        guard()
         if not remaining:return work
         available=[(i,[p for p in candidates[i] if not work.keys() & p.keys()]) for i in remaining]
         index,options=min(available,key=lambda pair:len(pair[1]))

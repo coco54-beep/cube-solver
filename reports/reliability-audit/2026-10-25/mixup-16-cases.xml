@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="8" time="66.220" timestamp="2026-10-25T08:36:03.385959+08:00" hostname="DESKTOP-5GK8RN1"><testcase classname="tests.test_mixup_manual_random_input" name="test_random_manual_input_runs_real_controls_and_solver[211021-mixup_333]" time="2.564"><properties><property name="kind" value="mixup_333" /><property name="seed" value="211021" /><property name="solution_moves" value="308" /><property name="solve_seconds" value="0.891" /><property name="input_method" value="blank real controls, composition + actual rotation step + paint" /><property name="history_empty" value="True" /></properties></testcase><testcase classname="tests.test_mixup_manual_random_input" name="test_random_manual_input_runs_real_controls_and_solver[211021-mixup_334]" time="3.932"><properties><property name="kind" value="mixup_334" /><property name="seed" value="211021" /><property name="solution_moves" value="731" /><property name="solve_seconds" value="1.234" /><property name="input_method" value="blank real controls, composition + actual rotation step + paint" /><property name="history_empty" value="True" /></properties></testcase><testcase classname="tests.test_mixup_manual_random_input" name="test_random_manual_input_runs_real_controls_and_solver[211021-mixup_344]" time="9.644"><properties><property name="kind" value="mixup_344" /><property name="seed" value="211021" /><property name="solution_moves" value="834" /><property name="solve_seconds" value="5.891" /><property name="input_method" value="blank real controls, composition + actual rotation step + paint" /><property name="history_empty" value="True" /></properties></testcase><testcase classname="tests.test_mixup_manual_random_input" name="test_random_manual_input_runs_real_controls_and_solver[211021-mixup_444]" time="5.716"><properties><property name="kind" value="mixup_444" /><property name="seed" value="211021" /><property name="solution_moves" value="158" /><property name="solve_seconds" value="1.86" /><property name="input_method" value="blank real controls, composition + actual rotation step + paint" /><property name="history_empty" value="True" /></properties></testcase><testcase classname="tests.test_mixup_manual_random_input" name="test_random_manual_input_runs_real_controls_and_solver[211021-mixup_plus_333]" time="5.859"><properties><property name="kind" value="mixup_plus_333" /><property name="seed" value="211021" /><property name="solution_moves" value="423" /><property name="solve_seconds" value="1.484" /><property name="input_method" value="blank real controls, composition + actual rotation step + paint" /><property name="history_empty" value="True" /></properties></testcase><testcase classname="tests.test_mixup_manual_random_input" name="test_random_manual_input_runs_real_controls_and_solver[211021-mixup_plus_334]" time="9.600"><properties><property name="kind" value="mixup_plus_334" /><property name="seed" value="211021" /><property name="solution_moves" value="644" /><property name="solve_seconds" value="3.328" /><property name="input_method" value="blank real controls, composition + actual rotation step + paint" /><property name="history_empty" value="True" /></properties></testcase><testcase classname="tests.test_mixup_manual_random_input" name="test_random_manual_input_runs_real_controls_and_solver[211021-mixup_plus_344]" time="13.794"><properties><property name="kind" value="mixup_plus_344" /><property name="seed" value="211021" /><property name="solution_moves" value="867" /><property name="solve_seconds" value="5.219" /><property name="input_method" value="blank real controls, composition + actual rotation step + paint" /><property name="history_empty" value="True" /></properties></testcase><testcase classname="tests.test_mixup_manual_random_input" name="test_random_manual_input_runs_real_controls_and_solver[211021-mixup_plus_444]" time="14.071"><failure message="assert False&#10; +  where False = &lt;function test_random_manual_input_runs_real_controls_and_solver.&lt;locals&gt;.&lt;lambda&gt; at 0x00000130ED4755A0&gt;()">editor = &lt;function editor.&lt;locals&gt;.load at 0x00000130ECB82560&gt;
+kind = 'mixup_plus_444', seed = 211021
+record_property = &lt;function record_property.&lt;locals&gt;.append_property at 0x00000130ECB828C0&gt;
+
+    @pytest.mark.parametrize('kind',('mixup_333','mixup_334','mixup_344','mixup_444',
+                                     'mixup_plus_333','mixup_plus_334','mixup_plus_344','mixup_plus_444'))
+    @pytest.mark.parametrize('seed',(211021,211022))
+    def test_random_manual_input_runs_real_controls_and_solver(editor,kind,seed,record_property):
+        root=Path(__file__).resolve().parents[1]
+        path=root/'reports/input-audit/2026-10-21/mixup-manual-inputs'/(kind+'-'+str(seed)+'.json')
+        target=MixupEntryDraft(kind,json.loads(path.read_text(encoding='utf-8')))
+        screen=editor(kind,[]);screen.clear()
+        assert not screen._cube.history and screen._cube.is_solved()
+        regions=sorted({target.linked_positions(i) for i,b in enumerate(target.blocks) if b['role']!='corner'})
+        for region in regions:
+            index=region[0];screen.pick(index*1024)
+            wait_until(lambda:screen._assembly_job is None)
+            found=None
+            for assembly in screen._assemblies:
+                base=MixupEntryDraft(kind);base.set_assembly(index,assembly)
+                step=base.rotation_step(index)
+                for turn in range(4//step):
+                    probe=MixupEntryDraft(kind);probe.set_assembly(index,assembly)
+                    if turn:probe.rotate_assembly(index,turn*step)
+                    if region_shape(probe,region)==region_shape(target,region):
+                        found=assembly,turn;break
+                if found:break
+            assert found is not None,(kind,region)
+            screen.select_assembly(found[0])
+            for _ in range(found[1]):screen.rotate_assembly(1)
+            assert region_shape(screen._get_draft(),region)==region_shape(target,region)
+        colours={polygon_key(c['world']):c['color'] for b in target.blocks for c in b['cells']}
+        for colour in range(6):
+            screen.select_color(colour)
+            for bi,block in enumerate(screen._get_draft().blocks):
+                for ci,cell in enumerate(block['cells']):
+                    if colours[polygon_key(cell['world'] or cell['guide'])]==colour:screen.pick(bi*1024+ci)
+        assert not screen._applied()  # Must match new entry; cannot reuse the solved cube.
+&gt;       screen.apply();wait_until(lambda:screen._job is None)
+
+tests\test_mixup_manual_random_input.py:55: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+predicate = &lt;function test_random_manual_input_runs_real_controls_and_solver.&lt;locals&gt;.&lt;lambda&gt; at 0x00000130ED4755A0&gt;
+
+    def wait_until(predicate):
+        deadline=monotonic()+4
+        while not predicate() and monotonic()&lt;deadline:
+            Clock.tick();sleep(.005)
+&gt;       assert predicate()
+E       assert False
+E        +  where False = &lt;function test_random_manual_input_runs_real_controls_and_solver.&lt;locals&gt;.&lt;lambda&gt; at 0x00000130ED4755A0&gt;()
+
+tests\test_mixup_input_screen.py:31: AssertionError</failure></testcase></testsuite></testsuites>

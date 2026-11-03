@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-25",
+  "scope": "Input validation feedback and task/button lifecycle",
+  "test_suites": [
+    {
+      "report": "all-tests.xml",
+      "tests": 2711,
+      "passed": 2703,
+      "skipped": 8,
+      "failures": 0
+    },
+    {
+      "report": "changed-final.xml",
+      "tests": 132,
+      "passed": 128,
+      "skipped": 4,
+      "failures": 0
+    },
+    {
+      "report": "state-final.xml",
+      "tests": 67,
+      "passed": 67,
+      "skipped": 0,
+      "failures": 0
+    }
+  ],
+  "unique_passing_tests": 2720,
+  "skipped_tests": [
+    {
+      "test": "tests.test_freeslice_atomic_insert_gate::test_atomic_insert_no_input_mutation",
+      "reason": "seed 12 不可达"
+    },
+    {
+      "test": "tests.test_freeslice_atomic_insert_gate::test_atomic_insert_deterministic",
+      "reason": "seed 13 不可达"
+    },
+    {
+      "test": "tests.test_freeslice_complete_tredge_gate::test_gate5_requires_recoverable_partial",
+      "reason": "未找到散置态"
+    },
+    {
+      "test": "tests.test_freeslice_store_partial_gate::test_store_no_input_mutation_and_deterministic",
+      "reason": "seed 12 不可达"
+    },
+    {
+      "test": "tests.test_mixup_input_screen::test_full_turn_of_scrambled_block_keeps_verified_state_and_solution_path[inner_edge-mixup_333]",
+      "reason": "This model has no editable inner_edge"
+    },
+    {
+      "test": "tests.test_mixup_input_screen::test_full_turn_of_scrambled_block_keeps_verified_state_and_solution_path[inner_edge-mixup_334]",
+      "reason": "This model has no editable inner_edge"
+    },
+    {
+      "test": "tests.test_mixup_input_screen::test_full_turn_of_scrambled_block_keeps_verified_state_and_solution_path[inner_edge-mixup_344]",
+      "reason": "This model has no editable inner_edge"
+    },
+    {
+      "test": "tests.test_mixup_input_screen::test_full_turn_of_scrambled_block_keeps_verified_state_and_solution_path[inner_edge-mixup_444]",
+      "reason": "This model has no editable inner_edge"
+    }
+  ],
+  "catalogue_routes": 203,
+  "catalogue_kind_order_combinations": 198,
+  "catalogue_checks": [
+    "Invalid input stays on entry page with inline validation feedback",
+    "Solver failure returns to the source with inline solver feedback and input preserved",
+    "Cancel/back unlocks editing and rejects late progress/results"
+  ],
+  "verification_boundaries": [
+    "Catalogue workflow tests use real controls and held solver callbacks; they do not validate solver coverage.",
+    "Full regression tests run actual algorithms for their sampled states.",
+    "Desktop verification only; no Android physical-device test or package build."
+  ],
+  "packaging": "Paused; no new package built"
+}

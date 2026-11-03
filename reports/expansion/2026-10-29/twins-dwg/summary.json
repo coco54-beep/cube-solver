@@ -1,0 +1,17 @@
+{
+  "face_patches": 192,
+  "triangles": 9792,
+  "vertices": 4898,
+  "source_sha256": "b586334c54c1e8d5190dc74df428245a7856968a8af380cdad004c7755f2081c",
+  "arcs": 12,
+  "internal_lines": 6,
+  "patches_per_face": 32,
+  "area": 4.000000000000001,
+  "unclosed_length": 0.0,
+  "mechanism_verified": false,
+  "all_lines_confirmed_seams": true,
+  "six_faces_assumed_identical": true,
+  "central_radius": 2.7999994389237894,
+  "central_radius_status": "provisional_user_uncertain",
+  "source_geometry_overridden": false
+}

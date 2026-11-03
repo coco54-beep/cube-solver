@@ -1,10 +1,33 @@
 """Capture only the APK's application sources and data before a long build."""
 import argparse
+import ast
 from datetime import datetime
 import hashlib
 import json
 from pathlib import Path
 import shutil
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from scripts.bundle_assets import APPLICATION_ROOT_MODULES,RETIRED_TABLES,DEVELOPMENT_ONLY_FILES
+
+
+def check_root_imports(root, sources):
+    """Reject a snapshot that omits an imported application root module."""
+    selected = set(sources)
+    for source in sources:
+        if source.suffix != '.py':
+            continue
+        tree = ast.parse(source.read_text(encoding='utf-8-sig'), filename=str(source))
+        for node in ast.walk(tree):
+            names = ([a.name for a in node.names] if isinstance(node, ast.Import)
+                     else [node.module] if isinstance(node, ast.ImportFrom)
+                     and not node.level and node.module else [])
+            for name in names:
+                dependency = root / (name.split('.')[0] + '.py')
+                if dependency.is_file() and dependency not in selected:
+                    raise ValueError(f'{source.relative_to(root)} imports omitted module {dependency.name}')
 
 
 def main():
@@ -17,14 +40,17 @@ def main():
     assert destination.is_relative_to(root/'tmp')
     assert not destination.exists(),'Use a new snapshot directory'
     destination.mkdir(parents=True)
-    extensions={'.py','.kv','.png','.jpg','.json','.txt','.bin','.md','.ttf','.pkl'}
-    sources=[root/name for name in ('main.py','primitives.py','joint_dist.bin','p4_table.bin',
+    extensions={'.py','.kv','.png','.jpg','.json','.txt','.bin','.md','.ttf','.pkl','.java','.xml'}
+    sources=[root/name for name in (*APPLICATION_ROOT_MODULES,'joint_dist.bin','p4_table.bin',
                                   'README.md','README.zh-CN.md','README.ja.md','LICENSE')]
-    for folder in ('app','assets','cube','demo','docs','renderer','services','solver','ui','vision','twophase','kociemba-src'):
+    for folder in ('app','assets','cube','demo','renderer','services','solver','ui','vision','twophase','kociemba-src','android_src'):
         for source in (root/folder).rglob('*'):
             if (source.is_file() and '__pycache__' not in source.parts
+                    and source.relative_to(root).as_posix() not in RETIRED_TABLES
+                    and source.relative_to(root).as_posix() not in DEVELOPMENT_ONLY_FILES
                     and (source.suffix in extensions or (folder=='twophase' and not source.suffix))):
                 sources.append(source)
+    check_root_imports(root, sources)
     manifest={}
     for source in sources:
         relative=source.relative_to(root)

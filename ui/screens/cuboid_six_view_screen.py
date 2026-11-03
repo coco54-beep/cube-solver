@@ -5,6 +5,7 @@ from kivy.app import App
 from kivy.clock import Clock
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
+from ui.widgets.entry_guidance import EntryGuidance
 from kivy.uix.screenmanager import Screen
 from cube.cuboid_observation import SixViewDraft, MatchResult, FACE_ORDER, UNKNOWN, EMPTY, PLASTIC
 from cube.cuboid import FACES, CuboidCube
@@ -17,6 +18,7 @@ from ui.widgets.six_view_grid import SixViewGrid
 from ui.widgets.buttons import UIButton, PrimaryButton, DangerButton
 from ui.widgets.layouts import ResponsiveBoxLayout, AdaptiveSceneLayout
 from ui.widgets import metrics as m
+from ui.widgets.entry_controls import entry_header,entry_actions
 
 
 def _app():
@@ -24,11 +26,15 @@ def _app():
 
 
 def cube_key(cube):
+    if hasattr(cube,'cubies'):
+        from cube.bandaged_observation import state_key
+        return state_key(cube)
     return cube.puzzle_kind, tuple(cube.frames), tuple(cube.colors)
 
 
 class CuboidSixViewScreen(EntryActionsMixin, Screen):
     entry_twist_screen = 'PolyhedralTwistScreen'
+    draft_class = SixViewDraft
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -46,10 +52,8 @@ class CuboidSixViewScreen(EntryActionsMixin, Screen):
     def _build(self):
         root = AdaptiveSceneLayout(gap_px=6)
         self._root_layout = root
-        top = ResponsiveBoxLayout(height_px=44, gap_px=8)
-        self._button(top, 'back', self.back).size_hint_x = .2
-        self.title = Label(font_size='18sp'); top.add_widget(self.title)
-        self._button(top, 'demo', self.help).size_hint_x = .2
+        self.title = Label(font_size='20sp')
+        top,self.btn_back,self.demo_button=entry_header(self.title,self.back,self.help)
         root.add_widget(top)
         scene = ResponsiveBoxLayout(orientation='vertical', gap_px=4)
         self.face_label = Label(size_hint_y=None, height=m.h(28), font_size='15sp')
@@ -63,7 +67,7 @@ class CuboidSixViewScreen(EntryActionsMixin, Screen):
         for face in FACE_ORDER:
             self.tabs[face] = self._button(tabs, '', lambda f=face: self.change_face(f))
         panel.add_widget(tabs)
-        hint = Label(text=tr('six.draw_hint'), size_hint_y=None, height=m.h(40), font_size='12sp', halign='center', valign='middle')
+        hint = EntryGuidance(text=tr('six.draw_hint'), size_hint_y=None, height=m.h(40), font_size='12sp', halign='center', valign='middle')
         hint.bind(size=lambda w, *_: setattr(w, 'text_size', w.size)); self.hint = hint; panel.add_widget(hint)
         self.colors = GridLayout(cols=6, spacing=m.h(5), size_hint_y=None, height=m.h(42)); panel.add_widget(self.colors)
         row = ResponsiveBoxLayout(height_px=40, gap_px=5)
@@ -81,17 +85,15 @@ class CuboidSixViewScreen(EntryActionsMixin, Screen):
         self._button(row, 'next', self.next_face).size_hint_x = .35
         panel.add_widget(row)
         row = ResponsiveBoxLayout(height_px=44, gap_px=5)
-        self._button(row, 'undo', self.undo)
-        self._button(row, 'clear', self.clear_face, DangerButton)
         self._button(row, 'gear', self.open_palette_settings)
         self.apply_button = self._button(row, 'check', self.apply, PrimaryButton)
         self._button(row, 'cancel', self.cancel_matching)
         panel.add_widget(row)
-        row = ResponsiveBoxLayout(height_px=44, gap_px=5)
-        self.twist_button = self._button(row, 'twist', self.open_twist)
-        self._button(row, 'random', self.randomize)
-        self._button(row, 'target', self.assign_initial)
-        self.solve_button = self._button(row, 'solve', self.solve, PrimaryButton)
+        row,self.entry_action_buttons=entry_actions(twist=self.open_twist,
+            randomize=self.randomize,clear=self.clear_face,undo=self.undo,
+            assign=self.assign_initial,solve=self.solve)
+        self.twist_button=self.entry_action_buttons['twist']
+        self.solve_button=self.entry_action_buttons['solve']
         panel.add_widget(row)
         self.status = Label(size_hint_y=None, height=m.h(54), font_size='12sp', halign='center', valign='middle')
         self.status.bind(size=lambda w, *_: setattr(w, 'text_size', w.size)); panel.add_widget(self.status)
@@ -110,13 +112,14 @@ class CuboidSixViewScreen(EntryActionsMixin, Screen):
                 self._six_undo = []
             self._six_face = 2; self._six_applied = None
             if all(c >= 0 for c in cube.colors):
-                draft = SixViewDraft.from_cube(cube); self._six_applied = draft.state()
+                draft = self.draft_class.from_cube(cube); self._six_applied = draft.state()
             else:
-                draft = SixViewDraft(cube.puzzle_kind)
+                draft = self.draft_class(cube.puzzle_kind)
             self._six_state = draft.state()
         self._cube = cube; self._six_cube_key = current_key
+        if self._color >= cube.color_count:self._color = 0
         self._depth = None; self._selected = ()
-        self._draft = SixViewDraft(cube.puzzle_kind, self._six_state)
+        self._draft = self.draft_class(cube.puzzle_kind, self._six_state)
         self.palette = tuple(tuple(c) for c in pref_get('poly_palette_'+cube.puzzle_kind, default_palette(cube)))
         self._build_colors(); self.retranslate(); self._refresh()
         Clock.schedule_once(self._settle_layout, 0)
@@ -127,7 +130,7 @@ class CuboidSixViewScreen(EntryActionsMixin, Screen):
 
     def _build_colors(self):
         self.colors.clear_widgets(); self._swatches = []
-        for color in range(6):
+        for color in range(self._cube.color_count):
             button = _Swatch(self.palette[color], text=str(color+1), active=color == self._color)
             button.bind(on_release=lambda *_, c=color: self.select_color(c))
             self.colors.add_widget(button); self._swatches.append(button)
@@ -218,14 +221,17 @@ class CuboidSixViewScreen(EntryActionsMixin, Screen):
         if self._job is None and self._six_undo:
             state, self._six_face, previous, self._six_applied = self._six_undo.pop()
             if previous is not None:
-                self._cube.restore(previous); self._six_cube_key = cube_key(self._cube)
+                self.replace_cube(previous); self._six_cube_key = cube_key(self._cube)
             self._depth = None
-            self._draft = SixViewDraft(self._cube.puzzle_kind, state); self._selected = (); self._sync()
+            self._draft = self.draft_class(self._cube.puzzle_kind, state); self._selected = (); self._sync()
+
+    def replace_cube(self,cube):
+        self._cube.restore(cube)
 
     def _load_cube(self, cube):
-        self._remember(cube=True); self._cube.restore(cube); _app().cube = self._cube
+        self._remember(cube=True); self.replace_cube(cube); _app().cube = self._cube
         self._six_cube_key = cube_key(self._cube)
-        self._draft = SixViewDraft.from_cube(self._cube); self._six_applied = self._draft.state()
+        self._draft = self.draft_class.from_cube(self._cube); self._six_applied = self._draft.state()
         self._selected = (); self._sync()
 
     def remember_twist(self, previous):
@@ -273,9 +279,9 @@ class CuboidSixViewScreen(EntryActionsMixin, Screen):
         if missing:
             self._six_face, cell = missing; self._selected = (cell,)
             self._depth = None
-            self._message = tr('six.incomplete'); self._refresh(); return
-        draft = SixViewDraft(self._draft.kind, deepcopy(self._six_state))
-        self._cancel = threading.Event(); token = self._cancel; self._job = token
+            self._message = tr('six.incomplete'); self._refresh(); self.entry_show_error(self._message); return
+        draft = self.draft_class(self._draft.kind, deepcopy(self._six_state))
+        self._cancel = threading.Event(); token = self._cancel; self.entry_state.begin('matching',token)
         self._message = tr('six.matching'); self._refresh()
         def work():
             try:
@@ -285,20 +291,27 @@ class CuboidSixViewScreen(EntryActionsMixin, Screen):
                 Logger.exception('Six-view matching failed')
                 result = MatchResult('error')
             Clock.schedule_once(lambda *_: self._matched(token, result, after), 0)
-        threading.Thread(target=work, daemon=True).start()
+        try:threading.Thread(target=work, daemon=True).start()
+        except Exception as exc:
+            self._job=None;self.entry_show_exception(exc)
 
     def _matched(self, token, result, after):
         if self._job is not token:
             return
         self._job = None
         if result.status == 'ok':
-            self._cube.restore(result.cube); self._six_cube_key = cube_key(self._cube)
+            self.replace_cube(result.cube); self._six_cube_key = cube_key(self._cube)
             self._six_applied = deepcopy(self._six_state)
             _app().cube = self._cube; _app().polyhedral_solution = None
         elif result.face is not None:
             self._six_face = result.face; self._selected = (result.cell,)
             self._depth = None
         self._message = tr('six.'+result.status); self._refresh()
+        if result.status!='ok':
+            from services.failures import matching_category
+            locations=([dict(six_face=result.face,index=result.cell)] if result.face is not None and result.cell is not None else None)
+            self.entry_show_error(self._message,kind='operation' if result.status=='error' else 'input',
+                                  category=matching_category(result.status),locations=locations)
         if result.status == 'ok':
             self._continue(after)
 
@@ -311,7 +324,7 @@ class CuboidSixViewScreen(EntryActionsMixin, Screen):
                 _app().polyhedral_solution = (entered, result.moves, palette)
                 self.manager.current = 'PolyhedralPlaybackScreen'
             from renderer.cuboid_view import CuboidView
-            self.manager.get_screen('SolvingScreen').configure(entered, self.name, solved, CuboidView, palette)
+            if self.manager.get_screen('SolvingScreen').configure(entered, self.name, solved, CuboidView, palette) is False:return
             self.manager.current = 'SolvingScreen'
 
     def cancel_matching(self):
@@ -330,6 +343,13 @@ class CuboidSixViewScreen(EntryActionsMixin, Screen):
         self.manager.current = 'CameraScreen' if getattr(_app(), 'input_from_camera', False) else 'HomeScreen'
 
     def help(self):
+        from candidate_puzzles import BY_KIND
+        if self._cube is not None and self._cube.puzzle_kind in BY_KIND:
+            from demo.expanded_support import open_tutorial
+            return open_tutorial(self)
+        from demo.coverage import supports,open_tutorial
+        if self._cube is not None and supports(self._cube.puzzle_kind,self._cube.n):
+            return open_tutorial(self)
         from kivy.uix.popup import Popup
         from ui.widgets.dialogs import theme_popup
         label = Label(text=tr('six.help'), halign='left', valign='middle', font_size='14sp')

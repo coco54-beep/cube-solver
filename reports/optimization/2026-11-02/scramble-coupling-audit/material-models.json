@@ -1,0 +1,444 @@
+[
+  {
+    "kind": "helicopter",
+    "panels": 48,
+    "generator_words": 12,
+    "word_lengths": [
+      1
+    ],
+    "orbit_sizes": [
+      6,
+      6,
+      6,
+      24,
+      6
+    ],
+    "same_colour_singleton_pairs": [],
+    "probe": {
+      "candidate_words": 24,
+      "blocked_or_unaligned": 22,
+      "seconds": 0.01600000006146729,
+      "scope": "Bounded five-step geometric probes, not exhaustive or physical rail certification",
+      "witnesses": [
+        {
+          "word": [
+            [
+              1,
+              0,
+              70.52877936550931
+            ],
+            [
+              6,
+              0,
+              70.52877936550931
+            ],
+            [
+              0,
+              0,
+              180
+            ],
+            [
+              6,
+              0,
+              -70.52877936550931
+            ],
+            [
+              1,
+              0,
+              -70.52877936550931
+            ]
+          ],
+          "broken_pairs": [],
+          "crossed_regular_orbit_fields": 2
+        },
+        {
+          "word": [
+            [
+              3,
+              0,
+              -70.52877936550931
+            ],
+            [
+              4,
+              0,
+              -70.52877936550931
+            ],
+            [
+              0,
+              0,
+              180
+            ],
+            [
+              4,
+              0,
+              70.52877936550931
+            ],
+            [
+              3,
+              0,
+              70.52877936550931
+            ]
+          ],
+          "broken_pairs": [],
+          "crossed_regular_orbit_fields": 2
+        }
+      ]
+    },
+    "seconds": 0.0470000000204891
+  },
+  {
+    "kind": "rua",
+    "panels": 72,
+    "generator_words": 12,
+    "word_lengths": [
+      1
+    ],
+    "orbit_sizes": [
+      24,
+      24,
+      24
+    ],
+    "same_colour_singleton_pairs": [],
+    "probe": {
+      "candidate_words": 24,
+      "blocked_or_unaligned": 22,
+      "seconds": 0.01600000006146729,
+      "scope": "Bounded five-step geometric probes, not exhaustive or physical rail certification",
+      "witnesses": []
+    },
+    "seconds": 0.0470000000204891
+  },
+  {
+    "kind": "clover",
+    "panels": 48,
+    "generator_words": 12,
+    "word_lengths": [
+      1
+    ],
+    "orbit_sizes": [
+      2,
+      2,
+      2,
+      2,
+      6,
+      6,
+      6,
+      6,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "same_colour_singleton_pairs": [],
+    "probe": {
+      "candidate_words": 24,
+      "blocked_or_unaligned": 22,
+      "seconds": 0.0779999999795109,
+      "scope": "Bounded five-step geometric probes, not exhaustive or physical rail certification",
+      "witnesses": [
+        {
+          "word": [
+            [
+              1,
+              0,
+              70.52877936550931
+            ],
+            [
+              6,
+              0,
+              70.52877936550931
+            ],
+            [
+              0,
+              0,
+              180
+            ],
+            [
+              6,
+              0,
+              -70.52877936550931
+            ],
+            [
+              1,
+              0,
+              -70.52877936550931
+            ]
+          ],
+          "broken_pairs": [],
+          "crossed_regular_orbit_fields": 2
+        },
+        {
+          "word": [
+            [
+              3,
+              0,
+              -70.52877936550931
+            ],
+            [
+              4,
+              0,
+              -70.52877936550931
+            ],
+            [
+              0,
+              0,
+              180
+            ],
+            [
+              4,
+              0,
+              70.52877936550931
+            ],
+            [
+              3,
+              0,
+              70.52877936550931
+            ]
+          ],
+          "broken_pairs": [],
+          "crossed_regular_orbit_fields": 2
+        }
+      ]
+    },
+    "seconds": 0.2809999999590218
+  },
+  {
+    "kind": "mf8_bauhinia_minx",
+    "panels": 192,
+    "generator_words": 20,
+    "word_lengths": [
+      1
+    ],
+    "orbit_sizes": [
+      60,
+      60,
+      60,
+      12
+    ],
+    "same_colour_singleton_pairs": [],
+    "probe": {
+      "candidate_words": 144,
+      "blocked_or_unaligned": 144,
+      "seconds": 1.9689999999245629,
+      "scope": "Bounded five-step geometric probes, not exhaustive or physical rail certification",
+      "witnesses": []
+    },
+    "seconds": 3.062999999965541
+  },
+  {
+    "kind": "helicopter_14",
+    "panels": 32,
+    "generator_words": 36,
+    "word_lengths": [
+      1,
+      5
+    ],
+    "orbit_sizes": [
+      24,
+      8
+    ],
+    "same_colour_singleton_pairs": [],
+    "seconds": 0.10900000005494803
+  },
+  {
+    "kind": "lanlan_curvy_copter",
+    "panels": 72,
+    "generator_words": 36,
+    "word_lengths": [
+      1,
+      5
+    ],
+    "orbit_sizes": [
+      24,
+      2,
+      2,
+      2,
+      2,
+      24,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "same_colour_singleton_pairs": [],
+    "seconds": 0.5
+  },
+  {
+    "kind": "lanlan_flower_copter",
+    "panels": 120,
+    "generator_words": 20,
+    "word_lengths": [
+      1
+    ],
+    "orbit_sizes": [
+      24,
+      24,
+      24,
+      24,
+      24
+    ],
+    "same_colour_singleton_pairs": [],
+    "probe": {
+      "candidate_words": 60,
+      "blocked_or_unaligned": 58,
+      "seconds": 0.3440000000409782,
+      "scope": "Bounded five-step geometric probes, not exhaustive or physical rail certification",
+      "witnesses": []
+    },
+    "seconds": 0.4220000000204891
+  },
+  {
+    "kind": "lanlan_butterflower",
+    "panels": 120,
+    "generator_words": 44,
+    "word_lengths": [
+      1,
+      5
+    ],
+    "orbit_sizes": [
+      24,
+      24,
+      24,
+      24,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "same_colour_singleton_pairs": [],
+    "seconds": 0.06199999991804361
+  },
+  {
+    "kind": "mf8_suncube_2",
+    "panels": 150,
+    "generator_words": 36,
+    "word_lengths": [
+      1,
+      5
+    ],
+    "orbit_sizes": [
+      24,
+      24,
+      24,
+      24,
+      24,
+      6,
+      24
+    ],
+    "same_colour_singleton_pairs": [],
+    "seconds": 0.375
+  },
+  {
+    "kind": "lanlan_comet_physical",
+    "panels": 156,
+    "generator_words": 132,
+    "word_lengths": [
+      1,
+      3,
+      5
+    ],
+    "orbit_sizes": [
+      1,
+      1,
+      48,
+      96,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "same_colour_singleton_pairs": [],
+    "seconds": 3.0790000000270084
+  },
+  {
+    "kind": "lanlan_hexagram",
+    "panels": 64,
+    "generator_words": 28,
+    "word_lengths": [
+      7,
+      12
+    ],
+    "orbit_sizes": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      3,
+      1,
+      1,
+      3,
+      3,
+      12,
+      1,
+      1,
+      12,
+      1,
+      1,
+      1,
+      1,
+      3,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "same_colour_singleton_pairs": [],
+    "seconds": 0.8120000000344589
+  },
+  {
+    "kind": "mf8_twins",
+    "panels": 192,
+    "generator_words": 40,
+    "word_lengths": [
+      1,
+      7,
+      9
+    ],
+    "orbit_sizes": [
+      24,
+      24,
+      24,
+      24,
+      24,
+      24,
+      24,
+      24
+    ],
+    "same_colour_singleton_pairs": [],
+    "seconds": 0.18799999996554106
+  }
+]

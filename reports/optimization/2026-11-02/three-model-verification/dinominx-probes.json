@@ -1,0 +1,33 @@
+{
+  "material_cells": 131,
+  "probes": [
+    {
+      "layer": 0,
+      "angle": 44.477512185929925,
+      "clear_overlapping_cuts": [],
+      "blocked_count": 6,
+      "scope": "Current spherical profile only, tested angles are not exhaustive"
+    },
+    {
+      "layer": 0,
+      "angle": 60.0,
+      "clear_overlapping_cuts": [],
+      "blocked_count": 6,
+      "scope": "Current spherical profile only, tested angles are not exhaustive"
+    },
+    {
+      "layer": 1,
+      "angle": 44.477512185929925,
+      "clear_overlapping_cuts": [],
+      "blocked_count": 3,
+      "scope": "Current spherical profile only, tested angles are not exhaustive"
+    },
+    {
+      "layer": 1,
+      "angle": 60.0,
+      "clear_overlapping_cuts": [],
+      "blocked_count": 3,
+      "scope": "Current spherical profile only, tested angles are not exhaustive"
+    }
+  ]
+}

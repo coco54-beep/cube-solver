@@ -1,0 +1,134 @@
+[
+  {
+    "kind": "camouflage_3",
+    "seed": 0,
+    "length": 100,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 34,
+    "seconds": 1.506
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 1,
+    "length": 100,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 80,
+    "seconds": 5.744
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 2,
+    "length": 100,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 42,
+    "seconds": 11.097
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 3,
+    "length": 100,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 37,
+    "seconds": 1.526
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 4,
+    "length": 100,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 22,
+    "seconds": 0.061
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 5,
+    "length": 100,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 13,
+    "seconds": 0.106
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 6,
+    "length": 100,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 26,
+    "seconds": 0.374
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 7,
+    "length": 100,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 17,
+    "seconds": 0.071
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 8,
+    "length": 100,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 42,
+    "seconds": 2.797
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 9,
+    "length": 100,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 29,
+    "seconds": 0.044
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 10,
+    "length": 100,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 37,
+    "seconds": 2.721
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 11,
+    "length": 100,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 37,
+    "seconds": 1.898
+  }
+]

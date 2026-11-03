@@ -619,10 +619,8 @@ class CubeView(Widget):
 			for (_depth, group, fpos, fname, _edges) in quads
 		]
 
-		line_width = max(
-			1.0,
-			1.5 * self._display_zoom,
-		)
+		from renderer.entry_style import SEAM,stroke
+		line_width = stroke()
 
 		# --------------------------------------------------------------
 		# 绔制四边形。
@@ -679,14 +677,7 @@ class CubeView(Widget):
 			# 紧跟当前面绘制边线。
 			#
 			# 这样近处面的填充会覆盖远处面的边线，避免背面线框透出。
-			self._mesh_group.add(
-				Color(
-					0.0,
-					0.0,
-					0.0,
-					1.0,
-				)
-			)
+			self._mesh_group.add(Color(*SEAM))
 
 			if edges == (0, 1, 2, 3):
 				self._mesh_group.add(Line(

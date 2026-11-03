@@ -1,0 +1,22 @@
+[
+  {
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "visible_cards": 16,
+    "card_click": true,
+    "search_click": true
+  },
+  {
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "visible_cards": 16,
+    "card_click": true,
+    "search_click": true
+  }
+]

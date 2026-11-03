@@ -1,0 +1,106 @@
+[
+  {
+    "kind": "helicopter",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "shape_animation": true,
+    "second_cut_animation": true,
+    "manual_colour": false,
+    "manual_pose": false,
+    "reset_and_undo": true
+  },
+  {
+    "kind": "rua",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "shape_animation": true,
+    "second_cut_animation": true,
+    "manual_colour": false,
+    "manual_pose": false,
+    "reset_and_undo": true
+  },
+  {
+    "kind": "clover",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "shape_animation": true,
+    "second_cut_animation": true,
+    "manual_colour": false,
+    "manual_pose": false,
+    "reset_and_undo": true
+  },
+  {
+    "kind": "mf8_bauhinia_minx",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "shape_animation": true,
+    "second_cut_animation": true,
+    "manual_colour": false,
+    "manual_pose": false,
+    "reset_and_undo": true
+  },
+  {
+    "kind": "helicopter",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "shape_animation": true,
+    "second_cut_animation": true,
+    "manual_colour": false,
+    "manual_pose": false,
+    "reset_and_undo": true
+  },
+  {
+    "kind": "rua",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "shape_animation": true,
+    "second_cut_animation": true,
+    "manual_colour": false,
+    "manual_pose": false,
+    "reset_and_undo": true
+  },
+  {
+    "kind": "clover",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "shape_animation": true,
+    "second_cut_animation": true,
+    "manual_colour": false,
+    "manual_pose": false,
+    "reset_and_undo": true
+  },
+  {
+    "kind": "mf8_bauhinia_minx",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "shape_animation": true,
+    "second_cut_animation": true,
+    "manual_colour": false,
+    "manual_pose": false,
+    "reset_and_undo": true
+  }
+]

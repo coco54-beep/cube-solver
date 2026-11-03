@@ -1,0 +1,23 @@
+{
+  "kind": "cuboid_332",
+  "seed": 20261101,
+  "scramble_turns": 30,
+  "evaluation_budget_seconds": 30.0,
+  "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-11-01\\pcubes-second\\manual-final\\inputs\\cuboid_332-20261101-30.json",
+  "input_method": "fixed cuboid visible panels, colours only",
+  "history_empty": true,
+  "visible_entry_matches": true,
+  "input_seconds": 0.016,
+  "success": true,
+  "moves": 146,
+  "failure_category": "",
+  "solve_seconds": 0.5,
+  "progress_stages": [],
+  "message": "",
+  "evaluation_budget_hit": false,
+  "replay_solved": true,
+  "replay_seconds": 0.031,
+  "seconds": 0.547,
+  "shortening": [],
+  "colour_stage_plans": []
+}

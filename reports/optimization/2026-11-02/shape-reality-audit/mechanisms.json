@@ -1,0 +1,263 @@
+{
+  "scope": "Catalogue inventory and targeted mechanism checks, not physical certification of all routes",
+  "inventory_route_count": 235,
+  "runtime_probes": [
+    {
+      "kind": "helicopter",
+      "order": 3,
+      "colour_scramble_changes_state": true,
+      "steps": 100,
+      "world_polygons_stay_fixed": true,
+      "has_rigid_frames": false,
+      "degrees_per_primitive": [
+        180.0
+      ],
+      "finding": "Only closed colour permutations; cannot represent a protruding or blocked jumbled state"
+    },
+    {
+      "kind": "rua",
+      "order": 3,
+      "colour_scramble_changes_state": true,
+      "steps": 100,
+      "world_polygons_stay_fixed": true,
+      "has_rigid_frames": false,
+      "degrees_per_primitive": [
+        180.0
+      ],
+      "finding": "Only closed colour permutations; cannot represent a protruding or blocked jumbled state"
+    },
+    {
+      "kind": "mf8_bauhinia_minx",
+      "order": 3,
+      "colour_scramble_changes_state": true,
+      "steps": 100,
+      "world_polygons_stay_fixed": true,
+      "has_rigid_frames": false,
+      "degrees_per_primitive": [
+        120.0
+      ],
+      "finding": "Only closed colour permutations; cannot represent a protruding or blocked jumbled state"
+    },
+    {
+      "kind": "clover",
+      "order": 3,
+      "colour_scramble_changes_state": true,
+      "steps": 100,
+      "world_polygons_stay_fixed": true,
+      "has_rigid_frames": false,
+      "degrees_per_primitive": [
+        180.0
+      ],
+      "finding": "Only closed colour permutations; cannot represent a protruding or blocked jumbled state"
+    },
+    {
+      "kind": "helicopter_14",
+      "order": 3,
+      "colour_scramble_changes_state": true,
+      "steps": 100,
+      "world_polygons_stay_fixed": true,
+      "has_rigid_frames": false,
+      "degrees_per_primitive": [
+        180.0
+      ],
+      "finding": "Only closed colour permutations; cannot represent a protruding or blocked jumbled state"
+    },
+    {
+      "kind": "kairis_star_finder",
+      "order": 3,
+      "colour_scramble_changes_state": true,
+      "steps": 100,
+      "world_polygons_stay_fixed": true,
+      "has_rigid_frames": false,
+      "degrees_per_primitive": [
+        120.0
+      ],
+      "finding": "Only closed colour permutations; cannot represent a protruding or blocked jumbled state"
+    },
+    {
+      "kind": "aj_curvy_dinominx_4",
+      "order": 4,
+      "colour_scramble_changes_state": true,
+      "steps": 100,
+      "world_polygons_stay_fixed": true,
+      "has_rigid_frames": false,
+      "degrees_per_primitive": [
+        120.0
+      ],
+      "finding": "Only closed colour permutations; cannot represent a protruding or blocked jumbled state"
+    }
+  ],
+  "local_references": {
+    "helicopter": {
+      "path": "bin\\pCubes\\Puzzles\\Other cubes\\Edge Turning\\Helicopter cube\\Helicopter cube.xml",
+      "names": [
+        "Helicopter cube"
+      ],
+      "links": [
+        "https://twistypuzzles.com/app/museum/museum_showitem.php?pkey=2300"
+      ],
+      "axes": [
+        {
+          "TurningAngles": "0;Pi",
+          "JumbleAngle": "jumAngle",
+          "PlaneDistances": "D",
+          "NormVectors": "Ex; Ey; Ez"
+        }
+      ]
+    },
+    "rua": {
+      "path": "bin\\pCubes\\Puzzles\\Other forms\\Catalan Solids\\Rhombic Dodecahedron\\Face Turning\\Rua.xml",
+      "names": [
+        "Rua"
+      ],
+      "links": [
+        "https://twistypuzzles.com/app/museum/museum_showitem.php?pkey=1684"
+      ],
+      "axes": [
+        {
+          "TurningAngles": "Pi",
+          "JumbleAngle": "Arccos(1/3)",
+          "PlaneDistances": "-D; D",
+          "FixedLayers": "1"
+        }
+      ]
+    },
+    "mf8_bauhinia_minx": {
+      "path": "bin\\pCubes\\Puzzles\\Other forms\\Platonic solids\\Dodecahedron\\Vertex Turning\\Bauhinia.xml",
+      "names": [
+        "Bauhinia (Rex Dodecahedron)"
+      ],
+      "links": [
+        "https://twistypuzzles.com/app/museum/museum_showitem.php?pkey=3423"
+      ],
+      "axes": [
+        {
+          "TurningAngles": " 0; 2*Pi/3",
+          "JumbleAngle": "jumAngle",
+          "PlaneDistances": "D",
+          "NormVectors": "Vx; Vy; Vz"
+        }
+      ]
+    },
+    "clover": {
+      "path": "bin\\pCubes\\Puzzles\\Other cubes\\Edge Turning\\4-Leaf-Clover Cube.xml",
+      "names": [
+        "4-Leaf-Clover Cube"
+      ],
+      "links": [
+        "https://twistypuzzles.com/app/museum/museum_showitem.php?pkey=6490"
+      ],
+      "axes": [
+        {
+          "TurningAngles": "Pi",
+          "JumbleAngle": "Arccos(1/3)",
+          "PlaneDistances": "-D; D",
+          "FixedLayers": "1"
+        }
+      ]
+    }
+  },
+  "rigid_probes": [
+    {
+      "kind": "lanlan_curvy_copter",
+      "partial_turn_and_inverse_passed": true,
+      "paint_preserved": true,
+      "physical_hardware_certified": false
+    },
+    {
+      "kind": "mf8_suncube_2",
+      "partial_turn_and_inverse_passed": true,
+      "paint_preserved": true,
+      "physical_hardware_certified": false
+    },
+    {
+      "kind": "lanlan_butterflower",
+      "partial_turn_and_inverse_passed": true,
+      "paint_preserved": true,
+      "physical_hardware_certified": false
+    },
+    {
+      "kind": "lanlan_flower_copter",
+      "partial_turn_and_inverse_passed": true,
+      "paint_preserved": true,
+      "physical_hardware_certified": false
+    },
+    {
+      "kind": "mf8_twins",
+      "partial_turn_and_inverse_passed": true,
+      "paint_preserved": true,
+      "physical_hardware_certified": false
+    }
+  ],
+  "solid_shell_probes": [
+    {
+      "kind": "trajber",
+      "order": 4,
+      "quarter_layer_actions_checked": 12,
+      "maximum_outside_solved_hull": 2.4890944860800346e-10,
+      "changes_outline_in_current_model": false,
+      "witness_axis_layer": null,
+      "scope": "All primitive quarter-layer turns against convex solved shell; not hardware certification"
+    },
+    {
+      "kind": "dodecahedron_2",
+      "order": 2,
+      "quarter_layer_actions_checked": 6,
+      "maximum_outside_solved_hull": 0.24081808883479905,
+      "changes_outline_in_current_model": true,
+      "witness_axis_layer": [
+        2,
+        -1
+      ],
+      "scope": "All primitive quarter-layer turns against convex solved shell; not hardware certification"
+    },
+    {
+      "kind": "dodecahedron_3",
+      "order": 3,
+      "quarter_layer_actions_checked": 9,
+      "maximum_outside_solved_hull": 0.24081808883480205,
+      "changes_outline_in_current_model": true,
+      "witness_axis_layer": [
+        2,
+        0
+      ],
+      "scope": "All primitive quarter-layer turns against convex solved shell; not hardware certification"
+    },
+    {
+      "kind": "rhombic_3",
+      "order": 3,
+      "quarter_layer_actions_checked": 9,
+      "maximum_outside_solved_hull": 7.771561172376096e-16,
+      "changes_outline_in_current_model": false,
+      "witness_axis_layer": null,
+      "scope": "All primitive quarter-layer turns against convex solved shell; not hardware certification"
+    },
+    {
+      "kind": "rhombic_4",
+      "order": 4,
+      "quarter_layer_actions_checked": 12,
+      "maximum_outside_solved_hull": 2.220446049250313e-16,
+      "changes_outline_in_current_model": false,
+      "witness_axis_layer": null,
+      "scope": "All primitive quarter-layer turns against convex solved shell; not hardware certification"
+    },
+    {
+      "kind": "rhombic_mask_4",
+      "order": 4,
+      "quarter_layer_actions_checked": 12,
+      "maximum_outside_solved_hull": 2.220446049250313e-16,
+      "changes_outline_in_current_model": false,
+      "witness_axis_layer": null,
+      "scope": "All primitive quarter-layer turns against convex solved shell; not hardware certification"
+    },
+    {
+      "kind": "caneball_4",
+      "order": 4,
+      "quarter_layer_actions_checked": 12,
+      "maximum_outside_solved_hull": 0.0,
+      "changes_outline_in_current_model": false,
+      "witness_axis_layer": null,
+      "scope": "All primitive quarter-layer turns against convex solved shell; not hardware certification"
+    }
+  ]
+}

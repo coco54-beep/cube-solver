@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-25",
+  "classification": "filtered from current catalogue; no new classification",
+  "automated_sources": [
+    "final.xml",
+    "latest.xml",
+    "session-final.xml"
+  ],
+  "automated_unique": {
+    "passed": 277,
+    "failure": 0,
+    "error": 0,
+    "skipped": 0
+  },
+  "desktop_ui_passed": 4,
+  "new_irregular_kinds": 26,
+  "supported_irregular_kinds": 44,
+  "supported_kind_order_options": 65,
+  "physical_android_camera_tested": false,
+  "packaged": false
+}

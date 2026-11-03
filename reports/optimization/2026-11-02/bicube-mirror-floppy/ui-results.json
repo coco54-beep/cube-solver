@@ -1,0 +1,62 @@
+[
+  {
+    "kind": "bicube",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "screen": "InputScreen",
+    "controls": "directory route"
+  },
+  {
+    "kind": "floppy_133",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "screen": "PolyhedralScreen",
+    "controls": "paint, undo, face animation"
+  },
+  {
+    "kind": "mirror_camouflage_3",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "screen": "CuboidSixViewScreen",
+    "controls": "silver region, undo, face switch"
+  },
+  {
+    "kind": "bicube",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "screen": "InputScreen",
+    "controls": "directory route"
+  },
+  {
+    "kind": "floppy_133",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "screen": "PolyhedralScreen",
+    "controls": "paint, undo, face animation"
+  },
+  {
+    "kind": "mirror_camouflage_3",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "screen": "CuboidSixViewScreen",
+    "controls": "silver region, undo, face switch"
+  }
+]

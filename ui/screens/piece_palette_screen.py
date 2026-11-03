@@ -3,13 +3,15 @@ from kivy.core.window import Window
 from kivy.uix.colorpicker import ColorPicker
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.scrollview import ScrollView
 
 from app.i18n import tr
 from ui.widgets.buttons import UIButton,PrimaryButton
 from ui.widgets.layouts import ResponsiveBoxLayout
 from ui.widgets import metrics as m
 from ui.widgets.mastermorphix_net import MastermorphixNet
-from ui.widgets.palette_net import CubePaletteNet
+from ui.widgets.palette_net import CubePaletteNet,PolygonPaletteNet
 
 
 class PiecePaletteScreen(Screen):
@@ -33,7 +35,10 @@ class PiecePaletteScreen(Screen):
         self.reference_box.add_widget(self.hint)
         self.body.add_widget(self.reference_box)
         controls=ResponsiveBoxLayout(orientation='vertical',gap_px=7)
-        self.swatch_row=ResponsiveBoxLayout(height_px=44,gap_px=6);controls.add_widget(self.swatch_row)
+        self.swatch_row=GridLayout(cols=6,size_hint_y=None,spacing=m.h(6))
+        self.swatch_row.bind(minimum_height=self.swatch_row.setter('height'))
+        self.swatch_viewport=ScrollView(do_scroll_x=False,size_hint_y=None,height=m.h(44),bar_width=m.h(3))
+        self.swatch_viewport.add_widget(self.swatch_row);controls.add_widget(self.swatch_viewport)
         self.selected_label=Label(size_hint_y=None,height=m.h(26),font_size='14sp',halign='center')
         controls.add_widget(self.selected_label)
         self.picker=ColorPicker(color=(1,1,1,1))
@@ -62,19 +67,22 @@ class PiecePaletteScreen(Screen):
         self.puzzle_label.text=(source.palette_title() if hasattr(source,'palette_title') else
                                tr('directory.'+source._cube.puzzle_kind))
         self.reference_holder.clear_widgets()
-        cls=MastermorphixNet if len(self._draft)==4 else CubePaletteNet
+        cls=MastermorphixNet if len(self._draft)==4 else CubePaletteNet if len(self._draft)==6 else PolygonPaletteNet
         self.reference=cls(colors=list(self._draft),selected_face=self._index)
-        if isinstance(self.reference,CubePaletteNet):self.reference.labels=self._slot_labels
+        if isinstance(self.reference,(CubePaletteNet,PolygonPaletteNet)):self.reference.labels=self._slot_labels
         self.reference_holder.add_widget(self.reference)
         self._build_swatches();self._sync_picker();self._resize()
 
     def _build_swatches(self):
         # Import lazily to keep the shared entry screen free of import cycles.
         from ui.screens.mastermorphix_screen import _Swatch
+        self._swatch_generation=generation=object()
+        self.swatch_row.cols=min(6,max(1,len(self._draft)))
         self.swatch_row.clear_widgets();self._swatches=[]
+        self.swatch_viewport.height=m.h(min(3,max(1,(len(self._draft)+5)//6))*50-6)
         for i,rgba in enumerate(self._draft):
-            button=_Swatch(rgba,text=self._slot_labels[i],active=i==self._index)
-            button.bind(on_release=lambda *_,index=i:self.select(index))
+            button=_Swatch(rgba,text=self._slot_labels[i],active=i==self._index,size_hint_y=None,height=m.h(44))
+            button.bind(on_release=lambda *_,index=i,g=generation:self.select(index,g))
             self.swatch_row.add_widget(button);self._swatches.append(button)
 
     def _sync_picker(self):
@@ -83,7 +91,9 @@ class PiecePaletteScreen(Screen):
         finally:self._updating=False
         self._refresh_draft()
 
-    def select(self,index):
+    def select(self,index,generation=None):
+        if not 0<=index<len(self._draft):return
+        if generation is not None and generation is not self._swatch_generation:return
         self._index=index;self._sync_picker()
 
     def _change_color(self,picker,rgba):
@@ -134,10 +144,13 @@ class PiecePaletteScreen(Screen):
     def on_pre_leave(self,*args):Window.unbind(on_keyboard=self._keyboard)
 
     def _resize(self,*args):
+        self.swatch_row.spacing=m.h(6)
+        self.swatch_viewport.height=m.h(min(3,max(1,(len(self._draft)+5)//6))*50-6)
+        for button in getattr(self,'_swatches',()):button.height=m.h(44)
         wide=self.width>self.height*1.15
         self.body.orientation='horizontal' if wide else 'vertical'
         self.reference_box.size_hint=(.34,1) if wide else (1,None)
-        if not wide:self.reference_box.height=m.h(175)
+        if not wide:self.reference_box.height=m.h(225 if len(self._draft)>12 else 175)
         self.controls.size_hint=(.66,1) if wide else (1,1)
 
     def retranslate(self):

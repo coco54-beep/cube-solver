@@ -1,0 +1,34 @@
+[
+  {
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "continuous_paint": true,
+    "undo": true,
+    "animated_face_switch": true,
+    "double_scramble": true,
+    "validation": true,
+    "manual_reentry": true,
+    "twist_axes": 12,
+    "playback_moves": 116,
+    "rewind": true
+  },
+  {
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "continuous_paint": true,
+    "undo": true,
+    "animated_face_switch": true,
+    "double_scramble": true,
+    "validation": true,
+    "manual_reentry": true,
+    "twist_axes": 12,
+    "playback_moves": 128,
+    "rewind": true
+  }
+]

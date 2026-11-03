@@ -1,0 +1,90 @@
+[
+  {
+    "kind": "mixup_333",
+    "reference_parts": 26,
+    "actual_parts": 26,
+    "coloured_parts_match": true,
+    "closed_bodies_match": false,
+    "missing_coloured_parts": 0,
+    "extra_coloured_parts": 0,
+    "clearance_checks": 72,
+    "clearance_differences": []
+  },
+  {
+    "kind": "mixup_334",
+    "reference_parts": 34,
+    "actual_parts": 34,
+    "coloured_parts_match": true,
+    "closed_bodies_match": false,
+    "missing_coloured_parts": 0,
+    "extra_coloured_parts": 0,
+    "clearance_checks": 80,
+    "clearance_differences": []
+  },
+  {
+    "kind": "mixup_344",
+    "reference_parts": 44,
+    "actual_parts": 44,
+    "coloured_parts_match": true,
+    "closed_bodies_match": false,
+    "missing_coloured_parts": 0,
+    "extra_coloured_parts": 0,
+    "clearance_checks": 88,
+    "clearance_differences": []
+  },
+  {
+    "kind": "mixup_444",
+    "reference_parts": 56,
+    "actual_parts": 56,
+    "coloured_parts_match": true,
+    "closed_bodies_match": false,
+    "missing_coloured_parts": 0,
+    "extra_coloured_parts": 0,
+    "clearance_checks": 96,
+    "clearance_differences": []
+  },
+  {
+    "kind": "mixup_plus_333",
+    "reference_parts": 50,
+    "actual_parts": 50,
+    "coloured_parts_match": true,
+    "closed_bodies_match": false,
+    "missing_coloured_parts": 0,
+    "extra_coloured_parts": 0,
+    "clearance_checks": 72,
+    "clearance_differences": []
+  },
+  {
+    "kind": "mixup_plus_334",
+    "reference_parts": 66,
+    "actual_parts": 66,
+    "coloured_parts_match": true,
+    "closed_bodies_match": false,
+    "missing_coloured_parts": 0,
+    "extra_coloured_parts": 0,
+    "clearance_checks": 80,
+    "clearance_differences": []
+  },
+  {
+    "kind": "mixup_plus_344",
+    "reference_parts": 84,
+    "actual_parts": 84,
+    "coloured_parts_match": true,
+    "closed_bodies_match": false,
+    "missing_coloured_parts": 0,
+    "extra_coloured_parts": 0,
+    "clearance_checks": 88,
+    "clearance_differences": []
+  },
+  {
+    "kind": "mixup_plus_444",
+    "reference_parts": 104,
+    "actual_parts": 104,
+    "coloured_parts_match": true,
+    "closed_bodies_match": false,
+    "missing_coloured_parts": 0,
+    "extra_coloured_parts": 0,
+    "clearance_checks": 96,
+    "clearance_differences": []
+  }
+]

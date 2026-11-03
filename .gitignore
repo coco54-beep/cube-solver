@@ -42,3 +42,6 @@ desktop_err.log
 /count_*.py
 /count_*.txt
 /explore_project.py
+
+# Local research/build artifacts
+/artifacts/

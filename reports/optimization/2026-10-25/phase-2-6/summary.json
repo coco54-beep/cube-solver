@@ -1,0 +1,33 @@
+{
+  "suites": {
+    "final-regression": {
+      "passed": 244,
+      "skipped": 0,
+      "failed": 0
+    },
+    "real-input": {
+      "passed": 204,
+      "skipped": 4,
+      "failed": 0
+    },
+    "lifecycle-final": {
+      "passed": 44,
+      "skipped": 0,
+      "failed": 0
+    }
+  },
+  "distinct_passed": 463,
+  "distinct_skipped": 4,
+  "random_cases": 78,
+  "random_replay_solved": 78,
+  "random_kinds": 39,
+  "random_seeds": [
+    20261028,
+    20261029
+  ],
+  "notes": [
+    "Four skips are ordinary Mixup without editable inner edges.",
+    "The matrix tests entry/matching data; real-control tests are counted separately.",
+    "Search checkpoints are in-process and bounded to two states, not durable across exit."
+  ]
+}

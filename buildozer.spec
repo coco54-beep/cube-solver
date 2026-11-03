@@ -6,7 +6,7 @@
 title = 3D魔方智能还原
 package.name = cubesolver
 package.domain = com.example
-version = 1.2.34
+version = 1.2.39
 
 # 工程源码目录（buildozer 会把它拷贝进打包环境）
 source.dir = .
@@ -18,10 +18,12 @@ source.include_exts = py,kv,png,jpg,json,txt,bin,md,ttf,pkl
 source.include_patterns = assets/solver_tables/*,twophase/*,joint_dist.bin,p4_table.bin
 
 # 打包时排除：构建脚本目录、研究/实验脚本、git
-source.exclude_dirs = scripts,tools,experiments,artifacts,_shots,video_output,.git,.buildozer,__pycache__,.pytest_cache,tests,reports,tmp,bin,.venv,venv,env,.idea
+source.exclude_dirs = scripts,tools,docs,experiments,artifacts,_shots,video_output,.git,.buildozer,__pycache__,.pytest_cache,tests,reports,tmp,bin,build,.venv,venv,env,.idea
 # kociemba-src/package_src/twophase 是 solver3 的必需代码。
 # 不可用 kociemba-src/*.py 排除顶层文件：通配符也会匹配子目录，导致求解代码全部丢失。
-source.exclude_patterns = table_gen*.log,pytest.ini,*.log,count_by_dir.py,count_by_dir_result.txt,count_files.py,count_py_by_dir.py,count_py_result.txt,count_result.txt,count_stats.py,explore_project.py,kociemba-src/*.jpg,kociemba-src/*.md,kociemba-src/*.toml,kociemba-src/*.cfg,kociemba-src/.gitignore
+# 以下六张表已被新的状态求解数据替代；本地保留供开发实验，正式包不携带。
+# Windows 使用相同清单，运行 python scripts/bundle_assets.py 核对两端规则。
+source.exclude_patterns = table_gen*.log,pytest.ini,*.log,count_by_dir.py,count_by_dir_result.txt,count_files.py,count_py_by_dir.py,count_py_result.txt,count_result.txt,count_stats.py,explore_project.py,kociemba-src/*.jpg,kociemba-src/*.md,kociemba-src/*.toml,kociemba-src/*.cfg,kociemba-src/.gitignore,solver/data/circle2_table.bin,solver/data/fused_table.bin,solver/data/ai_cube_patterns.bin,solver/data/burr_cube_patterns.bin,solver/data/cuboid_442_patterns.bin,solver/data/cuboid_442_endgame.bin,solver/data/twobar_table.bin,solver/data/bandaged_c_table.bin,assets/puzzles/pending/lanlan_clover_pyraminx.jpg,assets/puzzles/pending/vp_clover_dodecahedron.png,assets/puzzles/pending/lanlan_sunflower.jpg,assets/puzzles/pending/lanlan_andromeda.jpg,assets/puzzles/lanlan_master_clover.png,assets/puzzles/lanlan_pisces.png,cube/data/master_clover_shell.bin,solver/data/master_clover_colour_group.bin,solver/data/pisces_colour_group.bin,assets/puzzles/planar_rhombic_12.png,assets/puzzles/lanlan_crazy_comet.png,solver/data/crazy_comet_colour_group.bin,solver/data/starminx_i_expanded_group.bin
 
 # ----------------------------------------------------------------------------
 # 构建需求
@@ -36,6 +38,8 @@ fullscreen = 0
 android.archs = arm64-v8a
 android.minapi = 26
 android.api = 33
+android.add_src = android_src
+android.extra_manifest_xml = android_src/tts_queries.xml
 android.ndk_api = 26
 
 # 图标（如无则跳过）

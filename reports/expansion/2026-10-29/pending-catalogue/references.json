@@ -1,0 +1,44 @@
+[
+  {
+    "kind": "kairis_star_finder",
+    "source": "C:\\Users\\ASUS\\AppData\\Local\\Temp\\codex-clipboard-579e4464-3311-4b7e-a25b-4b077f8994ff.png",
+    "asset": "assets/puzzles/pending/kairis_star_finder.png",
+    "bytes": 574067
+  },
+  {
+    "kind": "lanlan_clover_pyraminx",
+    "source": "C:\\Users\\ASUS\\AppData\\Local\\Temp\\codex-clipboard-d78b61c2-071d-4f53-9bd6-d5dfcfe160b6.jpg",
+    "asset": "assets/puzzles/pending/lanlan_clover_pyraminx.jpg",
+    "bytes": 72339
+  },
+  {
+    "kind": "vp_clover_dodecahedron",
+    "source": "artifacts\\expansion-references\\flower-batch\\02-vp-clover-dodecahedron.png",
+    "asset": "assets/puzzles/pending/vp_clover_dodecahedron.png",
+    "bytes": 734559
+  },
+  {
+    "kind": "lanlan_sunflower",
+    "source": "artifacts\\expansion-references\\flower-batch\\03-sunflower.jpg",
+    "asset": "assets/puzzles/pending/lanlan_sunflower.jpg",
+    "bytes": 92236
+  },
+  {
+    "kind": "lanlan_andromeda",
+    "source": "artifacts\\expansion-references\\flower-batch\\04-andromeda.jpg",
+    "asset": "assets/puzzles/pending/lanlan_andromeda.jpg",
+    "bytes": 99244
+  },
+  {
+    "kind": "lanlan_butterflower",
+    "source": "artifacts\\expansion-references\\flower-batch\\05-butterflower.jpg",
+    "asset": "assets/puzzles/pending/lanlan_butterflower.jpg",
+    "bytes": 100756
+  },
+  {
+    "kind": "lanlan_master_clover",
+    "source": "artifacts\\expansion-references\\flower-batch\\06-master-clover.jpg",
+    "asset": "assets/puzzles/pending/lanlan_master_clover.jpg",
+    "bytes": 93299
+  }
+]

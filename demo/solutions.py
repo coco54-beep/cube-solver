@@ -13,8 +13,17 @@ def solved_demo_cube(mode):
     if mode == 'cfop':
         mode = 3
     if isinstance(mode,int):
+        if mode>=6:
+            from cube.cube_n import CubeN
+            return CubeN.solved(mode)
         return {2:Cube2,3:Cube3,4:Cube4,5:Cube5}[mode].solved(TEACHING_COLORS)
     kind,n=('mastermorphix',3) if mode=='mastermorphix' else mode
+    from candidate_puzzles import BY_KIND
+    if kind in BY_KIND:
+        from demo.expanded_support import make_cube
+        return make_cube(kind,n)
+    from demo.coverage import supports,make_cube
+    if supports(kind,n):return make_cube(kind,n)
     if kind=='mastermorphix':
         from app.mastermorphix_palette import load_palette
         from cube.mastermorphix import MastermorphixCube
@@ -52,6 +61,8 @@ def solved_demo_cube(mode):
 
 
 def inverse_demo_move(move,cube):
+    from demo.coverage import supports,inverse
+    if supports(getattr(cube,'puzzle_kind','cube'),cube.n):return inverse(move,cube)
     if isinstance(move,str):
         return inverse_move_str(move)
     if getattr(cube,'puzzle_kind',None)=='square1':
@@ -72,7 +83,12 @@ def make_scrambled_demo(mode,seed=54):
     """Generate the starting state before asking a solver for any moves."""
     cube=solved_demo_cube(mode)
     kind=getattr(cube,'puzzle_kind','cube')
-    if kind=='square1':
+    from candidate_puzzles import BY_KIND
+    if kind in BY_KIND:
+        from demo.expanded_support import scramble
+        scramble(cube,seed)
+        if hasattr(cube,'history'):cube.history=None
+    elif kind=='square1':
         cube.scramble(length=12,seed=seed)
     elif hasattr(cube,'geometry'):
         from solver.polyhedral import scramble
@@ -89,17 +105,21 @@ def make_scrambled_demo(mode,seed=54):
 
 
 def state_signature(cube):
+    def stable(value):
+        if isinstance(value,float):return round(value,8)
+        if isinstance(value,(list,tuple)):return tuple(stable(v) for v in value)
+        return value
     def frame(c):
         values=getattr(c,'frame',None)
         return tuple(tuple(round(x,8) for x in row) for row in values) if values is not None else None
-    if getattr(cube,'puzzle_kind',None)=='square1':
+    if getattr(cube,'puzzle_kind',None) in ('square1','square0','square2','super_square1'):
         return cube.slots,cube.middle
-    if getattr(cube,'puzzle_kind',None)=='mirror_tower':
-        return tuple(sorted((p,c.home,frame(c)) for p,c in cube.pieces.items()))
+    if isinstance(getattr(cube,'pieces',None),dict):
+        return tuple(sorted((p,c.home,frame(c)) for p,c in cube.pieces.items())),getattr(cube,'phase',None)
     if hasattr(cube,'cubies'):
-        return tuple(sorted((p,c.home,tuple(sorted(c.stickers.items())),frame(c))
-                            for p,c in cube.cubies.items()))
-    return tuple(cube.colors)
+        return (tuple(sorted((p,c.home,tuple(sorted(c.stickers.items())),frame(c))
+                            for p,c in cube.cubies.items())),getattr(cube,'phases',None))
+    return stable(cube.colors),stable(getattr(cube,'frames',None))
 
 
 def verified_solution_lessons(initial,result):
@@ -112,6 +132,10 @@ def verified_solution_lessons(initial,result):
     if not replay.is_solved():
         raise ValueError('The demonstration solution did not restore its starting state')
     stages=[s for s in result.stages if s.moves]
+    from candidate_puzzles import BY_KIND
+    if not stages and getattr(initial,'puzzle_kind',None) in BY_KIND:
+        from demo.expanded_checkpoints import stages as original_stages
+        stages=original_stages(initial,result.moves,replay)
     phase_moves=[m for s in stages for m in s.moves]
     phase_replay=initial.clone()
     try:
@@ -163,7 +187,7 @@ def verified_solution_lessons(initial,result):
                               'Align the middle edge with its two wings, then continue with three-layer restoration.'),
             }
             lessons.append({'title':title,
-                            'desc':descriptions.get(stage.name,text('从完整演示中该阶段的真实状态开始。此段完成后继续后续阶段，不要求每段都恢复整只魔方。',
+                            'desc':getattr(stage,'teaching_description',None) or descriptions.get(stage.name,text('从完整演示中该阶段的真实状态开始。此段完成后继续后续阶段，不要求每段都恢复整只魔方。',
                                                                    'This phase starts at its real state in the complete solution. Continue to the next phase after finishing it.')),
                             'cases':[example(title,work,stage.moves)]})
             for move in stage.moves:

@@ -1,13 +1,16 @@
 """Responsive polyhedral sticker entry and solution playback."""
+from ui.entry_feedback import validation_action
+from cube.cuboid import CUBOID_PREFIXES
+from cube.checkpoints import capture as capture_checkpoint,restore as restore_checkpoint
 import math
 import threading
 
 from kivy.animation import Animation
 from kivy.app import App
 from kivy.clock import Clock
-from kivy.uix.colorpicker import ColorPicker
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
+from ui.widgets.entry_guidance import EntryGuidance
 from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import Screen
 from ui.screens.entry_mixin import EntryActionsMixin
@@ -22,7 +25,7 @@ from renderer.mat4 import Mat4
 from renderer.camera_follow import follow_turn, polyhedral_target, cancel_follow, FOLLOW_SETTINGS, reset_camera_view
 from ui.widgets.camera_follow import follow_panel
 from ui.screens.mastermorphix_screen import _Swatch
-from ui.widgets.buttons import UIButton,PrimaryButton,DangerButton
+from ui.widgets.buttons import UIButton,PrimaryButton,DangerButton,PlayPauseButton
 from ui.widgets.dialogs import theme_popup
 from ui.widgets.layouts import AdaptiveSceneLayout,ResponsiveBoxLayout
 from ui.widgets import metrics as m
@@ -40,19 +43,61 @@ def _puzzle_title(cube):
 
 
 def _view_for(cube,twist=False):
+    if hasattr(cube,'frames') and getattr(cube,'puzzle_kind',None) in ('helicopter','helicopter_14','rua','clover','mf8_bauhinia_minx'):
+        from renderer.edge_jumbling_view import EdgeJumblingView,EdgeJumblingTwistView
+        return EdgeJumblingTwistView if twist else EdgeJumblingView
+    if getattr(cube,'puzzle_kind',None)=='lanlan_master_clover':
+        from renderer.master_clover_view import MasterCloverView,MasterCloverTwistView
+        return MasterCloverTwistView if twist else MasterCloverView
+    if getattr(cube,'puzzle_kind',None)=='lanlan_butterflower':
+        from renderer.butterflower_view import ButterflowerView,ButterflowerTwistView
+        return ButterflowerTwistView if twist else ButterflowerView
+    if getattr(cube,'puzzle_kind',None)=='lanlan_clover_pyraminx':
+        from renderer.pisces_view import CloverPyraminxView,CloverPyraminxTwistView
+        return CloverPyraminxTwistView if twist else CloverPyraminxView
+    if getattr(cube,'puzzle_kind',None)=='lanlan_flower_copter':
+        from renderer.flower_copter_view import FlowerCopterView,FlowerCopterTwistView
+        return FlowerCopterTwistView if twist else FlowerCopterView
+    if getattr(cube,'puzzle_kind',None)=='lanlan_hexagram':
+        from renderer.pisces_view import HexagramView,HexagramTwistView
+        return HexagramTwistView if twist else HexagramView
+    if getattr(cube,'puzzle_kind',None)=='lanlan_pisces':
+        from renderer.pisces_view import PiscesView,PiscesTwistView
+        return PiscesTwistView if twist else PiscesView
+    if getattr(cube,'puzzle_kind',None)=='mf8_suncube_2':
+        from renderer.twins_view import SunCubeView,SunCubeTwistView
+        return SunCubeTwistView if twist else SunCubeView
+    if getattr(cube,'puzzle_kind',None)=='mf8_twins':
+        from renderer.twins_view import TwinsView,TwinsTwistView
+        return TwinsTwistView if twist else TwinsView
+    if getattr(cube,'puzzle_kind',None)=='lanlan_comet_physical':
+        from renderer.comet_view import LanlanCometView,LanlanCometTwistView
+        return LanlanCometTwistView if twist else LanlanCometView
+    if getattr(cube,'puzzle_kind',None)=='planar_rhombic_12':
+        from renderer.comet_view import CometView,CometTwistView
+        return CometTwistView if twist else CometView
+    if getattr(cube,'puzzle_kind',None)=='lanlan_curvy_copter':
+        from renderer.copter_view import CopterView,CopterTwistView
+        return CopterTwistView if twist else CopterView
+    if getattr(cube,'puzzle_kind',None) in ('time_machine','bean_6','bean_10'):
+        from renderer.dial_bean_view import DialBeanView,DialBeanTwistView
+        return DialBeanTwistView if twist else DialBeanView
+    if getattr(cube,'puzzle_kind',None) in ('mirror_kilominx','mirror_megaminx'):
+        from renderer.mirror_minx_view import MirrorMinxView,MirrorMinxTwistView
+        return MirrorMinxTwistView if twist else MirrorMinxView
     if getattr(cube,'puzzle_kind',None)=='pentacle':
         from renderer.pentacle_view import PentacleView,PentacleTwistView
         return PentacleTwistView if twist else PentacleView
     if getattr(cube,'rigid_family',False):
         from renderer.articulated_view import ArticulatedView,ArticulatedTwistView
         return ArticulatedTwistView if twist else ArticulatedView
-    if cube is not None and getattr(cube,'puzzle_kind','').startswith(('cuboid_','camouflage_3')):
+    if cube is not None and getattr(cube,'puzzle_kind','').startswith(CUBOID_PREFIXES):
         from renderer.cuboid_view import CuboidView,CuboidTwistView
         return CuboidTwistView if twist else CuboidView
     if cube is not None and getattr(cube,'puzzle_kind',None)=='ghost_pyramid':
         from renderer.ghost_pyramid_view import GhostPyramidView,GhostPyramidTwistView
         return GhostPyramidTwistView if twist else GhostPyramidView
-    if cube is not None and getattr(cube,'puzzle_kind',None)=='fisher_skewb':
+    if cube is not None and getattr(cube,'puzzle_kind',None) in ('fisher_skewb','container'):
         from renderer.fisher_skewb_view import FisherSkewbView,FisherSkewbTwistView
         return FisherSkewbTwistView if twist else FisherSkewbView
     if cube is not None and getattr(cube,'puzzle_kind',None)=='mirror_skewb':
@@ -68,12 +113,25 @@ def _view_for(cube,twist=False):
 
 
 def _entry_for(cube):
+    if hasattr(cube,'frames') and cube.puzzle_kind in ('helicopter','helicopter_14','rua','clover','mf8_bauhinia_minx'):return 'EdgeJumblingInputScreen'
+    if cube.puzzle_kind=='lanlan_master_clover':return 'MasterCloverInputScreen'
+    if cube.puzzle_kind=='lanlan_butterflower':return 'ButterflowerInputScreen'
+    if cube.puzzle_kind=='lanlan_clover_pyraminx':return 'CloverPyraminxInputScreen'
+    if cube.puzzle_kind=='lanlan_flower_copter':return 'FlowerCopterInputScreen'
+    if cube.puzzle_kind=='lanlan_hexagram':return 'HexagramInputScreen'
+    if cube.puzzle_kind=='lanlan_pisces':return 'PiscesInputScreen'
+    if cube.puzzle_kind=='mf8_twins':return 'TwinsInputScreen'
+    if cube.puzzle_kind=='mf8_suncube_2':return 'SunCubeInputScreen'
+    if cube.puzzle_kind=='lanlan_comet_physical':return 'LanlanCometInputScreen'
+    if cube.puzzle_kind=='planar_rhombic_12':return 'CometInputScreen'
+    if cube.puzzle_kind=='lanlan_curvy_copter':return 'CopterInputScreen'
+    if cube.puzzle_kind in ('mirror_kilominx','mirror_megaminx'):return 'MirrorMinxScreen'
     if cube.puzzle_kind=='pentacle':return 'PentacleScreen'
     if cube.puzzle_kind.startswith('mixup_'):return 'MixupInputScreen'
     if getattr(cube,'rigid_family',False):return 'ArticulatedEntryScreen'
     if getattr(cube,'can_change_shape',False):
         return 'CuboidSixViewScreen'
-    return {'ghost_pyramid':'GhostPyramidScreen','fisher_skewb':'FisherSkewbScreen','mirror_tower':'MirrorTowerScreen',
+    return {'ghost_pyramid':'GhostPyramidScreen','fisher_skewb':'FisherSkewbScreen','container':'ContainerScreen','mirror_tower':'MirrorTowerScreen',
             'mirror_skewb':'MirrorSkewbScreen',
             'mirror_pyraminx':'MirrorPyraminxScreen'}.get(cube.puzzle_kind,'PolyhedralScreen')
 
@@ -99,17 +157,11 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
         self._build()
 
     def _build(self):
-        root=AdaptiveSceneLayout(padding_px=[12,8,12,8],gap_px=8)
+        from ui.widgets.entry_controls import entry_header, entry_actions
+        root=AdaptiveSceneLayout()
         self._root_layout=root
-        top=ResponsiveBoxLayout(height_px=44,gap_px=8)
-        back=UIButton(icon_name='back',size_hint_x=.16)
-        back.bind(on_release=lambda *_:self.back())
         self.title=Label(font_size='20sp')
-        help_button=UIButton(icon_name='demo',size_hint_x=.16)
-        help_button.bind(on_release=lambda *_:self.open_demo())
-        self.demo_button=help_button
-        for item in (back,self.title,help_button):
-            top.add_widget(item)
+        top,self.btn_back,self.demo_button=entry_header(self.title,self.back,self.open_demo)
         root.add_widget(top)
         self.view=(_view_for(getattr(_app(),'cube',None)) if self.view_class is PolyhedralView else self.view_class)()
         self.view.on_pick=self.paint
@@ -125,11 +177,11 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
             row.disabled=True
             panel.add_widget(row)
             self._extra_palette_rows.append(row)
-        self.hint=Label(text=tr('poly.input_hint'),size_hint_y=None,height=m.h(54),
+        self.hint=EntryGuidance(text=tr('poly.input_hint'),size_hint_y=None,height=m.h(54),
                         font_size='13sp',halign='center',valign='middle')
         self.hint.bind(size=lambda w,*_:setattr(w,'text_size',w.size))
-        panel.add_widget(self.hint)
         observation=ResponsiveBoxLayout(height_px=44,gap_px=6)
+        self.navigation=observation
         prev=UIButton(icon_name='prev')
         prev.bind(on_release=lambda *_:self.change_view(-1))
         customize=UIButton(icon_name=self.customize_icon)
@@ -138,15 +190,12 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
         nxt.bind(on_release=lambda *_:self.change_view(1))
         for widget in (prev,customize,nxt):
             observation.add_widget(widget)
+        self.btn_prev,self.customize_button,self.btn_next=prev,customize,nxt
         panel.add_widget(observation)
-        actions=ResponsiveBoxLayout(height_px=48,gap_px=6)
-        for cls,icon,callback in ((UIButton,'twist',self.open_twist),
-                                  (UIButton,'random',self.randomize),(DangerButton,'clear',self.clear),
-                                  (UIButton,'undo',self.undo),(UIButton,'target',self.assign_initial),
-                                  (PrimaryButton,'solve',self.solve)):
-            button=cls(icon_name=icon)
-            button.bind(on_release=lambda *_,fn=callback:fn())
-            actions.add_widget(button)
+        panel.add_widget(self.hint)
+        actions,self.entry_action_buttons=entry_actions(twist=self.open_twist,
+            randomize=self.randomize,clear=self.clear,undo=self.undo,
+            assign=self.assign_initial,solve=self.solve)
         panel.add_widget(actions)
         self.shape_button=UIButton(text=tr('poly.adjust_shape'),size_hint_y=None,height=0)
         self.shape_button.opacity=0
@@ -179,7 +228,10 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
             self.view.set_cube(self._cube)
             self._view_orientation=None
             self._poly_orientation=None
-            if self._cube.puzzle_kind in ('skewb', 'dino', 'eight_petals', 'void_cube', 'helicopter','clover', 'ivy', 'super_ivy', 'mosaic', 'tins', 'dino_skewb', 'dayan_dino_skewb'):
+            if self._cube.puzzle_kind in ('bean_6','bean_10'):
+                self._face=2;self.view.yaw=0;self.view.pitch=8
+                self.view.set_whole_world(Mat4())
+            elif self._cube.puzzle_kind in ('skewb', 'dino', 'eight_petals', 'void_cube', 'helicopter','clover', 'ivy', 'super_ivy', 'mosaic', 'tins', 'dino_skewb', 'dayan_dino_skewb'):
                 self._view_orientation=CubeOrientation(self._cube.n)
                 self.view.set_whole_world(self._view_orientation.world)
                 self.view.yaw=self.view.pitch=0
@@ -188,7 +240,7 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
                 from renderer.polyhedral_orientation import PolyhedralOrientation
                 self._poly_orientation=PolyhedralOrientation(self._cube.geometry.spec,self._face_roll(0))
                 self.view.set_whole_world(self._poly_orientation.world)
-                if self._cube.puzzle_kind.startswith(('cuboid_','camouflage_3')):
+                if self._cube.puzzle_kind.startswith(CUBOID_PREFIXES):
                     # Show the brick shape as well as the front panels; the
                     # input page can otherwise look like an ordinary flat grid.
                     self.view.yaw,self.view.pitch,self.view.roll=32,22,0
@@ -208,6 +260,9 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
         self._refresh()
 
     def _build_palette(self):
+        if self._cube.puzzle_kind=='time_machine':
+            from ui.widgets.dial_bean_controls import build_palette
+            return build_palette(self)
         count=getattr(self._cube,'color_count',len(self._cube.geometry.spec.normals))
         width=8 if count>20 else 5 if count>12 else 6
         rows=[self.palette,self.palette2]+self._extra_palette_rows
@@ -231,7 +286,10 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
             button.active=i==color
 
     def _remember(self):
-        self._history.append(self._cube.clone() if self._cube.puzzle_kind.startswith(('crazy_','circle_2','cuboid_','camouflage_3')) else tuple(self._cube.colors))
+        if self._cube.puzzle_kind=='time_machine':
+            self._history.append(dict(colors=tuple(self._cube.colors),number=getattr(self,'_dial_number',0)))
+        else:
+            self._history.append(self._cube.clone() if self._cube.puzzle_kind.startswith((('crazy_','circle_2')+CUBOID_PREFIXES)) else tuple(self._cube.colors))
         self._history=self._history[-40:]
         _app().polyhedral_solution=None
 
@@ -239,7 +297,13 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
         if self._job is not None or self._view_busy:
             return
         self._remember()
-        if self._cube.puzzle_kind.startswith(('cuboid_','camouflage_3')):
+        if self._cube.puzzle_kind=='time_machine':
+            number=getattr(self,'_dial_number',0)
+            self._cube.colors[index]=72+self._color if index<24 else self._color*12+number
+            if index>=24:
+                from ui.widgets.dial_bean_controls import select_number
+                select_number(self,(number+1)%12)
+        elif self._cube.puzzle_kind.startswith(CUBOID_PREFIXES):
             self._cube.paint(index,self._color)
         else:
             self._cube.colors[index]=self._color
@@ -249,10 +313,10 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
     def _refresh(self):
         if self._cube is None:
             return
-        has_demo=self._cube.n<=5 and self._cube.puzzle_kind not in ('o2','ancient_coin') and not self._cube.puzzle_kind.startswith(('crazy_','circle_2','cuboid_','camouflage_3'))
+        has_demo=True
         self.demo_button.disabled=not has_demo
         self.demo_button.opacity=1 if has_demo else 0
-        done,total=(self._cube.entry_progress() if self._cube.puzzle_kind.startswith(('cuboid_','camouflage_3')) else
+        done,total=(self._cube.entry_progress() if self._cube.puzzle_kind.startswith(CUBOID_PREFIXES) else
                     (sum(c>=0 for c in self._cube.colors),len(self._cube.colors)))
         self.status.text=tr('poly.progress',done=done,total=total)
         shape_needed=bool(getattr(self._cube,'can_change_shape',False))
@@ -268,6 +332,13 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
         self.manager.current='CuboidSixViewScreen'
 
     def open_demo(self):
+        from demo.coverage import supports,open_tutorial
+        if self._cube is not None and supports(self._cube.puzzle_kind,self._cube.n):
+            return open_tutorial(self)
+        from candidate_puzzles import BY_KIND
+        if self._cube is not None and self._cube.puzzle_kind in BY_KIND:
+            from demo.expanded_support import open_tutorial
+            return open_tutorial(self)
         if self._job is not None or self._cube is None or self.demo_button.disabled:
             return
         self.manager.get_screen('DemoMenuScreen').set_mode((self._cube.puzzle_kind,self._cube.n))
@@ -278,6 +349,13 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
             return
         self._view_busy=True
         self.panel.disabled=True
+        if self._cube.puzzle_kind in ('bean_6','bean_10'):
+            world=Mat4.rotation_axis(180,(0,1,0))*self.view._whole_world
+            def finish():
+                self._face=5 if self._face==2 else 2
+                self.view.set_whole_world(world);self._finish_face_view()
+            self.view.animate_whole_turn((0,1,0),180,.55,on_done=finish)
+            return
         if self._poly_orientation is not None:
             transition=self._poly_orientation.transition(direction)
             index,angle,axis=transition
@@ -338,9 +416,33 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
         self._view_direction=None
         self._finish_face_view()
 
+    def focus_sticker(self,index):
+        if not self.entry_can_edit():return
+        face=self._cube.geometry.stickers[index].face
+        if self._cube.puzzle_kind in ('bean_6','bean_10'):
+            self.view.set_whole_world(Mat4.rotation_axis(180 if face==5 else 0,(0,1,0)))
+            self.view.yaw=0;self.view.pitch=8;self.view.roll=0
+        elif self._poly_orientation is not None:
+            from renderer.polyhedral_orientation import PolyhedralOrientation
+            orientation=PolyhedralOrientation(self._cube.geometry.spec,self._face_roll(0))
+            while orientation.sequence[orientation.index]!=face:
+                orientation.commit(*orientation.transition(1))
+            self._poly_orientation=orientation;self.view.set_whole_world(orientation.world)
+            self.view.yaw=self.view.pitch=self.view.roll=0
+        elif self._view_orientation is not None:
+            orientation=CubeOrientation(self._cube.n)
+            while orientation.current_face()!=('U','R','F','D','L','B')[face]:orientation.turn_next()
+            self._view_orientation=orientation;self.view.set_whole_world(orientation.world)
+        else:
+            self.view.set_whole_world(Mat4());self._set_face_camera(face)
+        self._face=face;self.view.selected=index;self._finish_face_view();self.view.refresh()
+
     def _finish_face_view(self):
         self._view_busy=False
         self.panel.disabled=self._job is not None
+        if self._cube is not None and self._cube.puzzle_kind in ('time_machine','bean_6','bean_10'):
+            from ui.widgets.dial_bean_controls import input_hint
+            self.hint.text=input_hint(self)
 
     def reset_interaction(self):
         self.view.cancel_touch()
@@ -383,7 +485,7 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
             from cube.polyhedral_scramble import scramble, scramble_length
             # Prepare on a separate state. Failed imports or moves must not
             # erase the user's painted stickers or partially scramble them.
-            if self._cube.puzzle_kind.startswith(('cuboid_','camouflage_3')):
+            if self._cube.puzzle_kind.startswith(CUBOID_PREFIXES):
                 from cube.cuboid import CuboidCube
                 work=CuboidCube.solved(self._cube.puzzle_kind)
             elif self._cube.puzzle_kind=='circle_2':
@@ -399,14 +501,14 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
             from kivy.logger import Logger
             Logger.exception('Polyhedral: random scramble failed (%s, order %s)',
                              self._cube.puzzle_kind,self._cube.n)
-            self.status.text=tr('poly.scramble_failed')
+            self.entry_show_error(tr('poly.scramble_failed'),kind='operation',category='internal',retry=self.randomize)
             return
         self._remember()
         self._cube.colors=list(work.colors)
         if self._cube.puzzle_kind=='circle_2':self._cube.restore(work)
         if hasattr(self._cube,'scramble_history'):
             self._cube.scramble_history=getattr(work,'scramble_history',None)
-        if self._cube.puzzle_kind.startswith(('cuboid_','camouflage_3')):
+        if self._cube.puzzle_kind.startswith(CUBOID_PREFIXES):
             self._cube.frames=work.frames
             self._cube.history=work.history
             self._cube._snapshot=(tuple(work.colors),work.frames)
@@ -422,9 +524,12 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
             return
         if self._history:
             previous=self._history.pop()
+            if self._cube.puzzle_kind=='time_machine' and isinstance(previous,dict):
+                self._cube.colors=list(previous['colors']);self._dial_number=previous['number']
+                _app().polyhedral_solution=None;self._build_palette();self._refresh();return
             if self._cube.puzzle_kind=='circle_2':self._cube.restore(previous)
             self._cube.colors=list(previous.colors if hasattr(previous,'colors') else previous)
-            if self._cube.puzzle_kind.startswith(('cuboid_','camouflage_3')) and hasattr(previous,'frames'):
+            if self._cube.puzzle_kind.startswith(CUBOID_PREFIXES) and hasattr(previous,'frames'):
                 self._cube.frames=previous.frames
                 self._cube.history=previous.history
                 self._cube._snapshot=(tuple(previous.colors),previous.frames)
@@ -440,8 +545,8 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
             return
         box=ResponsiveBoxLayout(orientation='vertical',gap_px=8)
         actions=ResponsiveBoxLayout(height_px=44,gap_px=8)
-        cancel=UIButton(text=tr('poly.cancel'))
-        button=DangerButton(text=tr('poly.confirm'))
+        cancel=UIButton(icon_name='cancel')
+        button=DangerButton(icon_name='done')
         actions.add_widget(cancel)
         actions.add_widget(button)
         box.add_widget(actions)
@@ -457,12 +562,29 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
         button.bind(on_release=confirm)
         cancel.bind(on_release=lambda *_:popup.dismiss())
 
+    @validation_action
     def validate(self):
         if not self.entry_can_edit():
-            return
+            return False
         from solver.polyhedral import identify
+        from candidate_puzzles import COLOR_ENTRY_KINDS
         try:
-            if self._cube.puzzle_kind.startswith(('cuboid_','camouflage_3')):
+            if self._cube.puzzle_kind=='megaminx_ball':
+                from cube.megaminx_ball import validate
+                validate(self._cube)
+            elif self._cube.puzzle_kind=='aj_curvy_dinominx_4':
+                from solver.curvy_dinominx import validate
+                validate(self._cube)
+            elif self._cube.puzzle_kind in ('mf8_bauhinia_minx','kairis_star_finder'):
+                from solver.rex_dodecahedron import validate
+                validate(self._cube)
+            elif self._cube.puzzle_kind in ('time_machine','bean_6','bean_10'):
+                from solver.dial_beans import validate
+                validate(self._cube)
+            elif self._cube.puzzle_kind in COLOR_ENTRY_KINDS:
+                from solver.expanded_polyhedra import validate_expanded
+                validate_expanded(self._cube)
+            elif self._cube.puzzle_kind.startswith(CUBOID_PREFIXES):
                 from solver.cuboid import validate_cuboid
                 validate_cuboid(self._cube)
                 if self._cube.puzzle_kind=='cuboid_133':
@@ -482,9 +604,15 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
                 solve_pyraminx_duo(self._cube)
             else:
                 identify(self._cube)
-            self.status.text=tr('circle.counts_only') if self._cube.puzzle_kind.startswith(('crazy_','circle_2','cuboid_','camouflage_3')) and self._cube.puzzle_kind!='cuboid_133' else tr('poly.valid')
+            self.status.text=(tr('expanded.local_valid') if self._cube.puzzle_kind in COLOR_ENTRY_KINDS else
+                              tr('circle.counts_only') if self._cube.puzzle_kind.startswith((('crazy_','circle_2')+CUBOID_PREFIXES)) and self._cube.puzzle_kind!='cuboid_133' else tr('poly.valid'))
+            self.status.color=_app().theme.text_muted
+            return True
         except ValueError as exc:
-            self.error(str(exc))
+            if getattr(exc,'locations',None) is not None:
+                self.entry_show_error(str(exc),locations=exc.locations)
+            else:self.error(str(exc))
+            return False
 
     def entry_can_assign(self):
         return self._job is None
@@ -495,7 +623,7 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
         if kind=='circle_2':
             from cube.circle_cube import Circle2Cube
             self._cube.restore(Circle2Cube())
-        elif kind.startswith(('cuboid_','camouflage_3')):
+        elif kind.startswith(CUBOID_PREFIXES):
             from cube.cuboid import CuboidCube
             solved=CuboidCube.solved(kind)
             self._cube.frames=solved.frames
@@ -511,7 +639,7 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
             self._cube.colors=list(solved.colors)
         else:
             self._cube.colors=list(solved_colors(self._cube))
-        if kind.startswith(('cuboid_','camouflage_3')):
+        if kind.startswith(CUBOID_PREFIXES):
             self._cube._snapshot=(tuple(self._cube.colors),self._cube.frames)
         if hasattr(self._cube,'scramble_history'):
             self._cube.scramble_history=None
@@ -532,45 +660,48 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
     def solve(self):
         if not self.entry_can_edit():
             return
-        if self._job is not None:
+        if self._job is not None or not self.validate():
             return
         entered=self._cube.entered()
         palette=tuple(self.view.palette)
         def solved(result):
-            _app().polyhedral_solution=(entered,result.moves,palette)
+            initial=getattr(result,'prepared_cube',None)
+            _app().polyhedral_solution=(initial if initial is not None else entered,result.moves,palette)
             self.manager.current='PolyhedralPlaybackScreen'
         screen=self.manager.get_screen('SolvingScreen')
-        screen.configure(entered,self.name,solved,_view_for(entered),palette)
+        if screen.configure(entered,self.name,solved,_view_for(entered),palette) is False:return
         self.manager.current='SolvingScreen'
 
     def customize(self):
-        picker=ColorPicker(color=self.view.palette[self._color])
-        box=ResponsiveBoxLayout(orientation='vertical',gap_px=8)
-        box.add_widget(picker)
-        actions=ResponsiveBoxLayout(height_px=44,gap_px=8)
-        restore=UIButton(text=tr('poly.restore_colors'))
-        apply=PrimaryButton(text=tr('poly.apply'))
-        actions.add_widget(restore)
-        actions.add_widget(apply)
-        box.add_widget(actions)
-        popup=self._popup(tr('poly.palette'),box,(.9,.85))
-        def save(*args):
-            palette=list(self.view.palette)
-            palette[self._color]=tuple(picker.color[:3])+(1,)
-            self._save_palette(palette)
-            popup.dismiss()
-        def reset(*args):
-            self._save_palette(default_palette(self._cube))
-            picker.color=self.view.palette[self._color]
-        restore.bind(on_release=reset)
-        apply.bind(on_release=save)
+        self.open_palette_settings()
+
+    def palette_colors(self):
+        if self._cube.puzzle_kind=='time_machine':return list(self.view.palette[72:78])
+        count=getattr(self._cube,'color_count',len(self._cube.geometry.spec.normals))
+        return list(self.view.palette[:count])
+
+    def default_palette_colors(self):
+        if self._cube.puzzle_kind=='time_machine':return list(default_palette(self._cube)[72:78])
+        count=getattr(self._cube,'color_count',len(self._cube.geometry.spec.normals))
+        return list(default_palette(self._cube)[:count])
+
+    def apply_palette_colors(self,colors):
+        self._save_palette(colors)
+
+    def open_palette_settings(self):
+        if not self.entry_can_edit() or self._cube is None:return
+        screen=self.manager.get_screen('PiecePaletteScreen')
+        screen.configure(self,self._color)
+        self.manager.current='PiecePaletteScreen'
 
     def _save_palette(self,palette):
+        if self._cube.puzzle_kind=='time_machine' and len(palette)==6:
+            palette=tuple(palette[i//12 if i<72 else i-72] for i in range(78))
         self.view.palette=tuple(palette)
         from app.prefs import set as pref_set
         pref_set('poly_palette_'+self._cube.puzzle_kind,[list(c) for c in palette])
         self._build_palette()
-        self.view.refresh()
+        self._refresh()
 
     def _popup(self,title,content,size=(.85,.4),**kwargs):
         popup=Popup(title=title,content=content,size_hint=size,**kwargs)
@@ -579,31 +710,7 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
         return popup
 
     def error(self,message):
-        if message.startswith('o2.'):
-            self._popup(tr('poly.error'),Label(text=tr(message),color=_app().theme.text))
-            return
-        errors={
-            'Please enter every sticker':'incomplete',
-            'The color counts do not match this puzzle':'counts',
-            'A piece has an impossible color combination or position':'piece',
-            'A piece has a mirrored or impossible orientation':'orientation',
-            'Repeated color on a piece':'piece', 'Duplicate piece':'piece',
-            'The entered core has an impossible orientation':'orientation',
-            'The entered core violates an orientation constraint':'orientation',
-            'Position must be restored before adjusting orientation':'illegal',
-            'Mirrored or impossible core orientation':'orientation',
-            'The entered puzzle is not a legal state':'illegal',
-            'Odd orbit permutation':'illegal',
-            'The entered pieces violate an orientation or permutation constraint':'illegal',
-        }
-        input_error=message in errors
-        if message in ('Polyhedral reduction replay failed','Blossom reduction replay failed'):
-            message=tr('poly.error.replay')
-        else:
-            message=tr('poly.error.'+errors[message]) if input_error else tr('poly.error.solver',detail=message)
-        content=Label(text=message,halign='center',valign='middle',color=_app().theme.text)
-        content.bind(size=lambda w,*_:setattr(w,'text_size',w.size))
-        self._popup(tr('poly.error' if input_error else 'poly.error.solve_title'),content)
+        return self.entry_show_error(message)
 
     def help(self):
         label=Label(text=tr('poly.help'),halign='left',valign='middle',color=_app().theme.text)
@@ -635,15 +742,26 @@ class PolyhedralScreen(EntryActionsMixin, Screen):
         self.follow_control.retranslate()
         if self._cube:
             self.title.text=f'{_puzzle_title(self._cube)} · {tr("directory.order",order=self._cube.n)}'
-            if self._cube.puzzle_kind.startswith(('crazy_','circle_2','cuboid_','camouflage_3')) or self._cube.puzzle_kind in ('helicopter','blossom','petal_icosahedron','petal_icosahedron_nocentre','petal_tetrahedron','petal_tetrahedron_nocentre','ivy','super_ivy','pyraminx_duo','coin_tetrahedron','mosaic','tins','dino_skewb','dayan_dino_skewb'):
+            if self._cube.puzzle_kind.startswith((('crazy_','circle_2')+CUBOID_PREFIXES)) or self._cube.puzzle_kind in ('helicopter','blossom','petal_icosahedron','petal_icosahedron_nocentre','petal_tetrahedron','petal_tetrahedron_nocentre','ivy','super_ivy','pyraminx_duo','coin_tetrahedron','mosaic','tins','dino_skewb','dayan_dino_skewb'):
                 self.title.text=_puzzle_title(self._cube)
         kind=self._cube.puzzle_kind if self._cube else ''
-        self.hint.text=tr('poly.super_floppy_input') if kind=='cuboid_133' else tr('poly.camouflage_input') if kind=='camouflage_3' else tr('poly.cuboid_input') if kind.startswith(('cuboid_','camouflage_3')) else tr('poly.circle2_input') if kind=='circle_2' else tr('poly.circle_input') if kind.startswith(('crazy_','circle_2')) else tr('poly.'+kind+'_input') if kind in ('helicopter','clover','eight_petals','football','blossom','petal_icosahedron','petal_icosahedron_nocentre','petal_tetrahedron','petal_tetrahedron_nocentre','ivy','super_ivy','pyraminx_duo','coin_tetrahedron','mosaic','tins','dino_skewb','dayan_dino_skewb','fisher_skewb','ghost_pyramid','dino','war_drum','pentahedron') else tr('poly.input_hint')
+        self.hint.text=tr('poly.super_floppy_input') if kind=='cuboid_133' else tr('poly.camouflage_input') if kind=='camouflage_3' else tr('poly.cuboid_input') if kind.startswith(CUBOID_PREFIXES) else tr('poly.circle2_input') if kind=='circle_2' else tr('poly.circle_input') if kind.startswith(('crazy_','circle_2')) else tr('poly.'+kind+'_input') if kind in ('helicopter','clover','eight_petals','football','blossom','petal_icosahedron','petal_icosahedron_nocentre','petal_tetrahedron','petal_tetrahedron_nocentre','ivy','super_ivy','pyraminx_duo','coin_tetrahedron','mosaic','tins','dino_skewb','dayan_dino_skewb','fisher_skewb','container','mirror_kilominx','mirror_megaminx','ghost_pyramid','dino','war_drum','pentahedron') else tr('poly.input_hint')
         if kind.startswith('cuboid_') and not self._cube.can_change_shape:
             self.hint.text=tr('poly.cuboid_fixed_input')
         if kind in ('o2','ancient_coin'):
             self.title.text=_puzzle_title(self._cube)
             self.hint.text=tr('poly.'+kind+'_input')
+        from candidate_puzzles import BY_KIND
+        if kind in BY_KIND:
+            self.title.text=_puzzle_title(self._cube)
+        if kind in ('dogic_i','dogic_20','rubik_cheese','masterball','siamese_a','siamese_b','pyraminx_diamond','cheese_3'):
+            self.hint.text=tr('poly.'+kind+'_input')
+        from candidate_puzzles import PRISM_KINDS
+        if kind in PRISM_KINDS:
+            self.hint.text=tr('poly.pentagonal_input')
+        if kind in ('time_machine','bean_6','bean_10'):
+            from ui.widgets.dial_bean_controls import input_hint
+            self.hint.text=input_hint(self)
 
     def refresh_theme(self):
         for label in (self.title,self.hint,self.status):
@@ -686,7 +804,7 @@ class PolyhedralPlaybackScreen(Screen):
         self._playback_buttons={}
         for icon,fn in (('first',self.to_start),('prev',self.prev),('solve',self.play),
                         ('next',self.next),('last',self.to_end)):
-            button=PrimaryButton(icon_name=icon) if icon=='solve' else UIButton(icon_name=icon)
+            button=PlayPauseButton() if icon=='solve' else UIButton(icon_name=icon)
             button.bind(on_release=lambda *_,f=fn:f())
             self._playback_buttons[icon]=button
             if not self._simple or icon not in ('first','last'):
@@ -741,10 +859,10 @@ class PolyhedralPlaybackScreen(Screen):
         self._initial,self._moves,palette=_app().polyhedral_solution
         self._work=self._initial.clone()
         self._index=0
-        self._checkpoints={0:self._work.clone() if self._work.puzzle_kind.startswith(('cuboid_','camouflage_3','circle_2')) else tuple(self._work.colors)}
+        self._checkpoints={0:capture_checkpoint(self._work)}
         self.view.set_cube(self._work)
-        if len(palette)==len(self._work.geometry.spec.normals):
-            self.view.palette=palette
+        if len(palette)==len(self.view.palette):
+            self.view.palette=tuple(palette)
         self.track.maximum=max(1,len(self._moves))
         self.title.text=tr('poly.solution',total=len(self._moves))
         self._refresh()
@@ -754,14 +872,15 @@ class PolyhedralPlaybackScreen(Screen):
         active=self.view._move if self.view._move is not None else self._pending_move
         current=(token(active,self._work.geometry.spec) if active is not None else
                  token(self._moves[self._index-1],self._work.geometry.spec) if self._index else tr('playback.ready'))
-        if self._work.puzzle_kind in ('football','war_drum','pentahedron'):
+        if self._work.puzzle_kind in ('football','war_drum','pentahedron','kairis_star_finder'):
             move=active if active is not None else self._moves[self._index-1] if self._index else None
             if move is not None:
                 order=self._work.geometry.spec.turn_order
                 amount=move.amount%order
                 if amount>order/2:
                     amount-=order
-                current=tr('poly.face_turn',face=move.axis+1,layer=move.layer+1,angle=amount*360//order)
+                face=move.axis+13 if self._work.puzzle_kind=='kairis_star_finder' else move.axis+1
+                current=tr('poly.face_turn',face=face,layer=move.layer+1,angle=amount*360//order)
         elif self._work.puzzle_kind in ('helicopter','blossom','petal_icosahedron','petal_icosahedron_nocentre','petal_tetrahedron','petal_tetrahedron_nocentre'):
             move=active if active is not None else self._moves[self._index-1] if self._index else None
             if move is not None:
@@ -785,7 +904,7 @@ class PolyhedralPlaybackScreen(Screen):
                         break
                     offset+=count
         self.track.value=self._index
-        self.play_button.icon_name='pause' if self._playing else 'solve'
+        self.play_button.set_playing(self._playing)
         busy=active is not None or self._seek_job is not None
         self._playback_buttons['prev'].disabled=busy or self._index<=0
         self._playback_buttons['next'].disabled=busy or self._index>=len(self._moves)
@@ -808,7 +927,7 @@ class PolyhedralPlaybackScreen(Screen):
         def done():
             self._index+=1
             if self._index%128==0:
-                self._checkpoints[self._index]=self._work.clone() if self._work.puzzle_kind.startswith(('cuboid_','camouflage_3','circle_2')) else tuple(self._work.colors)
+                self._checkpoints[self._index]=capture_checkpoint(self._work)
             self._refresh()
             if self._playing:
                 self._hold=Clock.schedule_once(self._advance,self._hold_time)
@@ -838,7 +957,13 @@ class PolyhedralPlaybackScreen(Screen):
             if self._pending_move is not move:
                 return
             self._pending_move=None
-            self.view.animate_move(move,done,duration=.32/self.speed.value)
+            amount=abs(float(getattr(move,'amount',90.) or 90.))
+            # Geometry moves use degrees; cube/polyhedral layer moves use
+            # quarter-turn units. Keep even 120°/180° turns visible instead of
+            # flashing them at the same short duration as a 90° turn.
+            angle=amount if amount>8 else amount*90.
+            duration=max(.28,min(1.4,.32*angle/90.))/max(.01,self.speed.value)
+            self.view.animate_move(move,done,duration=duration)
             self._refresh()
         follow_turn(self.view,polyhedral_target(self._work,move),begin)
 
@@ -877,30 +1002,31 @@ class PolyhedralPlaybackScreen(Screen):
         job=object()
         self._seek_job=job
         work=self._initial.clone()
-        cuboid=work.puzzle_kind.startswith(('cuboid_','camouflage_3','circle_2'))
-        if cuboid:
-            work.restore(self._checkpoints[nearest])
-        else:
-            work.colors=list(self._checkpoints[nearest])
+        restore_checkpoint(work,self._checkpoints[nearest])
         checkpoints={}
         def finish():
             if self._seek_job is not job:
                 return
             self._seek_job=None
-            if cuboid:
-                self._work.restore(work)
-            else:
-                self._work.colors=work.colors
+            restore_checkpoint(self._work,capture_checkpoint(work))
             self._checkpoints.update(checkpoints)
             self._index=index
             self._refresh()
         def worker():
-            for k in range(nearest,index):
-                if self._seek_job is not job:
-                    return
-                work.apply_move(self._moves[k])
-                if (k+1)%128==0:
-                    checkpoints[k+1]=work.clone() if cuboid else tuple(work.colors)
+            try:
+                for k in range(nearest,index):
+                    if self._seek_job is not job:return
+                    work.apply_move(self._moves[k])
+                    if (k+1)%128==0:checkpoints[k+1]=capture_checkpoint(work)
+            except Exception:
+                from kivy.logger import Logger
+                Logger.exception('Playback seek failed')
+                def failed(_):
+                    if self._seek_job is not job:return
+                    self._seek_job=None;self._refresh()
+                    from ui.entry_feedback import show_feedback
+                    show_feedback(self.status,tr('poly.playback_failed'))
+                Clock.schedule_once(failed,0);return
             Clock.schedule_once(lambda dt:finish(),0)
         if index-nearest>128:
             self.status.text=tr('poly.seeking')
@@ -967,18 +1093,14 @@ class PolyhedralTwistScreen(Screen):
         self._build()
 
     def _build(self):
-        root=AdaptiveSceneLayout(padding_px=[12,8,12,8],gap_px=8)
-        top=ResponsiveBoxLayout(height_px=44,gap_px=8)
-        back=UIButton(icon_name='back',size_hint_x=.16)
-        back.bind(on_release=lambda *_:self.back())
+        from ui.widgets.entry_controls import twist_header
+        root=AdaptiveSceneLayout()
         self.title=Label(font_size='20sp')
-        done=PrimaryButton(icon_name='done',size_hint_x=.16)
-        done.bind(on_release=lambda *_:self.back())
-        for item in (back,self.title,done):
-            top.add_widget(item)
+        top,self.btn_back,self.btn_done=twist_header(self.title,self.back)
         root.add_widget(top)
         self.view=_view_for(getattr(_app(),'cube',None),True)()
         self.view.on_twist=self.twist
+        self.view.on_control_select=self._select_control_axis
         panel=ResponsiveBoxLayout(orientation='vertical',gap_px=7,size_hint_y=None)
         history=ResponsiveBoxLayout(height_px=48,gap_px=8)
         self.btn_undo=UIButton(icon_name='undo')
@@ -1015,7 +1137,7 @@ class PolyhedralTwistScreen(Screen):
         self.alignment_button=UIButton(size_hint_y=None,height=0)
         self.alignment_button.bind(on_release=lambda *_:self.toggle_alignment())
         panel.add_widget(self.alignment_button)
-        self.hint=Label(text=tr('twist.hint_lock_on'),size_hint_y=None,height=m.h(54),
+        self.hint=EntryGuidance(text=tr('twist.hint_lock_on'),size_hint_y=None,height=m.h(54),
                         font_size='13sp',halign='center',valign='middle')
         self.hint.bind(size=lambda w,*_:setattr(w,'text_size',w.size))
         panel.add_widget(self.hint)
@@ -1036,12 +1158,13 @@ class PolyhedralTwistScreen(Screen):
         self.view.cancel_touch()
         self.view.set_cube(self._cube)
         self.follow_control.bind_view(self.view,self._camera_lock_changed)
-        self._cuboid_entry_snapshot=self._cube.clone() if getattr(self._cube,'rigid_family',False) or self._cube.puzzle_kind.startswith(('cuboid_','camouflage_3','circle_2')) else None
+        self._cuboid_entry_snapshot=self._cube.clone() if getattr(self._cube,'rigid_family',False) or self._cube.puzzle_kind.startswith((CUBOID_PREFIXES+('circle_2',))) else None
         self._entry_snapshot=(tuple(self._cube.colors)
-                              if self._cube.puzzle_kind not in ('mirror_tower','mirror_pyraminx','mirror_skewb','fisher_skewb','ghost_pyramid') else None)
+                              if self._cube.puzzle_kind not in ('mirror_tower','mirror_pyraminx','mirror_skewb','fisher_skewb','container','mirror_kilominx','mirror_megaminx','ghost_pyramid') else None)
         self._history=[]
         self._future=[]
         self._face=0
+        if self._cube.puzzle_kind in ('bean_6','bean_10'):self._face=2
         ghost=self._cube.puzzle_kind=='ghost_pyramid'
         self.alignment_button.height=m.h(44) if ghost else 0
         self.alignment_button.opacity=1 if ghost else 0
@@ -1059,6 +1182,7 @@ class PolyhedralTwistScreen(Screen):
         self._axis=self._initial_axis()
         self.axis.text=self.axis.values[self._axis]
         self._set_layers()
+        self._refresh_extreme_axes()
         self.retranslate()
         self.refresh_theme()
         self.view.refresh()
@@ -1069,18 +1193,19 @@ class PolyhedralTwistScreen(Screen):
             self.title.text=f'{_puzzle_title(self._cube)} · {tr("input.twist")}'
             self.axis.values=self._axis_labels()
             self.axis.text=self.axis.values[self._axis]
+            self._refresh_extreme_axes()
         kind=self._cube.puzzle_kind if self._cube else ''
-        if kind.startswith(('cuboid_','camouflage_3')):
+        if kind.startswith(CUBOID_PREFIXES):
             self.hint.text=tr('poly.cuboid_twist')
         elif kind.startswith(('crazy_','circle_2')):
             self.hint.text=tr('poly.circle2_twist') if kind=='circle_2' else tr('poly.circle_twist')
-        elif kind in ('helicopter','clover','eight_petals','football','blossom','petal_icosahedron','petal_icosahedron_nocentre','petal_tetrahedron','petal_tetrahedron_nocentre','ivy','super_ivy','pyraminx_duo','coin_tetrahedron','mosaic','tins','dino_skewb','dayan_dino_skewb','fisher_skewb','ghost_pyramid','dino','war_drum','pentahedron'):
+        elif kind in ('helicopter','clover','eight_petals','football','blossom','petal_icosahedron','petal_icosahedron_nocentre','petal_tetrahedron','petal_tetrahedron_nocentre','ivy','super_ivy','pyraminx_duo','coin_tetrahedron','mosaic','tins','dino_skewb','dayan_dino_skewb','fisher_skewb','container','mirror_kilominx','mirror_megaminx','ghost_pyramid','dino','war_drum','pentahedron'):
             self.hint.text=tr('poly.'+kind+'_twist')
         else:
-            self.hint.text=tr('poly.twist_hint_on') if self.view.lock_view else tr('poly.twist_hint_off')
+            self.hint.text=tr('dial.twist_hint') if kind in ('bean_6','bean_10') and self.view.lock_view else tr('poly.twist_hint_on') if self.view.lock_view else tr('poly.twist_hint_off')
 
     def _initial_axis(self):
-        if self._cube.puzzle_kind.startswith(('cuboid_','camouflage_3')):
+        if self._cube.puzzle_kind.startswith(CUBOID_PREFIXES):
             from cube.polyhedral import dot
             yaw,pitch=math.radians(self.view.yaw),math.radians(self.view.pitch)
             eye=(math.sin(yaw)*math.cos(pitch),math.sin(pitch),math.cos(yaw)*math.cos(pitch))
@@ -1099,10 +1224,17 @@ class PolyhedralTwistScreen(Screen):
 
     def _axis_labels(self):
         spec=self._cube.geometry.spec
+        if spec.kind=='kairis_star_finder':
+            return tuple(f'{tr("poly.face",i=i+13)} · 120°' for i in range(20))
+        if spec.kind in ('megaminx_ball','yeet_ball','skewb_rhombic','jewel_fto','rua','helicopter_14'):
+            return tuple(f'{tr("poly.axis",i=i+1)} · {360//spec.order(i)}°' for i in range(len(spec.axes)))
+        if spec.kind in ('time_machine','bean_6','bean_10'):
+            from ui.widgets.dial_bean_controls import axis_labels
+            return axis_labels(spec.kind)
         if spec.kind=='o2':return ('Y +','X +','Z +','Y −','X −','Z −')
         if spec.kind=='ancient_coin':
             return tuple(tr('coin.disc',face=i+1) if i<6 else tr('coin.corner',axis=i-5) for i in range(14))
-        if spec.kind.startswith(('cuboid_','camouflage_3')):
+        if spec.kind.startswith(CUBOID_PREFIXES):
             from cube.cuboid import FACES
             return tuple(f'{face} · {90*spec.step(i)}°' for i,face in enumerate(FACES))
         if spec.kind.startswith(('crazy_','circle_2')):
@@ -1110,6 +1242,12 @@ class PolyhedralTwistScreen(Screen):
             one=frozenset() if spec.kind=='circle_2' else PLANETS[spec.kind[6:]]
             if spec.kind=='circle_2':return tuple(f'{f} · 90°' for f in FACES)
             return tuple(f'{i+1} · {face} · {int(face in one)}' for i,face in enumerate(FACES))
+        if spec.kind in ('mf8_bauhinia_minx','aj_curvy_dinominx_4'):
+            from cube.polyhedral import dot
+            return tuple(f'{tr("poly.axis",i=j+1)} · '+tr('poly.corner',faces='/'.join(
+                str(i+1) for i,n in enumerate(spec.normals)
+                if abs(dot(n,axis)-max(dot(k,axis) for k in spec.normals))<1e-7))+' · 120°'
+                for j,axis in enumerate(spec.axes))
         if spec.kind=='coin_tetrahedron':
             return tuple(tr('coin.disc',face=i+1) if i<4 else tr('coin.corner',axis=i-3) for i in range(8))
         if spec.kind in ('football','war_drum','pentahedron'):
@@ -1138,14 +1276,19 @@ class PolyhedralTwistScreen(Screen):
         self.hint.color=_app().theme.text
 
     def change_view(self,direction):
-        if self._cube is None or self.view._move is not None:
+        if self._cube is None or self.view._move is not None or self.view.camera_busy:
             return
         self.view.cancel_touch()
         normals=self._cube.geometry.spec.normals
         if self._cube.puzzle_kind=='ghost_pyramid':
             from cube.ghost_pyramid import shell_normals
             normals=shell_normals()
-        self._face=(self._face+direction)%len(normals)
+        if self._cube.puzzle_kind in ('bean_6','bean_10'):
+            self._face=5 if self._face==2 else 2
+            from cube.dial_beans import petals
+            p=petals(self._cube.puzzle_kind)
+            if self._axis>=3*p:self._select_control_axis(3*p+int(self._face==5))
+        else:self._face=(self._face+direction)%len(normals)
         x,y,z=normals[self._face]
         yaw=math.degrees(math.atan2(x,z))
         while yaw-self.view.yaw>180:
@@ -1159,14 +1302,28 @@ class PolyhedralTwistScreen(Screen):
         animation.bind(on_complete=lambda *_:setattr(self.view,'camera_busy',False))
         animation.start(self.view)
 
+    def _select_control_axis(self,axis):
+        if self._cube.puzzle_kind=='tangram_extreme':
+            choices=getattr(self,'_extreme_axis_map',())
+            if axis in choices:self.axis.text=self.axis.values[choices.index(axis)]
+            return
+        if 0<=axis<len(self.axis.values):self.axis.text=self.axis.values[axis]
+
     def _axis_selected(self,widget,text):
         if text in widget.values:
-            self._axis=widget.values.index(text)
+            index=widget.values.index(text)
+            self._axis=(self._extreme_axis_map[index] if self._cube.puzzle_kind=='tangram_extreme'
+                        and hasattr(self,'_extreme_axis_map') and len(widget.values)==len(self._extreme_axis_map) else index)
             self._layer=0
             self._set_layers()
 
     def _set_layers(self):
         if self._cube is None:
+            return
+        if self._cube.puzzle_kind in ('time_machine','bean_6','bean_10'):
+            self.view.selected_turn_axis=self._axis
+            self.layer.values=(f'{360//self._cube.geometry.spec.order(self._axis)}°',)
+            self.layer.disabled=True;self._layer=0;self.layer.text=self.layer.values[0]
             return
         if self._cube.puzzle_kind=='pentacle':
             self.layer.values=(tr('pentacle.disc_layer'),tr('pentacle.core_layer'))
@@ -1182,7 +1339,7 @@ class PolyhedralTwistScreen(Screen):
             self.layer.disabled=len(self.layer.values)==1
             self.layer.text=self.layer.values[self._layer]
             return
-        if self._cube.puzzle_kind.startswith(('cuboid_','camouflage_3')):
+        if self._cube.puzzle_kind.startswith(CUBOID_PREFIXES):
             from cube.polyhedral import Move
             legal=[i for i in range(self._cube.core_n-1) if self._cube.can_apply(Move(self._axis,i,self._cube.geometry.spec.step(self._axis)))]
             self.layer.values=self._cube.layer_labels(self._axis)
@@ -1191,7 +1348,10 @@ class PolyhedralTwistScreen(Screen):
             self.layer.text=self.layer.values[self._layer]
             self.view.selected_turn_layer=self._layer
             return
-        if self._cube.puzzle_kind in ('helicopter','clover','eight_petals','blossom','petal_icosahedron','petal_icosahedron_nocentre','petal_tetrahedron','petal_tetrahedron_nocentre','ivy','super_ivy','pyraminx_duo','coin_tetrahedron'):
+        if self._cube.puzzle_kind=='aj_curvy_dinominx_4':
+            self.layer.values=(tr('poly.corner_inner')+' · 120°',tr('poly.corner_outer')+' · 120°')
+            self.layer.disabled=False
+        elif self._cube.puzzle_kind in ('megaminx_ball','mf8_bauhinia_minx','yeet_ball','skewb_rhombic','jewel_fto','rua','helicopter_14','helicopter','clover','eight_petals','blossom','petal_icosahedron','petal_icosahedron_nocentre','petal_tetrahedron','petal_tetrahedron_nocentre','ivy','super_ivy','pyraminx_duo','coin_tetrahedron'):
             self.layer.values=(f'{360//self._cube.geometry.spec.turn_order}°',)
             self.layer.disabled=True
         elif self._cube.puzzle_kind=='dino_skewb':
@@ -1226,7 +1386,8 @@ class PolyhedralTwistScreen(Screen):
             self.view.dino_skewb_mode=('dino' if len(widget.values)==2 and self._layer==0 else 'skewb')
 
     def _update_controls(self):
-        if self._cube is not None and self._cube.puzzle_kind.startswith(('cuboid_','camouflage_3')):
+        self._refresh_extreme_axes()
+        if self._cube is not None and self._cube.puzzle_kind.startswith(CUBOID_PREFIXES):
             self._set_layers()
         if self._cube is not None and self._cube.puzzle_kind=='ghost_pyramid':
             self.alignment_button.text=tr('ghost_pyramid.close' if abs(self._cube.phase)<1e-8 else 'ghost_pyramid.open')
@@ -1235,18 +1396,30 @@ class PolyhedralTwistScreen(Screen):
         self.btn_lock.icon_name='lock' if self.view.lock_view else 'unlock'
         self.btn_lock.active=self.view.lock_view
 
+    def _refresh_extreme_axes(self):
+        if self._cube is None or self._cube.puzzle_kind!='tangram_extreme':return
+        choices=tuple(i for i in range(7) if self._cube.axis_available(i))
+        if not choices:return
+        self._extreme_axis_map=choices
+        self._axis=self._axis if self._axis in choices else choices[0]
+        # The seven fixed world IDs are an implementation detail. Only four
+        # axes exist in either phase, so keep the visible numbering compact.
+        self.axis.values=tuple(tr('poly.axis',i=i+1) for i in range(len(choices)))
+        self.axis.text=self.axis.values[choices.index(self._axis)]
+        self._set_layers()
+
     def _camera_lock_changed(self,locked):
         self.btn_lock.icon_name='lock' if locked else 'unlock'
         self.btn_lock.active=locked
         kind=self._cube.puzzle_kind if self._cube else ''
-        if kind.startswith(('cuboid_','camouflage_3')):
+        if kind.startswith(CUBOID_PREFIXES):
             self.hint.text=tr('poly.cuboid_twist')
         elif kind.startswith(('crazy_','circle_2')):
             self.hint.text=tr('poly.circle2_twist') if kind=='circle_2' else tr('poly.circle_twist')
-        elif kind in ('helicopter','clover','eight_petals','football','blossom','petal_icosahedron','petal_icosahedron_nocentre','petal_tetrahedron','petal_tetrahedron_nocentre','ivy','super_ivy','pyraminx_duo','coin_tetrahedron','mosaic','tins','dino_skewb','dayan_dino_skewb','fisher_skewb','ghost_pyramid','dino','war_drum','pentahedron'):
+        elif kind in ('helicopter','clover','eight_petals','football','blossom','petal_icosahedron','petal_icosahedron_nocentre','petal_tetrahedron','petal_tetrahedron_nocentre','ivy','super_ivy','pyraminx_duo','coin_tetrahedron','mosaic','tins','dino_skewb','dayan_dino_skewb','fisher_skewb','container','mirror_kilominx','mirror_megaminx','ghost_pyramid','dino','war_drum','pentahedron'):
             self.hint.text=tr('poly.'+kind+'_twist')
         else:
-            self.hint.text=tr('poly.twist_hint_on') if locked else tr('poly.twist_hint_off')
+            self.hint.text=tr('dial.twist_hint') if kind in ('bean_6','bean_10') and locked else tr('poly.twist_hint_on') if locked else tr('poly.twist_hint_off')
 
     def toggle_alignment(self):
         if self._cube is not None and self._cube.puzzle_kind=='ghost_pyramid':
@@ -1259,18 +1432,21 @@ class PolyhedralTwistScreen(Screen):
         if self._cube is None or self.view._move is not None or self.view.camera_busy:
             return
         if getattr(self._cube,'rigid_family',False) and not self._cube.can_apply(move):
-            self.hint.text=tr('pentacle.align_first' if self._cube.puzzle_kind=='pentacle' else 'rigid.blocked')
+            from ui.entry_feedback import show_feedback
+            show_feedback(self.hint,tr('pentacle.align_first' if self._cube.puzzle_kind=='pentacle' else 'rigid.blocked'))
             return
         if self._cube.puzzle_kind=='ghost_pyramid' and not self._cube.can_apply(move):
-            self.hint.text=tr('ghost_pyramid.align_first')
+            from ui.entry_feedback import show_feedback
+            show_feedback(self.hint,tr('ghost_pyramid.align_first'))
             return
-        if self._cube.puzzle_kind.startswith(('cuboid_','camouflage_3')) and not self._cube.can_apply(move):
-            self.hint.text=tr('cuboid.blocked')
+        if self._cube.puzzle_kind.startswith(CUBOID_PREFIXES) and not self._cube.can_apply(move):
+            from ui.entry_feedback import show_feedback
+            show_feedback(self.hint,tr('cuboid.blocked'))
             return
         # Keep button turns on the axis/layer most recently used by a drag.
         # Setting the axis label rebuilds layer values before selecting a layer.
         self._axis=move.axis
-        self.axis.text=self.axis.values[move.axis]
+        self._select_control_axis(move.axis)
         self._layer=move.layer
         self.layer.text=self.layer.values[move.layer]
         self._history.append(move)
@@ -1295,7 +1471,7 @@ class PolyhedralTwistScreen(Screen):
         self.view.cancel_touch()
         self.panel.disabled=True
         self._update_controls()
-        if self._cube.puzzle_kind in ('mirror_tower','mirror_pyraminx','mirror_skewb','fisher_skewb','ghost_pyramid'):
+        if self._cube.puzzle_kind in ('mirror_tower','mirror_pyraminx','mirror_skewb','fisher_skewb','container','mirror_kilominx','mirror_megaminx','ghost_pyramid'):
             entry=self.manager.get_screen(_entry_for(self._cube))
             from cube.ghost_pyramid import PyramidAlignment
             permutation=(tuple(range(len(self._cube.geometry.stickers)))

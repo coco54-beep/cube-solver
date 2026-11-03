@@ -95,26 +95,37 @@ def _restore_shape(cube,cancel,progress):
     from solver.mixup_reduction import (greedy_geometry,restore_layout,
         restore_composite_layout,restore_plus_layout,ReductionLimit)
     from solver.mixup_group import load_group,compact
+    from solver.search_resume import stage
+    resume_key=('mixup-reduction-v1',cube.puzzle_kind,tuple(cube.frames))
+    def retain(path,frames):stage(resume_key,tuple(path))
     try:
-        prefix,work,_=greedy_geometry(cube,cancel,seconds=120.)
+        prefix,work,_=greedy_geometry(cube,cancel,seconds=120.,checkpoint=retain)
     except ReductionLimit as limit:
         prefix=list(limit.path)
         work=cube.clone()
         for move in prefix:
             if cancel and cancel():raise InterruptedError()
             work.apply_move(move)
+    stage(resume_key,tuple(prefix))
     virtual=ready(work)
     if virtual is not None:return tuple(prefix),work,virtual
     if progress:progress({'label':'mixup.restoring'})
-    try:layout,work,_=restore_composite_layout(work,cancel)
-    except ValueError:
-        if MIXUP_MODELS[cube.puzzle_kind][1]:layout,work,_=restore_plus_layout(work,cancel)
-        else:layout,work,_=restore_layout(work,cancel,seconds=60.)
-    prefix=prefix+layout
-    virtual=ready(work)
-    if virtual is not None:return compact(prefix),work,virtual
-    paired,work,virtual=load_group(cube.puzzle_kind).restore_colours(
-        work,cancel,ready=project_cube,seconds=30.)
+    try:
+        try:layout,work,_=restore_composite_layout(work,cancel)
+        except ValueError:
+            if MIXUP_MODELS[cube.puzzle_kind][1]:layout,work,_=restore_plus_layout(work,cancel)
+            else:layout,work,_=restore_layout(work,cancel,seconds=60.)
+        prefix=prefix+layout
+        virtual=ready(work)
+        if virtual is not None:return compact(prefix),work,virtual
+        paired,work,virtual=load_group(cube.puzzle_kind).restore_colours(
+            work,cancel,ready=project_cube,seconds=30.)
+    except ValueError as error:
+        if str(error) not in ('mixup.shape_limit','rigid.search_limit'):
+            stage(resume_key,remove=True);raise
+        # Retain only steps already applied to this verified working clone.
+        # Recovery must not restart from the original, more deformed state.
+        raise ReductionLimit(work.frames,prefix) from None
     return compact(prefix+paired),work,virtual
 
 
@@ -162,18 +173,13 @@ def align_centres(cube,cancel=None):
         return tuple(result)
     raise ValueError('mixup.replay_failed')
 
-def solve_mixup(cube,cancel=None,progress=None):
-    started=monotonic()
-    if progress:progress({'label':'mixup.restoring'})
-    prefix,work,virtual=_restore_shape(cube,cancel,progress)
-    from solver.mixup_group import erase_coloured_loops
-    shorter=erase_coloured_loops(cube,prefix,cancel)
-    if len(shorter)<len(prefix):
-        work=cube.clone()
-        for move in shorter:
-            if cancel and cancel():raise InterruptedError()
-            work.apply_move(move)
-        virtual=project_cube(work);prefix=shorter
+def solve_projected(cube,virtual,cancel=None,progress=None):
+    """Finish a valid reduction boundary, checking the real physical puzzle.
+
+    Shared by fast reduction and complete recovery. Keeping this separate lets
+    recovery stop at a valid 3x3/4x4 handoff instead of searching every colour.
+    """
+    work=cube.clone()
     n=virtual.n
     if cancel and cancel():raise InterruptedError()
     if progress:progress({'label':'mixup.core4' if n==4 else 'mixup.core3'})
@@ -197,12 +203,70 @@ def solve_mixup(cube,cancel=None,progress=None):
     finish=align_centres(work,cancel)
     tail.extend(finish)
     if not work.is_solved():raise ValueError('mixup.replay_failed')
-    moves=tuple(prefix)+tuple(tail)
+    return tuple(tail)
+
+
+def _complete_result(cube,prefix,cancel,progress,started,resume_key):
+    from solver.mixup_complete import solve_complete
+    from solver.mixup_group import compact
+    from solver.search_resume import stage
+    work=cube.clone()
+    for move in prefix:
+        if cancel and cancel():raise InterruptedError()
+        work.apply_move(move)
+    try:
+        moves=compact(tuple(prefix)+tuple(solve_complete(work,cancel,progress)))
+        replay=cube.clone()
+        for move in moves:
+            if cancel and cancel():raise InterruptedError()
+            replay.apply_move(move)
+        if not replay.is_solved():raise ValueError('mixup.replay_failed')
+    except (InterruptedError,TimeoutError):raise
+    except Exception:
+        stage(resume_key,remove=True);raise
+    stage(resume_key,remove=True)
+    return SolveResult(True,list(moves),'',int((monotonic()-started)*1000),len(moves),
+                       [SolveStage('mixup_physical','solver.continuing',list(moves))])
+
+
+def solve_mixup(cube,cancel=None,progress=None):
+    started=monotonic()
+    from solver.search_resume import stage
+    resume_key=('mixup-reduction-v1',cube.puzzle_kind,tuple(cube.frames))
+    saved=stage(resume_key)
+    if saved is not None:return _complete_result(cube,saved,cancel,progress,started,resume_key)
+    if progress:progress({'label':'mixup.restoring'})
+    try:prefix,work,virtual=_restore_shape(cube,cancel,progress)
+    except ValueError as error:
+        if str(error) not in ('mixup.shape_limit','rigid.search_limit'):raise
+        from solver.mixup_reduction import ReductionLimit
+        prefix=tuple(error.path) if isinstance(error,ReductionLimit) else ()
+        work=cube.clone()
+        for move in prefix:
+            if cancel and cancel():raise InterruptedError()
+            work.apply_move(move)
+        if isinstance(error,ReductionLimit) and tuple(work.frames)!=error.frames:
+            raise ValueError('mixup.replay_failed')
+        if len(prefix)<=20000:stage(resume_key,prefix)
+        return _complete_result(cube,prefix,cancel,progress,started,resume_key)
+    from solver.mixup_group import erase_coloured_loops
+    shorter=erase_coloured_loops(cube,prefix,cancel)
+    if len(shorter)<len(prefix):
+        work=cube.clone()
+        for move in shorter:
+            if cancel and cancel():raise InterruptedError()
+            work.apply_move(move)
+        virtual=project_cube(work);prefix=shorter
+    n=virtual.n
+    tail=solve_projected(work,virtual,cancel,progress)
+    from solver.mixup_group import compact
+    moves=compact(tuple(prefix)+tuple(tail))
     replay=cube.clone()
     for move in moves:
         if cancel and cancel():raise InterruptedError()
         replay.apply_move(move)
     if not replay.is_solved():raise ValueError('mixup.replay_failed')
     stages=[SolveStage('mixup_shape','mixup.restoring',list(prefix)),
-            SolveStage('mixup_core'+str(n),'mixup.core'+str(n),tail)]
+            SolveStage('mixup_core'+str(n),'mixup.core'+str(n),list(tail))]
+    stage(resume_key,remove=True)
     return SolveResult(True,list(moves),'',int((monotonic()-started)*1000),len(moves),stages)

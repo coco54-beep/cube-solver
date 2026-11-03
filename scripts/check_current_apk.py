@@ -1,10 +1,16 @@
 """Verify that APK bytecode and solver assets match this build's staged sources."""
 import argparse
+import configparser
+from fnmatch import fnmatch
 import hashlib
 import json
 import tarfile
 import zipfile
 from pathlib import Path
+import sys
+
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
+from scripts.bundle_assets import APPLICATION_ROOT_MODULES
 
 
 def digest(data):
@@ -20,6 +26,11 @@ def main():
     args=parser.parse_args()
     workspace=Path(__file__).resolve().parents[1]
     root=args.source_root or workspace
+    config=configparser.ConfigParser(interpolation=None)
+    config.read(workspace/'buildozer.spec',encoding='utf-8')
+    excludes=[p.strip() for p in config['app']['source.exclude_patterns'].split(',')]
+    def excluded(name):
+        return any(fnmatch(name,p) for p in excludes)
     stage=workspace/'.buildozer/android/app'
     expected={}
     for folder in ('app','cube','demo','renderer','services','solver','ui','vision','twophase',
@@ -29,14 +40,17 @@ def main():
             assert digest(source.read_bytes())==digest((stage/relative).read_bytes()),relative
             bytecode=relative.with_suffix('.pyc')
             expected[bytecode.as_posix()]=digest((stage/bytecode).read_bytes())
-    for source in [root/'main.py',root/'primitives.py']:
+    for source in [root/name for name in APPLICATION_ROOT_MODULES]:
         relative=source.relative_to(root)
         assert source.read_bytes()==(stage/relative).read_bytes(),relative
         bytecode=relative.with_suffix('.pyc')
         expected[bytecode.as_posix()]=digest((stage/bytecode).read_bytes())
     for source in [root/'p4_table.bin',root/'joint_dist.bin',
-                   *[p for p in (root/'solver').rglob('*') if p.suffix in ('.bin','.pkl','.json') and p.is_file()]]:
+                   *[p for folder in ('solver','cube') for p in (root/folder).rglob('*')
+                     if p.suffix in ('.bin','.pkl','.json') and p.is_file()]]:
         relative=source.relative_to(root).as_posix()
+        if excluded(relative):
+            continue
         expected[relative]=digest(source.read_bytes())
     for folder in ('assets','ui','twophase','demo'):
         for source in (root/folder).rglob('*'):
@@ -50,6 +64,7 @@ def main():
             for member in archive:
                 name=member.name.removeprefix('./')
                 assert not name.startswith(('reports/','tmp/','tests/','scripts/')),name
+                assert not excluded(name),f'Excluded file in APK: {name}'
                 if name in expected:
                     assert digest(archive.extractfile(member).read())==expected[name],name
                     verified.append(name)

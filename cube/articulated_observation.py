@@ -98,7 +98,14 @@ def color_templates():
                     parts.extend((clip(cell,(nx,ny,0.),bound),clip(cell,(-nx,-ny,0.),-bound)))
                 else:parts.append(cell)
             cells=parts
-        result.append(tuple(tuple((p[0],p[1]) for p in cell) for cell in cells))
+        # Overlaying the rounded reference dimension D2=.175 across all
+        # poses creates tiny intersections (~6e-6 on a face of area 4).
+        # These are auxiliary observation cells, not physical stickers.
+        # Do not request an independent colour from a subpixel intersection;
+        # its participating real panels are sampled in their larger regions.
+        result.append(tuple(tuple((p[0],p[1]) for p in cell) for cell in cells
+                            if abs(sum(a[0]*b[1]-a[1]*b[0]
+                                       for a,b in zip(cell,cell[1:]+cell[:1])))/2 > 1e-5))
     return tuple(result)
 
 
@@ -204,31 +211,33 @@ def colored_outlines_on_ray(kind, face, ray, cancelled=None, seconds=5.):
             faces = cube.placed_faces(*identity)
             bodies[identity] = (tuple(sorted(polygon_key(p) for p, _ in faces)), shape_key(vertices(faces)))
         body, body_shape = bodies[identity]
-        key = panel.color, polygon_key(panel.world), body
+        piece = observation_piece_key(kind, *identity)
+        key = panel.color, polygon_key(panel.world), body, piece
         groups[key].append(panel)
         distances[key] = min(distances.get(key, t), t)
     return sorted(({'outline': panels[0].outline, 'panels': tuple(panels), 'color': key[0],
                     'shape': (shape_key(panels[0].world), bodies[panels[0].home, panels[0].pose][1]),
-                    'distance': distances[key], 'physical': True}
+                    'distance': distances[key], 'physical': True, 'piece_key': key[3],
+                    'piece_colors': tuple(sorted(c for _, c in cube.solids[panels[0].home].faces if c >= 0))}
                    for key, panels in groups.items()), key=lambda p: (p['distance'], p['color'], polygon_key(p['outline'])))
 
 
 @lru_cache(maxsize=16384)
-def _tangram_panel_pair_fits(kind, left, right, face, other_face):
+def _tangram_panel_pair_fits(kind, left, right, face, other_face, right_visible=True):
     # Shared projections can be legitimate on a deformed puzzle. Check the
     # solid volumes and visible skins instead of banning all 2D overlap.
-    if polygon_key(left.world) == polygon_key(right.world):return face != other_face
     cube = new_cube(kind)
     lf = cube.placed_faces(left.home, left.pose)
     rf = cube.placed_faces(right.home, right.pose)
     same_body = tuple(sorted(polygon_key(p) for p, _ in lf)) == tuple(sorted(polygon_key(p) for p, _ in rf))
-    if not same_body:
-        from cube.articulated import overlap
-        if overlap(lf, rf):return False
+    if same_body:return True
+    if polygon_key(left.world) == polygon_key(right.world):return face != other_face
+    from cube.articulated import overlap
+    if overlap(lf, rf):return False
     if dot(right.n, CUBE[face]) > EPS:
         projected = Panel(right.home, right.pose, right.color, right.world, project(right.world, face), right.depth, right.n)
         if not _visible(left, (left, projected), face):return False
-    if dot(left.n, CUBE[other_face]) > EPS:
+    if right_visible and dot(left.n, CUBE[other_face]) > EPS:
         projected = Panel(left.home, left.pose, left.color, left.world, project(left.world, other_face), left.depth, left.n)
         if not _visible(right, (right, projected), other_face):return False
     return True
@@ -242,6 +251,13 @@ def panels_for_outline(kind, face, key):
 @lru_cache(maxsize=1024)
 def observation_body_key(kind, home, pose):
     return tuple(sorted(polygon_key(p) for p, _ in new_cube(kind).placed_faces(home, pose)))
+
+
+@lru_cache(maxsize=1024)
+def observation_piece_key(kind, home, pose):
+    """Full coloured skin, independent of a source piece/pose identifier."""
+    return tuple(sorted((color, polygon_key(points))
+                        for points, color in new_cube(kind).placed_faces(home, pose) if color >= 0))
 
 
 def fitting_tangram_panel(kind, face, option, items, replaced_key=None, views=None):
@@ -260,10 +276,11 @@ def fitting_tangram_panel(kind, face, option, items, replaced_key=None, views=No
         choices.append((other_face, [p for p in panels_for_outline(kind, other_face, key)
                         if (item.get('depth') is None or abs(p.depth - item['depth']) < EPS)
                         and (not item.get('world_fixed') or polygon_key(p.world) == polygon_key(item['preview']))
-                        and (not item.get('body_key') or observation_body_key(kind, p.home, p.pose) == item['body_key'])]))
+                        and (not item.get('body_key') or observation_body_key(kind, p.home, p.pose) == item['body_key'])],
+                        not item.get('whole_piece', False)))
     return next((panel for panel in option['panels']
-                 if all(any(_tangram_panel_pair_fits(kind, panel, other, face, f) for other in group)
-                        for f, group in choices)), None)
+                 if all(any(_tangram_panel_pair_fits(kind, panel, other, face, f, visible) for other in group)
+                        for f, group, visible in choices)), None)
 
 
 def tangram_panel_fits(kind, face, option, items, replaced_key=None, views=None):
@@ -294,6 +311,9 @@ class ObservationDraft:
                 self.views[face].append({'outline':points,'color':color,'depth':depth,'preview':preview,'region':int(item.get('region',0)),
                     'sample':bool(item.get('sample',False)),'world_fixed':bool(item.get('world_fixed',False)),
                     'roles':tuple(roles) if roles is not None else None,
+                    'whole_piece':bool(item.get('whole_piece',False)),
+                    'piece_key':tuple((int(c),tuple(tuple(float(v) for v in p) for p in points))
+                                      for c,points in item['piece_key']) if item.get('piece_key') else None,
                     'body_key':tuple(tuple(tuple(float(v) for v in p) for p in poly) for poly in item['body_key']) if item.get('body_key') else None})
         self.complete=[bool(v) for v in complete]
         for region in state.get('regions',()):
@@ -343,6 +363,28 @@ class ObservationDraft:
                 'preview':face_world(outline,face),'region':0,'sample':True})
         self.complete[face]=len(self.views[face])==len(templates)
 
+    def record_piece(self, panel, replaced_body=None, replaced_item=None):
+        """Place one closed Extreme piece with all its coloured skins atomically.
+
+        Linked projections may include hidden skins: they describe the chosen
+        solid, rather than claiming every skin is visible from every view.
+        """
+        if self.kind != 'tangram_extreme':raise ValueError('observe.invalid')
+        cube=new_cube(self.kind)
+        body=observation_body_key(self.kind,panel.home,panel.pose)
+        piece=observation_piece_key(self.kind,panel.home,panel.pose)
+        views=[]
+        for face,items in enumerate(self.views):
+            kept=[p for p in items if not (replaced_body and p.get('body_key')==replaced_body)
+                  and p is not replaced_item and p.get('body_key')!=body]
+            for skin in _panels(cube,panel.home,panel.pose,face):
+                kept.append(dict(outline=skin.outline,color=skin.color,depth=skin.depth,
+                                 preview=skin.world,region=0,world_fixed=True,
+                                 body_key=body,piece_key=piece,whole_piece=True))
+            views.append(kept)
+        self.complete=[done and views[f]==self.views[f] for f,done in enumerate(self.complete)]
+        self.views=views
+
     @classmethod
     def from_cube(cls,cube):
         draft=cls(cube.puzzle_kind)
@@ -358,7 +400,11 @@ class ObservationDraft:
                 continue
             for p in view:
                 if _visible(p,view,face):
-                    draft.views[face].append({'outline':p.outline,'color':p.color,'depth':p.depth,'preview':p.world})
+                    item={'outline':p.outline,'color':p.color,'depth':p.depth,'preview':p.world}
+                    if cube.puzzle_kind=='tangram_extreme':
+                        item.update(world_fixed=True,body_key=observation_body_key(cube.puzzle_kind,p.home,p.pose),
+                                    piece_key=observation_piece_key(cube.puzzle_kind,p.home,p.pose))
+                    draft.views[face].append(item)
         draft.complete=[len(draft.views[f])==len(color_templates()[f]) if cube.puzzle_kind=='tangram' else True for f in range(6)]
         return draft
 
@@ -424,6 +470,7 @@ def match_observations(draft,cancelled=None,seconds=8.,node_limit=10000):
                         if identity not in body_cache:
                             body_cache[identity]=tuple(sorted(polygon_key(poly) for poly,color in cube.placed_faces(*identity)))
                         if body_cache[identity]!=item['body_key']:continue
+                    if item.get('piece_key') is not None and observation_piece_key(draft.kind,panel.home,panel.pose)!=item['piece_key']:continue
                     k=(panel.home,panel.pose);placements[k]=placements.get(k,0)|(1<<index)
                     by_home[panel.home].add(k);by_obs[index].add(k)
         for index,options in enumerate(by_obs):
@@ -469,7 +516,8 @@ def match_observations(draft,cancelled=None,seconds=8.,node_limit=10000):
                 if draft.complete[face] and any((p.color,polygon_key(p.outline)) not in recorded and _visible(p,view,face) for p in view):return False
                 for item in draft.views[face]:
                     if not any(p.color==item['color'] and polygon_key(p.outline)==polygon_key(item['outline']) and
-                               (item['depth'] is None or abs(p.depth-item['depth'])<EPS) and _visible(p,view,face) for p in view):return False
+                               (item['depth'] is None or abs(p.depth-item['depth'])<EPS) and
+                               (item.get('whole_piece') or _visible(p,view,face)) for p in view):return False
             return True
         def visit(covered,chosen,homes):
             nonlocal nodes,first

@@ -1,4 +1,5 @@
 """Silver piece-card entry with centre orientation, shared polyhedral playback."""
+from ui.entry_feedback import validation_action
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
@@ -10,6 +11,7 @@ from ui.widgets.buttons import UIButton,DangerButton
 from ui.widgets.dialogs import theme_popup
 from ui.widgets import metrics as m
 from ui.widgets.layouts import ResponsiveBoxLayout
+from ui.widgets.entry_controls import EntryGalleryPager,GALLERY_COLUMNS,GALLERY_PAGE_SIZE
 
 
 class MirrorTowerScreen(PolyhedralScreen):
@@ -17,6 +19,7 @@ class MirrorTowerScreen(PolyhedralScreen):
     cube_class=MirrorTowerCube
     hint_key='mirror_tower.hint'
     customize_icon='reset'
+    supports_palette_settings=False
 
     def _new_cube(self, pieces=None):
         if self.cube_class is MirrorTowerCube:
@@ -29,17 +32,35 @@ class MirrorTowerScreen(PolyhedralScreen):
     def _gallery_homes(self):
         return range(len(self._cube.geometry.pieces))
 
+    def _card_camera(self,preview):
+        preview.yaw,preview.pitch=self.view.yaw,self.view.pitch
+        preview.roll=self.view.roll
+
     def __init__(self,**kwargs):
         self._recorded=set()
         self._position=0
+        self._gallery_page=0
         super().__init__(**kwargs)
-        self.gallery=GridLayout(cols=3,spacing=m.h(6),size_hint_y=None,height=m.h(145))
-        self.panel.add_widget(self.gallery,index=2)
+        self.gallery=GridLayout(cols=GALLERY_COLUMNS,spacing=m.h(6),size_hint_y=None)
+        self.gallery_pages=EntryGalleryPager(self._change_gallery_page)
+        self.panel.add_widget(self.gallery,index=self.panel.children.index(self.navigation)+1)
+        self.panel.add_widget(self.gallery_pages,index=self.panel.children.index(self.navigation)+1)
+        self.rotate=self.customize_button
+        if self.supports_palette_settings:
+            self.palette_button=UIButton(icon_name='gear')
+            self.palette_button.bind(on_release=lambda *_:self.open_palette_settings())
+            self.navigation.add_widget(self.palette_button,index=2)
+
+    def _change_gallery_page(self,direction):
+        if not self.entry_can_edit():return
+        self._gallery_page+=direction
+        self._refresh()
 
     def on_pre_enter(self,*args):
         fresh=self._cube is not _app().cube
         if fresh:
             self._position=0
+            self._gallery_page=0
         super().on_pre_enter(*args)
         if fresh:
             self._recorded=self.center_preset(set())
@@ -61,15 +82,22 @@ class MirrorTowerScreen(PolyhedralScreen):
         self.view.selected=self._cube.geometry.pieces[self._position][0]
         if self.view.cube is not self._cube:
             self.view.set_cube(self._cube)
-        self.demo_button.disabled=self._cube.n>5
-        self.demo_button.opacity=0 if self._cube.n>5 else 1
+        self.demo_button.disabled=False
+        self.demo_button.opacity=1
         self.status.text=tr('poly.progress',done=len(self._recorded),total=len(self._cube.geometry.pieces))
         self.hint.text=tr(self.hint_key)
+        token=self.entry_gallery_generation()
         self.gallery.clear_widgets()
-        for home in self._gallery_homes():
-            possible=self._placements(home,self._position)
-            if not possible:
-                continue
+        choices=[(home,possible) for home in self._gallery_homes()
+                 if (possible:=self._placements(home,self._position))]
+        pages=max(1,(len(choices)+GALLERY_PAGE_SIZE-1)//GALLERY_PAGE_SIZE)
+        self._gallery_page=self.gallery_pages.set_page(self._gallery_page,pages)
+        choices=choices[self._gallery_page*GALLERY_PAGE_SIZE:(self._gallery_page+1)*GALLERY_PAGE_SIZE]
+        rows=max(1,(len(choices)+GALLERY_COLUMNS-1)//GALLERY_COLUMNS)
+        self.gallery.height=m.h(rows*66+(rows-1)*6)
+        self.rotate.disabled=(self._position not in self._recorded or
+                              len(self._placements(self._cube.pieces[self._position].home,self._position))<2)
+        for home,possible in choices:
             piece=self._cube.pieces[self._position]
             active=self._position in self._recorded and piece.home==home
             frame=piece.frame if active else possible[0]
@@ -77,18 +105,21 @@ class MirrorTowerScreen(PolyhedralScreen):
             preview=self.view_class(size_hint=(None,None))
             preview.fit_piece=True
             preview.set_cube(self._new_cube({self._position:Piece(home,frame)}))
-            preview.yaw,preview.pitch=self.view.yaw,self.view.pitch
-            preview.roll=self.view.roll
+            preview.palette=tuple(self.view.palette)
+            self._card_camera(preview)
             # Gallery previews are static: never let them intercept the card tap.
             preview.on_touch_down = preview.on_touch_move = preview.on_touch_up = lambda *_: False
             button.add_widget(preview)
-            button.bind(pos=lambda b,*_:setattr(b.children[0],'pos',b.pos),size=lambda b,*_:setattr(b.children[0],'size',b.size))
-            button.bind(on_release=lambda *_,h=home,f=frame:self.choose(h,f))
+            button.bind(pos=lambda b,*_:setattr(b.children[0],'pos',(b.x+b.width*.05,b.y+b.height*.05)),
+                        size=lambda b,*_:setattr(b.children[0],'size',(b.width*.9,b.height*.9)))
+            button.bind(on_release=lambda *_,h=home,f=frame,t=token:
+                        self.entry_gallery_action(t,self.choose,h,f))
             self.gallery.add_widget(button)
         self.view.refresh()
 
     def paint(self,index):
-        if self._job is None and not self._view_busy:
+        if self.entry_can_edit():
+            if self._position!=self._cube.geometry.stickers[index].piece:self._gallery_page=0
             self._position=self._cube.geometry.stickers[index].piece
             self._refresh()
 
@@ -98,7 +129,7 @@ class MirrorTowerScreen(PolyhedralScreen):
         _app().polyhedral_solution=None
 
     def choose(self,home,frame):
-        if self._job is not None or self._view_busy:
+        if not self.entry_can_edit():
             return
         self._remember()
         self._cube.pieces[self._position]=Piece(home,frame)
@@ -106,7 +137,7 @@ class MirrorTowerScreen(PolyhedralScreen):
         self._refresh()
 
     def customize(self):
-        if self._job is not None or self._view_busy or self._position not in self._recorded:
+        if not self.entry_can_edit() or self._position not in self._recorded:
             return
         self._remember()
         piece=self._cube.pieces[self._position]
@@ -176,9 +207,10 @@ class MirrorTowerScreen(PolyhedralScreen):
         pieces=self._cube.geometry.pieces
         return {i for i in range(len(pieces)) if len(pieces[i])==1}
 
+    @validation_action
     def validate(self):
         if not self.entry_can_edit():
-            return
+            return False
         if len(self._recorded)!=len(self._cube.geometry.pieces):
             self.error('Please enter every sticker')
             return False
@@ -189,12 +221,6 @@ class MirrorTowerScreen(PolyhedralScreen):
             return False
         self.status.text=tr('poly.valid')
         return True
-
-    def solve(self):
-        if not self.entry_can_edit():
-            return
-        if self.validate():
-            super().solve()
 
     def retranslate(self):
         super().retranslate()

@@ -1,0 +1,11 @@
+[
+  {
+    "kind": "lanlan_crazy_comet",
+    "status": "pass",
+    "examples": 4,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  }
+]

@@ -1,0 +1,26 @@
+{
+  "regression": "145 passed in 79.04s (0:01:19)",
+  "entry_demo_scan": "13 passed, 235 deselected in 3.98s",
+  "final_assets": "41 passed in 64.23s (0:01:04)",
+  "floppy_failure_message": "1 passed, 10 deselected in 0.11s",
+  "ordinary_floppy": {
+    "reachable_states": 192,
+    "maximum_shortest_half_turns": 8,
+    "offline_assets": 0
+  },
+  "bicube": {
+    "layouts": 121,
+    "edges": 504,
+    "colour_group_order": 60,
+    "checkpoint_layout_version": 3
+  },
+  "mirror_assets": {
+    "mirror_camouflage_3_corners.bin": 1509,
+    "mirror_camouflage_3_endgame.bin": 117411,
+    "mirror_camouflage_3_octants.bin": 541955,
+    "mirror_camouflage_3_patterns.bin": 526367,
+    "mirror_camouflage_3_quotient_patterns.bin": 87854
+  },
+  "package_built": false,
+  "android_device_tested": false
+}

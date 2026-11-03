@@ -1,0 +1,34 @@
+{
+  "kind": "masterball",
+  "seed": 20261102,
+  "scramble_turns": 30,
+  "evaluation_budget_seconds": 30.0,
+  "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-11-01\\pcubes-second\\manual-final\\inputs\\masterball-20261102-30.json",
+  "input_method": "fixed visible model panels, colours only",
+  "history_empty": true,
+  "visible_entry_matches": true,
+  "input_seconds": 0.0,
+  "success": true,
+  "moves": 199,
+  "failure_category": "",
+  "solve_seconds": 0.015,
+  "progress_stages": [
+    {
+      "label": "solver.continuing",
+      "seconds": 0.015
+    }
+  ],
+  "message": "",
+  "evaluation_budget_hit": false,
+  "replay_solved": true,
+  "replay_seconds": 0.0,
+  "seconds": 0.015,
+  "shortening": [
+    {
+      "before": 199,
+      "after": 199,
+      "seconds": 0.0
+    }
+  ],
+  "colour_stage_plans": []
+}

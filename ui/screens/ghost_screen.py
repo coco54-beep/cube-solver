@@ -1,4 +1,5 @@
 """Shape-card entry for the four commercial Ghost models."""
+from ui.entry_feedback import validation_action
 from app.i18n import tr
 from cube.ghost import GhostCube, ghost_piece, ghost_placements
 from renderer.ghost_view import GhostView
@@ -8,6 +9,7 @@ from ui.widgets import metrics as m
 
 
 class GhostScreen(MirrorScreen):
+    reference_height_px=44
     cube_class = GhostCube
     view_class = GhostView
     entry_twist_screen = 'GhostTwistScreen'
@@ -18,7 +20,7 @@ class GhostScreen(MirrorScreen):
         self.reference_label.bind(width=lambda w,width:setattr(w,'text_size',(width,None)))
         self.alignment_button = UIButton(text=tr('ghost.align_toggle'), size_hint_y=None, height=m.h(44))
         self.alignment_button.bind(on_release=lambda *_: self.toggle_alignment())
-        self._controls.add_widget(self.alignment_button)
+        self._controls.add_widget(self.alignment_button,index=self._controls.children.index(self.navigation)+1)
 
     def entry_center_preset(self):
         return {(0,0,0)} if self._cube is not None and self._cube.n == 1 else set()
@@ -49,8 +51,8 @@ class GhostScreen(MirrorScreen):
         super()._refresh()
         if self._cube is None:
             return
-        self.demo_button.disabled = True
-        self.demo_button.opacity = 0
+        self.demo_button.disabled = False
+        self.demo_button.opacity = 1
         self.reference_label.text = tr('ghost.floppy' if self._cube.n == 1 else 'ghost.reference')
         self.hint.text = tr('ghost.input_hint')
         if self._cube.n == 1:
@@ -72,7 +74,7 @@ class GhostScreen(MirrorScreen):
     def turn_view(self, direction):
         if self._cube.n != 1:
             return super().turn_view(direction)
-        if self._busy_turn:
+        if not self.entry_can_edit():
             return
         self.view.cancel_touch()
         self._busy_turn = True
@@ -120,6 +122,7 @@ class GhostScreen(MirrorScreen):
         self._recorded = set(work.positions)
         self._refresh()
 
+    @validation_action
     def check(self):
         if self._recorded != set(self._cube.positions):
             self.hint.text = tr('morphix.error.incomplete', total=len(self._cube.positions))

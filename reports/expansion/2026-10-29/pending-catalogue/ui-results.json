@@ -1,0 +1,128 @@
+[
+  {
+    "kind": "kairis_star_finder",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "lanlan_andromeda",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "lanlan_butterflower",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "lanlan_clover_pyraminx",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "lanlan_master_clover",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "lanlan_sunflower",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "vp_clover_dodecahedron",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "kairis_star_finder",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "lanlan_andromeda",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "lanlan_butterflower",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "lanlan_clover_pyraminx",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "lanlan_master_clover",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "lanlan_sunflower",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "input_preserved": true
+  },
+  {
+    "kind": "vp_clover_dodecahedron",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "input_preserved": true
+  }
+]

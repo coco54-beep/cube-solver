@@ -2,38 +2,39 @@
 from kivy.app import App
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
+from ui.widgets.entry_guidance import EntryGuidance
 
 from app.i18n import tr
-from cube.articulated_observation import colored_outlines_at, colored_outlines_on_ray, contains, polygon_key, centre2, tangram_panel_fits, fitting_tangram_panel, observation_body_key
+from cube.articulated_observation import colored_outlines_at, colored_outlines_on_ray, contains, polygon_key, centre2, tangram_panel_fits, fitting_tangram_panel, observation_body_key, observation_piece_key, new_cube, _panels
 from ui.widgets import metrics as m
 from ui.widgets.buttons import UIButton
 from ui.widgets.layouts import ResponsiveBoxLayout
 from ui.widgets.tangram_entry import TangramPanelPreview, TangramPiecePreview
+from ui.widgets.entry_controls import EntryGalleryPager,GALLERY_COLUMNS,GALLERY_PAGE_SIZE
 
 
 class TangramShapeCards:
-    PAGE_SIZE = 8
+    PAGE_SIZE = GALLERY_PAGE_SIZE
 
     def __init__(self, layout):
         self.layout = layout
         self.screen = layout.screen
         self.caption = Label(size_hint_y=None, height=0, font_size='12sp')
-        self.gallery = GridLayout(cols=4, size_hint_y=None, height=0, spacing=m.h(5))
-        self.pager = ResponsiveBoxLayout(height_px=0, gap_px=5)
-        self.prev = layout.button(self.pager, 'prev', lambda: self.change_page(-1))
-        self.page_label = Label(font_size='12sp')
-        self.pager.add_widget(self.page_label)
-        self.next = layout.button(self.pager, 'next', lambda: self.change_page(1))
-        self.hint = Label(size_hint_y=None, height=0, font_size='12sp',
+        self.gallery = GridLayout(cols=GALLERY_COLUMNS, size_hint_y=None, height=0, spacing=m.h(6))
+        self.pager = EntryGalleryPager(self.change_page)
+        self.prev,self.page_label,self.next=self.pager.previous,self.pager.label,self.pager.next
+        self.hint = EntryGuidance(size_hint_y=None, height=0, font_size='12sp',
                           halign='center', valign='middle')
         self.hint.bind(size=lambda w, *_: setattr(w, 'text_size', w.size))
         self.clear()
 
     def clear(self):
+        self._gallery_generation = object()
         self.groups = []
         self.group = None
         self.variant = self.page = 0
         self.point = self.key = None
+        self._selected_world = None
         self.location = None
         self.state = self.gallery_stamp = None
 
@@ -41,7 +42,8 @@ class TangramShapeCards:
         if self.key is None:return None
         face, key = self.key
         return next((p for p in self.screen._get_draft().views[face]
-                     if polygon_key(p['outline']) == key), None)
+                     if polygon_key(p['outline']) == key and
+                     (self._selected_world is None or polygon_key(p['preview']) == self._selected_world)), None)
 
     def query_point(self, point, selected=None, ray=None):
         screen = self.screen
@@ -68,12 +70,13 @@ class TangramShapeCards:
                 item = nearest
                 point = centre2(item['outline'])
         self.key = (face, polygon_key(item['outline'])) if item else None
+        self._selected_world = polygon_key(item['preview']) if item else None
         self.point = screen._point = point
 
         def finish(options):
             grouped = {}
             for option in options:
-                grouped.setdefault((option['color'], option['shape']), []).append(option)
+                grouped.setdefault((option['color'], option['shape'], option.get('piece_colors')), []).append(option)
             self.groups = list(grouped.values())
             self.group = None
             self.variant = 0
@@ -95,9 +98,13 @@ class TangramShapeCards:
                                       else colored_outlines_at(kind, face, point, cancel)),
                       finish, 'observe.finding')
 
-    def choose(self, group):
+    def choose(self, group, generation=None):
         if not self.screen.entry_can_edit():return
-        if group == self.group and self.key is not None:return
+        if generation is not None and generation is not self._gallery_generation:return
+        if not 0 <= group < len(self.groups):return
+        if group == self.group and self.key is not None:
+            self.commit(self.groups[group][self.variant])
+            return
         previous = self.group, self.variant
         self.group = group
         choices = self.groups[group]
@@ -124,13 +131,23 @@ class TangramShapeCards:
         screen = self.screen
         old_key = self.key[1] if self.key and self.key[0] == screen._ao_face else None
         new_key = polygon_key(option['outline'])
-        items = screen._get_draft().views[screen._ao_face]
-        if new_key != old_key and any(polygon_key(p['outline']) == new_key for p in items):return False
+        views = self.neighbours(option)
+        items = views[screen._ao_face]
+        if not option.get('physical') and new_key != old_key and any(polygon_key(p['outline']) == new_key for p in items):return False
         return tangram_panel_fits(screen._cube.puzzle_kind, screen._ao_face, option,
-                                  items, old_key, screen._get_draft().views)
+                                  items, None if option.get('physical') else old_key, views)
+
+    def neighbours(self, option):
+        views = self.screen._get_draft().views
+        old = self.selected_item()
+        if not option.get('physical') or old is None:return views
+        body = old.get('body_key')
+        return [[p for p in items if p is not old and not (body and p.get('body_key') == body)]
+                for items in views]
 
     def matches(self, option, item):
         if option['color'] != item['color'] or polygon_key(option['outline']) != polygon_key(item['outline']):return False
+        if option.get('piece_key') and item.get('piece_key') and option['piece_key'] != item['piece_key']:return False
         return not option.get('physical') or any(polygon_key(p.world) == polygon_key(item['preview']) and
             (not item.get('body_key') or observation_body_key(self.screen._cube.puzzle_kind, p.home, p.pose) == item['body_key'])
             for p in option['panels'])
@@ -142,28 +159,41 @@ class TangramShapeCards:
         new_key = polygon_key(option['outline'])
         old_key = self.key[1] if self.key and self.key[0] == face else None
         old = self.selected_item()
-        if old_key == new_key and old is not None and self.matches(option, old):
+        complete = False
+        if option.get('physical') and old is not None:
+            p = option['panels'][0]
+            body = observation_body_key(draft.kind, p.home, p.pose)
+            piece = observation_piece_key(draft.kind, p.home, p.pose)
+            cube = new_cube(draft.kind)
+            expected = {(f, skin.color, polygon_key(skin.world)) for f in range(6)
+                        for skin in _panels(cube, p.home, p.pose, f)}
+            recorded = {(f, item['color'], polygon_key(item['preview'])) for f, items in enumerate(draft.views)
+                        for item in items if item.get('body_key') == body and item.get('piece_key') == piece}
+            complete = expected == recorded
+        if old_key == new_key and old is not None and self.matches(option, old) and (not option.get('physical') or complete):
             self.gallery_stamp = None
             self.refresh()
             return True
-        if any(polygon_key(p['outline']) == new_key and new_key != old_key for p in draft.views[face]):
+        views = self.neighbours(option)
+        if not option.get('physical') and any(polygon_key(p['outline']) == new_key and new_key != old_key for p in views[face]):
             screen._message = tr('observe.shape_card_occupied')
             screen._refresh()
             return False
-        panel = fitting_tangram_panel(screen._cube.puzzle_kind, face, option, draft.views[face], old_key, draft.views)
+        panel = fitting_tangram_panel(screen._cube.puzzle_kind, face, option, views[face],
+                                      None if option.get('physical') else old_key, views)
         if panel is None:
             screen._message = tr('observe.shape_card_collision')
             screen._refresh()
             return False
         screen._remember()
-        if old_key is not None:
-            draft.views[face] = [p for p in draft.views[face] if polygon_key(p['outline']) != old_key]
-        draft.record(face, dict(option, panels=(panel,)), option['color'], panel.depth if option.get('physical') else None)
         if option.get('physical'):
-            recorded = next(p for p in draft.views[face] if polygon_key(p['outline']) == new_key)
-            recorded['world_fixed'] = True
-            recorded['body_key'] = observation_body_key(screen._cube.puzzle_kind, panel.home, panel.pose)
+            draft.record_piece(panel, old.get('body_key') if old else None, old)
+        else:
+            if old_key is not None:
+                draft.views[face] = [p for p in draft.views[face] if polygon_key(p['outline']) != old_key]
+            draft.record(face, dict(option, panels=(panel,)), option['color'])
         self.key = face, new_key
+        self._selected_world = polygon_key(panel.world)
         screen._color = option['color']
         self.gallery_stamp = None
         screen._sync()
@@ -208,14 +238,12 @@ class TangramShapeCards:
         self.gallery.opacity = 1 if show else 0
         pages = max(1, (len(self.groups) + self.PAGE_SIZE - 1) // self.PAGE_SIZE)
         self.page = max(0, min(self.page, pages - 1))
-        self.pager._height_px = 30 if show and pages > 1 else 0
-        self.pager.opacity = 1 if show and pages > 1 else 0
-        self.pager._sync_metrics()
-        self.page_label.text = f'{self.page + 1}/{pages}'
+        self.pager.set_page(self.page,pages if show else 1)
         palette = tuple(screen.view.palette)
         stamp = id(self.groups), self.group, self.variant, self.page, self.key, palette
         if stamp != self.gallery_stamp:
             self.gallery_stamp = stamp
+            self._gallery_generation = generation = object()
             self.gallery.clear_widgets()
             if show:
                 for index in range(self.page * self.PAGE_SIZE,
@@ -230,7 +258,7 @@ class TangramShapeCards:
                     button.add_widget(preview)
                     button.bind(pos=lambda b, *_: setattr(b.children[0], 'pos', (b.x, b.y)),
                                 size=lambda b, *_: setattr(b.children[0], 'size', b.size))
-                    button.bind(on_release=lambda *_, i=index: self.choose(i))
+                    button.bind(on_release=lambda *_, i=index, g=generation: self.choose(i,g))
                     self.gallery.add_widget(button)
         self.refresh_controls()
 

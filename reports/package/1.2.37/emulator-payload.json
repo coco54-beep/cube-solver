@@ -1,0 +1,6 @@
+{
+  "application_payload_sha256": "f8997646d4201c638a73d4faff8dec385be493b0792782022fd1d5b1bfcedc7d",
+  "matches_phone_apk_payload": true,
+  "native_runtime": "matching Python 3.14.2 x86_64 native runtime from 1.2.30",
+  "phone_arch": "arm64-v8a"
+}

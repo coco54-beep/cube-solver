@@ -1,0 +1,11 @@
+{
+  "output": "reports\\course-audit\\2026-10-25\\mirror_kilominx-section-silent.mp4",
+  "course_moves": 144,
+  "rendered_moves": 16,
+  "start": 128,
+  "end": 144,
+  "final_state_matches_replay": true,
+  "frames": 160,
+  "fps": 12,
+  "input_unchanged": true
+}

@@ -76,11 +76,13 @@ def _boundary(patches):
 @lru_cache(maxsize=2)
 def _panels(n=3):
     pieces={}
+    # The physical 2x2 and 3x3 definitions use different disc radii.
+    radius=.7 if n==2 else .8
     # Include diagonal rays so the square boundary has exact corners.
     for i in range(96):
         a,b=i*math.tau/96,(i+1)*math.tau/96
         u,v=(math.cos(a),math.sin(a)),(math.cos(b),math.sin(b))
-        inner=tuple((.76*p[0],.76*p[1]) for p in (u,v))
+        inner=tuple((radius*p[0],radius*p[1]) for p in (u,v))
         outer=tuple((p[0]/max(abs(p[0]),abs(p[1])),p[1]/max(abs(p[0]),abs(p[1]))) for p in (u,v))
         for inside,poly in ((True,((0.,0.),inner[0],inner[1])),
                             (False,(inner[0],outer[0],outer[1],inner[1]))):

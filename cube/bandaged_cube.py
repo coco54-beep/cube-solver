@@ -2,8 +2,8 @@
 
 The presets here describe rigidly glued cubie groups on ordinary 3x3/4x4
 coordinate grids.  Turns that split one of those groups are rejected.  A
-scramble history is retained so the app can return a legal inverse solution
-for states it generated itself.
+scramble history is an optional inverse-solution shortcut. Manual states use
+reconstructed rigid identities and the solver's complete layout/group data.
 """
 from __future__ import annotations
 
@@ -44,14 +44,6 @@ def _corner_block(cubies, signs, n):
 # Letters are local to a face; repeated letters identify one continuous plate.
 # Rows and columns use coordinates.pos_from_rc, so colour orientation is stable.
 _FACE_PLATES = {
-    'bicube': {
-        'U': ('abb', 'cde', 'fde'),
-        'R': ('aab', 'ccd', 'eef'),
-        'F': ('abc', 'abd', 'efg'),
-        'B': ('aab', 'ccb', 'dde'),
-        'D': ('abc', 'abc', 'dee'),
-        'L': ('abc', 'abc', 'dee'),
-    },
     'bandaged_c': {
         'U': ('abc', 'dec', 'ffg'),
         'L': ('abc', 'dec', 'ffg'),
@@ -61,6 +53,37 @@ _FACE_PLATES = {
         'D': ('abc', 'dde', 'ddf'),
     },
 }
+
+# pCubes Cubic/Bandaged/Bandaged-4/Burr.xml. Starts use the source's 0..3
+# grid. The proper rotation (-x,z,y) preserves its white/yellow, red/orange
+# and green/blue face colours in the application's coordinate convention.
+_BURR_BRICKS = (
+    ((2,1,1), '000 200 030 230 101 131 002 202 032 232 103 133 110 120'),
+    ((1,2,1), '010 310 001 021 301 321 012 312 003 023 303 323 113 213'),
+)
+_BICUBE_BRICKS = (
+    ((2,1,1), '002 012 022'),
+    ((1,2,1), '210 211 212'),
+    ((1,1,2), '000 100 200'),
+    ((2,2,2), '010'),
+)
+
+
+def _burr_groups(values):
+    return _rectangular_groups(values,_BURR_BRICKS)
+
+
+def _rectangular_groups(values,bricks):
+    from itertools import product
+    groups=[]
+    for size,starts in bricks:
+        for start in starts.split():
+            group=[]
+            for delta in product(*(range(length) for length in size)):
+                x,y,z=(values[int(v)+d] for v,d in zip(start,delta))
+                group.append((-x,z,y))
+            groups.append(frozenset(group))
+    return tuple(groups)
 
 
 def _photographed_groups(cubies, kind):
@@ -98,6 +121,9 @@ def _profile(cubies, n, kind):
             x = vals[-1] if sign > 0 else vals[0]
             bars.append(frozenset(p for p in cubies if p[0] == x and p[1] == 0))
         return tuple(bars)
+    if kind == 'bicube':
+        return tuple(frozenset(group & cubies) for group in _rectangular_groups(vals,_BICUBE_BRICKS)
+                     if len(group & cubies)>1)
     if kind in _FACE_PLATES:
         return _photographed_groups(cubies, kind)
     if kind == 'ai_cube':
@@ -105,34 +131,13 @@ def _profile(cubies, n, kind):
         signs = ((1, 1, 1), (1, -1, -1), (-1, 1, -1), (-1, -1, 1))
         return tuple(_corner_block(cubies, s, n) for s in signs)
     if kind == 'burr_cube':
-        # Brick-wall dominoes on the 4x4 shell. The middle four bars on the
-        # top/bottom are perpendicular to the outer rows (Burr arrangement).
-        groups = []
-        lo, hi = vals[0], vals[-1]
-        for y in (lo, hi):
-            plates = []
-            for z in (lo, hi):
-                for start in (0, 2):
-                    plates.append(((vals[start], y, z), (vals[start+1], y, z)))
-            for x in vals:
-                plates.append(((x, y, vals[1]), (x, y, vals[2])))
-            if y == lo:
-                plates = [tuple((p[2], p[1], -p[0]) for p in pair) for pair in plates]
-            groups.extend(frozenset(pair) for pair in plates)
-        ring = [(x, lo) for x in vals]
-        ring += [(hi, z) for z in vals[1:]]
-        ring += [(x, hi) for x in reversed(vals[:-1])]
-        ring += [(lo, z) for z in reversed(vals[1:-1])]
-        for row, y in enumerate(vals[1:-1]):
-            for i in range(0, len(ring), 2):
-                a, b = ring[(i+row) % len(ring)], ring[(i+row+1) % len(ring)]
-                groups.append(frozenset(((a[0], y, a[1]), (b[0], y, b[1]))))
-        return tuple(groups)
+        return _burr_groups(vals)
     raise ValueError(f'Unknown bandaged cube preset: {kind}')
 
 
 class BandagedCube(Cube3):
     """A 3x3 or 4x4 cube whose glued cubie groups constrain legal turns."""
+    color_count = 6
 
     def __init__(self, cubies, kind, history=None):
         n = KINDS[kind]
@@ -160,10 +165,13 @@ class BandagedCube(Cube3):
     def can_turn(self, axis, layers):
         selected = set(layers)
         for group in self.groups:
-            flags = {self._by_home[home].pos[axis] in selected
-                     for home in group if home in self._by_home}
-            if len(flags) > 1:
-                return False
+            first = None
+            for home in group:
+                cubie = self._by_home.get(home)
+                if cubie is None:continue
+                inside = cubie.pos[axis] in selected
+                if first is None:first = inside
+                elif inside != first:return False
         return True
 
     def cubies_by_home(self, home):

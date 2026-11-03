@@ -1,0 +1,27 @@
+{
+  "kind": "skewb",
+  "seed": 20261105,
+  "scramble_turns": 100,
+  "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\additional-inputs\\inputs\\skewb-20261105-100.json",
+  "input_method": "fixed visible model panels, colours only",
+  "history_empty": true,
+  "visible_entry_matches": true,
+  "input_seconds": 0.0,
+  "success": true,
+  "moves": 8,
+  "failure_category": "",
+  "solve_seconds": 0.047,
+  "message": "",
+  "evaluation_budget_hit": false,
+  "replay_solved": true,
+  "replay_seconds": 0.0,
+  "seconds": 0.047,
+  "shortening": [
+    {
+      "before": 8,
+      "after": 8,
+      "seconds": 0.0
+    }
+  ],
+  "colour_stage_plans": []
+}

@@ -1,0 +1,28 @@
+[
+  {
+    "kind": "mf8_twins",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "legacy_scramble_uses_new_geometry": true,
+    "undo_preserves_legacy_state": true,
+    "view_fields": 192,
+    "manual_colour": false,
+    "manual_pose": false
+  },
+  {
+    "kind": "mf8_twins",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "legacy_scramble_uses_new_geometry": true,
+    "undo_preserves_legacy_state": true,
+    "view_fields": 192,
+    "manual_colour": false,
+    "manual_pose": false
+  }
+]

@@ -6,10 +6,11 @@ from kivy.uix.widget import Widget
 from renderer.square1_view import _ring
 from renderer.polyhedral_view import CUBE_PALETTE
 from ui.widgets.buttons import UIButton
+from renderer.entry_style import UNENTERED,SEAM,GRID,SELECTION,stroke
 
 
 class Square1ColorButton(UIButton):
-    fill_color=(.37,.43,.5,1)
+    fill_color=UNENTERED
 
     def _button_color(self):
         return self.fill_color
@@ -18,7 +19,7 @@ class Square1ColorButton(UIButton):
         return self.fill_color
 
     def set_color(self,color):
-        self.fill_color=CUBE_PALETTE[color] if color>=0 else (.37,.43,.5,1)
+        self.fill_color=CUBE_PALETTE[color] if color>=0 else UNENTERED
         self.color=(.08,.13,.17,1) if color in (0,3,4) else (1,1,1,1)
         self._rebuild()
 
@@ -65,7 +66,7 @@ class Square1Ring(Widget):
             return tuple((self.center_x+x*radius,self.center_y+y*radius*direction) for x,y in points)
         def polygon(points,color):
             with self.canvas:
-                Color(*(CUBE_PALETTE[color] if color>=0 else (.55,.60,.65,1)))
+                Color(*(CUBE_PALETTE[color] if color>=0 else UNENTERED))
                 Mesh(vertices=[v for x,y in points for v in (x,y,0.,0.)],
                      indices=list(range(len(points))),mode='triangle_fan')
         for slot in range(12):
@@ -74,11 +75,11 @@ class Square1Ring(Widget):
             points=project(ring_outline(self.layer,slot,1,-1))
             polygon(points,-2)
             with self.canvas:
-                Color(.25,.32,.38,.65)
-                Line(points=[v for p in points for v in p],close=True,width=.6,dash_length=3,dash_offset=2)
+                Color(*GRID)
+                Line(points=[v for p in points for v in p],close=True,width=stroke('grid'),dash_length=3,dash_offset=2)
                 if self.selected[0]==self.layer*12+slot:
-                    Color(0,.75,.86,1)
-                    Line(points=[v for p in points for v in p],close=True,width=2)
+                    Color(*SELECTION)
+                    Line(points=[v for p in points for v in p],close=True,width=stroke('selection'))
             self._hits.append((points,self.layer*12+slot,0))
         for layer,start,width,piece in self.entry.groups():
             if layer!=self.layer:
@@ -106,14 +107,14 @@ class Square1Ring(Widget):
                                   size=label.texture.size)
                 if self.selected==(slot,field):
                     with self.canvas:
-                        Color(0,.75,.86,1)
-                        Line(points=[v for p in band for v in p],close=True,width=1.5)
+                        Color(*SELECTION)
+                        Line(points=[v for p in band for v in p],close=True,width=stroke('selection'))
             with self.canvas:
-                Color(.12,.18,.24,1)
-                Line(points=[v for p in points for v in p],close=True,width=.8)
+                Color(*SEAM)
+                Line(points=[v for p in points for v in p],close=True,width=stroke())
                 if self.selected==(slot,0):
-                    Color(0,.75,.86,1)
-                    Line(points=[v for p in inner for v in p],close=True,width=1.5)
+                    Color(*SELECTION)
+                    Line(points=[v for p in inner for v in p],close=True,width=stroke('selection'))
         # A permanent start line and arrow make both layer diagrams unambiguous.
         import math
         start=project(ring_outline(self.layer,0,1,-1))[1]

@@ -1,11 +1,11 @@
 """Coloured shape cards, with orientation handled by the main input control."""
-from kivy.app import App
 from kivy.graphics import Color, Line, Mesh
 from kivy.graphics.texture import Texture
 from kivy.uix.widget import Widget
 
 from ui.widgets.articulated_observation import fill
 from ui.widgets.puzzle_preview import PassivePreview
+from renderer.entry_style import PLASTIC,SEAM,stroke
 
 
 class TangramPiecePreview(PassivePreview, Widget):
@@ -41,24 +41,29 @@ class TangramPiecePreview(PassivePreview, Widget):
             if dot(normal, eye) <= 1e-8:continue
             points = tuple(self.world.transform(*p) for p in points)
             projected = tuple((dot(p, right), dot(p, up)) for p in points)
-            rgba = self.palette[color] if color >= 0 else (.12, .15, .19, 1.)
+            rgba = self.palette[color] if color >= 0 else PLASTIC
             brightness = .8 + .2 * max(0., dot(normal, eye))
             faces.append((dot(mean(points), eye), projected,
-                          tuple(c * brightness for c in rgba[:3]) + (1.,)))
+                          tuple(c * brightness for c in rgba[:3]) + (1.,), color >= 0))
         self.canvas.clear()
         if not faces:return
-        xs = [x for _, points, _ in faces for x, y in points]
-        ys = [y for _, points, _ in faces for x, y in points]
+        xs = [x for _, points, _, _ in faces for x, y in points]
+        ys = [y for _, points, _, _ in faces for x, y in points]
         factor = max(0., min((self.width-12)/max(max(xs)-min(xs), .01),
                               (self.height-12)/max(max(ys)-min(ys), .01)))
         cx, cy = (max(xs)+min(xs))/2, (max(ys)+min(ys))/2
         with self.canvas:
-            for _, points, rgba in sorted(faces, key=lambda face: face[0]):
+            for _, points, rgba, panel in sorted(faces, key=lambda face: face[0]):
                 Color(*rgba)
                 vertices = [v for x, y in points for v in
                             (self.center_x+(x-cx)*factor, self.center_y+(y-cy)*factor, 0., 0.)]
                 Mesh(vertices=vertices, indices=[i for j in range(1,len(points)-1) for i in (0,j,j+1)],
                      mode='triangles', texture=self.white_texture())
+                if panel:
+                    Color(*SEAM)
+                    Line(points=[v for x,y in points for v in
+                                 (self.center_x+(x-cx)*factor,self.center_y+(y-cy)*factor)],
+                         close=True,width=stroke())
 
 
 class TangramPanelPreview(PassivePreview, Widget):
@@ -81,5 +86,5 @@ class TangramPanelPreview(PassivePreview, Widget):
         with self.canvas:
             Color(*self.rgba)
             fill(points)
-            Color(*App.get_running_app().theme.text)
-            Line(points=[v for p in points for v in p], close=True, width=1.2)
+            Color(*SEAM)
+            Line(points=[v for p in points for v in p], close=True, width=stroke())

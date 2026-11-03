@@ -39,7 +39,7 @@ def shape_signature(cube,frame=IDENTITY):
     return tuple(sorted(tuple(sorted(tuple(round(x,6) for x in transform(frame,
                           transform(piece.frame,p))) for p in points))
                         for piece in cube.cubies.values()
-                        for points,normal,exterior in piece_faces(piece.home,cube.n) if exterior))
+                        for points,normal,exterior in cube.piece_faces(piece.home) if exterior))
 
 
 def normalize_entry(cube):
@@ -95,6 +95,8 @@ class MirrorCube(MastermorphixCube):
     @classmethod
     def solved(cls,palette=('MIRROR',),n=3):
         return cls({p:make_piece(p,p,IDENTITY,n) for p in positions_for_order(n)},n=n)
+
+    def piece_faces(self,home):return piece_faces(home,self.n)
 
     def is_solved(self):
         if set(self.cubies)!=set(self.positions):

@@ -1,0 +1,171 @@
+[
+  {
+    "kind": "ai_cube",
+    "seed": 0,
+    "success": true,
+    "moves": 21,
+    "replay_solved": true,
+    "seconds": 0.266,
+    "scramble_turns": 40,
+    "history_empty": true,
+    "entry": "visible_colours_and_seams"
+  },
+  {
+    "kind": "ai_cube",
+    "seed": 1,
+    "success": true,
+    "moves": 18,
+    "replay_solved": true,
+    "seconds": 0.032,
+    "scramble_turns": 40,
+    "history_empty": true,
+    "entry": "visible_colours_and_seams"
+  },
+  {
+    "kind": "ai_cube",
+    "seed": 2,
+    "success": false,
+    "message": "rigid.search_limit",
+    "seconds": 15.015,
+    "scramble_turns": 40,
+    "history_empty": true,
+    "entry": "visible_colours_and_seams"
+  },
+  {
+    "kind": "ai_cube",
+    "seed": 3,
+    "success": true,
+    "moves": 21,
+    "replay_solved": true,
+    "seconds": 0.219,
+    "scramble_turns": 40,
+    "history_empty": true,
+    "entry": "visible_colours_and_seams"
+  },
+  {
+    "kind": "ai_cube",
+    "seed": 4,
+    "success": true,
+    "moves": 20,
+    "replay_solved": true,
+    "seconds": 0.125,
+    "scramble_turns": 40,
+    "history_empty": true,
+    "entry": "visible_colours_and_seams"
+  },
+  {
+    "kind": "ai_cube",
+    "seed": 5,
+    "success": true,
+    "moves": 13,
+    "replay_solved": true,
+    "seconds": 0.0,
+    "scramble_turns": 40,
+    "history_empty": true,
+    "entry": "visible_colours_and_seams"
+  },
+  {
+    "kind": "ai_cube",
+    "seed": 6,
+    "success": true,
+    "moves": 7,
+    "replay_solved": true,
+    "seconds": 0.0,
+    "scramble_turns": 40,
+    "history_empty": true,
+    "entry": "visible_colours_and_seams"
+  },
+  {
+    "kind": "ai_cube",
+    "seed": 7,
+    "success": false,
+    "message": "rigid.search_limit",
+    "seconds": 15.016,
+    "scramble_turns": 40,
+    "history_empty": true,
+    "entry": "visible_colours_and_seams"
+  },
+  {
+    "kind": "burr_cube",
+    "seed": 0,
+    "success": true,
+    "moves": 7,
+    "replay_solved": true,
+    "seconds": 0.062,
+    "scramble_turns": 40,
+    "history_empty": true,
+    "entry": "visible_colours_and_seams"
+  },
+  {
+    "kind": "burr_cube",
+    "seed": 1,
+    "success": true,
+    "moves": 15,
+    "replay_solved": true,
+    "seconds": 0.187,
+    "scramble_turns": 40,
+    "history_empty": true,
+    "entry": "visible_colours_and_seams"
+  },
+  {
+    "kind": "burr_cube",
+    "seed": 2,
+    "success": true,
+    "moves": 19,
+    "replay_solved": true,
+    "seconds": 2.609,
+    "scramble_turns": 40,
+    "history_empty": true,
+    "entry": "visible_colours_and_seams"
+  },
+  {
+    "kind": "burr_cube",
+    "seed": 3,
+    "success": false,
+    "message": "rigid.search_limit",
+    "seconds": 15.016,
+    "scramble_turns": 40,
+    "history_empty": true,
+    "entry": "visible_colours_and_seams"
+  },
+  {
+    "kind": "burr_cube",
+    "seed": 4,
+    "success": false,
+    "message": "rigid.search_limit",
+    "seconds": 15.016,
+    "scramble_turns": 40,
+    "history_empty": true,
+    "entry": "visible_colours_and_seams"
+  },
+  {
+    "kind": "burr_cube",
+    "seed": 5,
+    "success": false,
+    "message": "rigid.search_limit",
+    "seconds": 15.016,
+    "scramble_turns": 40,
+    "history_empty": true,
+    "entry": "visible_colours_and_seams"
+  },
+  {
+    "kind": "burr_cube",
+    "seed": 6,
+    "success": false,
+    "message": "rigid.search_limit",
+    "seconds": 15.015,
+    "scramble_turns": 40,
+    "history_empty": true,
+    "entry": "visible_colours_and_seams"
+  },
+  {
+    "kind": "burr_cube",
+    "seed": 7,
+    "success": false,
+    "message": "rigid.search_limit",
+    "seconds": 15.016,
+    "scramble_turns": 40,
+    "history_empty": true,
+    "entry": "visible_colours_and_seams"
+  }
+]

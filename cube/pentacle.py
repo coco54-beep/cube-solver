@@ -9,8 +9,8 @@ from functools import lru_cache
 from cube.polyhedral import CUBE,Spec,Geometry,Sticker,Move,add,scale,dot,cross,mean,clip,key,rotate,unit
 from cube.appearance import IDENTITY_FRAME,transform_frame
 
-RADIUS=.97
-CUT=RADIUS*math.cos(math.tau/5)
+RADIUS=1.
+CUT=1/2.8
 EPS=1e-6
 def multiplied(a,b):return tuple(tuple(round(x,12) for x in transform_frame(a,v)) for v in b)
 def turned(axis,angle):return tuple(rotate(v,axis,math.radians(angle)) for v in IDENTITY_FRAME)
@@ -65,15 +65,48 @@ def shell():
     return tuple(panels),len(homes),frozenset(discs)
 
 
+@lru_cache(maxsize=4096)
+def placed_panel(index,frame):
+    panel=shell()[0][index]
+    return tuple(tuple(transform_frame(frame,v) for v in poly) for poly in panel.patches)
+
+
+@lru_cache(maxsize=1)
+def home_panels():
+    panels,count,discs=shell()
+    return tuple(tuple(i for i,p in enumerate(panels) if p.home==home) for home in range(count))
+
+
+@lru_cache(maxsize=1)
+def hidden_panels():
+    """Uncoloured internal carriers, not visible two-colour edge pieces.
+
+    Keep these carriers in the mechanical layer selection. They must never
+    become input stickers or colour constraints for the pictured star cube.
+    """
+    panels,_,discs=shell();groups=home_panels()
+    return frozenset(i for i,p in enumerate(panels)
+                     if p.home not in discs and len(groups[p.home])==2)
+
+
+@lru_cache(maxsize=4096)
+def home_bounds(home,frame):
+    vertices=[v for i in home_panels()[home] for poly in placed_panel(i,frame) for v in poly]
+    return tuple((min(v[a] for v in vertices),max(v[a] for v in vertices)) for a in range(3))
+
+
 class PentacleCube:
     puzzle_kind='pentacle'
     n=3
     rigid_family=True
     def __init__(self,frames=None,paints=None,history=()):
         self.panels,count,self.discs=shell()
+        self.hidden_panels=hidden_panels()
+        self.paint_slots=tuple(i for i in range(len(self.panels)) if i not in self.hidden_panels)
         self.frames=tuple(frames) if frames is not None else (IDENTITY_FRAME,)*count
         self._paints=list(paints) if paints is not None else [p.face for p in self.panels]
         if len(self.frames)!=count or len(self._paints)!=len(self.panels):raise ValueError('rigid.invalid')
+        for i in self.hidden_panels:self._paints[i]=-2
         self.history=list(history);self._history_snapshot=self.frames;self._geometry_cache=None;self._world_cache=None
     @classmethod
     def solved(cls):return cls()
@@ -88,24 +121,26 @@ class PentacleCube:
     def colors(self,values):
         if len(values)!=len(self.panels):raise ValueError('rigid.invalid')
         frames=list(self.frames);paints=[];seen={}
-        for panel,(color,frame) in zip(self.panels,values):
+        for index,(panel,(color,frame)) in enumerate(zip(self.panels,values)):
             frame=tuple(tuple(row) for row in frame)
             if len(frame)!=3 or any(len(row)!=3 or not all(math.isfinite(x) for x in row) for row in frame):raise ValueError('rigid.invalid')
-            if color not in range(-1,6) or panel.home in seen and seen[panel.home]!=frame:raise ValueError('rigid.invalid')
+            if (color not in range(-1,6) and not (index in self.hidden_panels and color==-2)) or panel.home in seen and seen[panel.home]!=frame:raise ValueError('rigid.invalid')
+            if index in self.hidden_panels:color=-2
             seen[panel.home]=frame;frames[panel.home]=frame;paints.append(color)
         self.frames=tuple(frames);self._paints=paints;self.history=[];self._history_snapshot=self.frames;self._geometry_cache=None
     def paint(self,index,color):
+        if index in self.hidden_panels:return
         self._paints[index]=color;self.history=[]
     def world_panels(self):
         if self._world_cache is not None and self._world_cache[0]==self.frames:return self._world_cache[1]
-        world=tuple(tuple(tuple(transform_frame(self.frames[p.home],v) for v in poly) for poly in p.patches) for p in self.panels)
+        world=tuple(placed_panel(i,self.frames[p.home]) for i,p in enumerate(self.panels))
         self._world_cache=(self.frames,world);return world
     def selection(self,axis,layer,strict=False):
-        points={};normal=CUBE[axis];world=self.world_panels()
-        for panel,patches in zip(self.panels,world):points.setdefault(panel.home,[]).extend(v for poly in patches for v in poly)
+        normal=CUBE[axis];a,sign=next((a,v) for a,v in enumerate(normal) if v)
         selected=set()
-        for home,vertices in points.items():
-            projections=[dot(normal,v) for v in vertices];lo,hi=min(projections),max(projections)
+        for home,frame in enumerate(self.frames):
+            low,high=home_bounds(home,frame)[a]
+            lo,hi=(low,high) if sign>0 else (-high,-low)
             if layer==0:
                 if home in self.discs and lo>1-EPS and hi<1+EPS:selected.add(home)
             elif lo>=CUT-EPS:selected.add(home)
@@ -172,7 +207,8 @@ class PentacleCube:
         return tuple(result)
     def is_solved(self):
         faces=[set() for _ in CUBE]
-        for p,color in zip(self.panels,self._paints):
+        for index,(p,color) in enumerate(zip(self.panels,self._paints)):
+            if index in self.hidden_panels:continue
             if color<0:return False
             normal=transform_frame(self.frames[p.home],CUBE[p.face])
             face=max(range(6),key=lambda f:dot(CUBE[f],normal))

@@ -1,0 +1,110 @@
+[
+  {
+    "kind": "i_cube",
+    "screen": "CuboidSixViewScreen",
+    "status": "ok",
+    "size": [
+      800,
+      600
+    ]
+  },
+  {
+    "kind": "l_cube",
+    "screen": "CuboidSixViewScreen",
+    "status": "ok",
+    "size": [
+      800,
+      600
+    ]
+  },
+  {
+    "kind": "t_cube",
+    "screen": "CuboidSixViewScreen",
+    "status": "ok",
+    "size": [
+      800,
+      600
+    ]
+  },
+  {
+    "kind": "x_cube",
+    "screen": "CuboidSixViewScreen",
+    "status": "ok",
+    "size": [
+      800,
+      600
+    ]
+  },
+  {
+    "kind": "tri_cube",
+    "screen": "CuboidSixViewScreen",
+    "status": "ok",
+    "size": [
+      800,
+      600
+    ]
+  },
+  {
+    "kind": "temple_cube",
+    "screen": "CuboidSixViewScreen",
+    "status": "ok",
+    "size": [
+      800,
+      600
+    ]
+  },
+  {
+    "kind": "cross_cube",
+    "screen": "CuboidSixViewScreen",
+    "status": "ok",
+    "size": [
+      800,
+      600
+    ]
+  },
+  {
+    "kind": "rediminx",
+    "screen": "PolyhedralScreen",
+    "status": "ok",
+    "size": [
+      800,
+      600
+    ]
+  },
+  {
+    "kind": "master_brilic",
+    "screen": "PolyhedralScreen",
+    "status": "ok",
+    "size": [
+      800,
+      600
+    ]
+  },
+  {
+    "kind": "blanker",
+    "screen": "BlankerScreen",
+    "status": "ok",
+    "size": [
+      800,
+      600
+    ]
+  },
+  {
+    "kind": "mirror_kilominx",
+    "screen": "MirrorMinxScreen",
+    "status": "ok",
+    "size": [
+      800,
+      600
+    ]
+  },
+  {
+    "kind": "mirror_megaminx",
+    "screen": "MirrorMinxScreen",
+    "status": "ok",
+    "size": [
+      800,
+      600
+    ]
+  }
+]

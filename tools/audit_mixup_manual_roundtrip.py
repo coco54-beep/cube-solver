@@ -36,14 +36,17 @@ def menu_coverage(target):
             continue
         found=None
         for assembly in assemblies(target.kind,target.blocks,region):
-            for turn in range(0,4,2 if target.blocks[index]['role']=='inner_edge' else 1):
+            base=MixupEntryDraft(target.kind);base.set_assembly(index,assembly)
+            for turn in range(0,4,base.rotation_step(index)):
                 probe=MixupEntryDraft(target.kind)
                 try:
                     probe.set_assembly(index,assembly)
                     if turn:probe.rotate_assembly(index,turn)
                 except ValueError:continue
                 entered=probe.assembly_at(index)
-                if entered is not None and assembly_key(entered.pieces)==assembly_key(expected.pieces):
+                # Compare geometry values, not hashes of repr(): negative zero
+                # has the same position but a different textual representation.
+                if entered is not None and tuple(sorted(p.signature for p in entered.pieces))==tuple(sorted(p.signature for p in expected.pieces)):
                     found=(assembly,turn);break
             if found:break
         if found:

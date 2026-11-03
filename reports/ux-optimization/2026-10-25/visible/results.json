@@ -1,0 +1,22 @@
+[
+  {
+    "case": "incomplete_locate_keeps_input",
+    "passed": true
+  },
+  {
+    "case": "compact_menu_random_undo",
+    "passed": true
+  },
+  {
+    "case": "timeout_retry_cancel_ignores_old_result",
+    "passed": true
+  },
+  {
+    "case": "continuous_paint_explicit_select_mode",
+    "passed": true
+  },
+  {
+    "case": "chapter_seek_speed_preserves_input_and_full_word",
+    "passed": true
+  }
+]

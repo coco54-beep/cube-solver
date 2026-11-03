@@ -6,6 +6,7 @@ from kivy.uix.widget import Widget
 from cube.articulated_observation import contains,normal,polygon_key
 from cube.polyhedral import CUBE,add,scale,dot
 from renderer.square1_view import Square1View
+from renderer.entry_style import UNENTERED,SEAM,GRID,SELECTION,stroke
 
 
 def fill(points):
@@ -29,28 +30,28 @@ class ObservationBoard(Widget):
         return tuple(max(-1.8,min(1.8,v)) for v in ((p[0]-x)/max(factor,1),(p[1]-y)/max(factor,1)))
 
     def redraw(self,*_):
-        self.canvas.clear();theme=App.get_running_app().theme
+        self.canvas.clear()
         with self.canvas:
             for outline in self.templates:
                 points=tuple(self.screen(p) for p in outline)
-                Color(*theme.text[:3],.12);fill(points)
-                Color(*theme.text[:3],.25);Line(points=[v for p in points for v in p],close=True,width=.65)
+                Color(*UNENTERED);fill(points)
+                Color(*SEAM);Line(points=[v for p in points for v in p],close=True,width=stroke())
             if not self.fill_mode:
-                Color(*theme.text[:3],.09)
+                Color(*GRID)
                 for v in (-1.,0.,1.):
-                    Line(points=[*self.screen((-1.75,v)),*self.screen((1.75,v))],width=.6)
-                    Line(points=[*self.screen((v,-1.75)),*self.screen((v,1.75))],width=.6)
+                    Line(points=[*self.screen((-1.75,v)),*self.screen((1.75,v))],width=stroke('grid'))
+                    Line(points=[*self.screen((v,-1.75)),*self.screen((v,1.75))],width=stroke('grid'))
             for item in sorted(self.items,key=lambda p:sum(dot(v,CUBE[self.face]) for v in p['preview'])/len(p['preview'])):
                 points=tuple(self.screen(p) for p in item['outline'])
-                Color(*self.palette[item['color']]);fill(points)
-                Color(.05,.07,.09,1);Line(points=[v for p in points for v in p],close=True,width=1.3)
+                Color(*(self.palette[item['color']] if item['color']>=0 else UNENTERED));fill(points)
+                Color(*SEAM);Line(points=[v for p in points for v in p],close=True,width=stroke())
             if self.pending is not None:
                 points=tuple(self.screen(p) for p in self.pending)
-                Color(0.,.8,.95,.35);fill(points)
-                Color(0.,.8,.95,1);Line(points=[v for p in points for v in p],close=True,width=2)
+                Color(*SELECTION[:3],.35);fill(points)
+                Color(*SELECTION);Line(points=[v for p in points for v in p],close=True,width=stroke('selection'))
             if self.region is not None:
                 x1,y1,x2,y2=self.region;a=self.screen((x1,y1));b=self.screen((x2,y2))
-                Color(0.,.75,.9,1);Line(rectangle=(*a,b[0]-a[0],b[1]-a[1]),width=1.1,dash_length=5,dash_offset=3)
+                Color(*SELECTION);Line(rectangle=(*a,b[0]-a[0],b[1]-a[1]),width=stroke('selection'),dash_length=5,dash_offset=3)
             if self.fill_mode and self._stroke:
                 Color(0.,.8,.95,.7);Line(points=[v for p in self._stroke for v in self.screen(p)],width=2)
 

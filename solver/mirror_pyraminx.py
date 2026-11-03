@@ -29,7 +29,8 @@ def solve_oriented_mirror(cube, cancel=None, progress=None):
     if residual.is_solved():
         return prefix
     state = residual.labeled_state()
-    _, _, virtual = marker_system(cube.n, cube.mechanism_kind)
+    _, _, virtual = cube.marker_model() if hasattr(cube,'marker_model') else marker_system(cube.n,cube.mechanism_kind)
+    order=virtual.spec.turn_order
     class Markers:
         geometry = virtual
         def moves(self):
@@ -48,14 +49,14 @@ def solve_oriented_mirror(cube, cancel=None, progress=None):
         word = chain.solve(state)
         solution = prefix
         chunk = []
-        for move in word.flatten(3, cancel):
+        for move in word.flatten(order, cancel):
             chunk.append(move)
             if len(chunk) == 256:
-                solution = simplify(solution + tuple(chunk), 3)
+                solution = simplify(solution + tuple(chunk), order)
                 chunk.clear()
                 if len(solution) > 50000:
                     raise ValueError('Oriented mirror solution exceeds the playback limit')
-        solution = simplify(solution + tuple(chunk), 3)
+        solution = simplify(solution + tuple(chunk), order)
         replay = cube.clone()
         for index, move in enumerate(solution):
             if index % 64 == 0 and cancel and cancel():

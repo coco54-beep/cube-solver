@@ -1,0 +1,6 @@
+{
+  "application_payload_sha256": "f410cbb3abc05cb1640531360a976e036147c2639a7056000dcfe9e1a8b941ca",
+  "payload_matches_delivered_arm64_apk": true,
+  "probe_native_runtime": "1.2.30 x86_64 (same Python 3.14.2 bytecode ABI)",
+  "delivered_arch": "arm64-v8a"
+}

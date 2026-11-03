@@ -1,0 +1,26 @@
+[
+  {
+    "kind": "rubik_cheese",
+    "n": 2,
+    "pieces": 12,
+    "stickers": 24,
+    "history": null,
+    "seed": 223,
+    "scramble_length": 30,
+    "solution_length": 42,
+    "seconds": 0.015,
+    "replay_solved": true
+  },
+  {
+    "kind": "cheese_3",
+    "n": 3,
+    "pieces": 18,
+    "stickers": 30,
+    "history": null,
+    "seed": 223,
+    "scramble_length": 30,
+    "solution_length": 41,
+    "seconds": 0.0,
+    "replay_solved": true
+  }
+]

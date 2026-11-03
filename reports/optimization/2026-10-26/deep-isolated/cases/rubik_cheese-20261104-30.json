@@ -1,0 +1,26 @@
+{
+  "kind": "rubik_cheese",
+  "seed": 20261104,
+  "scramble_turns": 30,
+  "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\deep-isolated\\inputs\\rubik_cheese-20261104-30.json",
+  "input_method": "fixed visible model panels, colours only",
+  "history_empty": true,
+  "visible_entry_matches": true,
+  "input_seconds": 0.016,
+  "success": true,
+  "moves": 46,
+  "failure_category": "",
+  "solve_seconds": 0.094,
+  "message": "",
+  "evaluation_budget_hit": false,
+  "replay_solved": true,
+  "replay_seconds": 0.0,
+  "seconds": 0.11,
+  "shortening": [
+    {
+      "before": 46,
+      "after": 46,
+      "seconds": 0.079
+    }
+  ]
+}

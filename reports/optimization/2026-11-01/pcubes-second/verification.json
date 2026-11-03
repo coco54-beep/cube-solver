@@ -1,0 +1,42 @@
+{
+  "models": 35,
+  "visible_reentry_cases": 140,
+  "visible_reentry_passed": 140,
+  "ui_pages": 22,
+  "ui_sizes": [
+    [
+      800,
+      600
+    ],
+    [
+      390,
+      844
+    ]
+  ],
+  "full_courses": 55,
+  "automated": {
+    "distinct_checks": 673,
+    "consolidated_passed": 672,
+    "stale_course_move_count_assertion_corrected": true,
+    "final_course_and_starminx_recheck_passed": 92,
+    "unresolved_failures": 0,
+    "logs": [
+      "artifacts/pcubes-second-all-verified.log",
+      "artifacts/pcubes-second-courses-verified.log"
+    ]
+  },
+  "starminx": {
+    "core_slots": 72,
+    "petals": 60,
+    "centre_cycle_steps": 18,
+    "manual_moves": [
+      999,
+      1124,
+      1158,
+      1138
+    ],
+    "core_asset_bytes": 37339
+  },
+  "packaged": false,
+  "android_device_tested": false
+}

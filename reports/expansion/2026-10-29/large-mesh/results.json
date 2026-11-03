@@ -1,0 +1,26 @@
+[
+  {
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "batches": 2,
+    "triangles": 22000,
+    "picking": true,
+    "shrink_clears_old_batches": true,
+    "empty_clears_pixels": true
+  },
+  {
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "batches": 2,
+    "triangles": 22000,
+    "picking": true,
+    "shrink_clears_old_batches": true,
+    "empty_clears_pixels": true
+  }
+]

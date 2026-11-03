@@ -1,0 +1,380 @@
+{
+  "tests": {
+    "passed": 125,
+    "failed": 0,
+    "skipped": 0
+  },
+  "test_reports": [
+    {
+      "file": "manual-controls.xml",
+      "cases": 73,
+      "sha256": "ae0bf0f3efc080423b959ff6e09a6f603dcac2ff2530e9f74cc051f528e8ab6e"
+    },
+    {
+      "file": "lifecycle-final-accepted.xml",
+      "cases": 36,
+      "sha256": "e27c41ade832de73514d0d3c4b311262f092c76f64c217248b60af51a5d803b2"
+    },
+    {
+      "file": "mixup-16-final.xml",
+      "cases": 16,
+      "sha256": "118ee68329d0f53bf55e747228de8be1aa6681bf251f26075e88948bf8bfebaf"
+    },
+    {
+      "file": "integration-final.xml",
+      "cases": 18,
+      "sha256": "7a453b61795c4c01bbf2241de7cf17b1f09f6001ad4502d22ed069d71e66fb2d"
+    }
+  ],
+  "visible_pages": [
+    {
+      "orientation": "portrait",
+      "checked": 29,
+      "errors": 0,
+      "verified": true
+    },
+    {
+      "orientation": "landscape",
+      "checked": 29,
+      "errors": 0,
+      "verified": true
+    }
+  ],
+  "manual_mixup_cases": [
+    {
+      "kind": "mixup_333",
+      "seed": "211021",
+      "solution_moves": "308",
+      "solve_seconds": "0.922",
+      "input_method": "blank real controls, composition + actual rotation step + paint",
+      "history_empty": "True"
+    },
+    {
+      "kind": "mixup_334",
+      "seed": "211021",
+      "solution_moves": "731",
+      "solve_seconds": "1.282",
+      "input_method": "blank real controls, composition + actual rotation step + paint",
+      "history_empty": "True"
+    },
+    {
+      "kind": "mixup_344",
+      "seed": "211021",
+      "solution_moves": "834",
+      "solve_seconds": "5.89",
+      "input_method": "blank real controls, composition + actual rotation step + paint",
+      "history_empty": "True"
+    },
+    {
+      "kind": "mixup_444",
+      "seed": "211021",
+      "solution_moves": "158",
+      "solve_seconds": "1.875",
+      "input_method": "blank real controls, composition + actual rotation step + paint",
+      "history_empty": "True"
+    },
+    {
+      "kind": "mixup_plus_333",
+      "seed": "211021",
+      "solution_moves": "423",
+      "solve_seconds": "1.5",
+      "input_method": "blank real controls, composition + actual rotation step + paint",
+      "history_empty": "True"
+    },
+    {
+      "kind": "mixup_plus_334",
+      "seed": "211021",
+      "solution_moves": "644",
+      "solve_seconds": "3.36",
+      "input_method": "blank real controls, composition + actual rotation step + paint",
+      "history_empty": "True"
+    },
+    {
+      "kind": "mixup_plus_344",
+      "seed": "211021",
+      "solution_moves": "867",
+      "solve_seconds": "5.171",
+      "input_method": "blank real controls, composition + actual rotation step + paint",
+      "history_empty": "True"
+    },
+    {
+      "kind": "mixup_plus_444",
+      "seed": "211021",
+      "solution_moves": "663",
+      "solve_seconds": "6.078",
+      "input_method": "blank real controls, composition + actual rotation step + paint",
+      "history_empty": "True"
+    },
+    {
+      "kind": "mixup_333",
+      "seed": "211022",
+      "solution_moves": "363",
+      "solve_seconds": "0.797",
+      "input_method": "blank real controls, composition + actual rotation step + paint",
+      "history_empty": "True"
+    },
+    {
+      "kind": "mixup_334",
+      "seed": "211022",
+      "solution_moves": "638",
+      "solve_seconds": "1.235",
+      "input_method": "blank real controls, composition + actual rotation step + paint",
+      "history_empty": "True"
+    },
+    {
+      "kind": "mixup_344",
+      "seed": "211022",
+      "solution_moves": "1142",
+      "solve_seconds": "7.312",
+      "input_method": "blank real controls, composition + actual rotation step + paint",
+      "history_empty": "True"
+    },
+    {
+      "kind": "mixup_444",
+      "seed": "211022",
+      "solution_moves": "151",
+      "solve_seconds": "1.922",
+      "input_method": "blank real controls, composition + actual rotation step + paint",
+      "history_empty": "True"
+    },
+    {
+      "kind": "mixup_plus_333",
+      "seed": "211022",
+      "solution_moves": "458",
+      "solve_seconds": "3.0",
+      "input_method": "blank real controls, composition + actual rotation step + paint",
+      "history_empty": "True"
+    },
+    {
+      "kind": "mixup_plus_334",
+      "seed": "211022",
+      "solution_moves": "693",
+      "solve_seconds": "4.172",
+      "input_method": "blank real controls, composition + actual rotation step + paint",
+      "history_empty": "True"
+    },
+    {
+      "kind": "mixup_plus_344",
+      "seed": "211022",
+      "solution_moves": "804",
+      "solve_seconds": "7.157",
+      "input_method": "blank real controls, composition + actual rotation step + paint",
+      "history_empty": "True"
+    },
+    {
+      "kind": "mixup_plus_444",
+      "seed": "211022",
+      "solution_moves": "934",
+      "solve_seconds": "13.563",
+      "input_method": "blank real controls, composition + actual rotation step + paint",
+      "history_empty": "True"
+    }
+  ],
+  "fresh_visible_state_cases": [
+    {
+      "kind": "camouflage_3",
+      "seed": 20261025,
+      "scramble_turns": 10,
+      "input_file": "reports\\reliability-audit\\2026-10-25\\fresh-inputs\\camouflage_3-20261025-10.json",
+      "history_empty": true,
+      "visible_entry_matches": true,
+      "success": true,
+      "replay_solved": true,
+      "moves": 27,
+      "failure_kind": "",
+      "message": "",
+      "seconds": 0.375
+    },
+    {
+      "kind": "camouflage_3",
+      "seed": 20261026,
+      "scramble_turns": 10,
+      "input_file": "reports\\reliability-audit\\2026-10-25\\fresh-inputs\\camouflage_3-20261026-10.json",
+      "history_empty": true,
+      "visible_entry_matches": true,
+      "success": true,
+      "replay_solved": true,
+      "moves": 55,
+      "failure_kind": "",
+      "message": "",
+      "seconds": 0.062
+    },
+    {
+      "kind": "camouflage_3",
+      "seed": 20261025,
+      "scramble_turns": 40,
+      "input_file": "reports\\reliability-audit\\2026-10-25\\fresh-inputs\\camouflage_3-20261025-40.json",
+      "history_empty": true,
+      "visible_entry_matches": true,
+      "success": true,
+      "replay_solved": true,
+      "moves": 64,
+      "failure_kind": "",
+      "message": "",
+      "seconds": 0.329
+    },
+    {
+      "kind": "camouflage_3",
+      "seed": 20261026,
+      "scramble_turns": 40,
+      "input_file": "reports\\reliability-audit\\2026-10-25\\fresh-inputs\\camouflage_3-20261026-40.json",
+      "history_empty": true,
+      "visible_entry_matches": true,
+      "success": true,
+      "replay_solved": true,
+      "moves": 41,
+      "failure_kind": "",
+      "message": "",
+      "seconds": 0.078
+    },
+    {
+      "kind": "camouflage_3",
+      "seed": 20261025,
+      "scramble_turns": 100,
+      "input_file": "reports\\reliability-audit\\2026-10-25\\fresh-inputs\\camouflage_3-20261025-100.json",
+      "history_empty": true,
+      "visible_entry_matches": true,
+      "success": true,
+      "replay_solved": true,
+      "moves": 58,
+      "failure_kind": "",
+      "message": "",
+      "seconds": 0.343
+    },
+    {
+      "kind": "camouflage_3",
+      "seed": 20261026,
+      "scramble_turns": 100,
+      "input_file": "reports\\reliability-audit\\2026-10-25\\fresh-inputs\\camouflage_3-20261026-100.json",
+      "history_empty": true,
+      "visible_entry_matches": true,
+      "success": true,
+      "replay_solved": true,
+      "moves": 39,
+      "failure_kind": "",
+      "message": "",
+      "seconds": 0.094
+    },
+    {
+      "kind": "fused_cube",
+      "seed": 20261025,
+      "scramble_turns": 40,
+      "input_file": "reports\\reliability-audit\\2026-10-25\\fresh-inputs\\fused_cube-20261025-40.json",
+      "history_empty": true,
+      "visible_entry_matches": true,
+      "success": true,
+      "replay_solved": true,
+      "moves": 110,
+      "failure_kind": "",
+      "message": "",
+      "seconds": 0.031
+    },
+    {
+      "kind": "two_bar_cube",
+      "seed": 20261025,
+      "scramble_turns": 40,
+      "input_file": "reports\\reliability-audit\\2026-10-25\\fresh-inputs\\two_bar_cube-20261025-40.json",
+      "history_empty": true,
+      "visible_entry_matches": true,
+      "success": true,
+      "replay_solved": true,
+      "moves": 139,
+      "failure_kind": "",
+      "message": "",
+      "seconds": 0.047
+    },
+    {
+      "kind": "bandaged_c",
+      "seed": 20261025,
+      "scramble_turns": 40,
+      "input_file": "reports\\reliability-audit\\2026-10-25\\fresh-inputs\\bandaged_c-20261025-40.json",
+      "history_empty": true,
+      "visible_entry_matches": true,
+      "success": true,
+      "replay_solved": true,
+      "moves": 104,
+      "failure_kind": "",
+      "message": "",
+      "seconds": 0.032
+    },
+    {
+      "kind": "bicube",
+      "seed": 20261025,
+      "scramble_turns": 40,
+      "input_file": "reports\\reliability-audit\\2026-10-25\\fresh-inputs\\bicube-20261025-40.json",
+      "history_empty": true,
+      "visible_entry_matches": true,
+      "success": true,
+      "replay_solved": true,
+      "moves": 3,
+      "failure_kind": "",
+      "message": "",
+      "seconds": 0.015
+    },
+    {
+      "kind": "ai_cube",
+      "seed": 20261025,
+      "scramble_turns": 40,
+      "input_file": "reports\\reliability-audit\\2026-10-25\\fresh-inputs\\ai_cube-20261025-40.json",
+      "history_empty": true,
+      "visible_entry_matches": true,
+      "success": true,
+      "replay_solved": true,
+      "moves": 573,
+      "failure_kind": "",
+      "message": "",
+      "seconds": 0.25
+    },
+    {
+      "kind": "burr_cube",
+      "seed": 20261025,
+      "scramble_turns": 40,
+      "input_file": "reports\\reliability-audit\\2026-10-25\\fresh-inputs\\burr_cube-20261025-40.json",
+      "history_empty": true,
+      "visible_entry_matches": true,
+      "success": true,
+      "replay_solved": true,
+      "moves": 201,
+      "failure_kind": "",
+      "message": "",
+      "seconds": 0.11
+    },
+    {
+      "kind": "tangram",
+      "seed": 20261025,
+      "scramble_turns": 40,
+      "input_file": "reports\\reliability-audit\\2026-10-25\\fresh-inputs\\tangram-20261025-40.json",
+      "history_empty": true,
+      "visible_entry_matches": true,
+      "success": true,
+      "replay_solved": true,
+      "moves": 56,
+      "failure_kind": "",
+      "message": "",
+      "seconds": 2.796
+    },
+    {
+      "kind": "tangram_extreme",
+      "seed": 20261025,
+      "scramble_turns": 40,
+      "input_file": "reports\\reliability-audit\\2026-10-25\\fresh-inputs\\tangram_extreme-20261025-40.json",
+      "history_empty": true,
+      "visible_entry_matches": true,
+      "success": true,
+      "replay_solved": true,
+      "moves": 392,
+      "failure_kind": "",
+      "message": "",
+      "seconds": 44.641
+    }
+  ],
+  "android_device_connected": false,
+  "android_full_workflow_verified": false,
+  "physical_camera_tested": false,
+  "release_package_built": false,
+  "limits": [
+    "Source-level desktop checks; no connected Android phone.",
+    "Generated legal walks are not uniform random states or guarantees for arbitrary inputs.",
+    "Fresh-state observations and real-controls tests are recorded separately."
+  ]
+}

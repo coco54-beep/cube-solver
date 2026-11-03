@@ -1,0 +1,150 @@
+[
+  {
+    "kind": "crazy_mercury",
+    "panels": 102,
+    "same_colour_pairs": 0,
+    "orbit_sizes": [
+      24,
+      24,
+      24,
+      16,
+      1,
+      4,
+      1,
+      4,
+      1,
+      1,
+      1,
+      1
+    ],
+    "scope": "Declared fixed planetary disc mask; fixed/same-colour regions are not alone evidence of missing moves"
+  },
+  {
+    "kind": "crazy_venus",
+    "panels": 102,
+    "same_colour_pairs": 0,
+    "orbit_sizes": [
+      24,
+      24,
+      24,
+      16,
+      1,
+      4,
+      1,
+      4,
+      1,
+      1,
+      1,
+      1
+    ],
+    "scope": "Declared fixed planetary disc mask; fixed/same-colour regions are not alone evidence of missing moves"
+  },
+  {
+    "kind": "crazy_earth",
+    "panels": 102,
+    "same_colour_pairs": 0,
+    "orbit_sizes": [
+      24,
+      24,
+      24,
+      24,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "scope": "Declared fixed planetary disc mask; fixed/same-colour regions are not alone evidence of missing moves"
+  },
+  {
+    "kind": "crazy_mars",
+    "panels": 102,
+    "same_colour_pairs": 0,
+    "orbit_sizes": [
+      24,
+      24,
+      24,
+      24,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "scope": "Declared fixed planetary disc mask; fixed/same-colour regions are not alone evidence of missing moves"
+  },
+  {
+    "kind": "crazy_jupiter",
+    "panels": 102,
+    "same_colour_pairs": 0,
+    "orbit_sizes": [
+      24,
+      24,
+      24,
+      24,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "scope": "Declared fixed planetary disc mask; fixed/same-colour regions are not alone evidence of missing moves"
+  },
+  {
+    "kind": "crazy_saturn",
+    "panels": 102,
+    "same_colour_pairs": 0,
+    "orbit_sizes": [
+      24,
+      24,
+      24,
+      24,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "scope": "Declared fixed planetary disc mask; fixed/same-colour regions are not alone evidence of missing moves"
+  },
+  {
+    "kind": "crazy_uranus",
+    "panels": 102,
+    "same_colour_pairs": 0,
+    "orbit_sizes": [
+      24,
+      24,
+      24,
+      24,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "scope": "Declared fixed planetary disc mask; fixed/same-colour regions are not alone evidence of missing moves"
+  },
+  {
+    "kind": "crazy_neptune",
+    "panels": 102,
+    "same_colour_pairs": 0,
+    "orbit_sizes": [
+      24,
+      24,
+      24,
+      24,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "scope": "Declared fixed planetary disc mask; fixed/same-colour regions are not alone evidence of missing moves"
+  }
+]

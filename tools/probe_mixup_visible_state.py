@@ -16,19 +16,25 @@ def signature(cube):
                   for poly,c in cube.placed_faces(h) if c>=0)
 
 
-def run(kind,seconds=60):
-    random.seed(20261023)
-    source=scramble_mixup(kind,seconds=1.5)
-    source_length=len(source.history)
-    state=json.loads(json.dumps(MixupEntryDraft.from_cube(source).observations().state()))
-    assert 'frames' not in state and 'history' not in state
+def run(kind,seconds=60,saved=False):
     folder=Path('reports/input-audit/2026-10-23/mixup-fresh-probes')
     folder.mkdir(parents=True,exist_ok=True)
-    (folder/(kind+'-observations.json')).write_text(json.dumps(state,indent=2),encoding='utf-8')
+    if saved:
+        state=json.loads((folder/(kind+'-observations.json')).read_text(encoding='utf-8'))
+        previous=json.loads((folder/(kind+'.json')).read_text(encoding='utf-8'))
+        source=None;source_length=previous['scramble_turns']
+    else:
+        random.seed(20261023)
+        source=scramble_mixup(kind,seconds=1.5)
+        source_length=len(source.history)
+        state=json.loads(json.dumps(MixupEntryDraft.from_cube(source).observations().state()))
+        (folder/(kind+'-observations.json')).write_text(json.dumps(state,indent=2),encoding='utf-8')
+    assert 'frames' not in state and 'history' not in state
     begun=monotonic();matched=match_observations(ObservationDraft(kind,state),seconds=20.)
     row=dict(kind=kind,seed=20261023,scramble_turns=source_length,observation_match=matched.status)
     if matched.status=='matched':
-        cube=matched.cube;assert not cube.history and signature(cube)==signature(source)
+        cube=matched.cube;assert not cube.history
+        if source is not None:assert signature(cube)==signature(source)
         before=cube.frames;started=monotonic()
         try:
             result=solve_mixup(cube,lambda:monotonic()-started>seconds)
@@ -45,4 +51,4 @@ def run(kind,seconds=60):
     print(json.dumps(row),flush=True)
 
 
-if __name__=='__main__':run(sys.argv[1],float(sys.argv[2]) if len(sys.argv)>2 else 60.)
+if __name__=='__main__':run(sys.argv[1],float(sys.argv[2]) if len(sys.argv)>2 else 60.,'--saved' in sys.argv)

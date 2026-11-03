@@ -1,0 +1,274 @@
+[
+  {
+    "kind": "i_cube",
+    "status": "pass",
+    "examples": 5,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "l_cube",
+    "status": "pass",
+    "examples": 5,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "t_cube",
+    "status": "pass",
+    "examples": 5,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "x_cube",
+    "status": "pass",
+    "examples": 5,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "tri_cube",
+    "status": "fail",
+    "error": "Traceback (most recent call last):\n  File \"D:\\coco\\cube-solver\\tools\\audit_expanded_demo_ui.py\", line 59, in main\n    screen.enter_case((entry.kind,entry.n),si,ci);manager.current=screen.name\n  File \"D:\\coco\\cube-solver\\ui\\screens\\demo_screen.py\", line 272, in enter_case\n    self._show_case()\n  File \"D:\\coco\\cube-solver\\ui\\screens\\demo_screen.py\", line 322, in _show_case\n    self._update_controls()\n  File \"D:\\coco\\cube-solver\\ui\\screens\\demo_screen.py\", line 492, in _update_controls\n    if hasattr(self,'move_guide'):self.move_guide.set_move(self._work,next_move)\n  File \"D:\\coco\\cube-solver\\renderer\\move_guide.py\", line 44, in set_move\n    self.spec=describe(cube,move);self.draw()\n  File \"D:\\coco\\cube-solver\\renderer\\move_guide.py\", line 68, in draw\n    if v.cube.geometry.stickers[slot].piece in selected:\nIndexError: tuple index out of range\n"
+  },
+  {
+    "kind": "temple_cube",
+    "status": "pass",
+    "examples": 5,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "cross_cube",
+    "status": "pass",
+    "examples": 5,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "siamese_a",
+    "status": "pass",
+    "examples": 5,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "siamese_b",
+    "status": "fail",
+    "error": "Traceback (most recent call last):\n  File \"D:\\coco\\cube-solver\\tools\\audit_expanded_demo_ui.py\", line 59, in main\n    screen.enter_case((entry.kind,entry.n),si,ci);manager.current=screen.name\n  File \"D:\\coco\\cube-solver\\ui\\screens\\demo_screen.py\", line 272, in enter_case\n    self._show_case()\n  File \"D:\\coco\\cube-solver\\ui\\screens\\demo_screen.py\", line 322, in _show_case\n    self._update_controls()\n  File \"D:\\coco\\cube-solver\\ui\\screens\\demo_screen.py\", line 492, in _update_controls\n    if hasattr(self,'move_guide'):self.move_guide.set_move(self._work,next_move)\n  File \"D:\\coco\\cube-solver\\renderer\\move_guide.py\", line 44, in set_move\n    self.spec=describe(cube,move);self.draw()\n  File \"D:\\coco\\cube-solver\\renderer\\move_guide.py\", line 68, in draw\n    if v.cube.geometry.stickers[slot].piece in selected:\nIndexError: tuple index out of range\n"
+  },
+  {
+    "kind": "trajber",
+    "status": "pass",
+    "examples": 5,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "pyraminx_diamond",
+    "status": "pass",
+    "examples": 4,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "pyraminx_crystal",
+    "status": "pass",
+    "examples": 5,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "starminx_i",
+    "status": "pass",
+    "examples": 4,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "pentultimate",
+    "status": "fail",
+    "error": "Traceback (most recent call last):\n  File \"D:\\coco\\cube-solver\\tools\\audit_expanded_demo_ui.py\", line 59, in main\n    screen.enter_case((entry.kind,entry.n),si,ci);manager.current=screen.name\n  File \"D:\\coco\\cube-solver\\ui\\screens\\demo_screen.py\", line 272, in enter_case\n    self._show_case()\n  File \"D:\\coco\\cube-solver\\ui\\screens\\demo_screen.py\", line 322, in _show_case\n    self._update_controls()\n  File \"D:\\coco\\cube-solver\\ui\\screens\\demo_screen.py\", line 492, in _update_controls\n    if hasattr(self,'move_guide'):self.move_guide.set_move(self._work,next_move)\n  File \"D:\\coco\\cube-solver\\renderer\\move_guide.py\", line 44, in set_move\n    self.spec=describe(cube,move);self.draw()\n  File \"D:\\coco\\cube-solver\\renderer\\move_guide.py\", line 68, in draw\n    if v.cube.geometry.stickers[slot].piece in selected:\nIndexError: tuple index out of range\n"
+  },
+  {
+    "kind": "master_pentultimate",
+    "status": "pass",
+    "examples": 6,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "dodecahedron_2",
+    "status": "pass",
+    "examples": 5,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "rediminx",
+    "status": "pass",
+    "examples": 4,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "dodecahedron_3",
+    "status": "pass",
+    "examples": 5,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "dogic_i",
+    "status": "pass",
+    "examples": 4,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "container",
+    "status": "pass",
+    "examples": 4,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "rubik_cheese",
+    "status": "pass",
+    "examples": 4,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "cheese_3",
+    "status": "pass",
+    "examples": 5,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "masterball",
+    "status": "pass",
+    "examples": 5,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "pentagonal_domino",
+    "status": "pass",
+    "examples": 4,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "pentagonal_prism",
+    "status": "pass",
+    "examples": 4,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "pentagonal_4",
+    "status": "pass",
+    "examples": 5,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "professor_pentagonal",
+    "status": "pass",
+    "examples": 11,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "dogic_20",
+    "status": "fail",
+    "error": "Traceback (most recent call last):\n  File \"D:\\coco\\cube-solver\\tools\\audit_expanded_demo_ui.py\", line 59, in main\n    screen.enter_case((entry.kind,entry.n),si,ci);manager.current=screen.name\n  File \"D:\\coco\\cube-solver\\ui\\screens\\demo_screen.py\", line 272, in enter_case\n    self._show_case()\n  File \"D:\\coco\\cube-solver\\ui\\screens\\demo_screen.py\", line 322, in _show_case\n    self._update_controls()\n  File \"D:\\coco\\cube-solver\\ui\\screens\\demo_screen.py\", line 492, in _update_controls\n    if hasattr(self,'move_guide'):self.move_guide.set_move(self._work,next_move)\n  File \"D:\\coco\\cube-solver\\renderer\\move_guide.py\", line 44, in set_move\n    self.spec=describe(cube,move);self.draw()\n  File \"D:\\coco\\cube-solver\\renderer\\move_guide.py\", line 68, in draw\n    if v.cube.geometry.stickers[slot].piece in selected:\nIndexError: tuple index out of range\n"
+  },
+  {
+    "kind": "master_brilic",
+    "status": "pass",
+    "examples": 6,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "blanker",
+    "status": "pass",
+    "examples": 5,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "mirror_kilominx",
+    "status": "pass",
+    "examples": 4,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  },
+  {
+    "kind": "mirror_megaminx",
+    "status": "pass",
+    "examples": 4,
+    "input_preserved": true,
+    "book": true,
+    "route": true,
+    "next_prev_cancel": true
+  }
+]

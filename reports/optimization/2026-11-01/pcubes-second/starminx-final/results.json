@@ -1,0 +1,282 @@
+[
+  {
+    "kind": "starminx_i",
+    "seed": 20261101,
+    "scramble_turns": 30,
+    "evaluation_budget_seconds": 120.0,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-11-01\\pcubes-second\\starminx-final\\inputs\\starminx_i-20261101-30.json",
+    "input_method": "fixed visible model panels, colours only",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 0.032,
+    "success": true,
+    "moves": 20767,
+    "failure_category": "",
+    "solve_seconds": 1.125,
+    "progress_stages": [
+      {
+        "label": "solver.continuing",
+        "seconds": 0.015
+      }
+    ],
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.031,
+    "seconds": 1.188,
+    "shortening": [
+      {
+        "before": 20809,
+        "after": 20767,
+        "seconds": 0.266
+      }
+    ],
+    "colour_stage_plans": [],
+    "process_seconds": 2.609
+  },
+  {
+    "kind": "starminx_i",
+    "seed": 20261102,
+    "scramble_turns": 30,
+    "evaluation_budget_seconds": 120.0,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-11-01\\pcubes-second\\starminx-final\\inputs\\starminx_i-20261102-30.json",
+    "input_method": "fixed visible model panels, colours only",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 0.016,
+    "success": true,
+    "moves": 23545,
+    "failure_category": "",
+    "solve_seconds": 1.14,
+    "progress_stages": [
+      {
+        "label": "solver.continuing",
+        "seconds": 0.015
+      }
+    ],
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.031,
+    "seconds": 1.187,
+    "shortening": [
+      {
+        "before": 23670,
+        "after": 23545,
+        "seconds": 0.281
+      }
+    ],
+    "colour_stage_plans": [],
+    "process_seconds": 2.64
+  },
+  {
+    "kind": "rediminx",
+    "seed": 20261101,
+    "scramble_turns": 30,
+    "evaluation_budget_seconds": 120.0,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-11-01\\pcubes-second\\starminx-final\\inputs\\rediminx-20261101-30.json",
+    "input_method": "fixed visible model panels, colours only",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 0.109,
+    "success": true,
+    "moves": 181,
+    "failure_category": "",
+    "solve_seconds": 0.031,
+    "progress_stages": [
+      {
+        "label": "solver.continuing",
+        "seconds": 0.0
+      }
+    ],
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.0,
+    "seconds": 0.14,
+    "shortening": [
+      {
+        "before": 181,
+        "after": 181,
+        "seconds": 0.0
+      }
+    ],
+    "colour_stage_plans": [],
+    "process_seconds": 0.344
+  },
+  {
+    "kind": "rediminx",
+    "seed": 20261102,
+    "scramble_turns": 30,
+    "evaluation_budget_seconds": 120.0,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-11-01\\pcubes-second\\starminx-final\\inputs\\rediminx-20261102-30.json",
+    "input_method": "fixed visible model panels, colours only",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 0.094,
+    "success": true,
+    "moves": 143,
+    "failure_category": "",
+    "solve_seconds": 0.031,
+    "progress_stages": [
+      {
+        "label": "solver.continuing",
+        "seconds": 0.015
+      }
+    ],
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.0,
+    "seconds": 0.125,
+    "shortening": [
+      {
+        "before": 149,
+        "after": 143,
+        "seconds": 0.0
+      }
+    ],
+    "colour_stage_plans": [],
+    "process_seconds": 0.329
+  },
+  {
+    "kind": "starminx_i",
+    "seed": 20261101,
+    "scramble_turns": 100,
+    "evaluation_budget_seconds": 120.0,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-11-01\\pcubes-second\\starminx-final\\inputs\\starminx_i-20261101-100.json",
+    "input_method": "fixed visible model panels, colours only",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 0.016,
+    "success": true,
+    "moves": 24135,
+    "failure_category": "",
+    "solve_seconds": 1.172,
+    "progress_stages": [
+      {
+        "label": "solver.continuing",
+        "seconds": 0.015
+      }
+    ],
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.046,
+    "seconds": 1.234,
+    "shortening": [
+      {
+        "before": 24135,
+        "after": 24135,
+        "seconds": 0.266
+      }
+    ],
+    "colour_stage_plans": [],
+    "process_seconds": 2.641
+  },
+  {
+    "kind": "starminx_i",
+    "seed": 20261102,
+    "scramble_turns": 100,
+    "evaluation_budget_seconds": 120.0,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-11-01\\pcubes-second\\starminx-final\\inputs\\starminx_i-20261102-100.json",
+    "input_method": "fixed visible model panels, colours only",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 0.031,
+    "success": true,
+    "moves": 24158,
+    "failure_category": "",
+    "solve_seconds": 1.188,
+    "progress_stages": [
+      {
+        "label": "solver.continuing",
+        "seconds": 0.0
+      }
+    ],
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.031,
+    "seconds": 1.25,
+    "shortening": [
+      {
+        "before": 24264,
+        "after": 24158,
+        "seconds": 0.281
+      }
+    ],
+    "colour_stage_plans": [],
+    "process_seconds": 2.64
+  },
+  {
+    "kind": "rediminx",
+    "seed": 20261101,
+    "scramble_turns": 100,
+    "evaluation_budget_seconds": 120.0,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-11-01\\pcubes-second\\starminx-final\\inputs\\rediminx-20261101-100.json",
+    "input_method": "fixed visible model panels, colours only",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 0.109,
+    "success": true,
+    "moves": 203,
+    "failure_category": "",
+    "solve_seconds": 0.047,
+    "progress_stages": [
+      {
+        "label": "solver.continuing",
+        "seconds": 0.016
+      }
+    ],
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.0,
+    "seconds": 0.156,
+    "shortening": [
+      {
+        "before": 210,
+        "after": 203,
+        "seconds": 0.015
+      }
+    ],
+    "colour_stage_plans": [],
+    "process_seconds": 0.359
+  },
+  {
+    "kind": "rediminx",
+    "seed": 20261102,
+    "scramble_turns": 100,
+    "evaluation_budget_seconds": 120.0,
+    "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-11-01\\pcubes-second\\starminx-final\\inputs\\rediminx-20261102-100.json",
+    "input_method": "fixed visible model panels, colours only",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "input_seconds": 0.109,
+    "success": true,
+    "moves": 223,
+    "failure_category": "",
+    "solve_seconds": 0.047,
+    "progress_stages": [
+      {
+        "label": "solver.continuing",
+        "seconds": 0.016
+      }
+    ],
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "replay_seconds": 0.0,
+    "seconds": 0.156,
+    "shortening": [
+      {
+        "before": 229,
+        "after": 223,
+        "seconds": 0.016
+      }
+    ],
+    "colour_stage_plans": [],
+    "process_seconds": 0.36
+  }
+]

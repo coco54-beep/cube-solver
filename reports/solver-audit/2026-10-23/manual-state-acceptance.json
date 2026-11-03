@@ -1,0 +1,192 @@
+{
+  "date": "2026-10-23",
+  "method": "Visible-only reentry into blank models, empty history, state solve and independent legal replay.",
+  "unique_test_cases": 419,
+  "test_suites": [
+    {
+      "report": "reports/solver-audit/2026-10-23/state-reduction-final-tests.xml",
+      "passed": 135,
+      "sha256": "4ad24745f95af3b5b6b766b287b31b77817d18bd4a0c75be9d718d7e9bd8a18a"
+    },
+    {
+      "report": "reports/solver-audit/2026-10-23/camouflage-deep-final-tests.xml",
+      "passed": 21,
+      "sha256": "2ba518dfaa31a927e24e76ad47667bf9de9af04cd989a8f69f39da1a883dc3d9"
+    },
+    {
+      "report": "reports/input-audit/2026-10-23/actual-manual-controls-final.xml",
+      "passed": 17,
+      "sha256": "71cb50b9b9fd92b755b6bd9f70133978af16cb2321203c1dd8887c4b847492d9"
+    },
+    {
+      "report": "reports/input-audit/2026-10-23/pentacle-manual-service-final.xml",
+      "passed": 2,
+      "sha256": "b7cb987768f217cb4e78160d22cb97824655b8dd8da1354ed0c5bd425638f722"
+    },
+    {
+      "report": "reports/solver-audit/2026-10-23/existing-state-solvers-regression.xml",
+      "passed": 253,
+      "sha256": "c14b9708aff5b3f5aec49ba1099077d3a597eeab586f652493e54de6b0799082"
+    }
+  ],
+  "production_assets": {
+    "ai_shapes.bin": {
+      "bytes": 579,
+      "sha256": "7f64ac950fb528ec60bbea15c838d55a2ee096299b855d3e1a86b86d6535ed23"
+    },
+    "ai_group.bin": {
+      "bytes": 9688,
+      "sha256": "ffeafcf75d0f5e7b252267b7208eb12663cdb4089fdbdde17ab955db461ade26",
+      "order": "144515755940889231360000",
+      "exhaustive_layouts": 70,
+      "verified_edges": 1278
+    },
+    "burr_shapes.bin": {
+      "bytes": 1189160,
+      "sha256": "9df6dc74f7cbf0310bc1fabdc8aa8a56e246e6461868d66b6a3cf6fdd1935a31"
+    },
+    "burr_group.bin": {
+      "bytes": 4571,
+      "sha256": "a32f823403515cffa3fb5f839900850dcf0d96da7052e52394142dd89bc56aad",
+      "order": "89894839910400",
+      "exhaustive_layouts": 182070,
+      "verified_edges": 1294884
+    },
+    "cuboid_442_orientations.bin": {
+      "bytes": 1981282,
+      "sha256": "5405a3afb0bd2636949352880b958e9c0aa38206aa95b25a01ebbea78dc8ac1c"
+    },
+    "cuboid_442_group.bin": {
+      "bytes": 6154,
+      "sha256": "3f7da9260704046634cdc23ac883118baf55a5ed2e451b3632daacbce567688b",
+      "order": "1321454146682880000",
+      "verified_transversals": 207,
+      "parity_bound": "1321454146682880000"
+    },
+    "pentacle_group.bin": {
+      "bytes": 48238,
+      "sha256": "0118fbd6071a274c52cfc6edf5d0337203a9149096b7bbe952b8a410c463d044",
+      "order": "760792785729119764596174432061517054860415908687474725599529507225600000000000000000",
+      "verified_transversals": 1221
+    },
+    "mixup_plus_333_group.bin": {
+      "bytes": 111176,
+      "sha256": "dc110eba6d10c72718c2536445782faa34944dac92c04e2effed315b8289f663",
+      "weighted_transversals": true
+    },
+    "mixup_plus_334_group.bin": {
+      "bytes": 145441,
+      "sha256": "886a3c7dd9a427f7a42b9ed062cbca662ce78bbf834553618cb00c12c538423c",
+      "weighted_transversals": true
+    },
+    "mixup_plus_344_group.bin": {
+      "bytes": 179898,
+      "sha256": "8014605f858eb9bbf4742c55d79fb3d1b6e778214683f4003211d698efa802ce",
+      "weighted_transversals": true
+    }
+  },
+  "mixup_saved_visible_inputs": [
+    {
+      "kind": "mixup_333",
+      "seed": 20261023,
+      "scramble_turns": 49,
+      "observation_match": "matched",
+      "success": true,
+      "moves": 313,
+      "replay_solved": true,
+      "history_empty": true,
+      "solve_seconds": 1.047,
+      "total_seconds": 1.5
+    },
+    {
+      "kind": "mixup_334",
+      "seed": 20261023,
+      "scramble_turns": 74,
+      "observation_match": "matched",
+      "success": true,
+      "moves": 627,
+      "replay_solved": true,
+      "history_empty": true,
+      "solve_seconds": 1.563,
+      "total_seconds": 2.094
+    },
+    {
+      "kind": "mixup_344",
+      "seed": 20261023,
+      "scramble_turns": 95,
+      "observation_match": "matched",
+      "success": true,
+      "moves": 589,
+      "replay_solved": true,
+      "history_empty": true,
+      "solve_seconds": 1.625,
+      "total_seconds": 2.453
+    },
+    {
+      "kind": "mixup_444",
+      "seed": 20261023,
+      "scramble_turns": 83,
+      "observation_match": "matched",
+      "success": true,
+      "moves": 162,
+      "replay_solved": true,
+      "history_empty": true,
+      "solve_seconds": 1.828,
+      "total_seconds": 3.359
+    },
+    {
+      "kind": "mixup_plus_333",
+      "seed": 20261023,
+      "scramble_turns": 56,
+      "observation_match": "matched",
+      "success": true,
+      "moves": 367,
+      "replay_solved": true,
+      "history_empty": true,
+      "solve_seconds": 3.5,
+      "total_seconds": 4.391
+    },
+    {
+      "kind": "mixup_plus_334",
+      "seed": 20261023,
+      "scramble_turns": 106,
+      "observation_match": "matched",
+      "success": true,
+      "moves": 797,
+      "replay_solved": true,
+      "history_empty": true,
+      "solve_seconds": 5.937,
+      "total_seconds": 6.859
+    },
+    {
+      "kind": "mixup_plus_344",
+      "seed": 20261023,
+      "scramble_turns": 110,
+      "observation_match": "matched",
+      "success": true,
+      "moves": 984,
+      "replay_solved": true,
+      "history_empty": true,
+      "solve_seconds": 14.672,
+      "total_seconds": 16.078
+    },
+    {
+      "kind": "mixup_plus_444",
+      "seed": 20261023,
+      "scramble_turns": 86,
+      "observation_match": "matched",
+      "success": true,
+      "moves": 954,
+      "replay_solved": true,
+      "history_empty": true,
+      "solve_seconds": 15.328,
+      "total_seconds": 17.891
+    }
+  ],
+  "remaining_limits": [
+    "Camouflage uses a bounded 45-second search, not a complete constructive solver.",
+    "Mixup and Tangram Extreme shape restoration still has search limits.",
+    "Colour-coset matching has explicit node/time/cancellation limits.",
+    "Solutions can be long. No APK or Windows release build or physical phone test was performed."
+  ]
+}

@@ -7,6 +7,7 @@ from kivy.logger import Logger
 from kivy.uix.screenmanager import Screen
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
+from ui.widgets.entry_guidance import EntryGuidance
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.popup import Popup
 from app.i18n import tr
@@ -26,6 +27,7 @@ from ui.widgets.layouts import AdaptiveSceneLayout,ResponsiveBoxLayout
 from ui.widgets.camera_follow import follow_panel
 from ui.widgets.dialogs import theme_popup
 from ui.widgets import metrics as m
+from ui.widgets.entry_controls import entry_header,entry_actions
 
 
 def _assembly_label(assembly):
@@ -53,15 +55,16 @@ class MixupInputScreen(RigidEntryScreen):
         self._assemblies=();self._assembly_region=None;self._assembly_job=None
         self._assembly_originals={};self._clear_popup=None
         root=AdaptiveSceneLayout();self._root_layout=root
-        top=ResponsiveBoxLayout(height_px=44,gap_px=6)
-        self._button(top,'back',self.back);self.title=Label(font_size='18sp');top.add_widget(self.title)
-        self._button(top,'gear',self.customize);root.add_widget(top)
+        self.title=Label(font_size='20sp')
+        top,self.btn_back,self.demo_button=entry_header(self.title,self.back,self.open_entry_help)
+        root.add_widget(top)
         self.view=MixupEntryView();self.view.on_pick=self.pick;self.preview=self.view
         panel=ResponsiveBoxLayout(orientation='vertical',gap_px=6)
         self.colors=GridLayout(cols=6,size_hint_y=None,height=m.h(42),spacing=m.h(4));panel.add_widget(self.colors)
         row=ResponsiveBoxLayout(height_px=32,gap_px=4)
         self.selection=Label(font_size='13sp');row.add_widget(self.selection)
         self.clear_area_button=self._button(row,'',self.clear_choices,DangerButton);self.clear_area_button.size_hint_x=.55
+        self.mode_button=self._button(row,'',self.toggle_input_mode);self.mode_button.size_hint_x=.7
         panel.add_widget(row)
         row=ResponsiveBoxLayout(height_px=30,gap_px=4)
         self.kind_label=Label(font_size='12sp');row.add_widget(self.kind_label)
@@ -74,16 +77,20 @@ class MixupInputScreen(RigidEntryScreen):
         self.rotate_previous=self._button(self.rotation_row,'prev',lambda:self.rotate_assembly(-1))
         self.rotation_label=Label(font_size='12sp');self.rotation_row.add_widget(self.rotation_label)
         self.rotate_next=self._button(self.rotation_row,'next',lambda:self.rotate_assembly(1))
-        panel.add_widget(self.rotation_row)
-        self.hint=Label(size_hint_y=None,height=m.h(35),font_size='12sp',halign='center',valign='middle')
+        navigation=ResponsiveBoxLayout(height_px=44,gap_px=6)
+        self.palette_button=self._button(navigation,'gear',self.customize)
+        self.palette_button.size_hint_x=.3
+        navigation.add_widget(self.rotation_row)
+        self._button(navigation,'reset',lambda:reset_camera_view(self.view)).size_hint_x=.3
+        panel.add_widget(navigation)
+        self.hint=EntryGuidance(size_hint_y=None,height=m.h(35),font_size='12sp',halign='center',valign='middle')
         self.hint.bind(size=lambda w,*_:setattr(w,'text_size',w.size));panel.add_widget(self.hint)
         row=ResponsiveBoxLayout(height_px=44,gap_px=4)
-        self._button(row,'twist',self.open_twist);self._button(row,'check',self.apply,PrimaryButton)
+        self._button(row,'check',self.apply,PrimaryButton)
         self._button(row,'cancel',self.cancel_matching);panel.add_widget(row)
-        row=ResponsiveBoxLayout(height_px=44,gap_px=4)
-        for icon,fn in (('cube',self.assign_initial),('random',self.randomize),('clear',self.clear),
-                        ('undo',self.undo),('target',lambda:reset_camera_view(self.view)),('solve',self.solve)):
-            self._button(row,icon,fn)
+        row,self.entry_action_buttons=entry_actions(twist=self.open_twist,randomize=self.randomize,
+            clear=self.clear,undo=self.undo,assign=self.assign_initial,solve=self.solve)
+        row.add_secondary('clear_piece',self.clear_area_button)
         panel.add_widget(row)
         self.status=Label(size_hint_y=None,height=m.h(44),font_size='12sp',halign='center',valign='middle')
         self.status.bind(size=lambda w,*_:setattr(w,'text_size',w.size));panel.add_widget(self.status)
@@ -171,7 +178,7 @@ class MixupInputScreen(RigidEntryScreen):
         draft=self._get_draft();selected=self._selected()
         linked=draft.linked_positions(self._mx_selected[0]) if selected else ()
         self.title.text=tr('directory.'+draft.kind)
-        self.clear_area_button.text=tr('mixup.entry_clear_options')
+        self.clear_area_button.text=''
         self.clear_area_button.disabled=self._job is not None or not selected
         self.view.cube=self._cube;self.view.set_draft(draft);self.view.candidate=None
         # Keep the same geometry and picking IDs before and after the first
@@ -190,15 +197,14 @@ class MixupInputScreen(RigidEntryScreen):
             if len(linked)>1:self.selection.text+=' · '+tr('mixup.entry_linked')
             if cell.get('panel_role'):self.selection.text+=' · '+tr('mixup.face_'+cell['panel_role'])
             if self._assembly_job is not None:self.kind_label.text=tr('mixup.entry_loading_assemblies')
-        self.hint.text=tr('mixup.entry_brush_hint' if self._paint_enabled else
-                         'mixup.entry_inner_hint' if selected and selected[1].get('panel_role')=='inner_edge' else 'mixup.entry_paint_hint')
+        self._refresh_brush()
         worlds={}
         for block in draft.blocks:
             for cell in block['cells']:
                 key=polygon_key(cell['world'] or cell['guide'])
                 worlds[key]=max(worlds.get(key,-1),cell['color'])
-        self.status.text=self._message or tr('mixup.entry_progress',done=sum(c>=0 for c in worlds.values()),total=len(worlds))
-        for c,button in enumerate(self._swatches):button.active=self._paint_enabled and c==self._color;button.disabled=self._job is not None
+        self._progress_text=tr('mixup.entry_progress',done=sum(c>=0 for c in worlds.values()),total=len(worlds))
+        self.status.text=self._message or self._progress_text
         self.gallery.clear_widgets()
         active=self._current_assembly()
         entered=draft.assembly_at(self._mx_selected[0]) if selected else None
@@ -239,6 +245,17 @@ class MixupInputScreen(RigidEntryScreen):
         self.rotation_label.text=tr('mixup.entry_rotation_degrees',angle=90*selected[0]['rotation'] if selected else 0,step=90*step)
         self.refresh_theme()
 
+    def _refresh_brush(self):
+        selected=self._selected()
+        self.hint.text=tr('mixup.entry_brush_hint' if self._paint_enabled else
+                         'mixup.entry_inner_hint' if selected and selected[1].get('panel_role')=='inner_edge' else 'mixup.entry_paint_hint')
+        for c,button in enumerate(self._swatches):
+            button.active=self._paint_enabled and c==self._color
+            button.disabled=self._job is not None
+        self.mode_button.icon_name='fill' if self._paint_enabled else 'twist'
+        self.mode_button.text=''
+        self.mode_button.active=self._paint_enabled;self.mode_button.disabled=self._job is not None
+
     def _original_assembly(self):
         selected=self._selected()
         if selected is None or selected[0]['role'] in ('corner','inner_edge'):return None
@@ -266,7 +283,7 @@ class MixupInputScreen(RigidEntryScreen):
             return
         candidate=MixupEntryDraft(draft.kind,self._mx_state)
         try:candidate.restore_region(index,original['blocks'])
-        except ValueError as exc:self._message=tr(str(exc));self._refresh();return
+        except ValueError as exc:self._edit_failure(exc);return
         if candidate.state()==self._mx_state:return
         self._remember();self._draft=candidate
         if not candidate.blocks[index]['cells']:
@@ -302,7 +319,7 @@ class MixupInputScreen(RigidEntryScreen):
         candidate=MixupEntryDraft(self._cube.puzzle_kind,self._mx_state)
         source=current.key if current is not None else original['assembly'].key if original else None
         try:candidate.rotate_assembly(index,delta*candidate.rotation_step(index),source)
-        except ValueError as exc:self._message=tr(str(exc));self._refresh();return
+        except ValueError as exc:self._edit_failure(exc);return
         self._remember();self._draft=candidate;self._sync()
 
     def pick(self,slot):
@@ -345,7 +362,9 @@ class MixupInputScreen(RigidEntryScreen):
                     self._message=tr(error) if error else '' if result else tr('mixup.entry_keep_shape')
                 self._refresh()
             Clock.schedule_once(finish,0)
-        threading.Thread(target=run,daemon=True).start()
+        try:threading.Thread(target=run,daemon=True).start()
+        except Exception as exc:
+            self._assembly_job=None;self.entry_show_exception(exc)
 
     def select_assembly(self,assembly):
         if not self.entry_can_edit() or self._selected() is None:return
@@ -356,23 +375,31 @@ class MixupInputScreen(RigidEntryScreen):
         if current is not None and current.key==assembly.key:return
         candidate=MixupEntryDraft(self._cube.puzzle_kind,self._mx_state);index=self._mx_selected[0]
         try:candidate.set_assembly(index,assembly)
-        except ValueError as exc:self._message=tr(str(exc));self._refresh();return
+        except ValueError as exc:self._edit_failure(exc);return
         self._remember();self._draft=candidate;self._mx_selected=(index,0);self._sync()
 
     def _paint(self):
         if not self.entry_can_edit() or self._selected() is None:return
         candidate=MixupEntryDraft(self._cube.puzzle_kind,self._mx_state)
         try:candidate.paint(*self._mx_selected,self._color)
-        except ValueError as exc:self._message=tr(str(exc));self._refresh();return
+        except ValueError as exc:self._edit_failure(exc);return
         if candidate.state()==self._mx_state:self._refresh();return
         self._remember();self._draft=candidate;self._sync()
+
+    def _edit_failure(self,exc):
+        self._message=tr(str(exc));self._refresh()
+        if getattr(exc,'locations',None):self.entry_show_error(str(exc),locations=exc.locations)
 
     def select_color(self,color):
         if not self.entry_can_edit():return
         # Swatches choose a brush, never repaint the last selected panel.
-        # Tapping its active swatch again returns to shape-only selection.
-        self._paint_enabled=not(self._paint_enabled and self._color==color)
-        self._color=color;self._message='';self._refresh()
+        self._paint_enabled=True
+        self._color=color;self._message='';self._refresh_brush()
+        self.status.text=getattr(self,'_progress_text','')
+
+    def toggle_input_mode(self):
+        if not self.entry_can_edit():return
+        self._paint_enabled=not self._paint_enabled;self._refresh_brush()
 
     def clear_selected(self):
         if not self.entry_can_edit() or self._selected() is None:return
@@ -401,23 +428,27 @@ class MixupInputScreen(RigidEntryScreen):
 
     def _start(self,worker,finish,message):
         if not self.entry_can_edit():return
-        token=object();self._job=token;self._cancel.clear();self._message=tr(message);self._refresh()
+        token=self.entry_state.begin('scrambling' if message=='rigid.shuffling' else 'matching')
+        self._cancel.clear();self._message=tr(message);self._refresh()
         def cancel():return self._cancel.is_set() or self._job is not token
         def run():
-            result=None;error=None
+            result=None;error=None;error_kind='operation'
             try:result=worker(cancel)
             except InterruptedError:return
             except Exception as exc:
                 known=str(exc).startswith(('mixup.','observe.','rigid.'))
                 error=str(exc) if known else 'observe.invalid'
+                if known and isinstance(exc,ValueError) and message!='rigid.shuffling':error_kind='input'
                 if not known:Logger.exception('Mixup input: background operation failed')
             def done(_):
                 if cancel():return
                 self._job=None
-                if error:self._message=tr(error);self._refresh()
+                if error:self._message=tr(error);self._refresh();self.entry_show_error(self._message,kind=error_kind)
                 else:finish(result)
             Clock.schedule_once(done,0)
-        threading.Thread(target=run,daemon=True).start()
+        try:threading.Thread(target=run,daemon=True).start()
+        except Exception as exc:
+            self._job=None;self.entry_show_exception(exc)
     def apply(self,after=None):
         if not self.entry_can_edit():return
         if not self._applied():self._reconcile_known_state()
@@ -426,8 +457,10 @@ class MixupInputScreen(RigidEntryScreen):
             elif after=='solve':super().solve()
             return
         source=MixupEntryDraft(self._cube.puzzle_kind,self._mx_state)
+        try:observations=source.observations()
+        except ValueError as exc:self.entry_show_error(str(exc),locations=getattr(exc,'locations',None));return
         def worker(cancel):
-            result=match_observations(source.observations(),cancel)
+            result=match_observations(observations,cancel)
             draft=MixupEntryDraft.from_cube(result.cube) if result.status=='matched' else None
             if cancel():raise InterruptedError()
             return result,draft
@@ -437,6 +470,11 @@ class MixupInputScreen(RigidEntryScreen):
             if result.status=='matched':
                 self._remember();self._cube=result.cube;self.entry_commit_state(draft);self._message=tr('observe.matched')
             self._refresh()
+            if result.status!='matched':
+                from services.failures import matching_category
+                locations=([dict(block=i,cell=0) for i,b in enumerate(source.blocks) if b['face']==result.face and b['cells']]
+                           if result.face is not None else None)
+                self.entry_show_error(self._message,category=matching_category(result.status),locations=locations)
             if result.status=='matched':
                 if after=='twist':super(MixupInputScreen,self).open_twist()
                 elif after=='solve':super(MixupInputScreen,self).solve()

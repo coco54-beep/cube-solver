@@ -1,0 +1,112 @@
+[
+  {
+    "kind": "circle_2",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "entry_matches": true,
+    "history_empty": true,
+    "success": false,
+    "seconds": 0.219,
+    "message": "\u6b64\u624b\u52a8\u72b6\u6001\u8d85\u51fa\u5f53\u524d\u77ed\u641c\u7d22\u8303\u56f4\uff1b\u516b\u5927\u884c\u661f\u7684\u5b8c\u6574\u624b\u52a8\u6c42\u89e3\u5c1a\u672a\u5f00\u653e\u3002"
+  },
+  {
+    "kind": "crazy_mercury",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "entry_matches": true,
+    "history_empty": true,
+    "success": false,
+    "seconds": 0.125,
+    "message": "\u6b64\u624b\u52a8\u72b6\u6001\u8d85\u51fa\u5f53\u524d\u77ed\u641c\u7d22\u8303\u56f4\uff1b\u516b\u5927\u884c\u661f\u7684\u5b8c\u6574\u624b\u52a8\u6c42\u89e3\u5c1a\u672a\u5f00\u653e\u3002"
+  },
+  {
+    "kind": "crazy_venus",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "entry_matches": true,
+    "history_empty": true,
+    "success": false,
+    "seconds": 0.109,
+    "message": "\u6b64\u624b\u52a8\u72b6\u6001\u8d85\u51fa\u5f53\u524d\u77ed\u641c\u7d22\u8303\u56f4\uff1b\u516b\u5927\u884c\u661f\u7684\u5b8c\u6574\u624b\u52a8\u6c42\u89e3\u5c1a\u672a\u5f00\u653e\u3002"
+  },
+  {
+    "kind": "crazy_earth",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "entry_matches": true,
+    "history_empty": true,
+    "success": false,
+    "seconds": 0.109,
+    "message": "\u6b64\u624b\u52a8\u72b6\u6001\u8d85\u51fa\u5f53\u524d\u77ed\u641c\u7d22\u8303\u56f4\uff1b\u516b\u5927\u884c\u661f\u7684\u5b8c\u6574\u624b\u52a8\u6c42\u89e3\u5c1a\u672a\u5f00\u653e\u3002"
+  },
+  {
+    "kind": "crazy_mars",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "entry_matches": true,
+    "history_empty": true,
+    "success": false,
+    "seconds": 0.109,
+    "message": "\u6b64\u624b\u52a8\u72b6\u6001\u8d85\u51fa\u5f53\u524d\u77ed\u641c\u7d22\u8303\u56f4\uff1b\u516b\u5927\u884c\u661f\u7684\u5b8c\u6574\u624b\u52a8\u6c42\u89e3\u5c1a\u672a\u5f00\u653e\u3002"
+  },
+  {
+    "kind": "crazy_jupiter",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "entry_matches": true,
+    "history_empty": true,
+    "success": false,
+    "seconds": 0.125,
+    "message": "\u6b64\u624b\u52a8\u72b6\u6001\u8d85\u51fa\u5f53\u524d\u77ed\u641c\u7d22\u8303\u56f4\uff1b\u516b\u5927\u884c\u661f\u7684\u5b8c\u6574\u624b\u52a8\u6c42\u89e3\u5c1a\u672a\u5f00\u653e\u3002"
+  },
+  {
+    "kind": "crazy_saturn",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "entry_matches": true,
+    "history_empty": true,
+    "success": false,
+    "seconds": 0.109,
+    "message": "\u6b64\u624b\u52a8\u72b6\u6001\u8d85\u51fa\u5f53\u524d\u77ed\u641c\u7d22\u8303\u56f4\uff1b\u516b\u5927\u884c\u661f\u7684\u5b8c\u6574\u624b\u52a8\u6c42\u89e3\u5c1a\u672a\u5f00\u653e\u3002"
+  },
+  {
+    "kind": "crazy_uranus",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "entry_matches": true,
+    "history_empty": true,
+    "success": false,
+    "seconds": 0.109,
+    "message": "\u6b64\u624b\u52a8\u72b6\u6001\u8d85\u51fa\u5f53\u524d\u77ed\u641c\u7d22\u8303\u56f4\uff1b\u516b\u5927\u884c\u661f\u7684\u5b8c\u6574\u624b\u52a8\u6c42\u89e3\u5c1a\u672a\u5f00\u653e\u3002"
+  },
+  {
+    "kind": "crazy_neptune",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "entry_matches": true,
+    "history_empty": true,
+    "success": false,
+    "seconds": 0.109,
+    "message": "\u6b64\u624b\u52a8\u72b6\u6001\u8d85\u51fa\u5f53\u524d\u77ed\u641c\u7d22\u8303\u56f4\uff1b\u516b\u5927\u884c\u661f\u7684\u5b8c\u6574\u624b\u52a8\u6c42\u89e3\u5c1a\u672a\u5f00\u653e\u3002"
+  },
+  {
+    "kind": "cuboid_442",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "entry_matches": true,
+    "history_empty": true,
+    "success": false,
+    "seconds": 30.016,
+    "message": "InterruptedError"
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 20261023,
+    "scramble_turns": 24,
+    "entry_matches": true,
+    "history_empty": true,
+    "success": false,
+    "seconds": 30.015,
+    "message": "InterruptedError"
+  }
+]

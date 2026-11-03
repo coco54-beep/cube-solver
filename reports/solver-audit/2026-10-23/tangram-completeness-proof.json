@@ -1,0 +1,34 @@
+[
+  {
+    "kind": "tangram",
+    "geometry": "8c8f09ff3f7b49081ea7c149df6d9fd9268edd1e925b4729deedb7616d19608c",
+    "reachable_shape_positions": 20,
+    "coloured_position_degree": 48,
+    "all_moves_legal_on_reachable_positions": true,
+    "full_move_group_order": "335923200",
+    "complete_shape_orbit": 1,
+    "full_root_stabilizer_order": "335923200",
+    "verified_transversals": 93,
+    "asset_sha256": "23e47b6040b229f4f6172d67fde795a54bc6da57c6ceeedc4a293e6b7220e14e",
+    "revalidated": "2026-10-30",
+    "basis": "pCubes Tangram cube.xml normalized cuts"
+  },
+  {
+    "kind": "tangram_extreme",
+    "geometry": "75b7e2eb7f6eae75dfc5f63cae79a380ae0b5876eaa96187bf7873ade6b902b8",
+    "reachable_shape_positions": 82,
+    "coloured_position_degree": 120,
+    "all_moves_legal_on_reachable_positions": true,
+    "full_move_group_order": "284869458110680852856832000000",
+    "complete_shape_orbit": 6311112192,
+    "full_root_stabilizer_order": "45137758519296000000",
+    "verified_transversals": 170,
+    "asset_sha256": "b8c96e914294a4e1d7b28cba3a40b4b0a67419337a64092ef1e38da1e9d512ad",
+    "phase_zero_action_order": "142434729055340426428416000000",
+    "axis_phase_count": 2,
+    "stabilizer_certificate": "exact setwise subgroup search with partial-base pruning",
+    "action_scope": "two phase fibres; fixed-action group certified in phase zero",
+    "revalidated": "2026-10-30",
+    "basis": "pCubes Tangram II.xml moving axes"
+  }
+]

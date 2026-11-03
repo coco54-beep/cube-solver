@@ -1,0 +1,184 @@
+[
+  {
+    "length": 100,
+    "seed": 0,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 63,
+    "seconds": 1.203
+  },
+  {
+    "length": 100,
+    "seed": 1,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 64,
+    "seconds": 0.297
+  },
+  {
+    "length": 100,
+    "seed": 2,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 58,
+    "seconds": 0.406
+  },
+  {
+    "length": 100,
+    "seed": 3,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 69,
+    "seconds": 0.437
+  },
+  {
+    "length": 100,
+    "seed": 4,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 55,
+    "seconds": 0.094
+  },
+  {
+    "length": 100,
+    "seed": 5,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 40,
+    "seconds": 0.047
+  },
+  {
+    "length": 100,
+    "seed": 6,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 44,
+    "seconds": 0.078
+  },
+  {
+    "length": 100,
+    "seed": 7,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 68,
+    "seconds": 0.547
+  },
+  {
+    "length": 100,
+    "seed": 8,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 80,
+    "seconds": 1.985
+  },
+  {
+    "length": 100,
+    "seed": 9,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 48,
+    "seconds": 0.047
+  },
+  {
+    "length": 100,
+    "seed": 10,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 69,
+    "seconds": 0.344
+  },
+  {
+    "length": 100,
+    "seed": 11,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 56,
+    "seconds": 0.172
+  },
+  {
+    "length": 300,
+    "seed": 977,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 66,
+    "seconds": 0.796
+  },
+  {
+    "length": 1000,
+    "seed": 223,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 93,
+    "seconds": 1.765
+  },
+  {
+    "length": 400,
+    "seed": 21,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 40,
+    "seconds": 0.39
+  },
+  {
+    "length": 1000,
+    "seed": 0,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 91,
+    "seconds": 8.75
+  },
+  {
+    "length": 1000,
+    "seed": 1,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": true,
+    "success": true,
+    "moves": 96,
+    "seconds": 8.562
+  },
+  {
+    "length": 1000,
+    "seed": 2,
+    "manual_observations": true,
+    "history_empty": true,
+    "input_unchanged": null,
+    "success": false,
+    "seconds": 30.0,
+    "cancelled_by_audit": true,
+    "reason": "Continued full physical search; audit stopped at 30 seconds, not an unsolvability result.",
+    "note": "Cancellation interrupted the audit before its final unchanged-input assertion; the seventeen completed cases passed that assertion and replay."
+  }
+]

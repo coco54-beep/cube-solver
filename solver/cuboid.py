@@ -20,6 +20,9 @@ def solve_cuboid(cube,cancel=None,progress=None):
  from solver.messages import tr
  if cancel and cancel():raise InterruptedError()
  validate_cuboid(cube)
+ if cube.puzzle_kind=='floppy_133':
+  from solver.floppy import solve_floppy
+  return solve_floppy(cube,cancel,progress)
  if cube.puzzle_kind=='cuboid_133':
   from solver.super_floppy import solve_super_floppy
   return solve_super_floppy(cube,cancel,progress)
@@ -42,13 +45,26 @@ def solve_cuboid(cube,cancel=None,progress=None):
  if cube.puzzle_kind in FIXED_SHAPE_KINDS:
   from solver.cuboid_static import solve_fixed_cuboid
   solve=solve_fixed_cuboid
+ elif cube.puzzle_kind=='cuboid_442':
+  from solver.cuboid442 import solve_cuboid442
+  solve=solve_cuboid442
+ elif getattr(cube,'material_only',False):
+  from solver.cuboid_search import solve_bandaged_cuboid
+  solve=solve_bandaged_cuboid
  elif getattr(cube,'panel_anchored',False):
   from solver.cuboid_extended import solve_extended_cuboid
   solve=solve_extended_cuboid
  else:
   from solver.cuboid_search import solve_bandaged_cuboid
   solve=solve_bandaged_cuboid
- try:return solve(cube,cancel,progress)
+ try:
+  word=solve(cube,cancel,progress)
+  # Merge adjacent turns of the same mechanism layer for every cuboid family.
+  short=simplify(word,4)
+  if len(short)<len(word) and replay(short):word=short
+  from solver.rigid_word import shorten_rigid_word
+  word=shorten_rigid_word(cube,word,cancel)
+  return word
  except TimeoutError:raise ValueError(tr('cuboid.search_budget')) from None
  except ValueError as error:
   message=str(error)

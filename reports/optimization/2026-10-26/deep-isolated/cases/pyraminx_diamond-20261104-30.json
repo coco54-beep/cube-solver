@@ -1,0 +1,26 @@
+{
+  "kind": "pyraminx_diamond",
+  "seed": 20261104,
+  "scramble_turns": 30,
+  "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\deep-isolated\\inputs\\pyraminx_diamond-20261104-30.json",
+  "input_method": "fixed visible model panels, colours only",
+  "history_empty": true,
+  "visible_entry_matches": true,
+  "input_seconds": 0.0,
+  "success": true,
+  "moves": 45,
+  "failure_category": "",
+  "solve_seconds": 0.093,
+  "message": "",
+  "evaluation_budget_hit": false,
+  "replay_solved": true,
+  "replay_seconds": 0.0,
+  "seconds": 0.093,
+  "shortening": [
+    {
+      "before": 45,
+      "after": 45,
+      "seconds": 0.078
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+[
+  {
+    "kind": "mixup_333",
+    "seed": 20261027,
+    "scramble_turns": 3,
+    "success": false,
+    "error": "AssertionError: {'total_regions': 18, 'covered_regions': 16, 'empty_regions': 0, 'missing': [{'region': (14, 25), 'role': 'edge', 'reason': 'no_geometry_choice', 'pieces': {'edge': 1}}, {'region': (39, 46), 'role': 'edge', 'reason': 'no_geometry_choice', 'pieces': {'edge': 1}}], 'blank_entry_rebuilt': False}",
+    "seconds": 0.328
+  },
+  {
+    "kind": "mixup_plus_444",
+    "seed": 20261027,
+    "scramble_turns": 3,
+    "success": false,
+    "error": "AssertionError: {'total_regions': 42, 'covered_regions': 27, 'empty_regions': 0, 'missing': [{'region': (17, 75), 'role': 'edge', 'reason': 'no_geometry_choice', 'pieces': {'centre': 2, 'edge': 1}}, {'region': (18,), 'role': 'inner_edge', 'reason': 'no_geometry_choice', 'pieces': {'inner_edge': 2}}, {'region': (19,), 'role': 'centre', 'reason': 'no_geometry_choice', 'pieces': {'edge': 1, 'centre': 2}}, {'region': (21,), 'role': 'inner_edge', 'reason': 'no_geometry_choice', 'pieces': {'inner_edge': 2}}, {'region': (27, 59), 'role': 'edge', 'reason': 'no_geometry_choice', 'pieces': {'edge': 1, 'centre': 2}}, {'region': (28,), 'role': 'inner_edge', 'reason': 'no_geometry_choice', 'pieces': {'inner_edge': 2}}, {'region': (32,), 'role': 'centre', 'reason': 'no_geometry_choice', 'pieces': {'edge': 1, 'centre': 2}}, {'region': (37,), 'role': 'inner_edge', 'reason': 'no_geometry_choice', 'pieces': {'inner_edge': 2}}, {'region': (56, 66), 'role': 'edge', 'reason': 'no_geometry_choice', 'pieces': {'edge': 1, 'centre': 2}}, {'region': (57,), 'role': 'inner_edge', 'reason': 'no_geometry_choice', 'pieces': {'inner_edge': 2}}, {'region': (58,), 'role': 'centre', 'reason': 'no_geometry_choice', 'pieces': {'centre': 2, 'edge': 1}}, {'region': (60,), 'role': 'inner_edge', 'reason': 'no_geometry_choice', 'pieces': {'inner_edge': 2}}, {'region': (67,), 'role': 'inner_edge', 'reason': 'no_geometry_choice', 'pieces': {'inner_edge': 2}}, {'region': (71,), 'role': 'centre', 'reason': 'no_geometry_choice', 'pieces': {'centre': 2, 'edge': 1}}, {'region': (76,), 'role': 'inner_edge', 'reason': 'no_geometry_choice', 'pieces': {'inner_edge': 2}}], 'blank_entry_rebuilt': False}",
+    "seconds": 0.985
+  },
+  {
+    "kind": "camouflage_3",
+    "seed": 20261027,
+    "scramble_turns": 3,
+    "input_file": "reports\\optimization\\2026-10-25\\phase-2-6\\random-inputs\\inputs\\camouflage_3-20261027-3.json",
+    "input_method": "visible panels / fixed bandage layout",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "success": true,
+    "moves": 16,
+    "failure_category": "",
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "seconds": 0.39
+  },
+  {
+    "kind": "tangram_extreme",
+    "seed": 20261027,
+    "scramble_turns": 3,
+    "input_file": "reports\\optimization\\2026-10-25\\phase-2-6\\random-inputs\\inputs\\tangram_extreme-20261027-3.json",
+    "input_method": "visible panels / fixed bandage layout",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "success": true,
+    "moves": 427,
+    "failure_category": "",
+    "message": "",
+    "evaluation_budget_hit": false,
+    "replay_solved": true,
+    "seconds": 47.125
+  },
+  {
+    "kind": "cube_4",
+    "seed": 20261027,
+    "scramble_turns": 3,
+    "input_file": "reports\\optimization\\2026-10-25\\phase-2-6\\random-inputs\\inputs\\cube_4-20261027-3.json",
+    "input_method": "six faces, colours only",
+    "history_empty": true,
+    "visible_entry_matches": true,
+    "success": false,
+    "moves": 0,
+    "failure_category": "internal",
+    "message": "'R'",
+    "evaluation_budget_hit": false,
+    "seconds": 0.078
+  }
+]

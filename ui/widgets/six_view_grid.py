@@ -3,6 +3,7 @@ from kivy.app import App
 from kivy.graphics import Color, Line, Rectangle
 from kivy.uix.widget import Widget
 from cube.cuboid_observation import UNKNOWN, EMPTY, PLASTIC
+from renderer.entry_style import UNENTERED,PLASTIC as PLASTIC_COLOR,SEAM,GRID,SELECTION,stroke
 
 
 class SixViewGrid(Widget):
@@ -38,32 +39,45 @@ class SixViewGrid(Widget):
         theme = App.get_running_app().theme
         w, h, size, left, bottom = self._metrics()
         samples = self.draft.views[self.face]
+        boundaries = set()
+        selected = []
         with self.canvas:
             for i, (value, group, depth) in enumerate(samples):
                 r, c = divmod(i, w); x = left+c*size; y = bottom+(h-1-r)*size
-                color = (self.palette[value] if value >= 0 else (.055, .065, .08, 1) if value == PLASTIC else
-                         theme.bg if value == EMPTY else tuple(theme.text[:3])+(.14,))
+                color = (self.palette[value] if value >= 0 else PLASTIC_COLOR if value == PLASTIC else
+                         theme.bg if value == EMPTY else UNENTERED)
                 Color(*color); Rectangle(pos=(x, y), size=(size, size))
                 if value == UNKNOWN:
-                    Color(*theme.text[:3], .2)
-                    Line(points=[x+size*.36, y+size*.5, x+size*.64, y+size*.5], width=1)
+                    Color(*GRID)
+                    Line(points=[x+size*.36, y+size*.5, x+size*.64, y+size*.5], width=stroke('grid'))
                 if value == EMPTY:
                     Color(*theme.text[:3], .22)
                     for dx, dy in ((.28, .28), (.72, .72)):
                         Rectangle(pos=(x+size*dx, y+size*dy), size=(1.5, 1.5))
-                Color(*theme.text[:3], .18)
-                Line(rectangle=(x, y, size, size), width=.6)
-                # Heavy boundaries record cut seams, not artificial sample cells.
-                Color(.10, .15, .19, 1)
-                for neighbour, line in ((i+1 if c+1 < w else None, [x+size, y, x+size, y+size]),
-                                         (i+w if r+1 < h else None, [x, y, x+size, y])):
+                # Collect all four edges before drawing: neighbouring fills
+                # must not hide half a seam or omit a top/left boundary.
+                for neighbour, line in ((i-1 if c else None, (c,r,c,r+1)),
+                                         (i+1 if c+1 < w else None, (c+1,r,c+1,r+1)),
+                                         (i-w if r else None, (c,r,c+1,r)),
+                                         (i+w if r+1 < h else None, (c,r+1,c+1,r+1))):
                     if value not in (EMPTY, UNKNOWN) and (neighbour is None or samples[neighbour][0] != value or samples[neighbour][1] != group):
-                        Line(points=line, width=1.5)
+                        boundaries.add(line)
                 if i in self.selection:
-                    Color(0, .8, .95, .23); Rectangle(pos=(x, y), size=(size, size))
-                    Color(0, .8, .95, 1); Line(rectangle=(x, y, size, size), width=1.1)
-            Color(*theme.text[:3], .6)
-            Line(rectangle=(left, bottom, w*size, h*size), width=1)
+                    selected.append((x,y))
+            Color(*GRID)
+            for c in range(1,w):
+                Line(points=[left+c*size,bottom,left+c*size,bottom+h*size],width=stroke('grid'))
+            for r in range(1,h):
+                Line(points=[left,bottom+r*size,left+w*size,bottom+r*size],width=stroke('grid'))
+            Color(*SEAM)
+            for c1,r1,c2,r2 in sorted(boundaries):
+                Line(points=[left+c1*size,bottom+(h-r1)*size,
+                             left+c2*size,bottom+(h-r2)*size],width=stroke())
+            for x,y in selected:
+                Color(*SELECTION[:3],.23); Rectangle(pos=(x,y),size=(size,size))
+                Color(*SELECTION); Line(rectangle=(x,y,size,size),width=stroke('selection'))
+            Color(*SEAM)
+            Line(rectangle=(left, bottom, w*size, h*size), width=stroke('outline'))
 
     def on_touch_down(self, touch):
         if self.disabled or not self.collide_point(*touch.pos):

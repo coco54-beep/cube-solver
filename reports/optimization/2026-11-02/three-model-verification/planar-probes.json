@@ -1,0 +1,37 @@
+[
+  {
+    "kind": "helicopter_14",
+    "material_cells": 45,
+    "angle": 70.52877936550931,
+    "clear_overlapping_axes": [
+      3,
+      4
+    ],
+    "blocked_axes": [
+      1,
+      2,
+      5,
+      6
+    ],
+    "scope": "Current inferred geometry, not physical rail certification"
+  },
+  {
+    "kind": "kairis_star_finder",
+    "material_cells": 183,
+    "angle": 44.477512185929925,
+    "clear_overlapping_axes": [
+      3,
+      9,
+      12
+    ],
+    "blocked_axes": [
+      1,
+      2,
+      4,
+      10,
+      11,
+      13
+    ],
+    "scope": "Current inferred geometry, not physical rail certification"
+  }
+]

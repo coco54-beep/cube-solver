@@ -1,0 +1,26 @@
+{
+  "kind": "professor_pentagonal",
+  "seed": 20261104,
+  "scramble_turns": 30,
+  "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-10-26\\deep-isolated\\inputs\\professor_pentagonal-20261104-30.json",
+  "input_method": "fixed visible model panels, colours only",
+  "history_empty": true,
+  "visible_entry_matches": true,
+  "input_seconds": 0.046,
+  "success": true,
+  "moves": 558,
+  "failure_category": "",
+  "solve_seconds": 17.438,
+  "message": "",
+  "evaluation_budget_hit": false,
+  "replay_solved": true,
+  "replay_seconds": 0.0,
+  "seconds": 17.484,
+  "shortening": [
+    {
+      "before": 562,
+      "after": 558,
+      "seconds": 0.109
+    }
+  ]
+}

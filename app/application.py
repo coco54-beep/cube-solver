@@ -9,6 +9,7 @@
     self.solve_result: 最近一次求解结果（SolveResult）
 """
 
+from cube.cuboid import CUBOID_PREFIXES
 import os
 
 from kivy.app import App
@@ -46,12 +47,15 @@ class CubeApp(App):
         self.mastermorphix_palette = load_palette()
         self.solve_result = None
         self.facelets_input = None  # 用户录入的 facelets
+        self.facelets_input_key = None
         self.facelets_cache = {}    # 各阶录入状态的快照（切回该阶时恢复）
+        self.bandage_six_cache = {}
         self.input_from_camera = False  # 录入页是否由拍照识别进入（决定返回目标）
         self.selection_series = None    # 录入页返回时重新打开哪个系列
         self.camera_return_screen = 'HomeScreen'
         self.camera_shape_result = None
         self.camera_recorded = None
+        self.camera_observations = None
         # ---- 输入方式（高级 / 简洁，默认简洁）----
         self.simple_input = bool(_pref_get("simple_input", True))
         self._kv_loaded = False
@@ -69,8 +73,8 @@ class CubeApp(App):
             self._kv_loaded = True
         sm = ScreenManager()
         for name in ("HomeScreen", "InputScreen", "CameraScreen", "MastermorphixScreen", "MirrorScreen", "MorphixTwistScreen", "PolyhedralScreen", "ArticulatedEntryScreen", "MixupInputScreen", "PentacleScreen", "PolyhedralTwistScreen", "PolyhedralPlaybackScreen", "SolvingScreen", "PlaybackScreen",
-                     "DemoScreen", "DemoMenuScreen", "FormulaLibraryScreen", "PracticeScreen",                      "TwistScreen", "SettingsScreen", "PiecePaletteScreen", "CuboidSixViewScreen", "Square1Screen", "ShapeCubeScreen", "MirrorTowerScreen",
-                     "MirrorWindmillScreen", "MirrorAxisScreen", "MirrorFisherScreen", "MirrorUnequalWindmillScreen", "MirrorUnequalFisherScreen", "MirrorOffsetWindmillScreen", "MirrorOffsetFisherScreen", "MirrorPyraminxScreen", "MirrorSkewbScreen", "FisherSkewbScreen", "GhostPyramidScreen", "GhostScreen", "GhostTwistScreen", "SquareFamilyScreen"):
+                     "EdgeJumblingInputScreen", "EdgeJumblingTwistScreen", "CopterInputScreen", "CopterTwistScreen", "LanlanCometInputScreen", "LanlanCometTwistScreen", "TwinsInputScreen", "TwinsTwistScreen", "SunCubeInputScreen", "SunCubeTwistScreen", "HexagramInputScreen", "HexagramTwistScreen", "FlowerCopterInputScreen", "FlowerCopterTwistScreen", "ButterflowerInputScreen", "ButterflowerTwistScreen", "DemoScreen", "DemoMenuScreen", "FormulaLibraryScreen", "PracticeScreen",                      "TwistScreen", "SettingsScreen", "PiecePaletteScreen", "CuboidSixViewScreen", "BandagedSixViewScreen", "Square1Screen", "ShapeCubeScreen", "MirrorTowerScreen",
+                     "MirrorWindmillScreen", "MirrorAxisScreen", "MirrorFisherScreen", "MirrorUnequalWindmillScreen", "MirrorUnequalFisherScreen", "MirrorOffsetWindmillScreen", "MirrorOffsetFisherScreen", "MirrorPyraminxScreen", "MirrorSkewbScreen", "FisherSkewbScreen", "ContainerScreen", "MirrorMinxScreen", "BlankerScreen", "GhostPyramidScreen", "GhostScreen", "GhostTwistScreen", "SquareFamilyScreen"):
             scr = _screen(name)
             scr.name = name
             sm.add_widget(scr)
@@ -141,8 +145,8 @@ class CubeApp(App):
     def _reset_input_interaction(self):
         sm = getattr(self, "root", None)
         if sm is not None:
-            for name in ("InputScreen", "MastermorphixScreen", "MirrorScreen", "PolyhedralScreen", "ArticulatedEntryScreen", "MixupInputScreen", "PentacleScreen", "CuboidSixViewScreen",
-                         "MorphixTwistScreen", "GhostTwistScreen", "PolyhedralTwistScreen", "Square1Screen", "SquareFamilyScreen", "ShapeCubeScreen", "MirrorTowerScreen", "MirrorPyraminxScreen", "MirrorSkewbScreen", "GhostPyramidScreen"):
+            for name in ("InputScreen", "MastermorphixScreen", "MirrorScreen", "PolyhedralScreen", "ArticulatedEntryScreen", "MixupInputScreen", "PentacleScreen", "CuboidSixViewScreen", "BandagedSixViewScreen",
+                         "EdgeJumblingInputScreen", "EdgeJumblingTwistScreen", "CopterInputScreen", "CopterTwistScreen", "LanlanCometInputScreen", "LanlanCometTwistScreen", "TwinsInputScreen", "TwinsTwistScreen", "SunCubeInputScreen", "SunCubeTwistScreen", "HexagramInputScreen", "HexagramTwistScreen", "FlowerCopterInputScreen", "FlowerCopterTwistScreen", "ButterflowerInputScreen", "ButterflowerTwistScreen", "CloverPyraminxInputScreen", "CloverPyraminxTwistScreen", "MorphixTwistScreen", "GhostTwistScreen", "PolyhedralTwistScreen", "Square1Screen", "SquareFamilyScreen", "ShapeCubeScreen", "MirrorTowerScreen", "MirrorPyraminxScreen", "MirrorSkewbScreen", "FisherSkewbScreen", "ContainerScreen", "MirrorMinxScreen", "BlankerScreen", "GhostPyramidScreen"):
                 if sm.has_screen(name):
                     self._screen_lifecycle(sm.get_screen(name), "reset_interaction")
 
@@ -158,6 +162,8 @@ class CubeApp(App):
             Logger.exception("Lifecycle: %s.%s failed", screen.name, method)
 
     def on_pause(self):
+        if self.root is not None and self.root.has_screen('DemoScreen'):
+            self._screen_lifecycle(self.root.get_screen('DemoScreen'),'pause_media')
         store = getattr(self, '_session_store', None)
         if store is not None: store.save(synchronous=True)
         self._reset_input_interaction()
@@ -169,6 +175,8 @@ class CubeApp(App):
         return True
 
     def on_resume(self):
+        if (self.root is not None and self.root.has_screen('DemoScreen') and self.root.current=='DemoScreen'):
+            self._screen_lifecycle(self.root.get_screen('DemoScreen'),'resume_media')
         self._reset_input_interaction()
         if self.root is not None and self.root.has_screen("CameraScreen"):
             self._screen_lifecycle(self.root.get_screen("CameraScreen"), "resume_camera")
@@ -194,10 +202,38 @@ class CubeApp(App):
         Clock.schedule_once(lambda _dt: Clock.schedule_once(redraw, 0), .3)
 
     def on_stop(self):
+        if self.root is not None and self.root.has_screen('DemoScreen'):
+            self._screen_lifecycle(self.root.get_screen('DemoScreen'),'pause_media')
         event = getattr(self, '_autosave_event', None)
         if event is not None: event.cancel()
         store = getattr(self, '_session_store', None)
-        if store is not None: store.save(synchronous=True)
+        if store is not None:
+            store.save(synchronous=True)
+            store.close()
+
+    def notify_session_recovery(self, backup):
+        """One startup notice, never a persistent instruction on puzzle pages."""
+        from kivy.clock import Clock
+        def show(_dt):
+            from kivy.uix.boxlayout import BoxLayout
+            from kivy.uix.label import Label
+            from kivy.uix.popup import Popup
+            from ui.widgets.buttons import UIButton
+            from ui.widgets.dialogs import theme_popup
+            from ui.widgets import metrics as m
+            box = BoxLayout(orientation='vertical', spacing=m.h(10), padding=m.h(12))
+            message = Label(text=i18n.tr('session.recovered' if backup else 'session.skipped'),
+                            color=self.theme.text, font_size=m.font(16))
+            message.bind(size=lambda widget, size: setattr(widget, 'text_size', size))
+            box.add_widget(message)
+            button = UIButton(text=i18n.tr('session.continue'), size_hint_y=None, height=m.h(44))
+            box.add_widget(button)
+            popup = Popup(title=i18n.tr('session.recovery_title'), content=box,
+                          size_hint=(.85, .45), auto_dismiss=True)
+            theme_popup(popup, self.theme)
+            button.bind(on_release=lambda *_: popup.dismiss())
+            popup.open()
+        Clock.schedule_once(show, .5)
 
     def new_cube(self, n: int):
         """新建一个已还原的 n 阶魔方，重置求解结果。"""
@@ -215,6 +251,7 @@ class CubeApp(App):
             self.cube = Cube3.solved()
         self.solve_result = None
         self.facelets_input = None
+        self.facelets_input_key = None
 
     def new_cube_variant(self, kind: str, n: int):
         """Standard n×n mechanism with a patterned/stylised exterior."""
@@ -260,10 +297,15 @@ class CubeApp(App):
     def new_polyhedral(self, kind, n):
         from cube.polyhedral import PolyhedralPuzzle
         self.n = n
+        if kind in ('helicopter','helicopter_14','rua','clover','mf8_bauhinia_minx'):
+            from cube.spherical_jumbling import FACTORIES
+            self.cube=FACTORIES[kind]();self.puzzle_kind=kind
+            self.polyhedral_solution=None;self.solve_result=None
+            return
         if kind=='circle_2':
             from cube.circle_cube import Circle2Cube
             self.cube=Circle2Cube()
-        elif kind.startswith(('cuboid_','camouflage_3')):
+        elif kind.startswith(CUBOID_PREFIXES):
             from cube.cuboid import CuboidCube
             self.cube = CuboidCube.solved(kind)
             self.n = self.cube.n
@@ -287,6 +329,46 @@ class CubeApp(App):
         from cube.pentacle import PentacleCube
         self.cube=PentacleCube(paints=[-1]*len(PentacleCube().panels))
         self.n=3;self.puzzle_kind='pentacle';self.polyhedral_solution=None;self.solve_result=None
+
+    def new_copter(self):
+        from cube.copter_input import CopterCube
+        self.cube=CopterCube()
+        self.n=3;self.puzzle_kind=self.cube.puzzle_kind;self.polyhedral_solution=None;self.solve_result=None
+
+    def new_lanlan_comet(self):
+        from cube.lanlan_comet import LanlanCometCube
+        self.cube=LanlanCometCube()
+        self.n=3;self.puzzle_kind=self.cube.puzzle_kind;self.polyhedral_solution=None;self.solve_result=None
+
+    def new_twins(self):
+        from cube.twins_pcubes import TwinsPCubesState
+        self.cube=TwinsPCubesState()
+        self.n=3;self.puzzle_kind=self.cube.puzzle_kind;self.polyhedral_solution=None;self.solve_result=None
+
+    def new_suncube(self):
+        from cube.suncube import SunCube
+        self.cube=SunCube()
+        self.n=3;self.puzzle_kind=self.cube.puzzle_kind;self.polyhedral_solution=None;self.solve_result=None
+
+    def new_flower_copter(self):
+        from cube.flower_copter import FlowerCopterCube
+        self.cube=FlowerCopterCube()
+        self.n=3;self.puzzle_kind=self.cube.puzzle_kind;self.polyhedral_solution=None;self.solve_result=None
+
+    def new_butterflower(self):
+        from cube.butterflower import ButterflowerCube
+        self.cube=ButterflowerCube()
+        self.n=3;self.puzzle_kind=self.cube.puzzle_kind;self.polyhedral_solution=None;self.solve_result=None
+
+    def new_hexagram(self):
+        from cube.hexagram import HexagramCube
+        self.cube=HexagramCube()
+        self.n=3;self.puzzle_kind=self.cube.puzzle_kind;self.polyhedral_solution=None;self.solve_result=None
+
+    def new_clover_pyraminx(self):
+        from cube.clover_pyraminx import CloverPyraminxCube
+        self.cube=CloverPyraminxCube();self.cube.paints=(-1,)*len(self.cube.panels)
+        self.n=3;self.puzzle_kind=self.cube.puzzle_kind;self.polyhedral_solution=None;self.solve_result=None
 
     def new_mirror(self, n=3):
         from cube.mirror import MirrorCube
@@ -337,6 +419,24 @@ class CubeApp(App):
         self.puzzle_kind='fisher_skewb'
         self.polyhedral_solution=None
 
+    def new_container(self):
+        from cube.container import ContainerCube
+        self.n=3
+        self.cube=ContainerCube()
+        self.puzzle_kind='container'
+        self.polyhedral_solution=None
+
+    def new_mirror_minx(self,n=3):
+        from cube.mirror_minx import MirrorMinxCube
+        self.n=n;self.cube=MirrorMinxCube(n=n)
+        self.puzzle_kind=self.cube.puzzle_kind
+        self.polyhedral_solution=None
+
+    def new_blanker(self):
+        from cube.blanker import BlankerCube
+        self.n=2;self.cube=BlankerCube.solved()
+        self.puzzle_kind='blanker';self.solve_result=None
+
     def new_ghost_pyramid(self):
         from cube.ghost_pyramid import GhostPyramidCube
         self.n=3
@@ -351,14 +451,18 @@ class CubeApp(App):
         self.puzzle_kind='ghost'
         self.solve_result=None
 
-    def new_shape_cube(self,kind='axis',n=3):
+    def new_shape_cube(self,kind='axis',n=None):
         from cube.shape_cube import AxisCube,PandoraCube,WindmillCube,FisherCube
         factories={'axis':AxisCube,'pandora':PandoraCube,'windmill':WindmillCube,'fisher':FisherCube}
+        from cube.solid_shape_mods import FACTORIES
+        factories.update(FACTORIES)
         if kind not in factories:
             raise ValueError('Unsupported shape modification')
+        if n is None:n=factories[kind].supported_orders[0]
         self.n=n
         self.puzzle_kind=kind
         self.cube=factories[kind].solved(n=n)
+        self.puzzle_kind=self.cube.puzzle_kind
         self.solve_result=None
         if kind=='pandora':self.facelets_input=None
 
@@ -424,6 +528,10 @@ class CubeApp(App):
                 fn(self.simple_input)
             except Exception:
                 pass
+        from ui.widgets.entry_controls import EntryActionRow
+        for screen in getattr(sm,'screens',()):
+            for widget in screen.walk():
+                if isinstance(widget,EntryActionRow):widget.reflow()
 
     def _retranslate_screens(self):
         """通知所有已构建的屏幕按新语言重设文案。"""

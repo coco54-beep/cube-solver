@@ -15,7 +15,7 @@ from cube.coordinates import FACE_AXIS_SIGN,FACE_NORMALS,TURNS,layer_values
 from cube.colors import DEFAULT_COLORS
 
 
-@lru_cache(maxsize=3)
+@lru_cache(maxsize=6)
 def model(kind):
     return BandageGeometry(kind)
 
@@ -214,16 +214,23 @@ def _search_bandaged_state(cube,cancelled=None,seconds=30.,maximum=100000,weight
     raise error
 
 
-def solve_bandaged_state(cube,cancelled=None,seconds=30.,maximum=100000,weights=None):
-    """Try complementary state heuristics and legal whole-cube orientations.
+def solve_bandaged_state(cube,cancelled=None,seconds=None,maximum=100000,weights=None):
+    """Use prepared state reductions, retaining bounded experimental options.
 
     A uniform face solution may use any global orientation. The input is
     untouched; each chosen orientation is included in the returned word.
-    This remains a time-bounded solver, not a complete reachability test.
+    Explicit heuristic weights select the legacy experimental search.
     """
     if cancelled and cancelled():raise InterruptedError()
     if cube.is_solved():return []
     if cube.puzzle_kind=='fused_cube':return solve_fused(cube,cancelled)
+    if cube.puzzle_kind in ('burr_cube','ai_cube','two_bar_cube','bandaged_c','bicube') and weights is None:
+        from solver.bandaged_reduction import solve_bandage_reduction
+        if cube.n==3:
+            work,prefix=canonical_three(cube,cancelled)
+            return list(prefix)+solve_bandage_reduction(work,cancelled,seconds)
+        return solve_bandage_reduction(cube,cancelled,seconds)
+    seconds=30. if seconds is None else seconds
     if weights is not None:return _search_bandaged_state(cube,cancelled,seconds,maximum,weights)
     deadline=monotonic()+seconds
     geometry=model(cube.puzzle_kind);patterns=tables(cube.puzzle_kind)

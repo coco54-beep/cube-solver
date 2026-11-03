@@ -1,0 +1,356 @@
+[
+  {
+    "seed": 2,
+    "mode": "quotient",
+    "success": false,
+    "seconds": 3.0,
+    "stats": {
+      "nodes": 316,
+      "records": 10113,
+      "search_seconds": 3.0
+    }
+  },
+  {
+    "seed": 2,
+    "mode": "physical",
+    "success": false,
+    "seconds": 2.75,
+    "stats": {
+      "nodes": 375,
+      "records": 12001,
+      "search_seconds": 2.75
+    }
+  },
+  {
+    "seed": 2,
+    "mode": "misplaced",
+    "success": false,
+    "seconds": 3.0,
+    "stats": {
+      "nodes": 250,
+      "records": 8001,
+      "search_seconds": 3.0
+    }
+  },
+  {
+    "seed": 0,
+    "mode": "quotient",
+    "success": false,
+    "seconds": 3.0,
+    "stats": {
+      "nodes": 251,
+      "records": 8033,
+      "search_seconds": 3.0
+    }
+  },
+  {
+    "seed": 0,
+    "mode": "physical",
+    "success": false,
+    "seconds": 2.938,
+    "stats": {
+      "nodes": 375,
+      "records": 12001,
+      "search_seconds": 2.937999999994645
+    }
+  },
+  {
+    "seed": 0,
+    "mode": "misplaced",
+    "success": false,
+    "seconds": 3.0,
+    "stats": {
+      "nodes": 240,
+      "records": 7681,
+      "search_seconds": 3.0
+    }
+  },
+  {
+    "seed": 1,
+    "mode": "quotient",
+    "success": false,
+    "seconds": 3.0,
+    "stats": {
+      "nodes": 258,
+      "records": 8257,
+      "search_seconds": 3.0
+    }
+  },
+  {
+    "seed": 1,
+    "mode": "physical",
+    "success": false,
+    "seconds": 2.641,
+    "stats": {
+      "nodes": 375,
+      "records": 12001,
+      "search_seconds": 2.6410000000032596
+    }
+  },
+  {
+    "seed": 1,
+    "mode": "misplaced",
+    "success": false,
+    "seconds": 3.0,
+    "stats": {
+      "nodes": 234,
+      "records": 7489,
+      "search_seconds": 3.0
+    }
+  },
+  {
+    "seed": 3,
+    "mode": "quotient",
+    "success": false,
+    "seconds": 3.0,
+    "stats": {
+      "nodes": 303,
+      "records": 9697,
+      "search_seconds": 3.0
+    }
+  },
+  {
+    "seed": 3,
+    "mode": "physical",
+    "success": true,
+    "seconds": 1.984,
+    "stats": {
+      "nodes": 213,
+      "records": 6786,
+      "search_seconds": 1.812000000005355,
+      "seconds": 1.8900000000139698,
+      "moves": 168
+    }
+  },
+  {
+    "seed": 3,
+    "mode": "misplaced",
+    "success": false,
+    "seconds": 3.015,
+    "stats": {
+      "nodes": 252,
+      "records": 8065,
+      "search_seconds": 3.01500000001397
+    }
+  },
+  {
+    "seed": 4,
+    "mode": "quotient",
+    "success": true,
+    "seconds": 0.375,
+    "stats": {
+      "nodes": 23,
+      "records": 706,
+      "search_seconds": 0.28200000000651926,
+      "seconds": 0.34400000001187436,
+      "moves": 87
+    }
+  },
+  {
+    "seed": 4,
+    "mode": "physical",
+    "success": true,
+    "seconds": 0.141,
+    "stats": {
+      "nodes": 5,
+      "records": 130,
+      "search_seconds": 0.0470000000204891,
+      "seconds": 0.09400000001187436,
+      "moves": 93
+    }
+  },
+  {
+    "seed": 4,
+    "mode": "misplaced",
+    "success": true,
+    "seconds": 0.094,
+    "stats": {
+      "nodes": 3,
+      "records": 66,
+      "search_seconds": 0.01600000000325963,
+      "seconds": 0.046999999991385266,
+      "moves": 71
+    }
+  },
+  {
+    "seed": 5,
+    "mode": "quotient",
+    "success": true,
+    "seconds": 2.781,
+    "stats": {
+      "nodes": 220,
+      "records": 7010,
+      "search_seconds": 2.7030000000086147,
+      "seconds": 2.7339999999967404,
+      "moves": 65
+    }
+  },
+  {
+    "seed": 5,
+    "mode": "physical",
+    "success": true,
+    "seconds": 0.578,
+    "stats": {
+      "nodes": 65,
+      "records": 2050,
+      "search_seconds": 0.48499999998603016,
+      "seconds": 0.5309999999881256,
+      "moves": 81
+    }
+  },
+  {
+    "seed": 5,
+    "mode": "misplaced",
+    "success": false,
+    "seconds": 3.0,
+    "stats": {
+      "nodes": 199,
+      "records": 6369,
+      "search_seconds": 3.0
+    }
+  },
+  {
+    "seed": 6,
+    "mode": "quotient",
+    "success": false,
+    "seconds": 2.688,
+    "stats": {
+      "nodes": 375,
+      "records": 12001,
+      "search_seconds": 2.687999999994645
+    }
+  },
+  {
+    "seed": 6,
+    "mode": "physical",
+    "success": false,
+    "seconds": 2.578,
+    "stats": {
+      "nodes": 375,
+      "records": 12001,
+      "search_seconds": 2.5780000000086147
+    }
+  },
+  {
+    "seed": 6,
+    "mode": "misplaced",
+    "success": false,
+    "seconds": 3.0,
+    "stats": {
+      "nodes": 249,
+      "records": 7969,
+      "search_seconds": 3.0
+    }
+  },
+  {
+    "seed": 7,
+    "mode": "quotient",
+    "success": true,
+    "seconds": 0.36,
+    "stats": {
+      "nodes": 28,
+      "records": 866,
+      "search_seconds": 0.26600000000325963,
+      "seconds": 0.3129999999946449,
+      "moves": 84
+    }
+  },
+  {
+    "seed": 7,
+    "mode": "physical",
+    "success": true,
+    "seconds": 0.812,
+    "stats": {
+      "nodes": 83,
+      "records": 2626,
+      "search_seconds": 0.6870000000053551,
+      "seconds": 0.75,
+      "moves": 96
+    }
+  },
+  {
+    "seed": 7,
+    "mode": "misplaced",
+    "success": true,
+    "seconds": 0.938,
+    "stats": {
+      "nodes": 70,
+      "records": 2210,
+      "search_seconds": 0.8129999999946449,
+      "seconds": 0.875,
+      "moves": 96
+    }
+  },
+  {
+    "seed": 8,
+    "mode": "quotient",
+    "success": false,
+    "seconds": 3.0,
+    "stats": {
+      "nodes": 296,
+      "records": 9473,
+      "search_seconds": 3.0
+    }
+  },
+  {
+    "seed": 8,
+    "mode": "physical",
+    "success": false,
+    "seconds": 3.0,
+    "stats": {
+      "nodes": 343,
+      "records": 10977,
+      "search_seconds": 3.0
+    }
+  },
+  {
+    "seed": 8,
+    "mode": "misplaced",
+    "success": false,
+    "seconds": 3.0,
+    "stats": {
+      "nodes": 252,
+      "records": 8065,
+      "search_seconds": 3.0
+    }
+  },
+  {
+    "seed": 9,
+    "mode": "quotient",
+    "success": true,
+    "seconds": 0.079,
+    "stats": {
+      "nodes": 2,
+      "records": 34,
+      "search_seconds": 0.01600000000325963,
+      "seconds": 0.046999999991385266,
+      "moves": 45
+    }
+  },
+  {
+    "seed": 9,
+    "mode": "physical",
+    "success": true,
+    "seconds": 0.765,
+    "stats": {
+      "nodes": 83,
+      "records": 2626,
+      "search_seconds": 0.6710000000020955,
+      "seconds": 0.7179999999934807,
+      "moves": 65
+    }
+  },
+  {
+    "seed": 9,
+    "mode": "misplaced",
+    "success": true,
+    "seconds": 0.656,
+    "stats": {
+      "nodes": 46,
+      "records": 1442,
+      "search_seconds": 0.5939999999827705,
+      "seconds": 0.625,
+      "moves": 45
+    }
+  }
+]

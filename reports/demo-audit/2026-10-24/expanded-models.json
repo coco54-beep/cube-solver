@@ -1,0 +1,162 @@
+[
+  {
+    "kind": "i_cube",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "l_cube",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "t_cube",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "x_cube",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "tri_cube",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "temple_cube",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "cross_cube",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "siamese_a",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "siamese_b",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "trajber",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "pyraminx_diamond",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "pyraminx_crystal",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "starminx_i",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "pentultimate",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "master_pentultimate",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "dodecahedron_2",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "rediminx",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "dodecahedron_3",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "dogic_i",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "container",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "rubik_cheese",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "cheese_3",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "masterball",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "pentagonal_domino",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "pentagonal_prism",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "pentagonal_4",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "professor_pentagonal",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "dogic_20",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "master_brilic",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "blanker",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "mirror_kilominx",
+    "ok": true,
+    "examples": 3
+  },
+  {
+    "kind": "mirror_megaminx",
+    "ok": true,
+    "examples": 3
+  }
+]

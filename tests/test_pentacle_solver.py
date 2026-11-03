@@ -41,7 +41,8 @@ def test_already_aligned_layer_remains_a_search_option():
 def test_score_uses_each_stickers_transformed_normal():
     cube=PentacleCube();cube.apply_moves(cube.alignment_moves(0));cube.apply_move(Move(0,1,90))
     faces=[set() for _ in CUBE]
-    for panel,color in zip(cube.panels,cube._paints):
+    for i,(panel,color) in enumerate(zip(cube.panels,cube._paints)):
+        if i in cube.hidden_panels:continue
         normal=transform_frame(cube.frames[panel.home],CUBE[panel.face])
         face=max(range(6),key=lambda i:sum(a*b for a,b in zip(CUBE[i],normal)))
         faces[face].add(color)

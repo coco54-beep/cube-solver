@@ -1,0 +1,25 @@
+{
+  "cases": 32,
+  "before": 14613,
+  "after": 4386,
+  "improved": 28,
+  "worse": 0,
+  "max_seconds": 0.4627,
+  "history_free": true,
+  "deep_cases": {
+    "bean_6": {
+      "cases": 8,
+      "before": 4576,
+      "after": 1603,
+      "reduction_percent": 65.0,
+      "max_moves": 247
+    },
+    "bean_10": {
+      "cases": 8,
+      "before": 7031,
+      "after": 2645,
+      "reduction_percent": 62.4,
+      "max_moves": 483
+    }
+  }
+}

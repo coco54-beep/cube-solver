@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="7" skipped="0" tests="13" time="1.787" timestamp="2026-10-25T15:01:49.566063+08:00" hostname="DESKTOP-5GK8RN1"><testcase classname="tests.test_input_cache_restore" name="test_wrong_order_global_draft_uses_valid_order_cache" time="0.044" /><testcase classname="tests.test_input_cache_restore" name="test_wrong_order_draft_without_compatible_cache_opens_blank" time="0.041" /><testcase classname="tests.test_input_cache_restore" name="test_bad_set_facelets_preserves_existing_draft_and_undo[invalid0]" time="0.021"><failure message="IndexError: list index out of range">editor = (&lt;Screen name=''&gt;, namespace(n=3, puzzle_kind='cube', cube=&lt;cube.cube3.Cube3 object at 0x000002075751E2C0&gt;, theme=&lt;app...00207575AB300&gt;, simple_input=False, facelets_input=None, facelets_cache={}, bandage_entry_cache={}, solve_result=None))
+invalid = {'U': [['', ''], ['', '']], 'D': [['', ''], ['', '']], 'F': [['R', ''], ['', '']], 'B': [['', ''], ['', '']], ...}
+
+    @pytest.mark.parametrize('invalid',(data(2,'R'),data(4,'R'),{'F':[['W']]},
+        {'F':None},None,{'F':[['W']*3]*2+[None]}))
+    def test_bad_set_facelets_preserves_existing_draft_and_undo(editor,invalid):
+        screen,app=editor;screen.on_enter();screen.set_facelets(data(3,'B'),remember=True)
+        before=screen.collect_facelets();history=deepcopy(screen._history)
+&gt;       assert screen.set_facelets(invalid,remember=True) is False
+
+tests\test_input_cache_restore.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ui\screens\input_screen.py:1105: in set_facelets
+    data={f:([[facelets[f][r][c] for c in range(n)] for r in range(n)]
+ui\screens\input_screen.py:1105: in &lt;dictcomp&gt;
+    data={f:([[facelets[f][r][c] for c in range(n)] for r in range(n)]
+ui\screens\input_screen.py:1105: in &lt;listcomp&gt;
+    data={f:([[facelets[f][r][c] for c in range(n)] for r in range(n)]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+.0 = &lt;range_iterator object at 0x00000207575C0CB0&gt;
+
+&gt;   data={f:([[facelets[f][r][c] for c in range(n)] for r in range(n)]
+             if f in facelets else [row[:] for row in self._data[f]]) for f in FACES}
+E   IndexError: list index out of range
+
+ui\screens\input_screen.py:1105: IndexError</failure></testcase><testcase classname="tests.test_input_cache_restore" name="test_bad_set_facelets_preserves_existing_draft_and_undo[invalid1]" time="0.024"><failure message="AssertionError: assert None is False&#10; +  where None = set_facelets({'U': [['', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']], 'D': [['', '', '', ''], ['', '', '', '...'', '', '', ''], ['', '', '', '']], 'B': [['', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']], ...}, remember=True)&#10; +    where set_facelets = &lt;Screen name=''&gt;.set_facelets">editor = (&lt;Screen name=''&gt;, namespace(n=3, puzzle_kind='cube', cube=&lt;cube.cube3.Cube3 object at 0x0000020757430190&gt;, theme=&lt;app...0020753E2DB60&gt;, simple_input=False, facelets_input=None, facelets_cache={}, bandage_entry_cache={}, solve_result=None))
+invalid = {'U': [['', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']], 'D': [['', '', '', ''], ['', '', '', '...'', '', '', ''], ['', '', '', '']], 'B': [['', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']], ...}
+
+    @pytest.mark.parametrize('invalid',(data(2,'R'),data(4,'R'),{'F':[['W']]},
+        {'F':None},None,{'F':[['W']*3]*2+[None]}))
+    def test_bad_set_facelets_preserves_existing_draft_and_undo(editor,invalid):
+        screen,app=editor;screen.on_enter();screen.set_facelets(data(3,'B'),remember=True)
+        before=screen.collect_facelets();history=deepcopy(screen._history)
+&gt;       assert screen.set_facelets(invalid,remember=True) is False
+E       AssertionError: assert None is False
+E        +  where None = set_facelets({'U': [['', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']], 'D': [['', '', '', ''], ['', '', '', '...'', '', '', ''], ['', '', '', '']], 'B': [['', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']], ...}, remember=True)
+E        +    where set_facelets = &lt;Screen name=''&gt;.set_facelets
+
+tests\test_input_cache_restore.py:49: AssertionError</failure></testcase><testcase classname="tests.test_input_cache_restore" name="test_bad_set_facelets_preserves_existing_draft_and_undo[invalid2]" time="0.046"><failure message="IndexError: list index out of range">editor = (&lt;Screen name=''&gt;, namespace(n=3, puzzle_kind='cube', cube=&lt;cube.cube3.Cube3 object at 0x00000207541FECB0&gt;, theme=&lt;app...00207541A3840&gt;, simple_input=False, facelets_input=None, facelets_cache={}, bandage_entry_cache={}, solve_result=None))
+invalid = {'F': [['W']]}
+
+    @pytest.mark.parametrize('invalid',(data(2,'R'),data(4,'R'),{'F':[['W']]},
+        {'F':None},None,{'F':[['W']*3]*2+[None]}))
+    def test_bad_set_facelets_preserves_existing_draft_and_undo(editor,invalid):
+        screen,app=editor;screen.on_enter();screen.set_facelets(data(3,'B'),remember=True)
+        before=screen.collect_facelets();history=deepcopy(screen._history)
+&gt;       assert screen.set_facelets(invalid,remember=True) is False
+
+tests\test_input_cache_restore.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ui\screens\input_screen.py:1105: in set_facelets
+    data={f:([[facelets[f][r][c] for c in range(n)] for r in range(n)]
+ui\screens\input_screen.py:1105: in &lt;dictcomp&gt;
+    data={f:([[facelets[f][r][c] for c in range(n)] for r in range(n)]
+ui\screens\input_screen.py:1105: in &lt;listcomp&gt;
+    data={f:([[facelets[f][r][c] for c in range(n)] for r in range(n)]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+.0 = &lt;range_iterator object at 0x0000020755158E70&gt;
+
+&gt;   data={f:([[facelets[f][r][c] for c in range(n)] for r in range(n)]
+             if f in facelets else [row[:] for row in self._data[f]]) for f in FACES}
+E   IndexError: list index out of range
+
+ui\screens\input_screen.py:1105: IndexError</failure></testcase><testcase classname="tests.test_input_cache_restore" name="test_bad_set_facelets_preserves_existing_draft_and_undo[invalid3]" time="0.025"><failure message="TypeError: 'NoneType' object is not subscriptable">editor = (&lt;Screen name=''&gt;, namespace(n=3, puzzle_kind='cube', cube=&lt;cube.cube3.Cube3 object at 0x00000207543A45E0&gt;, theme=&lt;app...002075435D070&gt;, simple_input=False, facelets_input=None, facelets_cache={}, bandage_entry_cache={}, solve_result=None))
+invalid = {'F': None}
+
+    @pytest.mark.parametrize('invalid',(data(2,'R'),data(4,'R'),{'F':[['W']]},
+        {'F':None},None,{'F':[['W']*3]*2+[None]}))
+    def test_bad_set_facelets_preserves_existing_draft_and_undo(editor,invalid):
+        screen,app=editor;screen.on_enter();screen.set_facelets(data(3,'B'),remember=True)
+        before=screen.collect_facelets();history=deepcopy(screen._history)
+&gt;       assert screen.set_facelets(invalid,remember=True) is False
+
+tests\test_input_cache_restore.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ui\screens\input_screen.py:1105: in set_facelets
+    data={f:([[facelets[f][r][c] for c in range(n)] for r in range(n)]
+ui\screens\input_screen.py:1105: in &lt;dictcomp&gt;
+    data={f:([[facelets[f][r][c] for c in range(n)] for r in range(n)]
+ui\screens\input_screen.py:1105: in &lt;listcomp&gt;
+    data={f:([[facelets[f][r][c] for c in range(n)] for r in range(n)]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+.0 = &lt;range_iterator object at 0x0000020757A3B530&gt;
+
+&gt;   data={f:([[facelets[f][r][c] for c in range(n)] for r in range(n)]
+             if f in facelets else [row[:] for row in self._data[f]]) for f in FACES}
+E   TypeError: 'NoneType' object is not subscriptable
+
+ui\screens\input_screen.py:1105: TypeError</failure></testcase><testcase classname="tests.test_input_cache_restore" name="test_bad_set_facelets_preserves_existing_draft_and_undo[None]" time="0.022"><failure message="TypeError: argument of type 'NoneType' is not iterable">editor = (&lt;Screen name=''&gt;, namespace(n=3, puzzle_kind='cube', cube=&lt;cube.cube3.Cube3 object at 0x00000207543583D0&gt;, theme=&lt;app...00207543DF610&gt;, simple_input=False, facelets_input=None, facelets_cache={}, bandage_entry_cache={}, solve_result=None))
+invalid = None
+
+    @pytest.mark.parametrize('invalid',(data(2,'R'),data(4,'R'),{'F':[['W']]},
+        {'F':None},None,{'F':[['W']*3]*2+[None]}))
+    def test_bad_set_facelets_preserves_existing_draft_and_undo(editor,invalid):
+        screen,app=editor;screen.on_enter();screen.set_facelets(data(3,'B'),remember=True)
+        before=screen.collect_facelets();history=deepcopy(screen._history)
+&gt;       assert screen.set_facelets(invalid,remember=True) is False
+
+tests\test_input_cache_restore.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ui\screens\input_screen.py:1105: in set_facelets
+    data={f:([[facelets[f][r][c] for c in range(n)] for r in range(n)]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+.0 = &lt;tuple_iterator object at 0x0000020757C328F0&gt;
+
+    data={f:([[facelets[f][r][c] for c in range(n)] for r in range(n)]
+&gt;            if f in facelets else [row[:] for row in self._data[f]]) for f in FACES}
+E   TypeError: argument of type 'NoneType' is not iterable
+
+ui\screens\input_screen.py:1106: TypeError</failure></testcase><testcase classname="tests.test_input_cache_restore" name="test_bad_set_facelets_preserves_existing_draft_and_undo[invalid5]" time="0.063"><failure message="TypeError: 'NoneType' object is not subscriptable">editor = (&lt;Screen name=''&gt;, namespace(n=3, puzzle_kind='cube', cube=&lt;cube.cube3.Cube3 object at 0x00000207544F84C0&gt;, theme=&lt;app...0020754508350&gt;, simple_input=False, facelets_input=None, facelets_cache={}, bandage_entry_cache={}, solve_result=None))
+invalid = {'F': [['W', 'W', 'W'], ['W', 'W', 'W'], None]}
+
+    @pytest.mark.parametrize('invalid',(data(2,'R'),data(4,'R'),{'F':[['W']]},
+        {'F':None},None,{'F':[['W']*3]*2+[None]}))
+    def test_bad_set_facelets_preserves_existing_draft_and_undo(editor,invalid):
+        screen,app=editor;screen.on_enter();screen.set_facelets(data(3,'B'),remember=True)
+        before=screen.collect_facelets();history=deepcopy(screen._history)
+&gt;       assert screen.set_facelets(invalid,remember=True) is False
+
+tests\test_input_cache_restore.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ui\screens\input_screen.py:1105: in set_facelets
+    data={f:([[facelets[f][r][c] for c in range(n)] for r in range(n)]
+ui\screens\input_screen.py:1105: in &lt;dictcomp&gt;
+    data={f:([[facelets[f][r][c] for c in range(n)] for r in range(n)]
+ui\screens\input_screen.py:1105: in &lt;listcomp&gt;
+    data={f:([[facelets[f][r][c] for c in range(n)] for r in range(n)]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+.0 = &lt;range_iterator object at 0x0000020757E266D0&gt;
+
+&gt;   data={f:([[facelets[f][r][c] for c in range(n)] for r in range(n)]
+             if f in facelets else [row[:] for row in self._data[f]]) for f in FACES}
+E   TypeError: 'NoneType' object is not subscriptable
+
+ui\screens\input_screen.py:1105: TypeError</failure></testcase><testcase classname="tests.test_input_cache_restore" name="test_departing_page_saves_its_own_order_after_app_changes" time="0.024"><failure message="KeyError: 3">editor = (&lt;Screen name=''&gt;, namespace(n=4, puzzle_kind='cube', cube=&lt;cube.cube4.Cube4 object at 0x0000020757DF6020&gt;, theme=&lt;app... '', ''], ['', '', '']], 'L': [['', '', ''], ['', '', ''], ['', '', '']]}}, bandage_entry_cache={}, solve_result=None))
+
+    def test_departing_page_saves_its_own_order_after_app_changes(editor):
+        screen,app=editor;screen.on_enter();screen.set_facelets(data(3,'G'))
+        app.n=4;app.cube=Cube4.solved();app.facelets_cache[4]=data(4,'R')
+        screen.on_pre_leave()
+&gt;       assert app.facelets_cache[3]==data(3,'G') and app.facelets_cache[4]==data(4,'R')
+E       KeyError: 3
+
+tests\test_input_cache_restore.py:57: KeyError</failure></testcase><testcase classname="tests.test_input_cache_restore" name="test_legacy_valid_draft_still_restores" time="0.064" /><testcase classname="tests.test_input_cache_restore" name="test_owned_fresh_input_overrides_older_cache" time="0.019" /><testcase classname="tests.test_input_cache_restore" name="test_equal_size_different_model_does_not_reuse_global_colours" time="0.040" /><testcase classname="tests.test_input_cache_restore" name="test_corrupt_cached_grid_is_ignored" time="0.077" /></testsuite></testsuites>

@@ -2,6 +2,7 @@
 from cube.articulated_observation import normal,polygon_key
 from cube.polyhedral import add,scale,cross,dot,unit,mean
 from renderer.square1_view import Square1View
+from renderer.entry_style import surface_panel
 
 
 def _direction_marks(world,direction,slot,home):
@@ -28,8 +29,19 @@ class MixupEntryView(Square1View):
             # A delayed redraw must not hit old child indices after a change
             # from two components to three/four, or after undo/scramble.
             self._polygons=[]
+            self._surface_cache=None
         self.draft=draft
     def _surfaces(self,cube):
+        # Camera-only redraws share exactly the same model-space surfaces.
+        # Keep one cache per view; edits/undo explicitly invalidate it through
+        # set_draft, while a temporary candidate has its own cache key.
+        key=(self.draft,self.candidate)
+        cached=getattr(self,'_surface_cache',None)
+        if cached is None or cached[0]!=key:
+            cached=self._surface_cache=(key,self._build_surfaces(cube))
+        return cached[1]
+
+    def _build_surfaces(self,cube):
         if self.draft is None:return ()
         result=[];seen=set()
         for bi,block in enumerate(self.draft.blocks):
@@ -40,15 +52,22 @@ class MixupEntryView(Square1View):
                 if self.candidate and self.candidate[0]==(bi,ci):world=self.candidate[1];color=-2
                 key=(color,polygon_key(world))
                 if key in seen:continue
-                seen.add(key);n=normal(world);centre=mean(world)
-                panel=tuple(add(add(centre,scale(add(p,scale(centre,-1)),.95)),scale(n,.0015)) for p in world)
+                seen.add(key);n=normal(world)
+                panel=surface_panel(world,n)
                 # Use the recorded rigid body: a radial cone loses the wedge's
                 # bevel and makes a real half turn look like an arrow-only edit.
                 # The scaffold still needs a closed, pickable placeholder when
                 # no physical body has been entered yet.
                 housing=-2 if color==-2 else -1
                 body=cell.get('body') if not self.candidate or self.candidate[0]!=(bi,ci) else ()
-                if body:
+                reference=()
+                if cell.get('piece_key') and (not self.candidate or self.candidate[0]!=(bi,ci)):
+                    from renderer.mixup_housing import housing_for_panels
+                    reference=housing_for_panels(self.draft.kind,cell['piece_key'],cell.get('panel_role'))
+                if reference:
+                    result.extend((poly,normal(poly),housing,slot,0,bi,1) for poly in reference)
+                    result.append((world,n,housing,slot,0,bi,1))
+                elif body:
                     result.extend((poly,normal(poly),housing,slot,0,bi,1) for poly in body)
                 else:
                     result.append((world,n,housing,slot,0,bi,1))

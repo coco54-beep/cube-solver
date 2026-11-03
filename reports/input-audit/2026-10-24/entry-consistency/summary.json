@@ -1,0 +1,20 @@
+{
+  "page_instances": 72,
+  "representative_configurations": 36,
+  "sizes": [
+    [
+      800,
+      600
+    ],
+    [
+      400,
+      850
+    ]
+  ],
+  "page_errors": 0,
+  "interaction_instances": 16,
+  "card_rotate_undo_checks": 12,
+  "interaction_errors": 0,
+  "scope": "Desktop Kivy rendering and entry controls, not exhaustive model or Android checks.",
+  "package_built": false
+}

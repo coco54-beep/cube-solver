@@ -1,0 +1,38 @@
+[
+  {
+    "kind": "mf8_bauhinia_minx",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "moves": 1477
+  },
+  {
+    "kind": "aj_curvy_dinominx_4",
+    "size": [
+      800,
+      600
+    ],
+    "passed": true,
+    "moves": 317
+  },
+  {
+    "kind": "mf8_bauhinia_minx",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "moves": 1437
+  },
+  {
+    "kind": "aj_curvy_dinominx_4",
+    "size": [
+      390,
+      844
+    ],
+    "passed": true,
+    "moves": 317
+  }
+]

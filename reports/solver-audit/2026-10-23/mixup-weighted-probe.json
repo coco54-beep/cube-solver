@@ -1,0 +1,16 @@
+[
+  {
+    "kind": "mixup_plus_334",
+    "success": true,
+    "moves": 1615,
+    "history_empty": true,
+    "replay_solved": true,
+    "seconds": 16.5
+  },
+  {
+    "kind": "mixup_plus_344",
+    "success": false,
+    "message": "InterruptedError",
+    "seconds": 60.031
+  }
+]

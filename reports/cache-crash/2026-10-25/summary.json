@@ -1,0 +1,30 @@
+{
+  "tests": {
+    "passed": 98,
+    "failed": 0,
+    "skipped": 0
+  },
+  "visible": {
+    "cases": [
+      {
+        "case": "legacy two-order global input while entering five",
+        "passed": true
+      },
+      {
+        "case": "four-order own cache wins over two-order recent input",
+        "passed": true
+      },
+      {
+        "case": "switch-back and invalid external input preserve both drafts",
+        "passed": true
+      },
+      {
+        "case": "same-size different model uses own input",
+        "passed": true
+      }
+    ],
+    "original_user_checkpoint_unchanged": true,
+    "original_sha256": "0160f8054f0801d42b42998b471e05fd7be2dfecf1145e40be80e98ecee7948f"
+  },
+  "release_package_built": false
+}

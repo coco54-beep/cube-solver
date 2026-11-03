@@ -1,0 +1,35 @@
+{
+  "kind": "starminx_i",
+  "seed": 20261102,
+  "scramble_turns": 30,
+  "evaluation_budget_seconds": 30.0,
+  "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-11-01\\pcubes-second\\starminx-staged-final\\inputs\\starminx_i-20261102-30.json",
+  "input_method": "fixed visible model panels, colours only",
+  "history_empty": true,
+  "visible_entry_matches": true,
+  "input_seconds": 0.031,
+  "success": true,
+  "moves": 1124,
+  "failure_category": "",
+  "solve_seconds": 0.313,
+  "progress_stages": [],
+  "message": "",
+  "evaluation_budget_hit": false,
+  "replay_solved": true,
+  "replay_seconds": 0.0,
+  "seconds": 0.344,
+  "shortening": [
+    {
+      "before": 1124,
+      "after": 1124,
+      "seconds": 0.047
+    }
+  ],
+  "colour_stage_plans": [
+    {
+      "pieces": 60,
+      "before": 583,
+      "after": 482
+    }
+  ]
+}

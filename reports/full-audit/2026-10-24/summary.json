@@ -1,0 +1,69 @@
+{
+  "date": "2026-10-24",
+  "scope": "All current catalogue entries; desktop software checks",
+  "suites": {
+    "tests": {
+      "tests": 2673,
+      "passed": 2665,
+      "skipped": 8,
+      "failures": 0
+    },
+    "star-final": {
+      "tests": 35,
+      "passed": 35,
+      "skipped": 0,
+      "failures": 0
+    }
+  },
+  "unique_passing_tests": 2671,
+  "skipped_tests": [
+    {
+      "test": "tests.test_freeslice_atomic_insert_gate::test_atomic_insert_no_input_mutation",
+      "reason": "seed 12 不可达"
+    },
+    {
+      "test": "tests.test_freeslice_atomic_insert_gate::test_atomic_insert_deterministic",
+      "reason": "seed 13 不可达"
+    },
+    {
+      "test": "tests.test_freeslice_complete_tredge_gate::test_gate5_requires_recoverable_partial",
+      "reason": "未找到散置态"
+    },
+    {
+      "test": "tests.test_freeslice_store_partial_gate::test_store_no_input_mutation_and_deterministic",
+      "reason": "seed 12 不可达"
+    },
+    {
+      "test": "tests.test_mixup_input_screen::test_full_turn_of_scrambled_block_keeps_verified_state_and_solution_path[inner_edge-mixup_333]",
+      "reason": "This model has no editable inner_edge"
+    },
+    {
+      "test": "tests.test_mixup_input_screen::test_full_turn_of_scrambled_block_keeps_verified_state_and_solution_path[inner_edge-mixup_334]",
+      "reason": "This model has no editable inner_edge"
+    },
+    {
+      "test": "tests.test_mixup_input_screen::test_full_turn_of_scrambled_block_keeps_verified_state_and_solution_path[inner_edge-mixup_344]",
+      "reason": "This model has no editable inner_edge"
+    },
+    {
+      "test": "tests.test_mixup_input_screen::test_full_turn_of_scrambled_block_keeps_verified_state_and_solution_path[inner_edge-mixup_444]",
+      "reason": "This model has no editable inner_edge"
+    }
+  ],
+  "catalogue_routes": 203,
+  "physical_kind_order_combinations": 198,
+  "demo_mode_combinations": 121,
+  "demo_cases": 512,
+  "fixes": [
+    "Pentacle: stale scramble callbacks cannot overwrite a new job or a different cube",
+    "Pentacle: undo restores the verified scramble path together with colours and frames",
+    "Pentacle: painting an unchanged colour creates no undo step and retains the path",
+    "Pentacle: expired-budget fallback aligns discs before turning a layer"
+  ],
+  "remaining_limits": [
+    "Desktop checks do not constitute an Android physical-device test",
+    "Pentacle correspondence with the pictured physical mechanism remains under review",
+    "Sampled manual-input solves do not guarantee all reachable deep states are solvable within available resources"
+  ],
+  "packaging": "Paused at user request; no new release package built"
+}

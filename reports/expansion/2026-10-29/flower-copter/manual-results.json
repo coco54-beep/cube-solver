@@ -1,0 +1,110 @@
+[
+  {
+    "length": 30,
+    "seed": 0,
+    "moves": 811,
+    "seconds": 1.125,
+    "passed": true,
+    "input_preserved": true,
+    "profile": "lanlan-flower-copter-dwg-spheres-regular-v1"
+  },
+  {
+    "length": 30,
+    "seed": 1,
+    "moves": 587,
+    "seconds": 0.719,
+    "passed": true,
+    "input_preserved": true,
+    "profile": "lanlan-flower-copter-dwg-spheres-regular-v1"
+  },
+  {
+    "length": 30,
+    "seed": 2,
+    "moves": 802,
+    "seconds": 0.938,
+    "passed": true,
+    "input_preserved": true,
+    "profile": "lanlan-flower-copter-dwg-spheres-regular-v1"
+  },
+  {
+    "length": 30,
+    "seed": 3,
+    "moves": 669,
+    "seconds": 0.796,
+    "passed": true,
+    "input_preserved": true,
+    "profile": "lanlan-flower-copter-dwg-spheres-regular-v1"
+  },
+  {
+    "length": 100,
+    "seed": 0,
+    "moves": 543,
+    "seconds": 0.704,
+    "passed": true,
+    "input_preserved": true,
+    "profile": "lanlan-flower-copter-dwg-spheres-regular-v1"
+  },
+  {
+    "length": 100,
+    "seed": 1,
+    "moves": 686,
+    "seconds": 0.859,
+    "passed": true,
+    "input_preserved": true,
+    "profile": "lanlan-flower-copter-dwg-spheres-regular-v1"
+  },
+  {
+    "length": 100,
+    "seed": 2,
+    "moves": 504,
+    "seconds": 0.656,
+    "passed": true,
+    "input_preserved": true,
+    "profile": "lanlan-flower-copter-dwg-spheres-regular-v1"
+  },
+  {
+    "length": 100,
+    "seed": 3,
+    "moves": 636,
+    "seconds": 0.797,
+    "passed": true,
+    "input_preserved": true,
+    "profile": "lanlan-flower-copter-dwg-spheres-regular-v1"
+  },
+  {
+    "length": 300,
+    "seed": 0,
+    "moves": 806,
+    "seconds": 1.094,
+    "passed": true,
+    "input_preserved": true,
+    "profile": "lanlan-flower-copter-dwg-spheres-regular-v1"
+  },
+  {
+    "length": 300,
+    "seed": 1,
+    "moves": 778,
+    "seconds": 1.031,
+    "passed": true,
+    "input_preserved": true,
+    "profile": "lanlan-flower-copter-dwg-spheres-regular-v1"
+  },
+  {
+    "length": 300,
+    "seed": 2,
+    "moves": 693,
+    "seconds": 0.969,
+    "passed": true,
+    "input_preserved": true,
+    "profile": "lanlan-flower-copter-dwg-spheres-regular-v1"
+  },
+  {
+    "length": 300,
+    "seed": 3,
+    "moves": 777,
+    "seconds": 1.062,
+    "passed": true,
+    "input_preserved": true,
+    "profile": "lanlan-flower-copter-dwg-spheres-regular-v1"
+  }
+]

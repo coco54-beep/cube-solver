@@ -13,6 +13,7 @@ from cube.mastermorphix import dot
 from renderer.mastermorphix_mesh import oriented_piece_geometry
 from renderer.polygon_visibility import Surface, painter_order
 from app.constants import COLOR_INFO
+from renderer.entry_style import UNENTERED,PLASTIC,SEAM,SELECTION,shade_unentered,stroke
 
 
 _VERTEX_SHADER = """
@@ -238,6 +239,7 @@ class MastermorphixView(CubeView):
 
         for pos, piece in self.cube.cubies.items():
             rotating = moving if moving is not None and pos in animation["positions"] else None
+            unentered=self.recorded is not None and pos not in self.recorded
             for points, normal, color, finish, outline in self._render_piece_geometry(piece.home, piece.frame, subdivisions, self.cube.n):
                 if rotating is not None:
                     normal = rotating.transform(*normal)
@@ -252,13 +254,15 @@ class MastermorphixView(CubeView):
                 if finish == "shell":
                     rgba = (.94, .955, .975, 1)
                 elif finish == "cut":
-                    rgba = (.12, .15, .19, 1)
-                elif self.recorded is not None and pos not in self.recorded:
-                    rgba = (.38, .45, .52, 1)
+                    rgba = PLASTIC
+                elif unentered:
+                    rgba = UNENTERED
                 else:
                     rgba = self._piece_color(color)
                 rgba = self._surface_shade(rgba, normal, eye_direction, light, finish,
                                            self.recorded is None or pos in self.recorded)
+                if unentered and finish != 'cut':
+                    rgba=shade_unentered(normal)
                 polygon = tuple(project(p) for p in points)
                 # A small depth bias keeps coplanar stickers above the shell.
                 # Android FBOs may have only a 16-bit depth buffer. The old
@@ -266,11 +270,7 @@ class MastermorphixView(CubeView):
                 # fight with stickers. Leave several depth units of margin.
                 append_polygon(polygon, rgba, -.0005 if finish == "sticker" else 0.)
                 self._polygons.append((polygon, pos, color))
-                if (self.cube.n > 3 or getattr(self.cube,'puzzle_kind',None) in
-                ('mirror','axis','pandora','football','windmill','fisher',
-                 'mirror_windmill','mirror_axis','mirror_fisher','ghost',
-                                  'mirror_windmill_unequal','mirror_fisher_unequal',
-                                  'mirror_windmill_offset','mirror_fisher_offset')) and finish == "sticker" and not getattr(self, 'inset_silver_panels', False):
+                if finish == "sticker":
                     seams.extend((polygon[a], polygon[b]) for a, b in outline)
                 if pos == self.selected_pos and finish in ("sticker", "internal"):
                     borders.extend((polygon[a], polygon[b]) for a, b in outline)
@@ -289,15 +289,9 @@ class MastermorphixView(CubeView):
         for a, b in seams:
             # Keep the ribbon above one physical pixel. Subpixel ribbons
             # disappear between pixel centers and make flat seams look dotted.
-            draw_edge(a, b, .75, ((.22,.26,.32,1)
-                                 if getattr(self.cube,'puzzle_kind',None) in
-                                 ('mirror','axis','pandora','windmill','fisher',
-                                  'mirror_windmill','mirror_axis','mirror_fisher','ghost',
-                                  'mirror_windmill_unequal','mirror_fisher_unequal',
-                                  'mirror_windmill_offset','mirror_fisher_offset')
-                                 else (.94, .955, .975, 1)))
+            draw_edge(a,b,stroke(),SEAM)
         for a, b in borders:
-            draw_edge(a, b, 1.6, (.18, .88, 1, 1))
+            draw_edge(a,b,stroke('selection'),SELECTION)
         if use_gpu:
             self._surface_mesh.vertices = vertices
             self._surface_mesh.indices = indices
@@ -385,6 +379,13 @@ class MastermorphixView(CubeView):
 
 def cube_view_class_for(cube=None):
     kind = getattr(cube, 'puzzle_kind', None)
+    if kind=='blanker':
+        from renderer.blanker_view import BlankerView
+        return BlankerView
+    if kind in ('trajber','trajber_4','dodecahedron_2','dodecahedron_3',
+                'rhombic_3','rhombic_4','rhombic_mask_4','caneball_4'):
+        from renderer.shape_cube_view import SOLID_VIEWS
+        return SOLID_VIEWS[kind]
     if kind == 'ghost':
         from renderer.ghost_view import GhostView
         return GhostView

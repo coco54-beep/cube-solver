@@ -1,0 +1,114 @@
+[
+  {
+    "seed": 0,
+    "scramble_turns": 100,
+    "match": "ok",
+    "success": true,
+    "moves": 32,
+    "replay_solved": true,
+    "history_empty": true,
+    "solve_seconds": 2.062
+  },
+  {
+    "seed": 1,
+    "scramble_turns": 100,
+    "match": "ok",
+    "success": true,
+    "moves": 55,
+    "replay_solved": true,
+    "history_empty": true,
+    "solve_seconds": 9.672
+  },
+  {
+    "seed": 2,
+    "scramble_turns": 100,
+    "match": "ok",
+    "success": false,
+    "message": "\u8ba1\u7b97\u8fbe\u5230\u672c\u6b21\u65f6\u95f4\u4e0a\u9650\uff0c\u5f55\u5165\u5df2\u4fdd\u7559\u3002\u590d\u6742\u8ff7\u5f69\u548c 4\u00d74\u00d72 \u72b6\u6001\u53ef\u80fd\u9700\u8981\u66f4\u591a\u65f6\u95f4\uff1b\u8fd9\u4e0d\u8868\u793a\u65e0\u89e3\u3002",
+    "solve_seconds": 45.0
+  },
+  {
+    "seed": 3,
+    "scramble_turns": 100,
+    "match": "ok",
+    "success": false,
+    "message": "\u8ba1\u7b97\u8fbe\u5230\u672c\u6b21\u65f6\u95f4\u4e0a\u9650\uff0c\u5f55\u5165\u5df2\u4fdd\u7559\u3002\u590d\u6742\u8ff7\u5f69\u548c 4\u00d74\u00d72 \u72b6\u6001\u53ef\u80fd\u9700\u8981\u66f4\u591a\u65f6\u95f4\uff1b\u8fd9\u4e0d\u8868\u793a\u65e0\u89e3\u3002",
+    "solve_seconds": 45.0
+  },
+  {
+    "seed": 4,
+    "scramble_turns": 100,
+    "match": "ok",
+    "success": true,
+    "moves": 19,
+    "replay_solved": true,
+    "history_empty": true,
+    "solve_seconds": 0.157
+  },
+  {
+    "seed": 5,
+    "scramble_turns": 100,
+    "match": "ok",
+    "success": true,
+    "moves": 20,
+    "replay_solved": true,
+    "history_empty": true,
+    "solve_seconds": 0.187
+  },
+  {
+    "seed": 6,
+    "scramble_turns": 100,
+    "match": "ok",
+    "success": true,
+    "moves": 23,
+    "replay_solved": true,
+    "history_empty": true,
+    "solve_seconds": 1.625
+  },
+  {
+    "seed": 7,
+    "scramble_turns": 100,
+    "match": "ok",
+    "success": true,
+    "moves": 11,
+    "replay_solved": true,
+    "history_empty": true,
+    "solve_seconds": 0.032
+  },
+  {
+    "seed": 8,
+    "scramble_turns": 100,
+    "match": "ok",
+    "success": false,
+    "message": "\u8ba1\u7b97\u8fbe\u5230\u672c\u6b21\u65f6\u95f4\u4e0a\u9650\uff0c\u5f55\u5165\u5df2\u4fdd\u7559\u3002\u590d\u6742\u8ff7\u5f69\u548c 4\u00d74\u00d72 \u72b6\u6001\u53ef\u80fd\u9700\u8981\u66f4\u591a\u65f6\u95f4\uff1b\u8fd9\u4e0d\u8868\u793a\u65e0\u89e3\u3002",
+    "solve_seconds": 45.0
+  },
+  {
+    "seed": 9,
+    "scramble_turns": 100,
+    "match": "ok",
+    "success": true,
+    "moves": 25,
+    "replay_solved": true,
+    "history_empty": true,
+    "solve_seconds": 0.063
+  },
+  {
+    "seed": 10,
+    "scramble_turns": 100,
+    "match": "ok",
+    "success": true,
+    "moves": 34,
+    "replay_solved": true,
+    "history_empty": true,
+    "solve_seconds": 0.782
+  },
+  {
+    "seed": 11,
+    "scramble_turns": 100,
+    "match": "ok",
+    "success": false,
+    "message": "\u8ba1\u7b97\u8fbe\u5230\u672c\u6b21\u65f6\u95f4\u4e0a\u9650\uff0c\u5f55\u5165\u5df2\u4fdd\u7559\u3002\u590d\u6742\u8ff7\u5f69\u548c 4\u00d74\u00d72 \u72b6\u6001\u53ef\u80fd\u9700\u8981\u66f4\u591a\u65f6\u95f4\uff1b\u8fd9\u4e0d\u8868\u793a\u65e0\u89e3\u3002",
+    "solve_seconds": 45.0
+  }
+]

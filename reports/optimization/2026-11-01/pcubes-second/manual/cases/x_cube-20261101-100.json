@@ -1,0 +1,23 @@
+{
+  "kind": "x_cube",
+  "seed": 20261101,
+  "scramble_turns": 100,
+  "evaluation_budget_seconds": 30.0,
+  "input_file": "D:\\coco\\cube-solver\\reports\\optimization\\2026-11-01\\pcubes-second\\manual\\inputs\\x_cube-20261101-100.json",
+  "input_method": "visible panels / fixed bandage layout",
+  "history_empty": true,
+  "visible_entry_matches": true,
+  "input_seconds": 0.25,
+  "success": true,
+  "moves": 522,
+  "failure_category": "",
+  "solve_seconds": 1.188,
+  "progress_stages": [],
+  "message": "",
+  "evaluation_budget_hit": false,
+  "replay_solved": true,
+  "replay_seconds": 0.437,
+  "seconds": 1.875,
+  "shortening": [],
+  "colour_stage_plans": []
+}

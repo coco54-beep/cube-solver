@@ -1,0 +1,922 @@
+[
+  {
+    "case": "cube2",
+    "screen": "InputScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "cube3",
+    "screen": "InputScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "cube4",
+    "screen": "InputScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "penrose3",
+    "screen": "InputScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "penrose4",
+    "screen": "InputScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "bicube",
+    "screen": "InputScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "morphix3",
+    "screen": "MastermorphixScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "morphix4",
+    "screen": "MastermorphixScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "mirror3",
+    "screen": "MirrorScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "blanker",
+    "screen": "BlankerScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "axis",
+    "screen": "ShapeCubeScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "trajber4",
+    "screen": "ShapeCubeScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "ghost",
+    "screen": "GhostScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "mirror-tower",
+    "screen": "MirrorTowerScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "mirror-pyraminx",
+    "screen": "MirrorPyraminxScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "mirror-skewb",
+    "screen": "MirrorSkewbScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "fisher-skewb",
+    "screen": "FisherSkewbScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "container",
+    "screen": "ContainerScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "mirror-minx2",
+    "screen": "MirrorMinxScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "mirror-minx3",
+    "screen": "MirrorMinxScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "megaminx",
+    "screen": "PolyhedralScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "fto",
+    "screen": "PolyhedralScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "dogic20",
+    "screen": "PolyhedralScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "fixed-cuboid",
+    "screen": "PolyhedralScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "camouflage",
+    "screen": "CuboidSixViewScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "changing-cuboid",
+    "screen": "CuboidSixViewScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "mixup",
+    "screen": "MixupInputScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "mixup-plus",
+    "screen": "MixupInputScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "tangram",
+    "screen": "ArticulatedEntryScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "tangram-extreme",
+    "screen": "ArticulatedEntryScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "pentacle",
+    "screen": "PentacleScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "square1",
+    "screen": "Square1Screen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "square2",
+    "screen": "SquareFamilyScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "super-square1",
+    "screen": "SquareFamilyScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "time-machine",
+    "screen": "PolyhedralScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "bean6",
+    "screen": "PolyhedralScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "bean10",
+    "screen": "PolyhedralScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "twins",
+    "screen": "TwinsInputScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "flower",
+    "screen": "FlowerCopterInputScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "helicopter14",
+    "screen": "EdgeJumblingInputScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "fused_cube",
+    "screen": "BandagedSixViewScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "two_bar_cube",
+    "screen": "BandagedSixViewScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "bandaged_c",
+    "screen": "BandagedSixViewScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "bicube",
+    "screen": "BandagedSixViewScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "ai_cube",
+    "screen": "BandagedSixViewScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "burr_cube",
+    "screen": "BandagedSixViewScreen",
+    "size": [
+      390,
+      844
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "cube2",
+    "screen": "InputScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "cube3",
+    "screen": "InputScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "cube4",
+    "screen": "InputScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "penrose3",
+    "screen": "InputScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "penrose4",
+    "screen": "InputScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "bicube",
+    "screen": "InputScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "morphix3",
+    "screen": "MastermorphixScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "morphix4",
+    "screen": "MastermorphixScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "mirror3",
+    "screen": "MirrorScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "blanker",
+    "screen": "BlankerScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "axis",
+    "screen": "ShapeCubeScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "trajber4",
+    "screen": "ShapeCubeScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "ghost",
+    "screen": "GhostScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "mirror-tower",
+    "screen": "MirrorTowerScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "mirror-pyraminx",
+    "screen": "MirrorPyraminxScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "mirror-skewb",
+    "screen": "MirrorSkewbScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "fisher-skewb",
+    "screen": "FisherSkewbScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "container",
+    "screen": "ContainerScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "mirror-minx2",
+    "screen": "MirrorMinxScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "mirror-minx3",
+    "screen": "MirrorMinxScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "megaminx",
+    "screen": "PolyhedralScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "fto",
+    "screen": "PolyhedralScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "dogic20",
+    "screen": "PolyhedralScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "fixed-cuboid",
+    "screen": "PolyhedralScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "camouflage",
+    "screen": "CuboidSixViewScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "changing-cuboid",
+    "screen": "CuboidSixViewScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "mixup",
+    "screen": "MixupInputScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "mixup-plus",
+    "screen": "MixupInputScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "tangram",
+    "screen": "ArticulatedEntryScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "tangram-extreme",
+    "screen": "ArticulatedEntryScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "pentacle",
+    "screen": "PentacleScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "square1",
+    "screen": "Square1Screen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "square2",
+    "screen": "SquareFamilyScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "super-square1",
+    "screen": "SquareFamilyScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "time-machine",
+    "screen": "PolyhedralScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "bean6",
+    "screen": "PolyhedralScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "bean10",
+    "screen": "PolyhedralScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "twins",
+    "screen": "TwinsInputScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "flower",
+    "screen": "FlowerCopterInputScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "helicopter14",
+    "screen": "EdgeJumblingInputScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "fused_cube",
+    "screen": "BandagedSixViewScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "two_bar_cube",
+    "screen": "BandagedSixViewScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "bandaged_c",
+    "screen": "BandagedSixViewScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "bicube",
+    "screen": "BandagedSixViewScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "ai_cube",
+    "screen": "BandagedSixViewScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  },
+  {
+    "case": "burr_cube",
+    "screen": "BandagedSixViewScreen",
+    "size": [
+      800,
+      600
+    ],
+    "ok": true,
+    "action_rows": 1
+  }
+]

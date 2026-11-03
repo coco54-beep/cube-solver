@@ -1,0 +1,80 @@
+{
+  "date": "2026-10-23",
+  "unique_passed_tests": 409,
+  "reports": [
+    {
+      "file": "search-recovery-final-tests.xml",
+      "passed": 66,
+      "sha256": "3c991e92f3c12162d35f54ab4b3f30fe32b1a569bf73dc982354131b13744d30"
+    },
+    {
+      "file": "finite-group-no-quota-tests.xml",
+      "passed": 247,
+      "sha256": "2f9aa62f97ec76b99dbe6477be21a757b68ae12e39c47e2fc126ca0b35677923"
+    },
+    {
+      "file": "remaining-families-final-regression.xml",
+      "passed": 69,
+      "sha256": "a84bbbfa405169bb3ed52e21db706fa26eb8d1cd1a2185d86091cb770575b19a"
+    },
+    {
+      "file": "search-policy-compatibility-tests.xml",
+      "passed": 29,
+      "sha256": "bd5302c433e2fb79ae73415a1de3ea4ce3adaaf1a6e3116b5e27dffa6f3d5ed5"
+    }
+  ],
+  "tangram_model_completeness": [
+    {
+      "kind": "tangram",
+      "geometry": "c7610de0c23a960564f5ccaa79af2585ec0762e328f82b7b42f107d45c195b14",
+      "reachable_shape_positions": 20,
+      "coloured_position_degree": 42,
+      "all_moves_legal_on_reachable_positions": true,
+      "full_move_group_order": "335923200",
+      "complete_shape_orbit": 1,
+      "full_root_stabilizer_order": "335923200",
+      "verified_transversals": 87,
+      "asset_sha256": "81637afee38fcd568acce4189c4b16ba77eba1e3ef321746774b4b124513efd4"
+    },
+    {
+      "kind": "tangram_extreme",
+      "geometry": "c382d33b857f5284463edac60ca6c770f4c3a402d03746df3669b3a576241a97",
+      "reachable_shape_positions": 82,
+      "coloured_position_degree": 114,
+      "all_moves_legal_on_reachable_positions": true,
+      "full_move_group_order": "142434729055340426428416000000",
+      "complete_shape_orbit": 3155556096,
+      "full_root_stabilizer_order": "45137758519296000000",
+      "verified_transversals": 170,
+      "asset_sha256": "51851eedecf711654ff4327366181a3837c8402bec6f1e9b1570424ea982ccb9",
+      "core_degree": 30,
+      "core_order": "10368",
+      "faithful_kernel_order": "1",
+      "independent_kernel": "A12 x A12 x A12",
+      "independent_kernel_order": "13737917540059840512000000",
+      "core_occupancy_states": 4
+    }
+  ],
+  "exact_pattern_distance_edges": 153679680,
+  "thousand_turn_shape_recovery": {
+    "cases": 24,
+    "min_seconds": 0.0,
+    "median_seconds": 0.0465,
+    "max_seconds": 0.656,
+    "min_moves": 13,
+    "max_moves": 16
+  },
+  "source_hashes": {
+    "solver/complete_search.py": "35d6e7e8e9ac665dc287a16e3d17c16820dead332140397645dce85ae8f58e33",
+    "solver/tangram_shapes.py": "e78dd137ca581c6549fa125207bf7178883d8f0df2f2701b433225d3a0c8d7f6",
+    "solver/tangram_table.py": "a9007a1d7cb5fab2159f59f9c895a17a5c546860b8632a4580261192d33624a0",
+    "solver/mixup_complete.py": "8c7edf92b958528b7aaa8528adf54848f79e323db6f7ea511e77dc8fdb6d77f1",
+    "solver/cuboid_search.py": "9143b1d322498c0c3417021a199e51299f7c80d658eb39f9b4074ebf5a8ecca0"
+  },
+  "limits": [
+    "Completeness refers to the current finite physical model.",
+    "Mixup/Camouflage recovery is complete search, not a guaranteed fast constructive solver.",
+    "Deep saved inputs passed through fast reductions; physical fallback performance was tested mainly on shallow entries.",
+    "No phone performance test or release package build was performed."
+  ]
+}

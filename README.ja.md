@@ -11,7 +11,7 @@
 - カタログから **Master Clover** と **LanLan Pisces** を削除しました。
 - 別の段数の入力下書きを復元した際の入力画面クラッシュと、削除済み画面を含むセッション復元を修正しました。
 - 高次キューブの回転、Mastermorphix/Mirror のセンター計画再利用、Pentahedron/War Drum の最適化予算、Tangram Extreme の検証、Twins の再生時間を改善しました。
-- 自動テスト全実行: **4398 passed, 23 skipped**。
+- 自動テスト全実行: **4428 passed, 23 skipped**。
 
 [1.2.39 リリースノート](docs/release-1.2.39.md)
 

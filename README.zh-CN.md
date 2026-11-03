@@ -11,7 +11,7 @@
 - 从目录中移除 **双棱花** 和 **双鱼座**。
 - 修复切换阶数/恢复旧录入状态时的输入页闪退，并加固已删除页面的会话恢复。
 - 优化高阶普通魔方转动、Mastermorphix/Mirror 中心方案复用、Pentahedron/War Drum 优化预算、Tangram Extreme 验证和双子星回放时长。
-- 全量自动化测试：**4398 passed, 23 skipped**。
+- 全量自动化测试：**4428 passed, 23 skipped**。
 
 [1.2.39 更新说明](docs/release-1.2.39.md)
 

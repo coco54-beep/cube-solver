@@ -26,5 +26,5 @@
 
 ## Verification
 
-- Automated suite: **4398 passed, 23 skipped**.
+- Automated suite: **4428 passed, 23 skipped**.
 - Android package: arm64-v8a, API 26+, debug test build for this release candidate.

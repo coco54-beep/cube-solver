@@ -11,7 +11,7 @@
 - Removed **Master Clover** and **LanLan Pisces** from the catalogue.
 - Fixed mobile crashes when an input draft from another order is restored, and hardened session restoration against removed screens.
 - Improved higher-order cube turning, Mastermorphix/Mirror centre-plan reuse, Pentahedron/War Drum optimisation budgets, Tangram Extreme verification and Twins playback timing.
-- Full automated test run: **4398 passed, 23 skipped**.
+- Full automated test run: **4428 passed, 23 skipped**.
 
 [1.2.39 release notes](docs/release-1.2.39.md)
 

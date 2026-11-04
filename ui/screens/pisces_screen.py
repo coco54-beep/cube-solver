@@ -44,7 +44,14 @@ from cube.hexagram_aligned import scrambled as hexagram_scrambled
 class HexagramInputScreen(PiscesInputScreen):
     view_class=HexagramView
     entry_twist_screen='HexagramTwistScreen'
-    make_scrambled=staticmethod(hexagram_scrambled)
+
+    @staticmethod
+    def make_scrambled(cancel=None):
+        # Keep the built-in scramble inside the solver's closed whole-material
+        # group. An extra arbitrary jumble turn can produce a legal-looking
+        # shape that the colour/group solver cannot reduce, especially after
+        # repeated manual twists.
+        return hexagram_scrambled(cancel=cancel, jumble=False)
 
     @staticmethod
     def validate_aligned(cube):

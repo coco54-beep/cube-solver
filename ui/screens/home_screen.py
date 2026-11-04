@@ -50,6 +50,14 @@ class HomeScreen(IrregularDirectoryScreen):
         bottom.add_widget(right)
         return bottom
 
+    def on_pre_enter(self, *_args):
+        # Returning from playback can leave the directory scrolled outside
+        # the grid while the cached window size prevents a relayout.
+        if hasattr(self, 'scroll'):
+            self.scroll.scroll_y = 1
+        self._last_window_size = None
+        Clock.schedule_once(lambda *_: self._relayout(), 0)
+
     def _relayout(self, *_args):
         super()._relayout(*_args)
         self._topbar.height = m.h(44)

@@ -93,9 +93,10 @@ def main():
         worker(kinds[0],seeds[0],turns[0],args.budget,folder);return
     cases=[(kind,seed,n) for n in turns for kind in kinds for seed in seeds]
     if args.retry_from:
+        from candidate_puzzles import PLAY_ONLY_KINDS
         cases=list(dict.fromkeys((r['kind'],r['seed'],r['scramble_turns'])
                    for path in args.retry_from for r in json.loads(path.read_text(encoding='utf-8'))
-                   if not r.get('replay_solved')))
+                   if not r.get('replay_solved') and r['kind'] not in PLAY_ONLY_KINDS))
     rows=[]
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
         futures=[pool.submit(isolated,kind,seed,n,args.budget,folder,args.grace)

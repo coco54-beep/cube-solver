@@ -109,7 +109,8 @@ class _GuideOverlay(Widget):
 
     def set_template(self, frame=None, lines=None, aspect=1.):
         frame = np.asarray(frame if frame is not None else [[0.,0.],[1.,0.],[1.,1.],[0.,1.]])
-        changed = len(frame) != len(self.frame) or abs(aspect-self.aspect)>1e-6
+        changed = (frame.shape != self.frame.shape or not np.allclose(frame, self.frame)
+                   or abs(aspect-self.aspect)>1e-6)
         self.aspect = aspect
         self.frame, self.lines = frame, lines
         if changed:

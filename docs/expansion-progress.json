@@ -78,7 +78,8 @@
     {
       "kind": "yeet_ball",
       "name": "永骏枫叶球",
-      "status": "integrated_verified_desktop"
+      "status": "integrated_verified_desktop",
+      "research_report": "reports/optimization/2026-11-04/yeet-ball-circles/README.md"
     },
     {
       "kind": "mf8_bauhinia_minx",

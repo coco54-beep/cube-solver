@@ -6,10 +6,11 @@ from vision.scan_profiles import ScanProfile,SUPPORTED
 
 
 def test_photo_categories_are_a_filtered_copy_of_the_current_catalogue():
-    from ui.screens.irregular_directory_screen import PUZZLES,ORDERS
+    from ui.screens.home_screen import HomeScreen
+    from ui.screens.irregular_directory_screen import ORDERS
     from ui.widgets.photo_entry import photo_groups
     original=deepcopy(ORDERS);groups=photo_groups()
-    assert [f for f,_ in groups]==[f for f in ('cube',)+PUZZLES if f in dict(groups)]
+    assert [f for f,_ in groups]==[f for f in HomeScreen.puzzle_keys if f in dict(groups)]
     assert ORDERS==original
     flat=[k for _,kinds in groups for k in kinds]
     assert len(flat)==len(set(flat)) and set(flat)=={'cube',*SUPPORTED}
@@ -17,12 +18,14 @@ def test_photo_categories_are_a_filtered_copy_of_the_current_catalogue():
     assert 'pyraminx_crystal' in dict(groups)['megaminx']
     assert 'tangram' in dict(groups)['tangram_family']
     assert 'dogic_i' in dict(groups)['icosahedron']
+    assert dict(groups)['drum_pentahedron_group']==('war_drum','pentahedron')
 
 
 def test_piece_direction_and_size_inputs_are_not_enabled_as_colour_only_photos():
     from ui.widgets.photo_entry import supported
     for kind,n in (('mixup_333',3),('mixup_plus_444',4),('tangram_extreme',3),
-                   ('penrose_3',3),('mirror',3),('blanker',2),('camouflage_3',3),('masterball',4)):
+                   ('penrose_3',3),('mirror',3),('blanker',2),('camouflage_3',3),('masterball',4),
+                   ('clover',3),('mf8_twins',3),('lanlan_hexagram',3)):
         assert not supported(kind,n)
 
 
@@ -91,7 +94,11 @@ def test_perspective_photo_with_soft_edges_and_calibrated_light(kind,n):
     assert result.values==expected
 
 
-@pytest.mark.parametrize('kind,n',(('pentagonal_prism',3),('dogic_i',3),('cuboid_332',3),('tangram',3)))
+@pytest.mark.parametrize('kind,n',(('pentagonal_prism',3),('dogic_i',3),('cuboid_332',3),('tangram',3),
+                                 *((kind,n) for kind in ('war_drum','pentahedron') for n in (2,3,4,5)),
+                                 ('skewb_rhombic',3),('jewel_fto',3),
+                                 ('mosaic',4),('tins',5),('kairis_star_finder',3),('aj_curvy_dinominx_4',4),
+                                 ('o2',1),('ancient_coin',3)))
 def test_all_photographed_faces_reenter_a_scramble_then_production_solver_replays(kind,n):
     from tools.audit_photo_entry import photo
     from vision.scan_profiles import detect_surface

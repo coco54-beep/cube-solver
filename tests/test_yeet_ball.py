@@ -104,3 +104,28 @@ def test_ivy_commutator_cycles_only_three_leaves():
     for _ in range(3):
         for move in word:replay.apply_move(move)
     assert replay.is_solved()
+
+
+def test_ball_seams_are_the_same_plane_circles_through_every_legal_turn():
+    from cube.yeet_ball import geometry,RADIUS,CUT_HEIGHT,CUT_RADIUS
+    from cube.polyhedral import add,scale,unit
+    g=geometry()
+    assert CUT_HEIGHT==pytest.approx(RADIUS/3)
+    assert CUT_RADIUS/RADIUS==pytest.approx(math.sqrt(8/9))
+    for i,s in enumerate(g.stickers):
+        for point in s.polygon:
+            assert dot(point,point)==pytest.approx(RADIUS**2)
+            for axis,bands in zip(g.spec.axes,g.layers):
+                distance=dot(axis,point)-CUT_HEIGHT
+                assert distance>=-1e-8 if s.piece in bands[0] else distance<=1e-8
+        for axis,bands in enumerate(g.layers):
+            if s.piece not in bands[0]:continue
+            target=g.stickers[g.permutations[axis][0][i]]
+            normal=g.spec.normals[target.face]
+            for point in s.polygon:
+                point=rotate(point,g.spec.axes[axis],math.tau/3)
+                assert all(dot(unit(add(n,scale(normal,-1))),point)<=1e-8
+                           for n in g.spec.normals if n!=normal)
+                for cut,layer in zip(g.spec.axes,g.layers):
+                    distance=dot(cut,point)-CUT_HEIGHT
+                    assert distance>=-1e-8 if target.piece in layer[0] else distance<=1e-8

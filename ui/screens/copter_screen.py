@@ -6,6 +6,7 @@ from kivy.uix.label import Label
 from kivy.uix.spinner import Spinner
 from kivy.uix.textinput import TextInput
 from app.i18n import tr
+from candidate_puzzles import PLAY_ONLY_KINDS
 from cube.copter_input import CopterCube,scrambled
 from cube.curvy_copter import JUMBLE,multiply
 from cube.appearance import IDENTITY_FRAME
@@ -17,10 +18,6 @@ from ui.widgets.layouts import ResponsiveBoxLayout
 from ui.widgets.buttons import UIButton,PrimaryButton,DangerButton
 from ui.widgets import metrics as m
 from renderer.copter_view import CopterView
-
-PLAY_ONLY_KINDS=frozenset(('helicopter','helicopter_14','rua','clover','mf8_bauhinia_minx','lanlan_curvy_copter','lanlan_comet_physical',
-    'mf8_twins','mf8_suncube_2','lanlan_hexagram','lanlan_flower_copter','lanlan_butterflower'))
-
 
 class CopterInputScreen(PolyhedralScreen):
     view_class=CopterView

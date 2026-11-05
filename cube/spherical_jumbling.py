@@ -2,6 +2,7 @@
 import math
 from functools import lru_cache
 from cube.edge_jumbling import EdgeJumblingCube,FACTORIES
+from cube.planar_twins_state import RecordedTurns
 from cube.polyhedral import CUBE,DODECA,EDGE_AXES,Spec,Move,unit,scale,mean,dot,Geometry,Sticker
 from cube.curved_partition import SphereCut,shell
 from cube.spherical_cells import Arrangement,Plane
@@ -108,7 +109,7 @@ class SphericalJumblingCube(EdgeJumblingCube):
         fixed.colors=colours;return fixed
 
 
-class CloverCube(SphericalJumblingCube):
+class CloverCube(RecordedTurns, SphericalJumblingCube):
     puzzle_kind='clover'
     color_count=6
     observation_model='clover-spherical-whole-v1'

@@ -3,7 +3,7 @@ import math
 from functools import lru_cache
 from cube.polyhedral import CUBE,OCTA,EDGE_AXES,Move,Spec,Geometry,Sticker,body,body_faces,dot,mean,key
 from cube.appearance import ROTATIONS,transform_frame
-from cube.planar_twins_state import PlanarTwinsState
+from cube.planar_twins_state import PlanarTwinsState,RecordedTurns
 from cube.twins_material import partition
 from cube.crazy_comet import vertices
 from cube.curvy_copter import JUMBLE
@@ -93,7 +93,7 @@ class EdgeJumblingCube(PlanarTwinsState):
         except ValueError:return False
 
 
-class HelicopterCube(EdgeJumblingCube):
+class HelicopterCube(RecordedTurns, EdgeJumblingCube):
     layout=staticmethod(lambda:layout('helicopter'))
     puzzle_kind='helicopter'
     observation_model='helicopter-whole-material-v1'

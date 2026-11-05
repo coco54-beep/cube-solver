@@ -167,23 +167,24 @@ def legal_moves(cube):
 
 def scramble(cube,seed=54,length=24):
     """A reproducible legal walk; recompute bands for shape-changing models."""
-    if cube.puzzle_kind=='helicopter_14' and hasattr(cube,'frames'):
+    kind=getattr(cube,'puzzle_kind',None)
+    if kind=='helicopter_14' and hasattr(cube,'frames'):
         from cube.helicopter_14_aligned import scrambled
         cube.restore(scrambled(seed,length));return cube
-    if cube.puzzle_kind=='lanlan_clover_pyraminx':
+    if kind=='lanlan_clover_pyraminx':
         from cube.clover_pyraminx_aligned import scrambled
         cube.restore(scrambled(seed,length));return cube
-    if cube.puzzle_kind=='lanlan_flower_copter':
+    if kind=='lanlan_flower_copter':
         from cube.flower_copter_aligned import scrambled
         cube.restore(scrambled(seed,length));return cube
-    if cube.puzzle_kind=='lanlan_hexagram':
+    if kind=='lanlan_hexagram':
         from cube.hexagram_aligned import scrambled
         cube.restore(scrambled(seed,length));return cube
-    if cube.puzzle_kind=='lanlan_pisces':
+    if kind=='lanlan_pisces':
         from cube.pisces_aligned import scrambled
         cube.restore(scrambled(seed,length));return cube
-    if cube.puzzle_kind in ('mf8_twins','mf8_suncube_2'):
-        if cube.puzzle_kind=='mf8_twins':
+    if kind in ('mf8_twins','mf8_suncube_2'):
+        if kind=='mf8_twins':
             if getattr(cube,'geometry_profile',None)=='pcubes-skewby-twins-v1':from cube.twins_pcubes_aligned import scrambled
             else:from cube.twins_aligned import scrambled
         else:from cube.suncube_aligned import scrambled

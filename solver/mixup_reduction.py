@@ -131,15 +131,17 @@ class ReductionGeometry:
             self._turn_tables[key]=ordinary,corners
         return self._turn_tables[key]
 
-    def children(self,frames,features,last=None,guard=None,complete=False):
+    def children(self,frames,features,last=None,guard=None,complete=False,*,amounts=None,exclude_axis=None):
         available=features.available
         for bit,(axis,layers) in enumerate(self.ranges):
             if guard:guard()
+            if axis==exclude_axis:continue
             if not complete and (axis,layers) not in self.search_ranges:continue
             if not available>>bit&1 or (axis,layers)==last:continue
             selected=[h for h,f in enumerate(features) if f[3]>>bit&1]
             if not selected:continue
             for amount,move in self._moves[bit]:
+                if amounts is not None and amount not in amounts:continue
                 ordinary,corners=self.turn_tables(axis,amount)
                 child=list(frames);valid=True
                 for home in selected:
@@ -167,27 +169,27 @@ class ReductionGeometry:
         child=tuple(child);return child,self.state_features(child)
 
     def macro_children(self,frames,features,guard=None,compound=False):
-        for a,move_a in self.children(frames,features,guard=guard):
-            if move_a.amount not in (1,7):continue
+        setup_amounts=(1,7) if compound else (2,6)
+        for a,move_a in self.children(frames,features,guard=guard,amounts=(1,7)):
             fa=self.state_features(a)
-            for b,move_b in self.children(a,fa,guard=guard):
-                if move_b.amount!=4 or move_b.axis==move_a.axis:continue
-                result=self.apply(b,self.state_features(b),move_a.inverse(8))
-                if result is not None:yield result[0],result[1],(move_a,move_b,move_a.inverse(8))
-            for b,move_b in self.children(a,fa,guard=guard):
-                if move_b.amount not in ((1,7) if compound else (2,6)) or move_b.axis==move_a.axis:continue
+            undo_a=move_a.inverse(8)
+            for b,move_b in self.children(a,fa,guard=guard,amounts=(4,),exclude_axis=move_a.axis):
+                result=self.apply(b,self.state_features(b),undo_a)
+                if result is not None:yield result[0],result[1],(move_a,move_b,undo_a)
+            for b,move_b in self.children(a,fa,guard=guard,amounts=setup_amounts,exclude_axis=move_a.axis):
                 fb=self.state_features(b)
-                for c,move_c in self.children(b,fb,guard=guard):
-                    if move_c.amount not in (2,4,6) or move_c.axis==move_b.axis:continue
+                undo_b=move_b.inverse(8)
+                for c,move_c in self.children(b,fb,guard=guard,amounts=(2,4,6),exclude_axis=move_b.axis):
                     fc=self.state_features(c)
-                    d=self.apply(c,fc,move_b.inverse(8))
+                    d=self.apply(c,fc,undo_b)
                     if d is None:continue
-                    e=self.apply(*d,move_a.inverse(8))
-                    if e is not None:yield e[0],e[1],(move_a,move_b,move_c,move_b.inverse(8),move_a.inverse(8))
-                    d2=self.apply(*d,move_c.inverse(8))
+                    e=self.apply(*d,undo_a)
+                    if e is not None:yield e[0],e[1],(move_a,move_b,move_c,undo_b,undo_a)
+                    undo_c=move_c.inverse(8)
+                    d2=self.apply(*d,undo_c)
                     if d2 is None:continue
-                    e2=self.apply(*d2,move_a.inverse(8))
-                    if e2 is not None:yield e2[0],e2[1],(move_a,move_b,move_c,move_b.inverse(8),move_c.inverse(8),move_a.inverse(8))
+                    e2=self.apply(*d2,undo_a)
+                    if e2 is not None:yield e2[0],e2[1],(move_a,move_b,move_c,undo_b,undo_c,undo_a)
 
     def long_macro_children(self,frames,features,guard=None):
         for child,fs,word in self.macro_children(frames,features,guard):

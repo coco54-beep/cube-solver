@@ -4,6 +4,16 @@
 
 [Windows and Android downloads](https://github.com/coco54-beep/cube-solver/releases/latest) · [中文技术说明](README.zh-CN.md) · [日本語](README.ja.md) · [Source code](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.40 update
+
+- Hexagram now records legal turns and verifies their inverse before solving; scrambled-then-manually-twisted states survive save/reload.
+- Mixup Plus keeps the verified partial shape prefix when a reduction limit is reached, improving recovery from jumbled layouts.
+- Edge-turning models gain the same recorded-turn recovery path.
+- Yeet Ball uses the corrected spherical cut geometry.
+- Home re-entry and photo-entry catalogue grouping are fixed.
+
+[1.2.40 release notes](docs/release-1.2.40.md)
+
 ## 1.2.39 update
 
 - Home now has a searchable puzzle catalogue, image cards for every family/order, and settings moved to the top-right.

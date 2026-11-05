@@ -13,6 +13,32 @@ from cube.curvy_copter import inverse_point,multiply
 from cube.rigid_placements import pose_key
 
 
+def solve_recorded_turns(cube, guard):
+    """Return an inverse only after verifying it on the current shape and paint."""
+    history = getattr(cube, 'history', None)
+    if not history:
+        return None
+    from cube.copter_aligned import compact, inverse_word
+
+    cube.validate_pose()
+    if cube.is_solved():
+        return ()
+    inverse = inverse_word(history)
+    shortened = compact(inverse)
+    candidates = (shortened, inverse) if shortened != inverse else (inverse,)
+    for word in candidates:
+        replay = type(cube)(cube.frames, cube.paints)
+        try:
+            for move in word:
+                replay.apply_move(move, guard)
+        except ValueError:
+            continue
+        if replay.is_solved():
+            guard()
+            return word
+    return None
+
+
 @lru_cache(maxsize=8)
 def _weights(factory):
     from cube.crazy_comet import volume

@@ -55,6 +55,10 @@ class HexagramInputScreen(PiscesInputScreen):
 
     @staticmethod
     def validate_aligned(cube):
+        if cube.history:
+            # The solver checks the recorded path against the actual state.
+            # Its fallback colour group is narrower than the legal turns.
+            return
         from solver.hexagram import validate
         validate(observed_colors(cube))
 

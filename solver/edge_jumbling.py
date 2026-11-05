@@ -1,6 +1,7 @@
-"""Observed-state shape repair followed by the existing regular solver."""
+"""Recorded play recovery and observed-state repair for edge-turning models."""
 from time import monotonic
 from cube.polyhedral import Move
+from solver.rigid_shape import normalize, solve_recorded_turns
 
 
 def solve(cube,cancel=None,progress=None,seconds=60):
@@ -12,11 +13,13 @@ def solve(cube,cancel=None,progress=None,seconds=60):
         if cancel and cancel():raise InterruptedError()
         if monotonic()-start>=seconds:raise TimeoutError('copter.shape_unresolved')
     guard();prefix=()
+    recorded = solve_recorded_turns(cube, guard)
+    if recorded is not None:
+        return recorded
     def checked_cancel():guard();return False
     try:fixed=cube.regular_colours()
     except ValueError as e:
         if str(e)!='copter.align_first':raise
-        from solver.rigid_shape import normalize
         aligned,prefix=normalize(cube,checked_cancel,max(.001,seconds-(monotonic()-start)))
         fixed=aligned.regular_colours()
     if fixed.puzzle_kind=='helicopter':

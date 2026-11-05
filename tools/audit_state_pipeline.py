@@ -29,6 +29,18 @@ def reenter(kind,seed,length):
                 rows=[i//width for i in indices];cols=[i%width for i in indices]
                 draft.paint(face,draft.rectangle(face,min(rows)*width+min(cols),max(rows)*width+max(cols)),colour)
             draft.mark_outside(face)
+        if kind=='mirror_camouflage_3':
+            # Supply depth only where the app would ask for it. Keep the final
+            # observation in the same format as an edited draft from the app.
+            while True:
+                result=draft.match(seconds=20.)
+                if result.status!='ambiguous':break
+                face,index=result.face,result.cell
+                color,group,known_depth=draft.views[face][index]
+                depth=target[face][index][2]
+                assert group and known_depth is None and depth is not None,result
+                indices=[i for i,(_,g,_) in enumerate(draft.views[face]) if g==group]
+                draft.paint(face,indices,color,depth)
         payload=draft.state()
         def rebuild(data):
             result=SixViewDraft(kind,data).match(seconds=20.)

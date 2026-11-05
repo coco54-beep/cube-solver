@@ -10,18 +10,18 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 os.environ['KIVY_NO_ARGS']='1';os.environ['KIVY_NO_FILELOG']='1'
 from app.desktop_runtime import configure_graphics
 configure_graphics()
-from candidate_puzzles import REQUESTED
+from candidate_puzzles import PLAY_ONLY_KINDS,REQUESTED
 from cube.articulated import MIXUP_MODELS
 from cube.cuboid import MODELS as CUBOIDS,FIXED_SHAPE_KINDS
 from services.solve_service import SolveService,CancelToken
 
 BANDAGED=('fused_cube','two_bar_cube','bandaged_c','bicube','ai_cube','burr_cube')
 FIXED={e.kind:e.n for e in REQUESTED if e.mechanism not in
-       ('extended','shape','blanker','mirror_minx','skewb_shell','reference_needed')}
+       ('extended','shape','blanker','mirror_minx','skewb_shell','reference_needed') and e.kind not in PLAY_ONLY_KINDS}
 BASE_SUPPORTED=tuple(MIXUP_MODELS)+('camouflage_3','tangram','tangram_extreme')+BANDAGED+tuple('cube_'+str(n) for n in (2,3,4,5))+tuple(FIXED)
 from vision.scan_profiles import SUPPORTED as PHOTO_MODELS
 FIXED.update({kind:orders[0] for kind,orders in PHOTO_MODELS.items()
-              if kind not in set(BASE_SUPPORTED)|{'pandora','tangram'} and kind not in CUBOIDS})
+              if kind not in set(BASE_SUPPORTED)|PLAY_ONLY_KINDS|{'pandora','tangram'} and kind not in CUBOIDS})
 SUPPORTED=tuple(dict.fromkeys(BASE_SUPPORTED+tuple(FIXED)+tuple(CUBOIDS)))
 ADDITIONAL=tuple(kind for kind in SUPPORTED if kind not in BASE_SUPPORTED)
 

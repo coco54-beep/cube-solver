@@ -348,6 +348,7 @@ class IrregularDirectoryScreen(Screen):
     """Lists shape-mod puzzles and lets the user choose an order."""
 
     puzzle_keys = PUZZLES
+    category_groups = {}
     title_key = 'directory.title'
     hint_key = 'directory.group_hint'
     parent_screen = 'HomeScreen'
@@ -397,8 +398,9 @@ class IrregularDirectoryScreen(Screen):
 
         self.grid = GridLayout(cols=2, spacing=(m.h(12), m.h(12)), size_hint=(1, None))
         for key in self.puzzle_keys:
-            button = HomeCard(MARKS[key], tr("directory." + key),
-                              image=None if key == 'special' else puzzle_image(SERIES_IMAGES.get(key, key)),
+            representative = self.category_groups.get(key, (key,))[0]
+            button = HomeCard(MARKS[representative], tr("directory." + key),
+                              image=None if key == 'special' else puzzle_image(SERIES_IMAGES.get(representative, representative)),
                               on_click=lambda k=key: self._open_series(k))
             self.grid.add_widget(button)
             self._buttons[key] = button
@@ -541,6 +543,7 @@ class IrregularDirectoryScreen(Screen):
                 self._show_pending(puzzle)
             return
         content = BoxLayout(orientation="vertical", spacing=m.h(10), padding=m.h(14))
+        families = self.category_groups.get(puzzle, (puzzle,))
         has_variants = any(family == puzzle for family, _ in PUZZLE_VARIANTS)
         model_series = ('skewb', 'dino', 'ghost', 'penrose_family', 'mixup_family', 'tangram_family',
                         'bandaged_family', 'mosaic_family', 'ivy_family',*CATALOGUE_FAMILIES)
@@ -548,33 +551,35 @@ class IrregularDirectoryScreen(Screen):
                     'directory.circle_hint' if puzzle == 'circle_family' else
                     'directory.edge_hint' if puzzle == 'edge_family' else
                     'directory.special_hint' if puzzle == 'special' else
-                    'directory.variant_hint' if has_variants or puzzle in model_series
+                    'directory.variant_hint' if len(families) > 1 or has_variants or puzzle in model_series
                     else 'directory.order_hint')
         hint = Label(text=tr(hint_key), color=_app().theme.text_muted,
                      halign="center", valign="middle", size_hint_y=None, height=m.h(42))
         hint.bind(size=lambda label, *_: setattr(label, "text_size", label.size))
         content.add_widget(hint)
 
-        orders = picker_orders(puzzle)
+        options = [(family, order) for family in families for order in picker_orders(family)]
         popup_width = .92
         available = max(1, Window.width * popup_width - m.h(28))
         columns = max(2, min(6, int(available // max(1, m.h(140)))))
-        rows = (len(orders) + columns - 1) // columns
-        row_height = 144 if any(order in PENDING_KINDS for order in orders if isinstance(order,str)) else 112
+        rows = (len(options) + columns - 1) // columns
+        row_height = 144 if any(order in PENDING_KINDS for _, order in options) else 112
         order_grid = GridLayout(cols=columns, spacing=m.h(8), size_hint_y=None,
                                 height=m.h(rows * row_height + (rows - 1) * 8))
         popup = Popup(title=tr("directory." + puzzle), content=content,
                       size_hint=(popup_width, .86),
                       auto_dismiss=True)
         theme_popup(popup, _app().theme)
-        for order in orders:
-            label, physical_order = picker_label(puzzle, order)
+        for family, order in options:
+            label, physical_order = picker_label(family, order)
             mark = MARKS.get(order, str(physical_order))
             pending=isinstance(order,str) and order in PENDING_KINDS
             if pending:label=tr('directory.'+order)
+            if len(families) > 1:
+                label = tr('directory.' + family) + '\n' + label
             card = (PendingPuzzleCard if pending else HomeCard)(mark, label,
-                            image=order_image(puzzle, order),
-                            on_click=lambda n=order: self.select_order(popup, puzzle, n))
+                            image=order_image(family, order),
+                            on_click=lambda p=family, n=order: self.select_order(popup, p, n))
             card.puzzle_kind=order
             order_grid.add_widget(card)
         scroll = ScrollView(do_scroll_x=False)

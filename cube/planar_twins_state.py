@@ -30,6 +30,37 @@ def _local_extent(factory,home,normal):
     return min(values),max(values)
 
 
+class RecordedTurns:
+    """Retain a reversible path from the initial state of a rigid puzzle."""
+
+    def __init__(self, frames=None, paints=None, history=None):
+        super().__init__(frames, paints)
+        # An observed, displaced pose has no known path from the factory state.
+        self.history = () if all(frame == IDENTITY_FRAME for frame in self.frames) else None
+        if isinstance(history, (tuple, list)) and all(
+            isinstance(move, Move) and type(move.axis) is int
+            and 0 <= move.axis < len(self.turn_axes) and move.layer == 0
+            and type(move.amount) in (int, float) and math.isfinite(move.amount)
+            for move in history
+        ):
+            self.history = tuple(history)
+
+    def apply_move(self, move, guard=None):
+        super().apply_move(move, guard)
+        if self.history is not None:
+            self.history += (move,)
+        return self
+
+    def clone(self):
+        return type(self)(self.frames, self.paints, self.history)
+
+    entered = clone
+
+    def restore(self, cube):
+        super().restore(cube)
+        self.history = cube.history
+
+
 class PlanarTwinsState(CometCube):
     puzzle_kind='mf8_twins'
     color_count=6

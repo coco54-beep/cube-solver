@@ -7,6 +7,7 @@ import json,zlib
 from pathlib import Path
 from functools import lru_cache
 from cube.pisces import PiscesCube,AXES,fields_for
+from cube.planar_twins_state import RecordedTurns
 from cube.polyhedral import TETRA,scale
 from cube.twins_material import partition
 
@@ -33,7 +34,7 @@ def layout():
     solids,panels=structure();return tuple(range(len(solids))),solids,panels
 
 
-class HexagramCube(PiscesCube):
+class HexagramCube(RecordedTurns, PiscesCube):
     puzzle_kind='lanlan_hexagram'
     color_count=4
     geometry_profile='chordal-reuleaux-tetrahedron'

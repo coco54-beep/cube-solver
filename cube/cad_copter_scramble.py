@@ -2,7 +2,6 @@
 
 The regular API is retained for colour-table construction; play pages request
 shape suffixes explicitly. Every actual turn goes through whole-solid gates.
-No undo history or solution is attached to the resulting state.
 """
 from time import monotonic
 from cube.polyhedral import Move,dot
@@ -24,9 +23,9 @@ def deform(cube,rng,cancel,deadline):
         if abs(dot(cube.turn_axes[axis],cube.turn_axes[first.axis]))>1-1e-8:continue
         guard();amount=rng.choice((JUMBLE,-JUMBLE)) if axis<12 else rng.choice((60.,-60.))
         move=Move(axis,0,amount)
-        try:following=cube.proposed(move,guard)
+        try:cube.apply_move(move,guard)
         except ValueError:continue
-        cube.frames=following;break
+        break
     # Warm the current state's exact gates in this cancellable background job;
     # returning to the play page must not calculate all 20 cuts on the UI thread.
     for axis in range(len(cube.turn_axes)):

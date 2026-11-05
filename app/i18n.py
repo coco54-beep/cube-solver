@@ -70,8 +70,8 @@ CATALOG = {
         "settings.language": "语言",
         "settings.input_mode": "输入方式",
         "settings.about": "关于",
-        "settings.about_tagline": "从 2×2 到 17×17，以及转棱、镜面、斜转、SQ、花瓣等异形魔方的真实算法求解",
-        "settings.about_feature": "支持 2–17 阶标准魔方 · 转棱/镜面/斜转/SQ/花瓣等异形 · 3D 动画回放",
+        "settings.about_tagline": "真实算法求解 2×2 到 17×17，并覆盖转棱、镜面、斜转、SQ、花瓣与扩展异形魔方。",
+        "settings.about_feature": "可搜索图片目录 · 2–17 阶标准魔方 · 扩展异形 · 3D 动画回放 · 中/英/日",
 
         "inputmode.advanced": "高级输入",
         "inputmode.simple": "简洁输入",
@@ -295,8 +295,8 @@ CATALOG = {
         "settings.language": "Language",
         "settings.input_mode": "Input mode",
         "settings.about": "About",
-        "settings.about_tagline": "Real algorithmic solving from 2×2 to 17×17 and a broad irregular catalog",
-        "settings.about_feature": "Standard cubes 2–17 · edge-turning, mirror, Skewb, SQ and petal puzzles · animated 3D playback",
+        "settings.about_tagline": "Real algorithmic solving from 2×2 to 17×17, plus edge-turning, mirror, Skewb, SQ, petal and expanded irregular puzzles.",
+        "settings.about_feature": "Searchable image catalogue · standard cubes 2–17 · expanded irregular puzzles · animated 3D playback · Chinese / English / Japanese",
 
         "inputmode.advanced": "Advanced",
         "inputmode.simple": "Simple",
@@ -530,8 +530,8 @@ CATALOG = {
         "settings.language": "言語",
         "settings.input_mode": "入力方式",
         "settings.about": "アプリについて",
-        "settings.about_tagline": "2×2～17×17 と、辺回転・ミラー・スキューブ・SQ・ペタルなどの異形パズルを実アルゴリズムで解決",
-        "settings.about_feature": "2～17段標準キューブ · 辺回転／ミラー／スキューブ／SQ／ペタル · 3Dアニメ再生",
+        "settings.about_tagline": "2×2〜17×17 に加え、辺回転・ミラー・スキューブ・SQ・ペタル・拡張変形パズルを実アルゴリズムで求解。",
+        "settings.about_feature": "検索できる画像カタログ · 2〜17段標準キューブ · 拡張変形パズル · 3Dアニメ再生 · 中/英/日",
 
         "inputmode.advanced": "詳細入力",
         "inputmode.simple": "シンプル入力",

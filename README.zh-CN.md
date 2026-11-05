@@ -4,6 +4,16 @@
 
 [下载 Windows / Android 版](https://github.com/coco54-beep/cube-solver/releases/latest) · [English technical overview](README.md) · [日本語](README.ja.md) · [源代码](https://github.com/coco54-beep/cube-solver)
 
+## 1.2.40 更新
+
+- 六角星金字塔记录合法转动并验证逆过程；打乱后手动扭转、保存恢复后仍能求解。
+- Mixup Plus 达到搜索上限时保留已验证的部分形态前缀，改善乱形恢复。
+- 转棱类魔方采用同样的记录转动恢复路径。
+- 修正 Yeet Ball 的球面切割几何。
+- 修复返回首页后目录空白，以及拍照入口的目录分组。
+
+[1.2.40 更新说明](docs/release-1.2.40.md)
+
 ## 1.2.39 更新
 
 - 首页新增可搜索的魔方目录，所有系列和阶数使用图片卡片，设置移到右上角。

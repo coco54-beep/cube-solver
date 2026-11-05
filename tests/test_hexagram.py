@@ -100,3 +100,27 @@ def test_hundred_primitive_turn_reentry_can_continue_beyond_the_old_eight_level_
     entered=HexagramCube.from_observation(json.loads(json.dumps(source.observation_data())))
     before=entered.signature();word=solve(entered,seconds=15)
     assert entered.signature()==before and entered.clone().apply_moves(word).is_solved()
+
+
+def test_scramble_then_twist_remains_solvable_after_save_and_reload():
+    from random import Random
+    from app.session import encode, decode
+    from services.solve_service import CancelToken, SolveService
+
+    source = scrambled(4, jumble=False)
+    rng = Random(4)
+    for _ in range(60):
+        choices = list(source.moves())
+        rng.shuffle(choices)
+        source.apply_move(next(move for move in choices if source.can_apply(move)))
+
+    # Exercise the same restore and snapshot path used by the public page.
+    live = HexagramCube()
+    live.restore(source)
+    restored = decode(json.loads(json.dumps(encode(live)))).entered()
+    before = restored.signature()
+    answers = []
+    SolveService()._run(restored, answers.append, None, CancelToken())
+    assert len(answers) == 1 and answers[0].success
+    assert restored.clone().apply_moves(answers[0].moves).is_solved()
+    assert restored.signature() == before

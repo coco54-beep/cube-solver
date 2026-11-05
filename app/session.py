@@ -65,6 +65,10 @@ _RECORDS = {
 _CUBES.update('cube.solid_shape_mods:'+name for name in
               ('TrajberCube','MasterTrajberCube','Dodecahedron2Cube','Dodecahedron3Cube',
                'Rhombic3Cube','Rhombic4Cube','RhombicMask4Cube','Caneball4Cube'))
+_RECORDED_TURN_CUBES = frozenset((
+    'cube.edge_jumbling:HelicopterCube', 'cube.spherical_jumbling:CloverCube',
+    'cube.hexagram:HexagramCube',
+))
 _PLAIN = {
     'cube.square1_entry:Square1Entry': ('slots', 'middle', 'blocks'),
     'cube.square_family_entry:SquareFamilyEntry': ('puzzle_kind', 'slots', 'middle', 'blocks'),
@@ -98,6 +102,7 @@ def encode(value):
         if name in ('cube.twins_state:TwinsState','cube.twins_pcubes:TwinsPCubesState'):
             fields=('frames','paints','geometry_fingerprint')
         if name=='cube.edge_jumbling:Helicopter14Cube':fields=('frames','paints')
+        if name in _RECORDED_TURN_CUBES:fields=('frames','paints','history')
         if name == 'cube.pentacle:PentacleCube':
             fields=('frames','_paints','history')
         if name == 'cube.polyhedral:PolyhedralPuzzle' and value.puzzle_kind.startswith(('crazy_','circle_2')):
@@ -170,7 +175,9 @@ def decode(value):
         if name=='cube.twins_state:TwinsState':
             from cube.twins_cad_material import fingerprint
             if data.get('geometry_fingerprint')!=fingerprint():raise ValueError('twins.legacy_entry')
-        if name in ('cube.spherical_jumbling:CloverCube', 'cube.spherical_jumbling:BauhiniaCube', 'cube.edge_jumbling:HelicopterCube', 'cube.edge_jumbling:RuaCube', 'cube.copter_input:CopterCube','cube.crazy_comet:CometCube', 'cube.lanlan_comet:LanlanCometCube', 'cube.twins_state:TwinsState', 'cube.suncube:SunCube', 'cube.pisces:PiscesCube', 'cube.hexagram:HexagramCube', 'cube.flower_copter:FlowerCopterCube', 'cube.butterflower:ButterflowerCube', 'cube.master_clover:MasterCloverCube', 'cube.clover_pyraminx:CloverPyraminxCube'):
+        if name in _RECORDED_TURN_CUBES:
+            return cls(data['frames'],data['paints'],data.get('history'))
+        if name in ('cube.spherical_jumbling:CloverCube', 'cube.spherical_jumbling:BauhiniaCube', 'cube.edge_jumbling:HelicopterCube', 'cube.edge_jumbling:RuaCube', 'cube.copter_input:CopterCube','cube.crazy_comet:CometCube', 'cube.lanlan_comet:LanlanCometCube', 'cube.twins_state:TwinsState', 'cube.suncube:SunCube', 'cube.pisces:PiscesCube', 'cube.flower_copter:FlowerCopterCube', 'cube.butterflower:ButterflowerCube', 'cube.master_clover:MasterCloverCube', 'cube.clover_pyraminx:CloverPyraminxCube'):
             return cls(data['frames'],data['paints'])
         if name == 'cube.pentacle:PentacleCube':
             return cls(data['frames'],data['_paints'],data.get('history',()))

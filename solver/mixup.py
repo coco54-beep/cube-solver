@@ -101,7 +101,7 @@ def _restore_shape(cube,cancel,progress):
     try:
         prefix,work,_=greedy_geometry(cube,cancel,seconds=120.,checkpoint=retain)
     except ReductionLimit as limit:
-        prefix=list(limit.path)
+        prefix=limit.path
         work=cube.clone()
         for move in prefix:
             if cancel and cancel():raise InterruptedError()

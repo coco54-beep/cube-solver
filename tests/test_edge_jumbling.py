@@ -51,10 +51,37 @@ def test_whole_material_turns_block_and_reverse_without_paint_loss(kind):
 @pytest.mark.parametrize('length',(30,100))
 def test_independent_state_reentry_solve_and_native_replay(kind,seed,length):
     from solver.edge_jumbling import solve
-    c=scrambled(kind,seed,length);c=decode(json.loads(json.dumps(encode(c))));before=c.signature()
+    source=scrambled(kind,seed,length)
+    c=type(source).from_observation(json.loads(json.dumps(source.observation_data())))
+    c=decode(json.loads(json.dumps(encode(c))));before=c.signature()
     word=solve(c,seconds=45)
     assert c.clone().apply_moves(word).is_solved() and c.signature()==before
-    assert not hasattr(c,'history')
+    assert not getattr(c,'history',None)
+
+
+@pytest.mark.parametrize('kind', ('helicopter', 'clover'))
+@pytest.mark.parametrize('seed', range(3))
+def test_play_and_resume_solve_the_legal_jumble_that_crosses_regular_orbits(kind, seed):
+    from cube.copter_aligned import inverse_word
+    from services.solve_service import CancelToken, SolveService
+
+    source = scrambled(kind, seed, 20)
+    # Every deformation step must be recorded, including the optional second turn.
+    assert source.clone().apply_moves(inverse_word(source.history)).is_solved()
+    live = FACTORIES[kind]()
+    live.restore(source)
+    live.apply_moves(inverse_word(source.history[20:]))
+    live.apply_moves((Move(1, 0, JUMBLE), Move(6, 0, JUMBLE), Move(0, 0, 180),
+                      Move(6, 0, -JUMBLE), Move(1, 0, -JUMBLE)))
+    live.aligned_permutation()
+    restored = decode(json.loads(json.dumps(encode(live)))).entered()
+    before = restored.signature()
+    answers = []
+    SolveService()._run(restored, answers.append, None, CancelToken())
+    answer, = answers
+    assert answer.success, answer.message
+    assert restored.clone().apply_moves(answer.moves).is_solved()
+    assert restored.signature() == before
 
 
 @pytest.mark.parametrize('kind',tuple(FACTORIES))

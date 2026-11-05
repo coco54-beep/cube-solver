@@ -70,6 +70,38 @@ def test_reduction_cancels_without_mutating_source(stage):
     assert cube.frames==before
 
 
+def test_reduction_limit_keeps_partial_moves_for_layout_repair(monkeypatch):
+    from solver import mixup_reduction
+    from solver.mixup import solve_mixup
+
+    source = MixupCube('mixup_plus_334')
+    tilt = Move(0, 1, 1)
+    retained = Move(1, 0, 2)
+    source.apply_move(tilt)
+    cube = MixupCube(source.puzzle_kind, source.frames)
+    before = cube.frames
+    source.apply_move(retained)
+    with pytest.raises(ValueError):
+        project_cube(source)
+
+    def hit_limit(*args, **kwargs):
+        raise mixup_reduction.ReductionLimit(source.frames, (retained,))
+
+    def repair_layout(work, cancel):
+        assert work.frames == source.frames
+        path = (retained.inverse(8), tilt.inverse(8))
+        repaired = work.clone()
+        repaired.apply_moves(path)
+        return path, repaired, 0
+
+    monkeypatch.setattr(mixup_reduction, 'greedy_geometry', hit_limit)
+    monkeypatch.setattr(mixup_reduction, 'restore_composite_layout', repair_layout)
+    result = solve_mixup(cube)
+    assert result.success and cube.frames == before
+    cube.apply_moves(result.moves)
+    assert cube.is_solved()
+
+
 def test_centre_swap_is_not_a_spatially_rotated_3x3_handoff():
     from cube.colors import DEFAULT_COLORS
     from solver.mixup import FACES,valid_center_frame

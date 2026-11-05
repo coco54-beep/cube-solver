@@ -2,26 +2,27 @@
 from functools import lru_cache
 import math
 from cube.polyhedral import add,scale,dot,cross,unit,clip,triangulate
-
-RADIUS=math.sqrt(3)
+from cube.yeet_ball import RADIUS
 
 
 def point(p):return scale(unit(p),RADIUS)
 
 
 def _triangles(sticker,normal):
-    # Clip the original panel to a shared face grid before projecting it.
+    # Use the colour face as a parameter chart for the analytic sphere panel.
+    # Clip to a shared face grid before projecting back onto the sphere.
     # Refining ear-clipped skinny triangles independently creates T junctions
     # and folded chords on the sphere. Shared cells keep its skin watertight
     # and need fewer triangles, including along the curved sticker boundaries.
+    polygon=tuple(scale(p,1/dot(normal,p)) for p in sticker.polygon)
     dims=tuple(i for i in range(3) if abs(normal[i])<.5)
     divisions=16
-    ranges=tuple(range(max(0,math.floor((min(p[d] for p in sticker.polygon)+1)*divisions/2)),
-                       min(divisions,math.ceil((max(p[d] for p in sticker.polygon)+1)*divisions/2)))
+    ranges=tuple(range(max(0,math.floor((min(p[d] for p in polygon)+1)*divisions/2)),
+                       min(divisions,math.ceil((max(p[d] for p in polygon)+1)*divisions/2)))
                  for d in dims)
     for u in ranges[0]:
         for v in ranges[1]:
-            poly=sticker.polygon
+            poly=polygon
             for dim,j in zip(dims,(u,v)):
                 axis=tuple(float(i==dim) for i in range(3))
                 poly=clip(poly,axis,-1+2*(j+1)/divisions) if poly else ()

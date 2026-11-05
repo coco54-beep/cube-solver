@@ -659,6 +659,9 @@ ZH.update({
     'directory.windmill': '风火轮系列',
     'directory.axis': '变形金刚系列',
     'directory.fisher': '移棱系列',
+    'directory.mirror_ghost_group': '镜面与魔鬼',
+    'directory.drum_pentahedron_group': '战鼓与五面体',
+    'directory.shape_mod_group': '斜切异形系列',
     'directory.cuboid_family': '长方体系列',
 })
 EN.update({
@@ -691,6 +694,9 @@ EN.update({
     'directory.windmill': 'Windmill Series',
     'directory.axis': 'Axis Series',
     'directory.fisher': 'Fisher Series',
+    'directory.mirror_ghost_group': 'Mirror & Ghost',
+    'directory.drum_pentahedron_group': 'War Drum & Pentahedron',
+    'directory.shape_mod_group': 'Windmill, Axis & Fisher',
     'directory.cuboid_family': 'Cuboid Series',
 })
 JA.update({
@@ -723,6 +729,9 @@ JA.update({
     'directory.windmill': 'ウィンドミルシリーズ',
     'directory.axis': 'アクシスシリーズ',
     'directory.fisher': 'フィッシャーシリーズ',
+    'directory.mirror_ghost_group': 'ミラー・ゴースト',
+    'directory.drum_pentahedron_group': 'ウォードラム・五面体',
+    'directory.shape_mod_group': 'ウィンドミル・アクシス・フィッシャー',
     'directory.cuboid_family': '直方体シリーズ',
 })
 

@@ -9,6 +9,12 @@ from dataclasses import dataclass
 # remaining models, but never offer these through the app or restore them.
 REMOVED_KINDS = frozenset(('lanlan_master_clover', 'lanlan_pisces', 'planar_rhombic_12'))
 
+PLAY_ONLY_KINDS = frozenset((
+    'helicopter', 'helicopter_14', 'rua', 'clover', 'mf8_bauhinia_minx',
+    'lanlan_curvy_copter', 'lanlan_comet_physical', 'mf8_twins', 'mf8_suncube_2',
+    'lanlan_hexagram', 'lanlan_flower_copter', 'lanlan_butterflower',
+))
+
 
 @dataclass(frozen=True)
 class RequestedPuzzle:

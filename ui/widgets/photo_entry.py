@@ -14,16 +14,17 @@ from vision.scan_profiles import SUPPORTED
 
 def photo_groups():
     """Filter the current home catalogue; never maintain a second taxonomy."""
-    from ui.screens.irregular_directory_screen import PUZZLES,picker_orders
+    from ui.screens.home_screen import HomeScreen
+    from ui.screens.irregular_directory_screen import picker_orders
     result=[];seen=set()
-    for family in ('cube',)+PUZZLES:
-        options=(family,)+tuple(picker_orders(family))
+    for category in HomeScreen.puzzle_keys:
         kinds=[]
-        for option in options:
-            kind='dino4' if family=='dino' and option=='4c' else option
-            if kind not in seen and (kind=='cube' or kind in SUPPORTED):
-                kinds.append(kind);seen.add(kind)
-        if kinds:result.append((family,tuple(kinds)))
+        for family in HomeScreen.category_groups.get(category, (category,)):
+            for option in (family, *picker_orders(family)):
+                kind='dino4' if family=='dino' and option=='4c' else option
+                if kind not in seen and (kind=='cube' or kind in SUPPORTED):
+                    kinds.append(kind);seen.add(kind)
+        if kinds:result.append((category,tuple(kinds)))
     if seen!={'cube',*SUPPORTED}:raise ValueError('Photo entry is missing a catalogue family')
     return tuple(result)
 

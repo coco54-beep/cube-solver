@@ -10,7 +10,7 @@ from vision.colors import rgb_to_hsv
 from vision import imageops
 
 SUPPORTED = {
-    'skewb': (3, 5), 'dino': (2, 4), 'clover': (3,), 'eight_petals': (3,),
+    'skewb': (3, 5), 'dino': (2, 4), 'eight_petals': (3,),
     'ivy': (3,), 'void_cube': (3,), 'pandora': (3,),
     'pyraminx': (2, 3, 4, 5), 'fto': (2, 3, 4, 5),
     'icosahedron': (2, 3, 4, 5),
@@ -28,7 +28,12 @@ SUPPORTED = {
     'pentagonal_4':(4,), 'professor_pentagonal':(5,),
     'floppy_133':(3,), 'cuboid_332':(3,), 'cuboid_223':(3,), 'cuboid_334':(4,),
     'tangram':(3,),
+    'war_drum': (2, 3, 4, 5), 'pentahedron': (2, 3, 4, 5),
+    'mosaic': (4,), 'tins': (5,), 'skewb_rhombic': (3,), 'jewel_fto': (3,),
+    'kairis_star_finder': (3,), 'aj_curvy_dinominx_4': (4,),
+    'o2': (1,), 'ancient_coin': (3,),
 }
+UNIT_QUAD = np.array(((0., 0.), (1., 0.), (1., 1.), (0., 1.)))
 DINO4_SCAN_PALETTE=((1,.85,0,1),(.9,.04,.05,1),(.06,.19,.9,1),(.98,.98,.98,1))
 CUBE_CODES = ('W', 'R', 'G', 'Y', 'O', 'B')
 DEFAULT_PALETTES = {
@@ -48,6 +53,14 @@ DEFAULT_PALETTES[32] = DEFAULT_PALETTES[20] + (
     (.95,.74,.85,1),(.31,.71,.46,1),(.91,.72,.38,1),(.46,.45,.8,1),
     (.72,.92,.8,1),(.55,.33,.42,1),(.81,.39,.12,1),(.26,.69,.71,1),
     (.92,.91,.63,1),(.55,.7,.21,1),(.65,.68,.84,1),(.87,.66,.97,1))
+_WHITE, _RED, _GREEN, _YELLOW, _ORANGE, _BLUE = DEFAULT_PALETTES[6]
+MODEL_PALETTES = {
+    'pentahedron': (_GREEN, _BLUE, _RED, _WHITE, _YELLOW),
+    'war_drum': (_ORANGE, DEFAULT_PALETTES[8][3], _GREEN, _BLUE,
+                 _YELLOW, _RED, _WHITE, DEFAULT_PALETTES[8][7]),
+    'jewel_fto': DEFAULT_PALETTES[8] + ((.68, .52, .22, 1),),
+    'dino4': DINO4_SCAN_PALETTE,
+}
 
 
 @dataclass(frozen=True)
@@ -69,8 +82,9 @@ def inside(points, polygon):
     hit = np.zeros(len(p), dtype=bool)
     for a, b in zip(poly, np.roll(poly, -1, axis=0)):
         cross_y = (a[1] > p[:,1]) != (b[1] > p[:,1])
-        if abs(b[1]-a[1]) > 1e-12:
-            hit ^= cross_y & (p[:,0] < (b[0]-a[0])*(p[:,1]-a[1])/(b[1]-a[1])+a[0])
+        if cross_y.any():
+            fraction = (p[cross_y, 1] - a[1]) / (b[1] - a[1])
+            hit[cross_y] ^= p[cross_y, 0] < a[0] + fraction * (b[0] - a[0])
     return hit
 
 
@@ -86,7 +100,7 @@ def project_controls(canonical, controls, points):
     if len(src)==3:
         transform = np.linalg.solve(np.column_stack((src,np.ones(3))),dst)
         return np.column_stack((points,np.ones(len(points)))) @ transform
-    if len(src)==4:
+    if len(src)==4 and np.allclose(src, UNIT_QUAD):
         x,y = imageops.project_quad(dst,points[:,0],points[:,1])
         return np.column_stack((x,y))
     rows,values=[],[]
@@ -183,10 +197,21 @@ class ScanProfile:
                                     tuple(i for i,s in enumerate(g.stickers) if s.piece==g.stickers[slot].piece and s.face==g.stickers[slot].face))
                                     for poly,normal,slot in sorted(panels,key=lambda p:p[2]))
             else:self.surfaces=tuple(Surface(i,s.face,s.polygon,s.patches or (s.polygon,)) for i,s in enumerate(g.stickers))
+        if kind in ('war_drum', 'pentahedron'):
+            from renderer.drum_prism_mesh import curved_edge, surface_point
+
+            def rounded_outline(polygon):
+                return tuple(p for a, b in zip(polygon, polygon[1:] + polygon[:1])
+                             for p in curved_edge(a, b, n, kind)[:-1])
+
+            self.body = tuple(tuple(surface_point(p, kind, n) for p in face) for face in self.body)
+            self.surfaces = tuple(Surface(s.index, s.face, rounded_outline(s.polygon),
+                                          tuple(rounded_outline(patch) for patch in s.patches))
+                                  for s in self.surfaces)
         self.cubic=len(self.normals)==6 and tuple(self.normals)==CUBE
         self.face_keys=tuple(next(f for f,v in FACE_NORMALS.items() if tuple(v)==normal) for normal in self.normals) if self.cubic else tuple(str(i+1) for i in range(len(self.normals)))
         count=12 if kind=='dogic_i' else len(self.normals)
-        default=DINO4_SCAN_PALETTE if kind=='dino4' else DEFAULT_PALETTES[count]
+        default=MODEL_PALETTES[kind] if kind in MODEL_PALETTES else DEFAULT_PALETTES[count]
         self.palette=tuple(tuple(c) for c in (palette or default))
         self._templates={}
 
@@ -219,8 +244,10 @@ class ScanProfile:
             q[:,1]=1-q[:,1]
             return q
         outline=uv(self.body[fi])
-        if len(outline)==4:
-            controls=np.array([[0.,0.],[1.,0.],[1.,1.],[0.,1.]])
+        is_rectangle = len(outline) == 4 and all(
+            any(np.allclose(point, corner) for point in outline) for corner in UNIT_QUAD)
+        if is_rectangle:
+            controls=UNIT_QUAD.copy()
         else:
             outline=outline[np.argsort(np.arctan2(outline[:,1]-.5,outline[:,0]-.5))]
             controls=np.roll(outline,-np.argmin(outline[:,1]),axis=0)
@@ -451,6 +478,8 @@ def detect_surface(image,profile,face,world,controls=None,progress=None):
     clean=imageops.erode(mask,1)
     scale=np.array([(image.shape[1]-1)/max(work.shape[1]-1,1),(image.shape[0]-1)/max(work.shape[0]-1,1)])
     seen=set();best=None
+    rectangle = len(canonical) == 4 and np.allclose(canonical, UNIT_QUAD)
+    square = rectangle and profile.cubic and .9 < profile.face_aspect(face,world) < 1.1
     expanded, previous_radius = clean, 0
     for pass_index,radius in enumerate((2,5,9,15,22)):
         if progress: progress("camera.locating",pass_index,5)
@@ -468,10 +497,10 @@ def detect_surface(image,profile,face,world,controls=None,progress=None):
                 a=np.roll(hull,1,axis=0)-hull;b=np.roll(hull,-1,axis=0)-hull
                 hull=np.delete(hull,np.argmin(abs(a[:,0]*b[:,1]-a[:,1]*b[:,0])),axis=0)
             if len(hull)!=len(canonical):continue
-            if len(hull)==4:
+            if rectangle:
                 rect=imageops.min_area_rect(hull)
                 w,h=rect['size']
-                if min(w,h)<24 or abs(w-h)/max(w,h)>.3:continue
+                if min(w,h)<24 or (square and abs(w-h)/max(w,h)>.3):continue
                 start=np.argmin(np.sum(hull,axis=1))
             else:
                 start=np.argmin(hull[:,1])

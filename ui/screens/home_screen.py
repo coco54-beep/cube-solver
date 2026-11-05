@@ -13,8 +13,19 @@ from ui.screens.irregular_directory_screen import (
     PUZZLES, IrregularDirectoryScreen, _app, picker_label,picker_orders)
 
 
+HOME_GROUPS = {
+    'mirror_ghost_group': ('mirror', 'ghost'),
+    'drum_pentahedron_group': ('war_drum', 'pentahedron'),
+    'shape_mod_group': ('windmill', 'axis', 'fisher'),
+}
+_GROUP_BY_FAMILY = {family: group for group, families in HOME_GROUPS.items()
+                    for family in families}
+
+
 class HomeScreen(IrregularDirectoryScreen):
-    puzzle_keys = ('cube',) + PUZZLES
+    category_groups = HOME_GROUPS
+    puzzle_keys = tuple(dict.fromkeys(_GROUP_BY_FAMILY.get(key, key)
+                                      for key in ('cube',) + PUZZLES))
     title_key = 'app.name'
     hint_key = 'directory.home_hint'
     menu_top_px = 44
@@ -75,7 +86,12 @@ class HomeScreen(IrregularDirectoryScreen):
 
     def _search_entries(self):
         entries = []
-        for puzzle in self.puzzle_keys:
+        families = []
+        for category in self.puzzle_keys:
+            if category in HOME_GROUPS:
+                entries.append((tr('directory.' + category), category, None))
+            families.extend(HOME_GROUPS.get(category, (category,)))
+        for puzzle in families:
             title = tr('directory.' + puzzle)
             entries.append((title, puzzle, None))
             orders = picker_orders(puzzle)
@@ -123,7 +139,8 @@ class HomeScreen(IrregularDirectoryScreen):
                 matches = [item for item in entries
                            if query in item[0].casefold()]
             else:
-                matches = [item for item in entries if item[2] is None]
+                matches = [item for item in entries
+                           if item[2] is None and item[1] in self.puzzle_keys]
             for label, puzzle, order in matches[:80]:
                 button = UIButton(text=label, size_hint_y=None,
                                   height=m.h(42), halign='left', valign='middle')

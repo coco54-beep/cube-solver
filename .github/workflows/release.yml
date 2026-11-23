@@ -38,6 +38,7 @@ jobs:
       # reinstalls require uninstalling the old app because the key changes per
       # build).
       - name: Configure release signing
+        id: signing
         env:
           ANDROID_KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
           ANDROID_KEYSTORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASS }}
@@ -49,6 +50,7 @@ jobs:
             echo "$ANDROID_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/cube.keystore"
             PASS="$ANDROID_KEYSTORE_PASS"
             ALIAS="${ANDROID_KEY_ALIAS:-cube}"
+            echo 'publish=true' >> "$GITHUB_OUTPUT"
           else
             PASS="$(openssl rand -hex 12)"
             keytool -genkeypair -v -keystore "$RUNNER_TEMP/cube.keystore" \
@@ -56,7 +58,8 @@ jobs:
               -storepass "$PASS" -keypass "$PASS" \
               -dname "CN=CubeSolver, O=cube-solver, C=CN" >/dev/null 2>&1
             ALIAS="cube"
-            echo "::warning::No ANDROID_KEYSTORE_B64 secret set; built with an ephemeral key (signature changes per build)."
+            echo 'publish=false' >> "$GITHUB_OUTPUT"
+            echo '::notice::Building a verification APK. A release APK needs the permanent signing key.'
           fi
           echo "P4A_RELEASE_KEYSTORE=$RUNNER_TEMP/cube.keystore" >> "$GITHUB_ENV"
           echo "P4A_RELEASE_KEYSTORE_PASSWD=$PASS" >> "$GITHUB_ENV"
@@ -67,6 +70,12 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
+      - name: Select JDK 17 for Gradle
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
 
       - name: Check release version
         id: version
@@ -89,7 +98,7 @@ jobs:
       - name: Install system deps + buildozer
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential openjdk-17-jdk unzip \
+          sudo apt-get install -y build-essential unzip \
             autoconf automake libtool pkg-config python3-venv libffi-dev
           # libtool 2.4.7 (Ubuntu 24.04) removed LT_SYS_SYMBOL_USCORE, which the
           # python-for-android libffi recipe's configure.ac still references.
@@ -103,6 +112,7 @@ jobs:
         run: buildozer -v android release
 
       - name: Publish GitHub Release
+        if: steps.signing.outputs.publish == 'true'
         uses: softprops/action-gh-release@v3
         with:
           files: bin/*.apk

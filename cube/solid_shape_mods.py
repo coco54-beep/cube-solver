@@ -1,7 +1,7 @@
 """Cube mechanisms carrying octahedral and dodecahedral rigid shells."""
 from functools import lru_cache
 import math
-from cube.polyhedral import CUBE,OCTA,DODECA,EDGE_AXES,body,scale,dot
+from cube.polyhedral import CUBE,OCTA,DODECA,EDGE_AXES,PHI,body,rotate,scale,dot
 from cube.shape_cube import AxisCube,_cut_shell
 
 KINDS=frozenset(('trajber','trajber_4','dodecahedron_2','dodecahedron_3',
@@ -9,6 +9,12 @@ KINDS=frozenset(('trajber','trajber_4','dodecahedron_2','dodecahedron_3',
 COLOURS=((.98,.98,.98,1),(.02,.65,.18,1),(.9,.05,.06,1),(.51,.12,.73,1),
          (.97,.31,.61,1),(1,.47,.02,1),(.05,.2,.91,1),(.62,.86,.12,1),
          (1,.85,.02,1),(.02,.73,.83,1),(.58,.6,.64,1),(.2,.08,.47,1))
+
+# The cubic axes pass through opposite edge midpoints on these two shells.
+# Rotate the existing face order as a unit so adjacent colours stay adjacent.
+DODECA_CUBIC = tuple(rotate(normal, (1., 0., 0.), -math.atan(1/PHI)) for normal in DODECA)
+# Fcubes uses a circumradius of 0.7 and three-layer cuts at +/-1/6.
+DODECA_REFERENCE_INRADIUS = .7 * math.sin((math.atan(2) + math.asin(2/3)) / 2)
 
 
 def default_colors(kind):
@@ -33,12 +39,6 @@ def faces_for(kind,home,n):
     if kind in ('rhombic_3','rhombic_4','rhombic_mask_4'):
         if n != (3 if kind=='rhombic_3' else 4):
             raise ValueError('Wrong rhombic shell order')
-        # The four-valent vertices sit on the six cubic mechanism axes.
-        # A rhombic face's large middle patch is an EDGE of that mechanism.
-        # Place the cuts through the rhombus edges, retaining the photographed
-        # large middle patches and small triangular ends.
-        a=math.sqrt(2)-1
-        core_half=3*a if n==3 else 2*a
         normals=EDGE_AXES
         if kind=='rhombic_mask_4':
             # Truncate the six four-valent tips. These gold squares are the
@@ -48,14 +48,23 @@ def faces_for(kind,home,n):
             # Extending the cap to 1.05 introduces extra coloured wing facets
             # (eight fields per side instead of the photographed four).
             normals=EDGE_AXES+CUBE
+            core_half=2*(math.sqrt(2)-1)
+        else:
+            # The axial tips are at sqrt(2) in inradius units. The cubic
+            # cuts lie at a quarter of that radius in order three, and at
+            # a third (plus the centre plane) in order four.
+            core_half=math.sqrt(2) * (3/4 if n==3 else 2/3)
         polygons=[(list(face),i if i<12 else 12) for i,face in enumerate(body(normals))]
         return _cut_shell(polygons,home,n,core_half)
-    normals=OCTA if kind.startswith('trajber') else DODECA
-    if kind.startswith('trajber') and n!=4:
-        raise ValueError('This Trajber model requires a four-layer mechanism')
-    # Four mechanical layers, with cuts at -sqrt(3)/4, 0, +sqrt(3)/4.
-    # The central cut is a real movable boundary, not a drawn extra seam.
-    core_half=math.sqrt(3)/2 if kind.startswith('trajber') else 1.
+    if kind.startswith('trajber'):
+        if n!=4:
+            raise ValueError('This Trajber model requires a four-layer mechanism')
+        # Four mechanical layers, with cuts at -sqrt(3)/4, 0, +sqrt(3)/4.
+        normals=OCTA
+        core_half=math.sqrt(3)/2
+    else:
+        normals=DODECA_CUBIC
+        core_half=.5/DODECA_REFERENCE_INRADIUS
     return _cut_shell([(list(face),i) for i,face in enumerate(body(normals))],home,n,core_half)
 
 

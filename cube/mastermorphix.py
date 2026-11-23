@@ -106,7 +106,12 @@ def _clip(polygons, axis, sign, bound):
         if len(unique) >= 3:
             output.append((unique, color))
             cuts.extend(p for p in unique if abs(sign*p[axis]-bound) < 1e-8)
-    unique = {tuple(round(x, 9) for x in p) for p in cuts}
+    # Adjacent faces can reach the same cap vertex by different clipping
+    # paths. Coalesce them with the same tolerance as the face vertices.
+    unique = []
+    for point in sorted({tuple(round(x, 9) for x in p) for p in cuts}):
+        if all(math.dist(point, previous) >= 1e-8 for previous in unique):
+            unique.append(point)
     if len(unique) >= 3:
         center = tuple(sum(p[i] for p in unique)/len(unique) for i in range(3))
         normal = tuple(sign if i == axis else 0 for i in range(3))

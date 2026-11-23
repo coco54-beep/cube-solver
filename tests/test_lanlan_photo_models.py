@@ -4,6 +4,7 @@ import json
 import pytest
 
 SOLIDS=(('rhombic_3',3),('rhombic_4',4),('rhombic_mask_4',4),('caneball_4',4))
+DODECAHEDRONS=(('dodecahedron_2',2),('dodecahedron_3',3))
 POLYS=('skewb_rhombic','jewel_fto','rua','helicopter_14')
 
 
@@ -69,6 +70,38 @@ def test_rhombic_shell_has_exact_core_and_real_closed_surfaces(kind,n):
         assert visible(c)==before
 
 
+@pytest.mark.parametrize('kind,n,cut_ratio',(('rhombic_3',3,1/4),('rhombic_4',4,1/3)))
+def test_rhombic_cut_distance_relative_to_axial_tip(kind,n,cut_ratio):
+    from cube.solid_shape_mods import FACTORIES,faces_for
+
+    fields=[(polygon,color) for home in FACTORIES[kind].solved(n=n).positions
+            for polygon,color in faces_for(kind,home,n)]
+    tip=max(abs(vertex[0]) for polygon,color in fields if color>=0 for vertex in polygon)
+    cut_planes={round(polygon[0][0]/tip,8) for polygon,color in fields if color<0
+                and all(abs(p[0]-polygon[0][0])<1e-8 for p in polygon)}
+    expected={round(-cut_ratio,8),round(cut_ratio,8)}
+    if n==4:
+        expected.add(0.)
+    assert cut_planes==expected
+
+
+@pytest.mark.parametrize('kind,n',DODECAHEDRONS)
+def test_dodecahedron_seams_are_symmetric_about_the_cubic_axes(kind,n):
+    from math import dist
+    from cube.solid_shape_mods import FACTORIES,faces_for
+
+    fields=[(polygon,color) for home in FACTORIES[kind].solved(n=n).positions
+            for polygon,color in faces_for(kind,home,n)]
+    painted=[(polygon,color) for polygon,color in fields if color>=0]
+    assert Counter(color for _,color in painted)=={i:2 if n==2 else 6 for i in range(12)}
+    assert Counter(len(polygon) for polygon,_ in painted)==({4:24} if n==2 else {4:60,5:12})
+    radius=max(dist(vertex,(0.,0.,0.)) for polygon,_ in painted for vertex in polygon)
+    axis_cut_planes={round(polygon[0][0]/radius,8) for polygon,color in fields if color<0
+                     and all(abs(p[0]-polygon[0][0])<1e-8 for p in polygon)}
+    ratio=round((1/6)/.7,8)
+    assert axis_cut_planes==({0.} if n==2 else {-ratio,ratio})
+
+
 @pytest.mark.parametrize('kind,counts',(
     ('skewb_rhombic',(14,48,4,120)),('jewel_fto',(42,54,8,120)),
     ('rua',(38,72,12,180)),('helicopter_14',(32,32,12,180))))
@@ -114,7 +147,7 @@ def test_four_layer_mask_matches_the_photographed_strips_and_gold_squares():
     assert by_piece=={1:48,3:8}
 
 
-@pytest.mark.parametrize('kind,n',SOLIDS+tuple((k,3) for k in POLYS))
+@pytest.mark.parametrize('kind,n',SOLIDS+DODECAHEDRONS+tuple((k,3) for k in POLYS))
 def test_new_model_checkpoint_does_not_change_entered_state(kind,n):
     from demo.expanded_support import make_cube,scramble,signature
     from app.session import encode,decode
@@ -127,7 +160,7 @@ def test_new_model_checkpoint_does_not_change_entered_state(kind,n):
 
 
 @pytest.mark.parametrize('length',(30,100))
-@pytest.mark.parametrize('kind,n',SOLIDS+tuple((k,3) for k in POLYS))
+@pytest.mark.parametrize('kind,n',SOLIDS+DODECAHEDRONS+tuple((k,3) for k in POLYS))
 def test_observed_scramble_reentry_solves_without_a_scramble_log(kind,n,length):
     from demo.expanded_support import make_cube,scramble
     from services.solve_service import SolveService,CancelToken
